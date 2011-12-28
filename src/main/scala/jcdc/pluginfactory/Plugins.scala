@@ -2,12 +2,13 @@ package jcdc.pluginfactory
 
 import org.bukkit.event.Event
 import org.bukkit.event.entity.EntityDamageByEntityEvent
-import org.bukkit.entity.{Player, Arrow}
 import org.bukkit.event.player.{PlayerChatEvent, PlayerListener}
 import org.bukkit.event.block.{BlockBreakEvent, BlockListener, BlockDamageEvent}
 import org.bukkit.inventory.ItemStack
 import org.bukkit.{Effect, Material, GameMode, ChatColor}
 import org.bukkit.command.Command
+import org.bukkit.entity.{CreatureType, Player, Arrow}
+import scala.collection.JavaConversions._
 
 class LightningArrows extends ListenerPlugin {
   val eventType = Event.Type.ENTITY_DAMAGE
@@ -73,10 +74,8 @@ class MultiPlayerCommands extends ManyCommandsPlugin {
   })
   val changetime = ("changetime", new CommandHandler {
     def handle(player: Player, cmd: Command, args: Array[String]) = {
-      if(args.length != 1) player.sendMessage(ChatColor.RED + "/changetime h");
-      else {
-        player.getWorld.setTime(args(0).toInt)
-      }
+      if(args.length != 1) player.sendMessage(ChatColor.RED + "/changetime h")
+      else player.getWorld.setTime(args(0).toInt)
     }
   })
   val day = ("day", new CommandHandler {
@@ -85,7 +84,28 @@ class MultiPlayerCommands extends ManyCommandsPlugin {
   val night = ("night", new CommandHandler {
     def handle(player: Player, cmd: Command, args: Array[String]) = player.getWorld.setTime(15000)
   })
-  val commands = Map(gm, kill, changetime, day, night)
+  val spawn = ("spawn", new CommandHandler {
+    def handle(player: Player, cmd: Command, args: Array[String]) = {
+      if(args.length < 1) player.sendMessage(ChatColor.RED + "/spawn name [#]")
+      else {
+        CreatureType.values.find(_.toString == args(0).toUpperCase) match {
+          case Some(c) =>
+            for(i <- 1 to (if(args.length == 2) args(1).toInt else 1)){
+              player.getWorld.spawnCreature(player.getLocation, c)
+            }
+          case _ => player.sendMessage(ChatColor.RED + "no such creature: " + args(0))
+        }
+      } 
+    }
+  })
+  val entities = ("entities", new CommandHandler {
+    def handle(player: Player, cmd: Command, args: Array[String]) = {
+      player.getWorld.getEntities.foreach(println)
+      player.getWorld.getEntities.foreach(e => player.sendMessage(e.toString))
+    }
+  })
+
+  val commands = Map(gm, kill, changetime, day, night, spawn, entities)
 }
 
 class CurseBan extends ListenerPlugin {

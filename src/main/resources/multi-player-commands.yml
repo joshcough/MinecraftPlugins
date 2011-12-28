@@ -18,3 +18,9 @@ commands:
    night:
       description: Sets the time to 15000
       usage: /<command>
+   spawn:
+      description: Spawn some mobs
+      usage: /<command> mob-name number-to-spawn
+   entities:
+      description: Display all the entities
+      usage: /<command>
