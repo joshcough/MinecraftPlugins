@@ -2,3 +2,4 @@ src/main/resources/plugin.yml
 project/
 target/
 out/
+.idea/workspace.xml
