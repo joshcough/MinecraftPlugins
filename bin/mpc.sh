@@ -1,5 +1,3 @@
-./clean.sh
-
 sbt compile
 cp src/main/resources/multi-player-commands.yml src/main/resources/plugin.yml
 sbt package
