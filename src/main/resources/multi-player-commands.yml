@@ -1,0 +1,20 @@
+name: MultiPlayerCommands
+main: jcdc.pluginfactory.MultiPlayerCommands
+author: jacycough
+version: 0.1
+commands:
+   gm:
+      description: Game your game mode.
+      usage: /<command> c or s
+   kill:
+      description: Kill a player (only for ops).
+      usage: /<command> player-name
+   changetime:
+      description: Sets the time
+      usage: /<command> h
+   day:
+      description: Sets the time to 1
+      usage: /<command>
+   night:
+      description: Sets the time to 15000
+      usage: /<command>

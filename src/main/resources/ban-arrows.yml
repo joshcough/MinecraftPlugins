@@ -1,0 +1,4 @@
+name: BanArrows
+main: jcdc.pluginfactory.BanArrows
+author: jacycough
+version: 0.1

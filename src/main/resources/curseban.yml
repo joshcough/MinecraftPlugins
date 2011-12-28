@@ -1,0 +1,4 @@
+name: CurseBan
+main: jcdc.pluginfactory.CurseBan
+author: jacycough
+version: 0.1

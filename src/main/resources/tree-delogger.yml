@@ -1,0 +1,4 @@
+name: TreeDelogger
+main: jcdc.pluginfactory.TreeDelogger
+author: jacycough
+version: 0.1

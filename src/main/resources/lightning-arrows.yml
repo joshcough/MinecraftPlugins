@@ -1,0 +1,4 @@
+name: LightningArrows
+main: jcdc.pluginfactory.LightningArrows
+author: jacycough
+version: 0.1
