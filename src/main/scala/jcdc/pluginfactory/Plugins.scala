@@ -7,8 +7,20 @@ import org.bukkit.event.block.{BlockBreakEvent, BlockListener, BlockDamageEvent}
 import org.bukkit.inventory.ItemStack
 import org.bukkit.{Effect, Material, GameMode, ChatColor}
 import org.bukkit.command.Command
-import org.bukkit.entity.{CreatureType, Player, Arrow}
 import scala.collection.JavaConversions._
+import org.bukkit.event.weather.{WeatherChangeEvent, WeatherListener}
+import org.bukkit.entity.{Item, CreatureType, Player, Arrow}
+
+class NoRain extends ListenerPlugin {
+  val eventType = Event.Type.WEATHER_CHANGE
+  val listener = new WeatherListener {
+    override def onWeatherChange(e:WeatherChangeEvent) =
+      if(e.toWeatherState) {
+        getServer.broadcastMessage("[NoRain] put up an umbrella.")
+        e.setCancelled(true)
+      }
+  }
+}
 
 class LightningArrows extends ListenerPlugin {
   val eventType = Event.Type.ENTITY_DAMAGE
@@ -72,12 +84,66 @@ class MultiPlayerCommands extends ManyCommandsPlugin {
       else killer.sendMessage(ChatColor.RED + "usage: /kill player-name")
     }
   })
+  val entities = ("entities", new CommandHandler {
+    def handle(player: Player, cmd: Command, args: Array[String]) = {
+      player.getWorld.getEntities.foreach(println)
+      player.getWorld.getEntities.foreach(e => player.sendMessage(e.toString))
+    }
+  })
+  val killItems = ("kill-items", new CommandHandler {
+    def handle(player: Player, cmd: Command, args: Array[String]) = {
+      player.getWorld.getEntities.collect{ case i: Item => i }.foreach{ i: Item =>
+        i.remove()
+      }}}
+    )
+  val feed = ("feed", new CommandHandler {
+    def handle(feeder: Player, cmd: Command, args: Array[String]) = {
+      if(feeder.isOp && args.length == 1) {
+        Option(getServer.getPlayer(args(0))) match {
+          case Some(p) =>
+            p.setFoodLevel(20)
+            p.sendMessage(ChatColor.GREEN + "you have been fed by " + feeder.getName)
+            feeder.sendMessage(ChatColor.GREEN + "you have fed" + feeder.getName)
+          case None => feeder.sendMessage(ChatColor.RED + "feed could not find player: " + args(0))
+        }
+      }
+      else feeder.sendMessage(ChatColor.RED + "usage: /feed player-name")
+    }
+  })
+  val starve = ("starve", new CommandHandler {
+    def handle(feeder: Player, cmd: Command, args: Array[String]) = {
+      if(feeder.isOp && args.length == 1) {
+        Option(getServer.getPlayer(args(0))) match {
+          case Some(p) =>
+            p.setFoodLevel(0)
+            p.sendMessage(ChatColor.GREEN + "you have been starved by " + feeder.getName)
+            feeder.sendMessage(ChatColor.GREEN + "you have starved " + feeder.getName)
+          case None => feeder.sendMessage(ChatColor.RED + "starve could not find player: " + args(0))
+        }
+      }
+      else feeder.sendMessage(ChatColor.RED + "usage: /starve player-name")
+    }
+  })
   val changetime = ("changetime", new CommandHandler {
     def handle(player: Player, cmd: Command, args: Array[String]) = {
       if(args.length != 1) player.sendMessage(ChatColor.RED + "/changetime h")
       else player.getWorld.setTime(args(0).toInt)
     }
   })
+//  val xpAdd = ("xp-add", new CommandHandler {
+//    def handle(player: Player, cmd: Command, args: Array[String]) = {
+//      if(args.length != 1) player.sendMessage(ChatColor.RED + "/xp-add n")
+//      else {
+//        try{
+//          player.sendMessage(ChatColor.GREEN + "current xp: " + player.getExp)
+//          player.setExp(player.getExp + args(0).toFloat)
+//          player.sendMessage(ChatColor.GREEN + "xp set to: " + player.getExp)
+//        }catch{
+//          case e => log.log(java.util.logging.Level.SEVERE, "whoa", e)
+//        }
+//      }
+//    }
+//  })
   val day = ("day", new CommandHandler {
     def handle(player: Player, cmd: Command, args: Array[String]) = player.getWorld.setTime(1)
   })
@@ -98,14 +164,8 @@ class MultiPlayerCommands extends ManyCommandsPlugin {
       } 
     }
   })
-  val entities = ("entities", new CommandHandler {
-    def handle(player: Player, cmd: Command, args: Array[String]) = {
-      player.getWorld.getEntities.foreach(println)
-      player.getWorld.getEntities.foreach(e => player.sendMessage(e.toString))
-    }
-  })
 
-  val commands = Map(gm, kill, changetime, day, night, spawn, entities)
+  val commands = Map(gm, kill, changetime, day, night, spawn, entities, feed, starve, killItems)
 }
 
 class CurseBan extends ListenerPlugin {

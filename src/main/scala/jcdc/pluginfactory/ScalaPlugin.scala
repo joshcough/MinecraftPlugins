@@ -49,6 +49,13 @@ trait CommandHandler{
   def handle(player: Player, cmd:Command, args:Array[String])
 }
 
+//trait OpOnly extends CommandHandler{
+//  abstract override def handle(player: Player, cmd: Command, args: Array[String]) = {
+//    if(player.isOp) super.handle(player, cmd, args)
+//    else player.sendMessage(ChatColor.RED + "you must be an op to run /" + cmd.getName)
+//  }
+//}
+
 trait ManyCommandsPlugin extends ScalaPlugin {
   val commands: Map[String, CommandHandler]
   private def lowers: Map[String, CommandHandler] = commands.map{ case (k,v) => (k.toLowerCase, v)}

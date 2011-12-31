@@ -24,3 +24,15 @@ commands:
    entities:
       description: Display all the entities
       usage: /<command>
+   feed:
+      description: Fill a players hunger bar.
+      usage: /<command> player-name
+   starve:
+      description: Drain a players hunger bar.
+      usage: /<command> player-name
+   xp-add:
+         description: Gives you xp.
+         usage: /<command> n
+   kill-items:
+       description: Kill all items on the ground.
+       usage: /<command>
