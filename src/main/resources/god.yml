@@ -1,0 +1,8 @@
+name: God
+main: jcdc.pluginfactory.God
+author: jacycough
+version: 0.1
+commands:
+   god:
+      description: Toggle God mode.
+      usage: /<command>

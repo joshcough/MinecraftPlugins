@@ -7,9 +7,9 @@ commands:
       description: Game your game mode.
       usage: /<command> c or s
    kill:
-      description: Kill a player (only for ops).
-      usage: /<command> player-name
-   changetime:
+      description: Kill entities (only for ops).
+      usage: /<command> player player-name or /<command> entity-type (with an s)
+   change-time:
       description: Sets the time
       usage: /<command> h
    day:
@@ -30,9 +30,3 @@ commands:
    starve:
       description: Drain a players hunger bar.
       usage: /<command> player-name
-   xp-add:
-         description: Gives you xp.
-         usage: /<command> n
-   kill-items:
-       description: Kill all items on the ground.
-       usage: /<command>

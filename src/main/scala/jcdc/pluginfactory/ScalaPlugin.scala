@@ -47,14 +47,16 @@ trait SingleCommandPlugin extends ScalaPlugin {
 
 trait CommandHandler{
   def handle(player: Player, cmd:Command, args:Array[String])
+  def sendUsage(player:Player, cmd:Command) =
+    player.sendMessage(ChatColor.RED + "usage: " + cmd.getUsage)
 }
 
-//trait OpOnly extends CommandHandler{
-//  abstract override def handle(player: Player, cmd: Command, args: Array[String]) = {
-//    if(player.isOp) super.handle(player, cmd, args)
-//    else player.sendMessage(ChatColor.RED + "you must be an op to run /" + cmd.getName)
-//  }
-//}
+trait OpOnly extends CommandHandler{
+  abstract override def handle(player: Player, cmd: Command, args: Array[String]) = {
+    if(player.isOp) super.handle(player, cmd, args)
+    else player.sendMessage(ChatColor.RED + "Nice try. You must be an op to run /" + cmd.getName)
+  }
+}
 
 trait ManyCommandsPlugin extends ScalaPlugin {
   val commands: Map[String, CommandHandler]
