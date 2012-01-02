@@ -5,10 +5,10 @@ import org.bukkit.event.player.{PlayerChatEvent, PlayerListener}
 import org.bukkit.event.block.{BlockBreakEvent, BlockListener, BlockDamageEvent}
 import org.bukkit.inventory.ItemStack
 import org.bukkit.{Effect, Material, ChatColor}
-import org.bukkit.command.Command
 import org.bukkit.event.weather.{WeatherChangeEvent, WeatherListener}
 import org.bukkit.entity.{Player, Arrow}
 import org.bukkit.event.entity.{EntityDamageEvent, EntityListener, EntityDamageByEntityEvent}
+import org.bukkit.command.Command
 
 class NoRain extends ListenerPlugin {
   val eventType = Event.Type.WEATHER_CHANGE

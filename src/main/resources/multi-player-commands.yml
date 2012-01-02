@@ -2,6 +2,7 @@ name: MultiPlayerCommands
 main: jcdc.pluginfactory.MultiPlayerCommands
 author: jacycough
 version: 0.1
+database: true
 commands:
    gm:
       description: Game your game mode.
@@ -30,3 +31,9 @@ commands:
    starve:
       description: Drain a players hunger bar.
       usage: /<command> player-name
+   set-warp:
+      description: Create a new warp location.
+      usage: /<command> warp-name
+   warp:
+      description: Warp to the given warp location.
+      usage: /<command> warp-name

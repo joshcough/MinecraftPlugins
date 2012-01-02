@@ -1,9 +1,10 @@
 package jcdc.pluginfactory
 
 import org.bukkit.command.Command
-import org.bukkit.{GameMode, ChatColor}
 import scala.collection.JavaConversions._
 import org.bukkit.entity._
+import org.bukkit.{Location, World, GameMode, ChatColor}
+import javax.persistence.PersistenceException
 
 class MultiPlayerCommands extends ManyCommandsPlugin {
 
@@ -26,7 +27,7 @@ class MultiPlayerCommands extends ManyCommandsPlugin {
           case None => killer.sendMessage(ChatColor.RED + "kill could not find player: " + args(0))
         }
       }
-      
+
       def remove(e:Entity) = e.remove()
       def removeAll(es:Seq[Entity]) = es.foreach(remove)
 
@@ -108,6 +109,36 @@ class MultiPlayerCommands extends ManyCommandsPlugin {
     }
   }
 
+  object Warps {
+    def create(n:String, p:Player): Warp = {
+      val w = new Warp()
+      w.name = n
+      w.player = p.getName
+      w.x = p.getLocation.getX
+      w.y = p.getLocation.getY
+      w.z = p.getLocation.getZ
+      w
+    }
+
+    def insert(warp:Warp) =
+      try getDatabase.save(warp)
+      catch { case e => logError(e) }
+    def getWarp(warpName:String, playerName:String) =
+      getDatabase.find(classOf[Warp]).
+        where.ieq("name", warpName).
+        where.ieq("player", playerName).findList.get(0)
+
+    class SetWarpCommand extends CommandHandler {
+      def handle(player: Player, cmd: Command, args: Array[String]){ insert(Warps.create(args(0), player)) }
+    }
+
+    class WarpCommand extends CommandHandler {
+      def handle(player: Player, cmd: Command, args: Array[String]){
+        player.teleport(getWarp(args(0), player.getName).location(player.getWorld))
+      }
+    }
+  }
+
   val commands = Map(
     "gm" -> new GM,
     "kill" -> new KillHandler with OpOnly,
@@ -117,9 +148,48 @@ class MultiPlayerCommands extends ManyCommandsPlugin {
     "spawn" -> new Spawner,
     "entities" -> new ShowEntities,
     "feed" -> new FeedHandler with OpOnly,
-    "starve" -> new StarveHandler with OpOnly)
+    "starve" -> new StarveHandler with OpOnly,
+    "warp" -> new Warps.WarpCommand,
+    "set-warp" -> new Warps.SetWarpCommand)
+
+  // TODO: database crap. this should/will be put somewhere nicer and/or redone soon.
+  override def getDatabaseClasses = new java.util.ArrayList[Class[_]](){
+    add(classOf[Warp])
+  }
+
+  override def onEnable(){
+    super.onEnable()
+    try getDatabase().find(classOf[Warp]).findRowCount()
+    catch{
+      case e: PersistenceException =>
+        println("Installing database for " + name + " due to first time usage");
+        installDDL()
+    }
+  }
+
 }
 
+import javax.persistence._
+@javax.persistence.Entity
+class Warp {
+  @Id @GeneratedValue var id = 0
+  var name: String = ""
+  var player = ""
+  var x = 0d
+  var y = 0d
+  var z = 0d
+  def location(world:World) = new Location(world, x, y, z)
+}
+
+/**
+ * @(Id @field) @(GeneratedValue @field) id: Int,
+  @(Length @field)(max=30) @(NotEmpty @field) name:String,
+  @(NotEmpty @field) player:String,
+  @field x:Double, @field y:Double, @field z:Double){
+  def this() = this(0, "",  "", 0, 0, 0)
+  def this(name:String, player:Player) =
+    this(0, name, player.getName, player.getLocation.getX, player.getLocation.getY, player.getLocation.getZ)
+ */
 
 //  val xpAdd = ("xp-add", new CommandHandler {
 //    def handle(player: Player, cmd: Command, args: Array[String]) = {

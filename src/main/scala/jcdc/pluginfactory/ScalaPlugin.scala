@@ -18,11 +18,18 @@ trait ScalaPluginPredef {
 trait ScalaPlugin extends org.bukkit.plugin.java.JavaPlugin with ScalaPluginPredef {
   val log = Logger.getLogger("Minecraft")
   def name = this.getDescription.getName
-  def ban(player:Player, reason:String){ player.setBanned(true); player.kickPlayer("banned: " + reason) }
-  def onEnable(){ log.info("["+name+"] enabled!") }
-  def onDisable(){ log.info("["+name+"] disabled!") }
+  def ban(player:Player, reason:String){
+    player.setBanned(true)
+    player.kickPlayer("banned: " + reason)
+  }
+  def onEnable(){ logInfo("enabled!") }
+  def onDisable(){ logInfo("disabled!") }
   def registerListener(eventType:Event.Type, listener:Listener){
     this.getServer.getPluginManager.registerEvent(eventType, listener, Event.Priority.Normal, this)
+  }
+  def logInfo(message:String) { log.info("["+name+"] - " + message) }
+  def logError(e:Throwable){
+    log.log(java.util.logging.Level.SEVERE, "["+name+"] - " + e.getMessage, e)
   }
 }
 
@@ -63,7 +70,7 @@ trait ManyCommandsPlugin extends ScalaPlugin {
   private def lowers: Map[String, CommandHandler] = commands.map{ case (k,v) => (k.toLowerCase, v)}
   override def onEnable(){
     super.onEnable()
-    lowers.keys.foreach{ k => log.info("["+name+"] command: " + k) }
+    lowers.keys.foreach{ k => logInfo("["+name+"] command: " + k) }
   }
   override def onCommand(sender:CommandSender, cmd:Command, commandLabel:String, args:Array[String]) = {
     lowers.get(cmd.getName.toLowerCase).foreach(_.handle(sender.asInstanceOf[Player], cmd, args))

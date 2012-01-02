@@ -1,6 +1,4 @@
-export BUKKIT=~/Desktop/CraftBukkit
-
-./bin/ban-arrows.sh
+#./bin/ban-arrows.sh
 ./bin/block-changer.sh
 ./bin/curse-ban.sh
 ./bin/god.sh
