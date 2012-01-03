@@ -10,7 +10,7 @@ commands:
    kill:
       description: Kill entities (only for ops).
       usage: /<command> player player-name or /<command> entity-type (with an s)
-   change-time:
+   set-time:
       description: Sets the time
       usage: /<command> h
    day:

@@ -6,3 +6,4 @@
 ./bin/multi-player-commands.sh
 ./bin/no-rain.sh
 ./bin/tree-delogger.sh
+./bin/warp.sh

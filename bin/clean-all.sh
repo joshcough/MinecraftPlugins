@@ -6,3 +6,4 @@ rm $BUKKIT/plugins/LightningArrows.jar
 rm $BUKKIT/plugins/MultiPlayerCommands.jar
 rm $BUKKIT/plugins/NoRain.jar
 rm $BUKKIT/plugins/TreeDelogger.jar
+rm $BUKKIT/plugins/Warp.jar
