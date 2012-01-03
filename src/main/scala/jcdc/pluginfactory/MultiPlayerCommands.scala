@@ -4,13 +4,12 @@ import org.bukkit.command.Command
 import scala.collection.JavaConversions._
 import org.bukkit.entity._
 import org.bukkit.{Location, World, GameMode, ChatColor}
-import javax.persistence.PersistenceException
 
 class MultiPlayerCommands extends ManyCommandsPlugin {
 
   class GM extends CommandHandler {
     def handle(player: Player, cmd: Command, args: Array[String]) =
-      if(args.length == 0 || ! List("c", "s").contains(args(0))) player.sendMessage(ChatColor.RED + "/gm c or s");
+      if(args.length == 0 || ! List("c", "s").contains(args(0))) player.sendError("/gm c or s");
       else player.setGameMode(if(args(0) == "c") GameMode.CREATIVE else GameMode.SURVIVAL)
   }
 
@@ -22,9 +21,8 @@ class MultiPlayerCommands extends ManyCommandsPlugin {
       def killPlayer(name:String){
         Option(getServer.getPlayer(args(0))) match {
           case Some(p) =>
-            p.setHealth(0)
-            p.sendMessage(ChatColor.RED + "you have been killed by: " + killer.getName)
-          case None => killer.sendMessage(ChatColor.RED + "kill could not find player: " + args(0))
+            p.messageAfter(ChatColor.RED + "you have been killed by: " + killer.getName){ p.setHealth(0) }
+          case None => killer.sendError("kill could not find player: " + args(0))
         }
       }
 
@@ -53,13 +51,14 @@ class MultiPlayerCommands extends ManyCommandsPlugin {
       if(feeder.isOp && args.length == 1) {
         Option(getServer.getPlayer(args(0))) match {
           case Some(p) =>
-            p.setFoodLevel(20)
-            p.sendMessage(ChatColor.GREEN + "you have been fed by " + feeder.getName)
+            p.messageAfter(ChatColor.GREEN + "you have been fed by " + feeder.getName){
+              p.setFoodLevel(20)
+            }
             feeder.sendMessage(ChatColor.GREEN + "you have fed" + feeder.getName)
-          case None => feeder.sendMessage(ChatColor.RED + "feed could not find player: " + args(0))
+          case None => feeder.sendError("feed could not find player: " + args(0))
         }
       }
-      else feeder.sendMessage(ChatColor.RED + "usage: /feed player-name")
+      else feeder.sendError("usage: /feed player-name")
     }
   }
 
@@ -68,19 +67,20 @@ class MultiPlayerCommands extends ManyCommandsPlugin {
       if(feeder.isOp && args.length == 1) {
         Option(getServer.getPlayer(args(0))) match {
           case Some(p) =>
-            p.setFoodLevel(0)
-            p.sendMessage(ChatColor.GREEN + "you have been starved by " + feeder.getName)
+            p.messageAfter(ChatColor.GREEN + "you have been starved by " + feeder.getName){
+              p.setFoodLevel(0)
+            }
             feeder.sendMessage(ChatColor.GREEN + "you have starved " + feeder.getName)
-          case None => feeder.sendMessage(ChatColor.RED + "starve could not find player: " + args(0))
+          case None => feeder.sendError("starve could not find player: " + args(0))
         }
       }
-      else feeder.sendMessage(ChatColor.RED + "usage: /starve player-name")
+      else feeder.sendError("usage: /starve player-name")
     }
   }
 
   class ChangeTime extends CommandHandler {
     def handle(player: Player, cmd: Command, args: Array[String]){
-      if(args.length != 1) player.sendMessage(ChatColor.RED + "/changetime h")
+      if(args.length != 1) player.sendError("/changetime h")
       else player.getWorld.setTime(args(0).toInt)
     }
   }
@@ -95,7 +95,7 @@ class MultiPlayerCommands extends ManyCommandsPlugin {
 
   class Spawner extends CommandHandler {
     def handle(player: Player, cmd: Command, args: Array[String]) = {
-      if(args.length < 1) player.sendMessage(ChatColor.RED + "/spawn name [#]")
+      if(args.length < 1) sendUsage(player, cmd)
       else {
         CreatureType.values.find(_.toString == args(0).toUpperCase) match {
           case Some(c) =>
@@ -103,14 +103,14 @@ class MultiPlayerCommands extends ManyCommandsPlugin {
             for(i <- 1 to (if(args.length == 2) args(1).toInt else 1)){
               player.getWorld.spawnCreature(player.getLocation, c)
             }
-          case _ => player.sendMessage(ChatColor.RED + "no such creature: " + args(0))
+          case _ => player.sendError("no such creature: " + args(0))
         }
       }
     }
   }
 
   object Warps {
-    def create(n:String, p:Player): Warp = {
+    def createWarp(n:String, p:Player): Warp = {
       val w = new Warp()
       w.name = n
       w.player = p.getName
@@ -120,21 +120,56 @@ class MultiPlayerCommands extends ManyCommandsPlugin {
       w
     }
 
-    def insert(warp:Warp) =
-      try getDatabase.save(warp)
-      catch { case e => logError(e) }
-    def getWarp(warpName:String, playerName:String) =
-      getDatabase.find(classOf[Warp]).
-        where.ieq("name", warpName).
-        where.ieq("player", playerName).findList.get(0)
+    // filtering here instead of in sql because the number of warps should be small. nbd.
+    def getWarp(warpName:String, p:Player) = warpsFor(p).filter(_.name == warpName).headOption
+    def warpsFor(p:Player) = dbQuery(classOf[Warp]).where.ieq("player", p.getName).findList().toList
 
     class SetWarpCommand extends CommandHandler {
-      def handle(player: Player, cmd: Command, args: Array[String]){ insert(Warps.create(args(0), player)) }
+      def handle(player: Player, cmd: Command, args: Array[String]){
+        if(args.length != 1) sendUsage(player, cmd)
+        else logInfoAround("creating warp: " + args(0), "created warp: " + args(0)){
+          getWarp(args(0), player) match {
+            case None => player.messageAround("creating warp: " + args(0), "created warp: " + args(0)){
+              dbInsert(createWarp(args(0), player))
+            }
+            case Some(w) => player.messageAround("overwriting warp: " + args(0), "overwrote warp: " + args(0)){
+              dbDelete(w)
+              dbInsert(createWarp(args(0), player))
+            }
+          }
+        }
+      }
     }
 
     class WarpCommand extends CommandHandler {
       def handle(player: Player, cmd: Command, args: Array[String]){
-        player.teleport(getWarp(args(0), player.getName).location(player.getWorld))
+        if(args.length != 1) sendUsage(player, cmd)
+        else getWarp(args(0), player) match {
+          case Some(w) => player.teleport(w.location(player.getWorld))
+          case _ => player.sendError("no such warp: " + args(0))
+        }
+      }
+    }
+
+    class ListWarpsCommand extends CommandHandler {
+      def handle(player: Player, cmd: Command, args: Array[String]){
+        warpsFor(player).map(_.toString).foreach{w => logInfo(w); player.sendMessage(w) }
+      }
+    }
+
+    class DeleteAllWarpsCommand extends CommandHandler {
+      def handle(player: Player, cmd: Command, args: Array[String]){
+        findAll(classOf[Warp]).foreach{ w => logInfo("deleting: " + w); dbDelete(w) }
+      }
+    }
+
+    class DeleteWarpCommand extends CommandHandler {
+      def handle(player: Player, cmd: Command, args: Array[String]){
+        if(args.length != 1) sendUsage(player, cmd)
+        else getWarp(args(0), player) match {
+          case Some(w) => player.messageAfter("deleted warp: " + args(0)){ dbDelete(w) }
+          case _ => player.sendError("no such warp: " + args(0))
+        }
       }
     }
   }
@@ -150,58 +185,25 @@ class MultiPlayerCommands extends ManyCommandsPlugin {
     "feed" -> new FeedHandler with OpOnly,
     "starve" -> new StarveHandler with OpOnly,
     "warp" -> new Warps.WarpCommand,
-    "set-warp" -> new Warps.SetWarpCommand)
+    "warps" -> new Warps.ListWarpsCommand,
+    "set-warp" -> new Warps.SetWarpCommand,
+    "delete-all-warps" -> new Warps.DeleteAllWarpsCommand with OpOnly,
+    "delete-warp" -> new Warps.DeleteWarpCommand)
 
-  // TODO: database crap. this should/will be put somewhere nicer and/or redone soon.
-  override def getDatabaseClasses = new java.util.ArrayList[Class[_]](){
-    add(classOf[Warp])
-  }
-
-  override def onEnable(){
-    super.onEnable()
-    try getDatabase().find(classOf[Warp]).findRowCount()
-    catch{
-      case e: PersistenceException =>
-        println("Installing database for " + name + " due to first time usage");
-        installDDL()
-    }
-  }
-
+  override def dbClasses = List(classOf[Warp])
 }
 
-import javax.persistence._
 @javax.persistence.Entity
 class Warp {
-  @Id @GeneratedValue var id = 0
+  @javax.persistence.Id
+  @javax.persistence.GeneratedValue
+  var id = 0
   var name: String = ""
   var player = ""
   var x = 0d
   var y = 0d
   var z = 0d
   def location(world:World) = new Location(world, x, y, z)
+  override def toString = new PrintableWarp(id, name, player, x, y, z).toString
+  case class PrintableWarp(id:Int, name:String, player:String, x:Double, y:Double, z:Double)
 }
-
-/**
- * @(Id @field) @(GeneratedValue @field) id: Int,
-  @(Length @field)(max=30) @(NotEmpty @field) name:String,
-  @(NotEmpty @field) player:String,
-  @field x:Double, @field y:Double, @field z:Double){
-  def this() = this(0, "",  "", 0, 0, 0)
-  def this(name:String, player:Player) =
-    this(0, name, player.getName, player.getLocation.getX, player.getLocation.getY, player.getLocation.getZ)
- */
-
-//  val xpAdd = ("xp-add", new CommandHandler {
-//    def handle(player: Player, cmd: Command, args: Array[String]) = {
-//      if(args.length != 1) player.sendMessage(ChatColor.RED + "/xp-add n")
-//      else {
-//        try{
-//          player.sendMessage(ChatColor.GREEN + "current xp: " + player.getExp)
-//          player.setExp(player.getExp + args(0).toFloat)
-//          player.sendMessage(ChatColor.GREEN + "xp set to: " + player.getExp)
-//        }catch{
-//          case e => log.log(java.util.logging.Level.SEVERE, "whoa", e)
-//        }
-//      }
-//    }
-//  })

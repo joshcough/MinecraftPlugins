@@ -9,28 +9,78 @@ import org.bukkit.block.Block
 import org.bukkit.{ChatColor, Location}
 
 trait ScalaPluginPredef {
+  val log = Logger.getLogger("Minecraft")
   def blocksAbove(b:Block): Stream[Block] = {
     val ba = new Location(b.getWorld, b.getX.toDouble, b.getY.toDouble + 1, b.getZ.toDouble).getBlock
     ba #:: blocksAbove(ba)
   }
+  implicit def pimpedPlayer(player:Player) = new {
+    def messageAfter[T](message:String)(f: => T): T = {
+      val t = f
+      player.sendMessage(message)
+      t
+    }
+    def messageBefore[T](message:String)(f: => T): T = {
+      player.sendMessage(message)
+      f
+    }
+    def messageAround[T](beforeMessage:String, afterMessage:String)(f: => T): T = {
+      player.sendMessage(beforeMessage)
+      val t = f
+      player.sendMessage(afterMessage)
+      t
+    }
+    def sendError(message:String) = player.sendMessage(ChatColor.RED + message)
+  }
 }
 
-trait ScalaPlugin extends org.bukkit.plugin.java.JavaPlugin with ScalaPluginPredef {
-  val log = Logger.getLogger("Minecraft")
+class ScalaPlugin extends org.bukkit.plugin.java.JavaPlugin with ScalaPluginPredef {
   def name = this.getDescription.getName
   def ban(player:Player, reason:String){
     player.setBanned(true)
     player.kickPlayer("banned: " + reason)
   }
-  def onEnable(){ logInfo("enabled!") }
+  def onEnable(){ 
+    logInfo("enabled!")
+    setupDatabase()
+  }
   def onDisable(){ logInfo("disabled!") }
   def registerListener(eventType:Event.Type, listener:Listener){
     this.getServer.getPluginManager.registerEvent(eventType, listener, Event.Priority.Normal, this)
   }
+
   def logInfo(message:String) { log.info("["+name+"] - " + message) }
+  def logInfoAround[T](beforeMessage:String, afterMessage:String)(f: => T): T = {
+    logInfo(beforeMessage)
+    val t = f
+    logInfo(afterMessage)
+    t
+  }
   def logError(e:Throwable){
     log.log(java.util.logging.Level.SEVERE, "["+name+"] - " + e.getMessage, e)
   }
+
+  // db setup stuff.
+  def dbClasses: List[Class[_]] = Nil
+  override def getDatabaseClasses = new java.util.ArrayList[Class[_]](){ dbClasses.foreach(add) }
+  def setupDatabase(){
+    if(dbClasses.nonEmpty)
+      try getDatabase.find(dbClasses.head).findRowCount
+      catch{
+        case e: javax.persistence.PersistenceException =>
+          logInfo("Installing database due to first time usage")
+          installDDL()
+      }
+  }
+  // db commands
+  def dbInsert[A](a:A) = try {
+    logInfo("about to insert: " + a)
+    getDatabase.insert(a)
+    logInfo("inserted: " + a)
+  } catch { case e => logError(e) }
+  def dbQuery[T](c:Class[T]) = getDatabase.find[T](c)
+  def findAll[T](c:Class[T]) = dbQuery[T](c).findList
+  def dbDelete(a:AnyRef){ getDatabase.delete(a) }
 }
 
 trait MultiListenerPlugin extends ScalaPlugin {

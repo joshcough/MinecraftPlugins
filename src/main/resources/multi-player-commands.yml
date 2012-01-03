@@ -37,3 +37,12 @@ commands:
    warp:
       description: Warp to the given warp location.
       usage: /<command> warp-name
+   warps:
+      description: List all warps.
+      usage: /<command>
+   delete-all-warps:
+      description: Delete all warps in the database. Admin only!
+      usage: /<command>
+   delete-warp:
+      description: Delete a warp location.
+      usage: /<command> warp-name
