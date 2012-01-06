@@ -9,7 +9,7 @@ import org.bukkit.event.weather.{WeatherChangeEvent, WeatherListener}
 import org.bukkit.entity.{Player, Arrow}
 import org.bukkit.event.entity.{EntityDamageEvent, EntityDamageByEntityEvent}
 import org.bukkit.command.Command
-import ScalaPluginPredef._
+import ScalaPlugin._
 
 class NoRain extends ListenerPlugin {
   val eventType = Event.Type.WEATHER_CHANGE
@@ -28,40 +28,32 @@ class God extends ListenerPlugin with SingleCommandPlugin {
     def onPlayerDamage(p: Player, e: EntityDamageEvent) = if(godMap(p)) e.setCancelled(true)
   }
   val command = "god"
-  val commandHandler = new CommandHandler {
-    def handle(p: Player, cmd: Command, args: Array[String]) =
-      p.messageAfter("god mode is now " + (if(godMap(p)) "on" else "off")){ godMap.update(p, ! godMap(p)) }
-  }
+  val commandHandler = oneArg((p:Player, c:Command, args:Array[String]) =>
+    p.messageAfter("god mode is now " + (if(godMap(p)) "on" else "off")){ godMap.update(p, ! godMap(p)) })
 }
 
 class LightningArrows extends VanillaListenerPlugin(Event.Type.ENTITY_DAMAGE, new EntityDamageByEntityListener {
-  override def onEntityDamageByEntity(e:EntityDamageByEntityEvent){
+  override def onEntityDamageByEntity(e:EntityDamageByEntityEvent) =
     if(e.getDamager.isInstanceOf[Arrow]) e.getEntity.getWorld.strikeLightning(e.getEntity.getLocation)
-  }
 })
 
 class BanArrows extends VanillaListenerPlugin(Event.Type.ENTITY_DAMAGE, new PlayerDamageByEntityListener {
-  override def onPlayerDamageByEntity(p:Player, e:EntityDamageByEntityEvent){
+  override def onPlayerDamageByEntity(p:Player, e:EntityDamageByEntityEvent) =
     if(e.getDamager.isInstanceOf[Arrow]) p.ban("struck by an arrow!")
-  }
 })
 
 class BlockChanger extends ListenerPlugin with SingleCommandPlugin {
   val users = collection.mutable.Map[Player, Int]()
   val eventType = Event.Type.BLOCK_DAMAGE
   val listener = new BlockListener {
-    override def onBlockDamage(event:BlockDamageEvent){
+    override def onBlockDamage(event:BlockDamageEvent) =
       users.get(event.getPlayer).foreach(event.getBlock.setTypeId(_))
-    }
   }
   val command = "bc"
-  val commandHandler = new BCHandler with OneArg
-  trait BCHandler extends CommandHandler {
-    def handle(player: Player, cmd: Command, args: Array[String]) = args(0).toLowerCase match {
-      case "off" => player.messageAfter("bc has been disabled") { users.remove(player) }
-      case n => player.messageAfter("bc using blockId="+args(0).toInt) { users += (player -> n.toInt) }
-    }
-  }
+  val commandHandler = oneArg((p:Player, c:Command, args:Array[String]) => args(0).toLowerCase match {
+    case "off" => p.messageAfter("bc has been disabled") { users.remove(p) }
+    case n => p.messageAfter("bc using blockId="+args(0).toInt) { users += (p -> n.toInt) }
+  })
 }
 
 object Curses{

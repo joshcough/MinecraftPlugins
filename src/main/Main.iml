@@ -28,12 +28,10 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$USER_HOME$/.ivy2/cache/bukkit/craft-bukkit/jars/craft-bukkit-1.0.1-R1.jar!/" />
+          <root url="jar://$MODULE_DIR$/../../lib/craftbukkit-1.0.1-R1.jar!/" />
         </CLASSES>
         <JAVADOC />
-        <SOURCES>
-          <root url="jar://$USER_HOME$/.ivy2/cache/bukkit/craft-bukkit/jars/craft-bukkit-1.0.1-R1.jar!/" />
-        </SOURCES>
+        <SOURCES />
       </library>
     </orderEntry>
   </component>
