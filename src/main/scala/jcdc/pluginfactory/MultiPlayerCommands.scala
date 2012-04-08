@@ -1,6 +1,6 @@
 package jcdc.pluginfactory
 
-import org.bukkit.{GameMode, ChatColor, OfflinePlayer}
+import org.bukkit.{GameMode, ChatColor}
 import org.bukkit.command.Command
 import org.bukkit.entity._
 import scala.collection.JavaConversions._
@@ -24,11 +24,11 @@ class MultiPlayerCommands extends ManyCommandsPlugin {
     "ban"      -> opOnly(banHandler))
 
   lazy val gameModeChanger = oneArg((p:Player, c:Command, args:Array[String]) =>
-    if(List("c", "s").contains(args(0))) p.sendUsage(c)
+    if(! List("c", "s").contains(args(0))) p.sendUsage(c)
     else p.setGameMode(if(args(0) == "c") GameMode.CREATIVE else GameMode.SURVIVAL))
+
   lazy val killHandler = oneArg((killer:Player, c:Command, args:Array[String]) => {
-    val world = killer.getWorld
-    val entities = world.getEntities
+    val entities = killer.world.entities
     def usage(){ killer.sendUsage(c) }
     def removeAll(es:Seq[Entity]) { es.foreach(_.remove()) }
     args(0).toLowerCase match {
@@ -38,33 +38,43 @@ class MultiPlayerCommands extends ManyCommandsPlugin {
       case _ => usage()
     }
   })
+
   lazy val showEntities = (p:Player, c:Command, args:Array[String]) =>
-    p.getWorld.getEntities.foreach(e => p.sendMessage(e.toString))
+    p.world.entities.foreach(e => p.sendMessage(e.toString))
+
   val goto = oneArg(p2p((sender:Player, receiver:Player, c:Command, args:Array[String]) =>
     sender.teleport(receiver)))
+
   lazy val feedHandler = oneArg(p2p((feeder:Player, receiver:Player, c:Command, args:Array[String]) => {
-    receiver.messageAfter(GREEN + "you have been fed by " + feeder.getName){ receiver.setFoodLevel(20) }
-    feeder.sendMessage(GREEN + "you have fed" + feeder.getName)
+    receiver.messageAfter(GREEN + "you have been fed by " + feeder.name){ receiver.setFoodLevel(20) }
+    feeder.sendMessage(GREEN + "you have fed" + feeder.name)
   }))
+
   lazy val starveHandler = oneArg(p2p((feeder:Player, receiver:Player, c:Command, args:Array[String]) => {
-    receiver.messageAfter(GREEN + "you have been starved by " + feeder.getName){ receiver.setFoodLevel(0) }
-    feeder.sendMessage(GREEN + "you have starved " + receiver.getName)
+    receiver.messageAfter(GREEN + "you have been starved by " + feeder.name){ receiver.setFoodLevel(0) }
+    feeder.sendMessage(GREEN + "you have starved " + receiver.name)
   }))
+
   lazy val shockHandler = oneArg(p2p((shocker:Player, shockee:Player, c:Command, args:Array[String]) => {
-    shockee.messageAfter(GREEN + "you have been shocked by " + shocker.getName){
-      shockee.getWorld.strikeLightning(shockee.getLocation)
+    shockee.messageAfter(GREEN + "you have been shocked by " + shocker.name){
+      shockee.world.strikeLightning(shockee.loc)
     }
-    shocker.sendMessage(GREEN + "you have shocked " + shockee.getName)
+    shocker.sendMessage(GREEN + "you have shocked " + shockee.name)
   }))
+
   lazy val banHandler = oneOrMoreArgs((p:Player, c:Command, args:Array[String]) => {
-    for(p<-args.map(p.getServer.getPlayer); if(p!=null)){ p.ban("banned by: " + p.getName) }
-    for(p<-args.map(p.getServer.getOfflinePlayer); if(p!=null)){ p.setBanned(true) }
+    for(p<-args.map(p.server.getPlayer); if(p!=null)){ p.ban(p.name + " doesn't like you.") }
+    for(p<-args.map(p.server.getOfflinePlayer); if(p!=null)){ p.setBanned(true) }
   })
-  lazy val changeTime = oneArg((p:Player, c:Command, args:Array[String]) => p.getWorld.setTime(args(0).toInt))
-  lazy val dayMaker = (p:Player, c:Command, args:Array[String]) => p.getWorld.setTime(1)
-  lazy val nightMaker = (p:Player, c:Command, args:Array[String]) => p.getWorld.setTime(15000)
+
+  lazy val changeTime = oneArg((p:Player, c:Command, args:Array[String]) => p.world.setTime(args(0).toInt))
+
+  lazy val dayMaker = (p:Player, c:Command, args:Array[String]) => p.world.setTime(1)
+
+  lazy val nightMaker = (p:Player, c:Command, args:Array[String]) => p.world.setTime(15000)
+
   lazy val spawner = oneArg((p: Player, c: Command, args: Array[String]) => {
     val nrToSpawn = (if (args.length == 2) args(1).toInt else 1)
-    Spawner.spawn(creatureType=args(0), number=nrToSpawn, p.getWorld, p.getLocation, p.sendError(_))
+    Spawner.spawn(entityType=args(0), number=nrToSpawn, p.loc, p.sendError(_))
   })
 }
