@@ -148,7 +148,8 @@ trait PlayerDamageListener extends Listener {
 }
 
 trait PlayerDeathListener extends Listener {
-  @EventHandler def onEntityDamage(e:EntityDeathEvent): Unit =
-    if(e.getEntity.isInstanceOf[Player]) onPlayerDeath(e.getEntity.asInstanceOf[Player], e)
+  @EventHandler def onEntityDeath(e:EntityDeathEvent): Unit =
+    if(e.getEntity.isInstanceOf[Player])
+      onPlayerDeath(e.getEntity.asInstanceOf[Player], e)
   def onPlayerDeath(p:Player, e:EntityDeathEvent)
 }
