@@ -1,20 +1,19 @@
 package jcdc.pluginfactory
 
-import org.bukkit.event.Event
-import org.bukkit.event.player.{PlayerChatEvent, PlayerListener}
-import org.bukkit.event.block.{BlockBreakEvent, BlockListener, BlockDamageEvent}
+import org.bukkit.event.player.PlayerChatEvent
+import org.bukkit.event.block.{BlockBreakEvent, BlockDamageEvent}
 import org.bukkit.inventory.ItemStack
-import org.bukkit.{Effect, Material}
-import org.bukkit.event.weather.{WeatherChangeEvent, WeatherListener}
-import org.bukkit.entity.{Player, Arrow}
-import org.bukkit.event.entity.{EntityDamageEvent, EntityDamageByEntityEvent}
+import org.bukkit.event.weather.WeatherChangeEvent
 import org.bukkit.command.Command
 import ScalaPlugin._
+import org.bukkit.event.{EventHandler, Listener}
+import org.bukkit.event.entity.{EntityDeathEvent, EntityDamageEvent, EntityDamageByEntityEvent}
+import org.bukkit.entity.{CreatureType, Player, Arrow}
+import org.bukkit.{Location, World, Effect, Material}
 
 class NoRain extends ListenerPlugin {
-  val eventType = Event.Type.WEATHER_CHANGE
-  val listener = new WeatherListener {
-    override def onWeatherChange(e:WeatherChangeEvent) = if(e.toWeatherState) {
+  val listener = new Listener {
+    @EventHandler def onWeatherChange(e:WeatherChangeEvent) = if(e.toWeatherState) {
       getServer.broadcastMessage("[NoRain] put up an umbrella.")
       e.setCancelled(true)
     }
@@ -23,7 +22,6 @@ class NoRain extends ListenerPlugin {
 
 class God extends ListenerPlugin with SingleCommandPlugin {
   val godMap = collection.mutable.Map[Player, Boolean]().withDefaultValue(false)
-  val eventType = Event.Type.ENTITY_DAMAGE
   val listener = new PlayerDamageListener {
     def onPlayerDamage(p: Player, e: EntityDamageEvent) = if(godMap(p)) e.setCancelled(true)
   }
@@ -32,21 +30,20 @@ class God extends ListenerPlugin with SingleCommandPlugin {
     p.messageAfter("god mode is now " + (if(godMap(p)) "on" else "off")){ godMap.update(p, ! godMap(p)) })
 }
 
-class LightningArrows extends VanillaListenerPlugin(Event.Type.ENTITY_DAMAGE, new EntityDamageByEntityListener {
-  override def onEntityDamageByEntity(e:EntityDamageByEntityEvent) =
+class LightningArrows extends VanillaListenerPlugin(new EntityDamageByEntityListener {
+  def onEntityDamageByEntity(e:EntityDamageByEntityEvent) =
     if(e.getDamager.isInstanceOf[Arrow]) e.getEntity.getWorld.strikeLightning(e.getEntity.getLocation)
 })
 
-class BanArrows extends VanillaListenerPlugin(Event.Type.ENTITY_DAMAGE, new PlayerDamageByEntityListener {
-  override def onPlayerDamageByEntity(p:Player, e:EntityDamageByEntityEvent) =
+class BanArrows extends VanillaListenerPlugin(new PlayerDamageByEntityListener {
+  def onPlayerDamageByEntity(p:Player, e:EntityDamageByEntityEvent) =
     if(e.getDamager.isInstanceOf[Arrow]) p.ban("struck by an arrow!")
 })
 
 class BlockChanger extends ListenerPlugin with SingleCommandPlugin {
   val users = collection.mutable.Map[Player, Int]()
-  val eventType = Event.Type.BLOCK_DAMAGE
-  val listener = new BlockListener {
-    override def onBlockDamage(event:BlockDamageEvent) =
+  val listener = new Listener {
+    @EventHandler def onBlockDamage(event:BlockDamageEvent) =
       users.get(event.getPlayer).foreach(event.getBlock.setTypeId(_))
   }
   val command = "bc"
@@ -61,21 +58,36 @@ object Curses{
   def containsSwear(event:PlayerChatEvent) = curses.filter(event.getMessage.contains(_)).size > 0
 }
 
-class CurseBan extends VanillaListenerPlugin(Event.Type.PLAYER_CHAT, new PlayerListener{
-  override def onPlayerChat(event:PlayerChatEvent) = if(Curses.containsSwear(event)) {
+class CurseBan extends VanillaListenerPlugin(new Listener{
+  @EventHandler def onPlayerChat(event:PlayerChatEvent) = if(Curses.containsSwear(event)) {
     event.getPlayer.ban("no swearing"); event.setCancelled(true)
   }
 })
 
-class CursePreventer extends VanillaListenerPlugin(Event.Type.PLAYER_CHAT, new PlayerListener{
-  override def onPlayerChat(event:PlayerChatEvent) = if(Curses.containsSwear(event)) event.setCancelled(true)
+class CursePreventer extends VanillaListenerPlugin(new Listener{
+  @EventHandler def onPlayerChat(event:PlayerChatEvent) = if(Curses.containsSwear(event)) event.setCancelled(true)
 })
 
-class TreeDelogger extends VanillaListenerPlugin(Event.Type.BLOCK_BREAK, new BlockListener {
-  override def onBlockBreak(e:BlockBreakEvent) = if(e.getBlock.getType == Material.LOG)
+class TreeDelogger extends VanillaListenerPlugin(new Listener {
+  @EventHandler def onBlockBreak(e:BlockBreakEvent) = if(e.getBlock.getType == Material.LOG)
     e.getBlock.blocksAbove.takeWhile(_.getType == Material.LOG).foreach{ b =>
       b.getWorld.playEffect(b.getLocation, Effect.SMOKE, 1)
       b.getWorld.dropItem(b.getLocation, new ItemStack(b.getType, 1, b.getData))
       b.setType(Material.AIR)
     }
+})
+
+object Spawner {
+  def spawn(creatureType: String, number: Int, world: World, loc: Location, onError: String => Unit){
+    CreatureType.values.find(_.toString == creatureType.toUpperCase) match {
+      case Some(creature) => for (i <- 1 to number )  world.spawnCreature(loc, creature)
+      case _ => onError("no such creature: " + creatureType)
+    }
+  }
+}
+
+class ZombieApocalypse extends VanillaListenerPlugin(new PlayerDeathListener {
+  def onPlayerDeath(p: Player, e: EntityDeathEvent) {
+    Spawner.spawn("zombie", 1, p.getWorld, p.getLocation, sys.error(_))
+  }
 })

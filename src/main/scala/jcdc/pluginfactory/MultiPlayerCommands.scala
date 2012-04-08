@@ -10,16 +10,17 @@ import ScalaPlugin._
 class MultiPlayerCommands extends ManyCommandsPlugin {
 
   val commands = Map(
-    "goto" -> goto,
-    "gm" -> gameModeChanger,
-    "kill" -> opOnly(killHandler),
+    "goto"     -> goto,
+    "gm"       -> gameModeChanger,
+    "kill"     -> opOnly(killHandler),
     "set-time" -> changeTime,
-    "day" -> dayMaker,
-    "night" -> nightMaker,
-    "spawn" -> spawner,
+    "day"      -> dayMaker,
+    "night"    -> nightMaker,
+    "spawn"    -> spawner,
     "entities" -> showEntities,
-    "feed" -> opOnly(feedHandler),
-    "starve" -> opOnly(starveHandler))
+    "feed"     -> opOnly(feedHandler),
+    "starve"   -> opOnly(starveHandler),
+    "shock"    -> opOnly(shockHandler))
 
   val gameModeChanger = oneArg((p:Player, c:Command, args:Array[String]) =>
     if(List("c", "s").contains(args(0))) p.sendUsage(c)
@@ -46,18 +47,20 @@ class MultiPlayerCommands extends ManyCommandsPlugin {
   }))
   val starveHandler = oneArg(p2p((feeder:Player, receiver:Player, c:Command, args:Array[String]) => {
     receiver.messageAfter(GREEN + "you have been starved by " + feeder.getName){ receiver.setFoodLevel(0) }
-    feeder.sendMessage(GREEN + "you have starved " + feeder.getName)
+    feeder.sendMessage(GREEN + "you have starved " + receiver.getName)
   }))
+  val shockHandler = oneArg(p2p((shocker:Player, shockee:Player, c:Command, args:Array[String]) => {
+    shockee.messageAfter(GREEN + "you have been shocked by " + shocker.getName){
+      shockee.getWorld.strikeLightning(shockee.getLocation)
+    }
+    shocker.sendMessage(GREEN + "you have shocked " + shockee.getName)
+  }))
+
   val changeTime = oneArg((p:Player, c:Command, args:Array[String]) => p.getWorld.setTime(args(0).toInt))
   val dayMaker = (p:Player, c:Command, args:Array[String]) => p.getWorld.setTime(1)
   val nightMaker = (p:Player, c:Command, args:Array[String]) => p.getWorld.setTime(15000)
-  val spawner = oneArg((p: Player, c: Command, args: Array[String]) =>
-    CreatureType.values.find(_.toString == args(0).toUpperCase) match {
-      case Some(creature) =>
-        // TODO: its probably a really good idea to put some limit on N here.
-        for (i <- 1 to (if (args.length == 2) args(1).toInt else 1)) {
-          p.getWorld.spawnCreature(p.getLocation, creature)
-        }
-      case _ => p.sendError("no such creature: " + args(0))
-    })
+  val spawner = oneArg((p: Player, c: Command, args: Array[String]) => {
+    val nrToSpawn = (if (args.length == 2) args(1).toInt else 1)
+    Spawner.spawn(creatureType=args(0), number=nrToSpawn, p.getWorld, p.getLocation, p.sendError(_))
+  })
 }

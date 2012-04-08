@@ -1,13 +1,13 @@
 package jcdc.pluginfactory
 
 import java.util.logging.Logger
-import org.bukkit.entity.Player
-import org.bukkit.event.{Listener, Event}
-import org.bukkit.event.entity.{EntityDamageEvent, EntityDamageByEntityEvent, EntityListener}
 import org.bukkit.command.{Command, CommandSender}
+import org.bukkit.entity.Player
+import org.bukkit.event.{EventHandler, Listener, Event}
 import org.bukkit.block.Block
 import org.bukkit.{ChatColor, Location}
 import ChatColor._
+import org.bukkit.event.entity.{EntityDeathEvent, EntityDamageEvent, EntityDamageByEntityEvent}
 
 object ScalaPlugin {
 
@@ -63,10 +63,11 @@ class ScalaPlugin extends org.bukkit.plugin.java.JavaPlugin {
   def name = this.getDescription.getName
 
   // setup stuff
-  def onEnable(){ logInfo("enabled!"); setupDatabase() }
-  def onDisable(){ logInfo("disabled!") }
-  def registerListener(eventType:Event.Type, listener:Listener): Unit =
-    this.getServer.getPluginManager.registerEvent(eventType, listener, Event.Priority.Normal, this)
+  override def onEnable(){ super.onEnable(); setupDatabase(); logInfo("enabled!") }
+  override def onDisable(){ super.onDisable(); logInfo("disabled!") }
+  def registerListener(listener:Listener): Unit =
+    getServer().getPluginManager().registerEvents(listener, this);
+    //this.getServer.getPluginManager.registerEvent(eventType, listener, Event.Priority.Normal, this)
 
   // logging
   def logInfo(message:String) { log.info("["+name+"] - " + message) }
@@ -94,15 +95,15 @@ class ScalaPlugin extends org.bukkit.plugin.java.JavaPlugin {
 }
 
 trait MultiListenerPlugin extends ScalaPlugin {
-  val listeners:List[(Event.Type, Listener)]
-  override def onEnable(){ super.onEnable(); listeners.foreach((registerListener _).tupled) }
+  val listeners:List[Listener]
+  override def onEnable(){ super.onEnable(); listeners.foreach(registerListener) }
 }
 
 trait ListenerPlugin extends ScalaPlugin {
-  val eventType:Event.Type; val listener:Listener
-  override def onEnable(){ super.onEnable(); registerListener(eventType, listener) }
+  val listener:Listener
+  override def onEnable(){ super.onEnable(); registerListener(listener) }
 }
-case class VanillaListenerPlugin(eventType:Event.Type, listener:Listener) extends ListenerPlugin
+case class VanillaListenerPlugin(listener:Listener) extends ListenerPlugin
 
 trait SingleCommandPlugin extends ScalaPlugin {
   val command: String
@@ -126,22 +127,28 @@ trait ManyCommandsPlugin extends ScalaPlugin {
   }
 }
 
-trait EntityDamageByEntityListener extends EntityListener {
-  override def onEntityDamage(event:EntityDamageEvent) =
+trait EntityDamageByEntityListener extends Listener {
+  @EventHandler def onEntityDamage(event:EntityDamageEvent) =
     if(event.isInstanceOf[EntityDamageByEntityEvent])
       onEntityDamageByEntity(event.asInstanceOf[EntityDamageByEntityEvent])
   def onEntityDamageByEntity(e:EntityDamageByEntityEvent)
 }
 
-trait PlayerDamageByEntityListener extends EntityListener {
-  override def onEntityDamage(event:EntityDamageEvent): Unit =
+trait PlayerDamageByEntityListener extends Listener {
+  @EventHandler def onEntityDamage(event:EntityDamageEvent): Unit =
     if(event.isInstanceOf[EntityDamageByEntityEvent] && event.getEntity.isInstanceOf[Player])
       onPlayerDamageByEntity(event.getEntity.asInstanceOf[Player], event.asInstanceOf[EntityDamageByEntityEvent])
   def onPlayerDamageByEntity(p:Player, e:EntityDamageByEntityEvent)
 }
 
-trait PlayerDamageListener extends EntityListener {
-  override def onEntityDamage(e:EntityDamageEvent): Unit =
+trait PlayerDamageListener extends Listener {
+  @EventHandler def onEntityDamage(e:EntityDamageEvent): Unit =
     if(e.getEntity.isInstanceOf[Player]) onPlayerDamage(e.getEntity.asInstanceOf[Player], e)
   def onPlayerDamage(p:Player, e:EntityDamageEvent)
+}
+
+trait PlayerDeathListener extends Listener {
+  @EventHandler def onEntityDamage(e:EntityDeathEvent): Unit =
+    if(e.getEntity.isInstanceOf[Player]) onPlayerDeath(e.getEntity.asInstanceOf[Player], e)
+  def onPlayerDeath(p:Player, e:EntityDeathEvent)
 }

@@ -28,10 +28,12 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../lib/craftbukkit-1.0.1-R1.jar!/" />
+          <root url="jar://$MODULE_DIR$/../../lib/craftbukkit-1.2.5-R1.0.jar!/" />
         </CLASSES>
         <JAVADOC />
-        <SOURCES />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/../../lib/craftbukkit-1.2.5-R1.0.jar!/" />
+        </SOURCES>
       </library>
     </orderEntry>
   </component>

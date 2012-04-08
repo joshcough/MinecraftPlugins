@@ -3,3 +3,6 @@ project/
 target/
 out/
 .idea/workspace.xml
+lib/
+.lib/
+plugins/
