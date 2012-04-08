@@ -56,10 +56,10 @@ class MultiPlayerCommands extends ManyCommandsPlugin {
     }
     shocker.sendMessage(GREEN + "you have shocked " + shockee.getName)
   }))
-  lazy val banHandler = oneOrMoreArgs(p2p((banner:Player, bannee:Player, c:Command, args:Array[String]) => {
-      bannee.ban(RED + "you have been banned by " + banner.getName)
-      banner.sendMessage(GREEN + "you have banned" + bannee.getName)
-    }))
+  lazy val banHandler = oneOrMoreArgs((p:Player, c:Command, args:Array[String]) => {
+    for(p<-args.map(p.getServer.getPlayer); if(p!=null)){ p.ban("banned by: " + p.getName) }
+    for(p<-args.map(p.getServer.getOfflinePlayer); if(p!=null)){ p.setBanned(true) }
+  })
   lazy val changeTime = oneArg((p:Player, c:Command, args:Array[String]) => p.getWorld.setTime(args(0).toInt))
   lazy val dayMaker = (p:Player, c:Command, args:Array[String]) => p.getWorld.setTime(1)
   lazy val nightMaker = (p:Player, c:Command, args:Array[String]) => p.getWorld.setTime(15000)
