@@ -84,12 +84,14 @@ object ScalaPlugin {
     def kill(playerName:String) = player.findPlayer(playerName){ p =>
       p.messageAfter(RED + "you have been killed by: " + player.getName){ p.setHealth(0) }
     }
+    def strike = world.strikeLightning(loc)
   }
   def opOnly(ch:CommandHandler) = (player: Player, cmd: Command, args: Array[String]) =>
     if(player.isOp) ch(player, cmd, args) else player.sendMessage(RED + "You must be an op to run /" + cmd.getName)
   def minArgs(n:Int, ch:CommandHandler) = (player: Player, cmd: Command, args: Array[String]) =>
     if(args.length >= n) ch(player, cmd, args) else player.sendUsage(cmd)
-  def oneArg(ch:CommandHandler) = minArgs(1, ch)
+  def command(ch:CommandHandler)       = minArgs(0, ch)
+  def oneArg(ch:CommandHandler)        = minArgs(1, ch)
   def oneOrMoreArgs(ch:CommandHandler) = oneArg(ch)
   def p2p(p2pc:PlayerToPlayerCommand): CommandHandler = (sender: Player, cmd: Command, args: Array[String]) =>
     sender.findPlayer(args(0)) { receiver => p2pc(sender, receiver, cmd, args) }
@@ -147,10 +149,11 @@ trait ListenerPlugin extends ScalaPlugin {
 case class Listening(listener:Listener) extends ListenerPlugin
 
 trait SingleCommandPlugin extends ScalaPlugin {
-  val command: String
-  val commandHandler: CommandHandler
+  val commandHandler: (String, CommandHandler)
+  def command = commandHandler._1
+  def handler = commandHandler._2
   override def onCommand(sender:CommandSender, cmd:Command, commandLabel:String, args:Array[String]) = {
-    if(cmd.getName.equalsIgnoreCase(command)) commandHandler(sender.asInstanceOf[Player], cmd, args)
+    if(cmd.getName.equalsIgnoreCase(command)) handler(sender.asInstanceOf[Player], cmd, args)
     true
   }
 }

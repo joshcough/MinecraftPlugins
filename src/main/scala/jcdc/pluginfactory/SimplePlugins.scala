@@ -16,8 +16,7 @@ class NoRain extends ListenerPlugin {
 class God extends ListenerPlugin with SingleCommandPlugin {
   val godMap = collection.mutable.Map[Player, Boolean]().withDefaultValue(false)
   val listener = OnPlayerDamage { (p, e) => e.cancelIf(godMap(p)) }
-  val command = "god"
-  val commandHandler = oneArg((p:Player, c:Command, args:Array[String]) =>
+  val commandHandler = "god" -> oneArg((p:Player, c:Command, args:Array[String]) =>
     p.messageAfter("god mode is now " + (if(godMap(p)) "on" else "off")){ godMap.update(p, ! godMap(p)) })
 }
 
@@ -32,8 +31,7 @@ class BanArrows extends Listening(OnPlayerDamageByEntity { (p, e) =>
 class BlockChanger extends ListenerPlugin with SingleCommandPlugin {
   val users = collection.mutable.Map[Player, Int]()
   val listener = OnBlockDamage((b, e) => users.get(e.getPlayer).foreach(b.setTypeId(_)))
-  val command = "bc"
-  val commandHandler = oneArg((p:Player, c:Command, args:Array[String]) => args(0).toLowerCase match {
+  val commandHandler = "bc" -> oneArg((p, c, args) => args(0).toLowerCase match {
     case "off" => p.messageAfter("bc has been disabled") { users.remove(p) }
     case n => p.messageAfter("bc using blockId="+args(0).toInt) { users += (p -> n.toInt) }
   })
