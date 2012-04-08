@@ -1,15 +1,15 @@
 package jcdc.pluginfactory
 
-import org.bukkit.event.player.PlayerChatEvent
-import org.bukkit.event.block.{BlockBreakEvent, BlockDamageEvent}
-import org.bukkit.inventory.ItemStack
-import org.bukkit.event.weather.WeatherChangeEvent
+import org.bukkit.{Location, World, Effect, Material}
 import org.bukkit.command.Command
-import ScalaPlugin._
+import org.bukkit.entity.{CreatureType, Player, Arrow}
 import org.bukkit.event.{EventHandler, Listener}
 import org.bukkit.event.entity.{EntityDeathEvent, EntityDamageEvent, EntityDamageByEntityEvent}
-import org.bukkit.entity.{CreatureType, Player, Arrow}
-import org.bukkit.{Location, World, Effect, Material}
+import org.bukkit.event.player.PlayerChatEvent
+import org.bukkit.event.block.{BlockBreakEvent, BlockDamageEvent}
+import org.bukkit.event.weather.WeatherChangeEvent
+import org.bukkit.inventory.ItemStack
+import ScalaPlugin._
 
 class NoRain extends ListenerPlugin {
   val listener = new Listener {

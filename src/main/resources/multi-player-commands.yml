@@ -31,3 +31,12 @@ commands:
    starve:
       description: Drain a players hunger bar.
       usage: /<command> player-name
+   goto:
+      description: Teleport to a player.
+      usage: /<command> player-name
+   shock:
+      description: Shock a player.
+      usage: /<command> player-name
+   ban:
+      description: Ban a list of players
+      usage: /<command> player-name+

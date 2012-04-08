@@ -1,5 +1,5 @@
 name: Warp
-main: jcdc.pluginfactory.Warp
+main: jcdc.pluginfactory.WarpPlugin
 author: jacycough
 version: 0.1
 database: true

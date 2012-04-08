@@ -3,9 +3,9 @@ package jcdc.pluginfactory
 import java.util.logging.Logger
 import org.bukkit.command.{Command, CommandSender}
 import org.bukkit.entity.Player
-import org.bukkit.event.{EventHandler, Listener, Event}
+import org.bukkit.event.{EventHandler, Listener}
 import org.bukkit.block.Block
-import org.bukkit.{ChatColor, Location}
+import org.bukkit.{ChatColor, OfflinePlayer, Location}
 import ChatColor._
 import org.bukkit.event.entity.{EntityDeathEvent, EntityDamageEvent, EntityDamageByEntityEvent}
 
@@ -13,6 +13,7 @@ object ScalaPlugin {
 
   type CommandHandler = (Player, Command, Array[String]) => Unit
   type PlayerToPlayerCommand = (Player, Player, Command, Array[String]) => Unit
+  type PlayerToOfflinePlayerCommand = (Player, OfflinePlayer, Command, Array[String]) => Unit
 
   val log = Logger.getLogger("Minecraft")
 
@@ -30,6 +31,7 @@ object ScalaPlugin {
     def x = player.getLocation.getX
     def y = player.getLocation.getY
     def z = player.getLocation.getZ
+    def server = player.getServer
 
     def messageAfter[T](message: => String)(f: => T): T = { val t = f; player.sendMessage(message); t }
     def messageBefore[T](message:String)(f: => T): T = { player.sendMessage(message); f }
@@ -38,23 +40,26 @@ object ScalaPlugin {
     }
     def sendError(message:String) = player.sendMessage(RED + message)
     def sendUsage(cmd:Command) = sendError(cmd.getUsage)
-    def findPlayer(name:String)(f: Player => Unit) = Option(player.getServer.getPlayer(name)) match {
+    def findPlayer(name:String)(f: Player => Unit) = Option(server.getPlayer(name)) match {
       case Some(p) => f(p)
       case None => sendError("kill could not find player: " + name)
     }
+    def findPlayers(names:List[String])(f: Player => Unit) = names.foreach(n => findPlayer(n)(f))
     def ban(reason:String){ player.setBanned(true); player.kickPlayer("banned: " + reason) }
     def kill(playerName:String) = player.findPlayer(playerName){ p =>
       p.messageAfter(RED + "you have been killed by: " + player.getName){ p.setHealth(0) }
     }
   }
-
   def opOnly(ch:CommandHandler) = (player: Player, cmd: Command, args: Array[String]) =>
     if(player.isOp) ch(player, cmd, args) else player.sendMessage(RED + "You must be an op to run /" + cmd.getName)
   def minArgs(n:Int, ch:CommandHandler) = (player: Player, cmd: Command, args: Array[String]) =>
     if(args.length >= n) ch(player, cmd, args) else player.sendUsage(cmd)
   def oneArg(ch:CommandHandler) = minArgs(1, ch)
+  def oneOrMoreArgs(ch:CommandHandler) = oneArg(ch)
   def p2p(p2pc:PlayerToPlayerCommand): CommandHandler = (sender: Player, cmd: Command, args: Array[String]) =>
     sender.findPlayer(args(0)) { receiver => p2pc(sender, receiver, cmd, args) }
+  def p2pMany(p2pc:PlayerToPlayerCommand): CommandHandler = (sender: Player, cmd: Command, args: Array[String]) =>
+    sender.findPlayers(args.toList) { receiver => p2pc(sender, receiver, cmd, args) }
 }
 
 import ScalaPlugin._
@@ -63,11 +68,10 @@ class ScalaPlugin extends org.bukkit.plugin.java.JavaPlugin {
   def name = this.getDescription.getName
 
   // setup stuff
-  override def onEnable(){ super.onEnable(); setupDatabase(); logInfo("enabled!") }
-  override def onDisable(){ super.onDisable(); logInfo("disabled!") }
+  override def onEnable(){ super.onEnable(); setupDatabase(); logInfo(name + " enabled!") }
+  override def onDisable(){ super.onDisable(); logInfo(name + " disabled!") }
   def registerListener(listener:Listener): Unit =
-    getServer().getPluginManager().registerEvents(listener, this);
-    //this.getServer.getPluginManager.registerEvent(eventType, listener, Event.Priority.Normal, this)
+    getServer.getPluginManager.registerEvents(listener, this)
 
   // logging
   def logInfo(message:String) { log.info("["+name+"] - " + message) }
