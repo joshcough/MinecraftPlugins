@@ -20,32 +20,31 @@ class WarpPlugin extends CommandsPlugin {
     val w = new Warp(); w.name = n; w.player = p.getName; w.x = p.x; w.y = p.y; w.z = p.z; w
   }
 
-  def warpsFor(p:Player) = dbQuery(classOf[Warp]).where.ieq("player", p.getName).findList().toList
+  def warpsFor(p:Player) = db.query(classOf[Warp]).where.ieq("player", p.getName).findList()
   // filtering here instead of in sql because the number of warps should be small. nbd.
-  def getWarp(warpName:String, p:Player) = warpsFor(p).filter(_.name == warpName).headOption
+  def getWarp[T](warpName:String, p:Player)(t: => T, w: Warp => T) =
+    foldOption(warpsFor(p).filter(_.name == warpName).headOption)(t, w)
 
   val setWarpCommand = oneArg((p, c) => {
     val warpName = c.args.head
-    getWarp(warpName, p) match {
-      case None => p.messageAfter("created warp: " + warpName) { dbInsert(createWarp(warpName, p)) }
-      case Some(w) => p.messageAfter("overwrote warp: " + warpName) { dbDelete(w); dbInsert(createWarp(warpName, p)) }
-    }
+    getWarp(warpName, p)(
+      p.messageAfter("created warp: " + warpName) { db.insert(createWarp(warpName, p)) },
+      w => p.messageAfter("overwrote warp: " + warpName) { db.delete(w); db.insert(createWarp(warpName, p)) }
+    )
   })
 
-  val warpCommand = oneArg((p, c) => getWarp(c.args.head, p) match {
-    case Some(w) => p.teleport(w.location(p.getWorld))
-    case _ => p.sendError("no such warp: " + c.args.head)
-  })
+  val warpCommand = oneArg((p, c) => getWarp(c.args.head, p)(
+    p.sendError("no such warp: " + c.args.head), w => p.teleport(w.location(p.getWorld))))
 
   val listWarpsCommand = command((p,c) => warpsFor(p).foreach{w => p.sendMessage(w.toString) })
 
   val deleteAllWarpsCommand = command((p, c) =>
-    findAll(classOf[Warp]).foreach{ w => logInfo("deleting: " + w); dbDelete(w) })
+    db.foreach(classOf[Warp]){w => logInfo("deleting: " + w); db.delete(w)})
 
-  val deleteWarpCommand = oneArg((p,c) => getWarp(c.args.head, p) match {
-    case Some(w) => p.messageAfter("deleted warp: " + c.args.head) { dbDelete(w) }
-    case _ => p.sendError("no such warp: " + c.args.head)
-  })
+  val deleteWarpCommand = oneArg((p,c) => getWarp(c.args.head, p)(
+    p.sendError("no such warp: " + c.args.head),
+    w => p.messageAfter("deleted warp: " + c.args.head) { db.delete(w) }
+  ))
 }
 
 @javax.persistence.Entity
@@ -57,5 +56,5 @@ class Warp {
   var player = ""
   var x = 0d; var y = 0d; var z = 0d
   def location(world:World) = new Location(world, x, y, z)
-  override def toString = player + "." + name + (List(x, y, z).mkString("(", ",", ")"))
+  override def toString = player + "." + name + (x, y, z)
 }

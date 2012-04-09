@@ -4,7 +4,6 @@ import org.bukkit.Effect
 import org.bukkit.Material._
 import org.bukkit.entity.{Player, Arrow}
 import org.bukkit.entity.EntityType._
-import org.bukkit.event.player.PlayerChatEvent
 import ScalaPlugin._
 import Listeners._
 
@@ -37,6 +36,7 @@ class BlockChanger extends ListenerPlugin with CommandsPlugin {
 }
 
 object Curses{
+  import org.bukkit.event.player.PlayerChatEvent
   val curses = List("btt", "tiju", "gvdl", "cjudi").map(_.map(c => (c - 1).toChar))
   def containsSwear(event:PlayerChatEvent) = curses.filter(event.getMessage.toLowerCase.contains(_)).size > 0
   def handle(e: PlayerChatEvent, f: => Unit) = e.cancelIf(containsSwear(e), f)

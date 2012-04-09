@@ -110,6 +110,8 @@ object ScalaPlugin {
     sender.findPlayer(cmd.args(0)) { receiver => p2pc(sender, receiver, cmd) })
   def p2pMany(p2pc:PlayerToPlayerCommand): CommandHandler = (sender: Player, args: CommandArguments) =>
     sender.findPlayers(args.args.toList) { receiver => p2pc(sender, receiver, args) }
+
+  def foldOption[T, U](o:Option[T])(n: => U, s: T => U) = o.map(s).getOrElse(n)
 }
 
 import ScalaPlugin._
@@ -142,11 +144,15 @@ class ScalaPlugin extends org.bukkit.plugin.java.JavaPlugin {
         logInfoAround("Installing database...", "installed"){ installDDL() }
       }
   }
-  // db commands
-  def dbInsert[A](a:A) = try getDatabase.insert(a) catch { case e => logError(e) }
-  def dbQuery[T](c:Class[T]) = getDatabase.find[T](c)
-  def findAll[T](c:Class[T]) = dbQuery[T](c).findList
-  def dbDelete(a:AnyRef){ getDatabase.delete(a) }
+  object db {
+    import scala.collection.JavaConversions._
+    // db commands
+    def insert[A](a:A) = try getDatabase.insert(a) catch { case e => logError(e) }
+    def query[T](c:Class[T]) = getDatabase.find[T](c)
+    def findAll[T](c:Class[T]) = query[T](c).findList
+    def foreach[T,U](c:Class[T])(f: T => U) = findAll(c).foreach(f)
+    def delete(a:AnyRef){ getDatabase.delete(a) }
+  }
 }
 
 trait MultiListenerPlugin extends ScalaPlugin {
