@@ -1,22 +1,19 @@
 package jcdc.pluginfactory
 
 import java.util.logging.Logger
-import org.bukkit.{ChatColor, OfflinePlayer, Location, Server, World}
+import org.bukkit.{ChatColor, Location, Material, OfflinePlayer, Server, World}
 import org.bukkit.block.Block
 import org.bukkit.command.{Command, CommandSender}
 import org.bukkit.entity.{Entity, EntityType, Player}
 import org.bukkit.event.{Cancellable, EventHandler => EH, Listener}
 import org.bukkit.event.block.{BlockBreakEvent, BlockDamageEvent}
-import org.bukkit.event.entity.{EntityEvent, EntityDeathEvent, EntityDamageEvent, EntityDamageByEntityEvent}
+import org.bukkit.event.entity.{EntityEvent, EntityDamageEvent, PlayerDeathEvent, EntityDamageByEntityEvent}
 import org.bukkit.event.player.{PlayerEvent, PlayerChatEvent}
 import org.bukkit.event.weather.WeatherChangeEvent
+import org.bukkit.inventory.ItemStack
 import ChatColor._
 
 object ScalaPlugin {
-
-  type CommandHandler = (Player, Command, Array[String]) => Unit
-  type PlayerToPlayerCommand = (Player, Player, Command, Array[String]) => Unit
-  type PlayerToOfflinePlayerCommand = (Player, OfflinePlayer, Command, Array[String]) => Unit
 
   val log = Logger.getLogger("Minecraft")
 
@@ -40,6 +37,8 @@ object ScalaPlugin {
       val ba = new Location(b.getWorld, b.getX.toDouble, b.getY.toDouble + 1, b.getZ.toDouble).getBlock
       ba #:: ba.blocksAbove
     }
+    def isA(m:Material) = b.getType == m
+    def itemStack(n:Int) = new ItemStack(b.getType, 1, b.getData)
   }
   case class PimpedCancellable(c:Cancellable){
     def cancel = c.setCancelled(true)
@@ -53,12 +52,21 @@ object ScalaPlugin {
     def world    = e.getWorld
     def whenPlayer(f: Player => Unit) = if(e.isInstanceOf[Player]) f(e.asInstanceOf[Player])
   }
-  case class PimpedWorld(w:World){ def entities = w.getEntities }
+  case class PimpedWorld(w:World){
+    def entities = w.getEntities
+  }
   case class PimpedLocation(loc: Location){
     def world = loc.getWorld
-    def spawn(entityType: EntityType) = world.spawnCreature(loc, entityType)
+    def spawn(entityType:  EntityType) = world.spawnCreature(loc, entityType)
+    def spawnN(entityType: EntityType, n: Int) = for (i <- 1 to n) spawn(entityType)
   }
-  case class PimpedServer(s:Server){ def findPlayer(name:String) = Option(s.getPlayer(name)) }
+  case class PimpedServer(s:Server){
+    def findPlayer(name:String) = Option(s.getPlayer(name))
+    def findOnlinePlayer = findPlayer _
+    def findOfflinePlayer(name:String) = Option(s.getOfflinePlayer(name))
+    def findOnlinePlayers(names: List[String]): List[Player] = names.map(findOnlinePlayer).flatten
+    def findOfflinePlayers(names: List[String]): List[OfflinePlayer] = names.map(findOfflinePlayer).flatten
+  }
   case class PimpedPlayer(player:Player){
     def name   = player.getName
     def x      = player.getLocation.getX
@@ -86,17 +94,22 @@ object ScalaPlugin {
     }
     def strike = world.strikeLightning(loc)
   }
-  def opOnly(ch:CommandHandler) = (player: Player, cmd: Command, args: Array[String]) =>
-    if(player.isOp) ch(player, cmd, args) else player.sendMessage(RED + "You must be an op to run /" + cmd.getName)
-  def minArgs(n:Int, ch:CommandHandler) = (player: Player, cmd: Command, args: Array[String]) =>
-    if(args.length >= n) ch(player, cmd, args) else player.sendUsage(cmd)
+  // Command combinators.
+  case class CommandArguments(cmd:Command, args: List[String])
+  type CommandHandler = (Player, CommandArguments) => Unit
+  type PlayerToPlayerCommand = (Player, Player, CommandArguments) => Unit
+  def findEntity(name:String) = EntityType.values.find(_.toString == name.toUpperCase)
+  def opOnly(ch:CommandHandler) = (player: Player, args:CommandArguments) =>
+    if(player.isOp) ch(player, args) else player.sendMessage(RED + "You must be an op to run /" + args.cmd.getName)
+  def minArgs(n:Int, ch:CommandHandler) = (player: Player, cmd: CommandArguments) =>
+    if(cmd.args.length >= n) ch(player, cmd) else player.sendUsage(cmd.cmd)
   def command(ch:CommandHandler)       = minArgs(0, ch)
   def oneArg(ch:CommandHandler)        = minArgs(1, ch)
   def oneOrMoreArgs(ch:CommandHandler) = oneArg(ch)
-  def p2p(p2pc:PlayerToPlayerCommand): CommandHandler = (sender: Player, cmd: Command, args: Array[String]) =>
-    sender.findPlayer(args(0)) { receiver => p2pc(sender, receiver, cmd, args) }
-  def p2pMany(p2pc:PlayerToPlayerCommand): CommandHandler = (sender: Player, cmd: Command, args: Array[String]) =>
-    sender.findPlayers(args.toList) { receiver => p2pc(sender, receiver, cmd, args) }
+  def p2p(p2pc:PlayerToPlayerCommand): CommandHandler = oneOrMoreArgs((sender, cmd) =>
+    sender.findPlayer(cmd.args(0)) { receiver => p2pc(sender, receiver, cmd) })
+  def p2pMany(p2pc:PlayerToPlayerCommand): CommandHandler = (sender: Player, args: CommandArguments) =>
+    sender.findPlayers(args.args.toList) { receiver => p2pc(sender, receiver, args) }
 }
 
 import ScalaPlugin._
@@ -125,9 +138,8 @@ class ScalaPlugin extends org.bukkit.plugin.java.JavaPlugin {
   def setupDatabase(){
     if(dbClasses.nonEmpty)
       try getDatabase.find(dbClasses.head).findRowCount
-      catch{
-        case e: javax.persistence.PersistenceException =>
-          logInfoAround("Installing database...", "installed"){ installDDL() }
+      catch{ case e: javax.persistence.PersistenceException =>
+        logInfoAround("Installing database...", "installed"){ installDDL() }
       }
   }
   // db commands
@@ -146,19 +158,9 @@ trait ListenerPlugin extends ScalaPlugin {
   val listener:Listener
   override def onEnable(){ super.onEnable(); registerListener(listener) }
 }
-case class Listening(listener:Listener) extends ListenerPlugin
+case class ListeningFor(listener:Listener) extends ListenerPlugin
 
-trait SingleCommandPlugin extends ScalaPlugin {
-  val commandHandler: (String, CommandHandler)
-  def command = commandHandler._1
-  def handler = commandHandler._2
-  override def onCommand(sender:CommandSender, cmd:Command, commandLabel:String, args:Array[String]) = {
-    if(cmd.getName.equalsIgnoreCase(command)) handler(sender.asInstanceOf[Player], cmd, args)
-    true
-  }
-}
-
-trait ManyCommandsPlugin extends ScalaPlugin {
+trait CommandsPlugin extends ScalaPlugin {
   val commands: Map[String, CommandHandler]
   private def lowers: Map[String, CommandHandler] = commands.map{ case (k,v) => (k.toLowerCase, v)}
   override def onEnable(){
@@ -166,44 +168,35 @@ trait ManyCommandsPlugin extends ScalaPlugin {
     lowers.keys.foreach{ k => logInfo("["+name+"] command: " + k) }
   }
   override def onCommand(sender:CommandSender, cmd:Command, commandLabel:String, args:Array[String]) = {
-    lowers.get(cmd.getName.toLowerCase).foreach(_(sender.asInstanceOf[Player], cmd, args))
+    for(ch <- lowers.get(cmd.getName.toLowerCase))
+      ch(sender.asInstanceOf[Player], CommandArguments(cmd, args.toList))
     true
   }
 }
 
 object Listeners {
   def OnEntityDamageByEntity(f: EntityDamageByEntityEvent => Unit) = new Listener {
-    @EH def onEntityDamage(e:EntityDamageEvent) =
-      if(e.isInstanceOf[EntityDamageByEntityEvent]) f(e.asInstanceOf[EntityDamageByEntityEvent])
+    @EH def on(e:EntityDamageByEntityEvent) = f(e)
   }
   def OnPlayerDamageByEntity(f: (Player, EntityDamageByEntityEvent) => Unit) = new Listener {
-    @EH def onEntityDamage(e:EntityDamageByEntityEvent) = e.whenPlayer(f(_, e))
+    @EH def on(e:EntityDamageByEntityEvent) = e.whenPlayer(f(_, e))
   }
   def OnPlayerDamage(f: (Player, EntityDamageEvent) => Unit) = new Listener {
-    @EH def onEntityDamage(e:EntityDamageEvent) = e.whenPlayer(f(_, e))
+    @EH def on(e:EntityDamageEvent)  = e.whenPlayer(f(_, e))
   }
-  def OnPlayerDeath(f: (Player, EntityDeathEvent) => Unit) = new Listener {
-    @EH def onEntityDeath(e:EntityDeathEvent)   = e.whenPlayer(f(_, e))
+  def OnPlayerDeath(f: (Player, PlayerDeathEvent) => Unit) = new Listener {
+    @EH def on(e:PlayerDeathEvent)   = f(e.getEntity, e)
   }
   def OnPlayerChat(f: (Player, PlayerChatEvent) => Unit) = new Listener {
-    @EH def on(e:PlayerChatEvent) = f(e.getPlayer, e)
+    @EH def on(e:PlayerChatEvent)    = f(e.getPlayer, e)
   }
   def OnBlockBreak(f: (Block, BlockBreakEvent) => Unit) = new Listener {
-    @EH def on(e:BlockBreakEvent) = f(e.getBlock, e)
+    @EH def on(e:BlockBreakEvent)    = f(e.getBlock, e)
   }
   def OnBlockDamage(f: (Block, BlockDamageEvent) => Unit) = new Listener {
-    @EH def on(e:BlockDamageEvent) = f(e.getBlock, e)
+    @EH def on(e:BlockDamageEvent)   = f(e.getBlock, e)
   }
   def OnWeatherChange(f: WeatherChangeEvent => Unit) = new Listener {
     @EH def on(e:WeatherChangeEvent) = f(e)
-  }
-}
-
-object Spawner {
-  def spawn(entityType: String, number: Int, loc: Location, onError: String => Unit){
-    EntityType.values.find(_.toString == entityType.toUpperCase) match {
-      case Some(creature) => for (i <- 1 to number ) loc.spawn(creature)
-      case _ => onError("no such creature: " + entityType)
-    }
   }
 }

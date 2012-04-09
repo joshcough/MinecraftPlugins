@@ -1,19 +1,18 @@
 package jcdc.pluginfactory
 
 import org.bukkit.entity.Player
-import org.bukkit.command.Command
 import scala.collection.JavaConversions._
 import org.bukkit.{Location, World}
 import ScalaPlugin._
 
-class WarpPlugin extends ManyCommandsPlugin {
+class WarpPlugin extends CommandsPlugin {
 
   val commands = Map(
-    "warp" -> warpCommand,
-    "warps" -> listWarpsCommand,
-    "set-warp" -> setWarpCommand,
+    "warp"             -> warpCommand,
+    "warps"            -> listWarpsCommand,
+    "set-warp"         -> setWarpCommand,
     "delete-all-warps" -> opOnly(deleteAllWarpsCommand),
-    "delete-warp" -> deleteWarpCommand)
+    "delete-warp"      -> deleteWarpCommand)
 
   override def dbClasses = List(classOf[Warp])
 
@@ -25,28 +24,27 @@ class WarpPlugin extends ManyCommandsPlugin {
   // filtering here instead of in sql because the number of warps should be small. nbd.
   def getWarp(warpName:String, p:Player) = warpsFor(p).filter(_.name == warpName).headOption
 
-  val setWarpCommand = oneArg((p: Player, c: Command, args: Array[String]) => {
-    val warpName = args(0)
+  val setWarpCommand = oneArg((p, c) => {
+    val warpName = c.args.head
     getWarp(warpName, p) match {
       case None => p.messageAfter("created warp: " + warpName) { dbInsert(createWarp(warpName, p)) }
       case Some(w) => p.messageAfter("overwrote warp: " + warpName) { dbDelete(w); dbInsert(createWarp(warpName, p)) }
     }
   })
 
-  val warpCommand = oneArg((p:Player, c:Command, args:Array[String]) => getWarp(args(0), p) match {
+  val warpCommand = oneArg((p, c) => getWarp(c.args.head, p) match {
     case Some(w) => p.teleport(w.location(p.getWorld))
-    case _ => p.sendError("no such warp: " + args(0))
+    case _ => p.sendError("no such warp: " + c.args.head)
   })
 
-  val listWarpsCommand = (p:Player, c:Command, args:Array[String]) =>
-    warpsFor(p).map(_.toString).foreach{w => logInfo(w); p.sendMessage(w) }
+  val listWarpsCommand = command((p,c) => warpsFor(p).foreach{w => p.sendMessage(w.toString) })
 
-  val deleteAllWarpsCommand = (p:Player, c:Command, args:Array[String]) =>
-    findAll(classOf[Warp]).foreach{ w => logInfo("deleting: " + w); dbDelete(w) }
+  val deleteAllWarpsCommand = command((p, c) =>
+    findAll(classOf[Warp]).foreach{ w => logInfo("deleting: " + w); dbDelete(w) })
 
-  val deleteWarpCommand = oneArg((p:Player, c:Command, args:Array[String]) => getWarp(args(0), p) match {
-    case Some(w) => p.messageAfter("deleted warp: " + args(0)) { dbDelete(w) }
-    case _ => p.sendError("no such warp: " + args(0))
+  val deleteWarpCommand = oneArg((p,c) => getWarp(c.args.head, p) match {
+    case Some(w) => p.messageAfter("deleted warp: " + c.args.head) { dbDelete(w) }
+    case _ => p.sendError("no such warp: " + c.args.head)
   })
 }
 
