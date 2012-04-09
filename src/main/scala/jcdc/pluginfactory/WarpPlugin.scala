@@ -27,9 +27,16 @@ class WarpPlugin extends CommandsPlugin {
 
   val setWarpCommand = oneArg((p, c) => {
     val warpName = c.args.head
-    getWarp(warpName, p)(
-      p.messageAfter("created warp: " + warpName) { db.insert(createWarp(warpName, p)) },
-      w => p.messageAfter("overwrote warp: " + warpName) { db.delete(w); db.insert(createWarp(warpName, p)) }
+    getWarp(warpName, p)({
+        db.insert(createWarp(warpName, p))
+        p ! "created warp: " + warpName
+      },
+      w => {
+        // TODO: can i use an update here?
+        db.delete(w)
+        db.insert(createWarp(warpName, p))
+        p ! ("overwrote warp: " + warpName)
+      }
     )
   })
 
@@ -43,7 +50,7 @@ class WarpPlugin extends CommandsPlugin {
 
   val deleteWarpCommand = oneArg((p,c) => getWarp(c.args.head, p)(
     p.sendError("no such warp: " + c.args.head),
-    w => p.messageAfter("deleted warp: " + c.args.head) { db.delete(w) }
+    w => { db.delete(w); p ! ("deleted warp: " + c.args.head) }
   ))
 }
 

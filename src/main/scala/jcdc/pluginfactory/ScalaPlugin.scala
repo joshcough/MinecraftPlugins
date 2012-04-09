@@ -76,22 +76,25 @@ object ScalaPlugin {
     def world  = player.getWorld
     def server = player.getServer
 
-    def messageAfter[T](message: => String)(f: => T): T = { val t = f; player.sendMessage(message); t }
-    def messageBefore[T](message:String)(f: => T): T = { player.sendMessage(message); f }
-    def messageAround[T](beforeMessage:String, afterMessage: => String)(f: => T): T = {
-      player.sendMessage(beforeMessage); val t = f; player.sendMessage(afterMessage); t
+    def doTo(otherPlayer: Player, f: => Unit, actionName: String){
+      f
+      otherPlayer  ! (GREEN + "you have been " + actionName + " by " + player.name)
+      player       ! (GREEN + "you have " + actionName + " " + otherPlayer.name)
     }
+
+    def !  (s:String)    = player.sendMessage(s)
+    def !* (ss: String*) = ss.foreach(s => player ! s)
     def sendError(message:String) = player.sendMessage(RED + message)
-    def sendUsage(cmd:Command) = sendError(cmd.getUsage)
+    def sendUsage(cmd:Command)    = sendError(cmd.getUsage)
+    def sendUsage(cmd:CommandArguments) = sendError(cmd.cmd.getUsage)
     def findPlayer(name:String)(f: Player => Unit) = server.findPlayer(name) match {
       case Some(p) => f(p)
       case None => sendError("kill could not find player: " + name)
     }
     def findPlayers(names:List[String])(f: Player => Unit) = names.foreach(n => findPlayer(n)(f))
     def ban(reason:String){ player.setBanned(true); player.kickPlayer("banned: " + reason) }
-    def kill(playerName:String) = player.findPlayer(playerName){ p =>
-      p.messageAfter(RED + "you have been killed by: " + player.getName){ p.setHealth(0) }
-    }
+    def kill(playerName:String) = findPlayer(playerName)(p => doTo(p, p.setHealth(0), "killed"))
+    def teleportTo(otherPlayer: Player) = player.teleport(otherPlayer)
     def strike = world.strikeLightning(loc)
   }
   // Command combinators.
