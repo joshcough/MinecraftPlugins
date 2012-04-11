@@ -40,3 +40,6 @@ commands:
    ban:
       description: Ban a list of players
       usage: /<command> player-name+
+   drill:
+      description: Drill down to bedrock immediately
+      usage: /<command>

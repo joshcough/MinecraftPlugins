@@ -1,27 +1,31 @@
 package jcdc.pluginfactory
 
 import java.util.logging.Logger
-import org.bukkit.{ChatColor, Location, Material, OfflinePlayer, Server, World}
+import org.bukkit.{ChatColor, Effect, Location, Material, OfflinePlayer, Server, World}
 import org.bukkit.block.Block
 import org.bukkit.command.{Command, CommandSender}
 import org.bukkit.entity.{Entity, EntityType, Player}
 import org.bukkit.event.{Cancellable, EventHandler => EH, Listener}
 import org.bukkit.event.block.{BlockBreakEvent, BlockDamageEvent}
 import org.bukkit.event.entity.{EntityEvent, EntityDamageEvent, PlayerDeathEvent, EntityDamageByEntityEvent}
-import org.bukkit.event.player.{PlayerEvent, PlayerChatEvent}
+import org.bukkit.event.player.{PlayerMoveEvent, PlayerEvent, PlayerChatEvent}
 import org.bukkit.event.weather.WeatherChangeEvent
 import org.bukkit.inventory.ItemStack
 import ChatColor._
+import Effect._
+import Material._
 
 object ScalaPlugin {
 
   val log = Logger.getLogger("Minecraft")
 
+  implicit def pimpedEntity(e:Entity)           = new PimpedEntity(e)
   implicit def pimpedPlayer(player:Player)      = new PimpedPlayer(player)
   implicit def pimpedLocaton(l:Location)        = new PimpedLocation(l)
   implicit def pimpedWorld(w:World)             = new PimpedWorld(w)
   implicit def pimpedServer(s:Server)           = new PimpedServer(s)
   implicit def pimpedBlock(b:Block)             = new PimpedBlock(b)
+  implicit def pimpedItemStack(i:ItemStack)     = new PimpedItemStack(i)
   implicit def pimpedCancellable(c:Cancellable) = new PimpedCancellable(c)
   implicit def pimpedEntityEvent(e:EntityEvent) = new PimpedEntity(e.getEntity)
   implicit def pimpedPlayerEvent(e:PlayerEvent) = new PimpedPlayer(e.getPlayer)
@@ -31,14 +35,22 @@ object ScalaPlugin {
   }
 
   case class PimpedBlock(b:Block) {
-    def world = b.getWorld
-    def loc   = b.getLocation
-    def blocksAbove: Stream[Block] = {
-      val ba = new Location(b.getWorld, b.getX.toDouble, b.getY.toDouble + 1, b.getZ.toDouble).getBlock
-      ba #:: ba.blocksAbove
-    }
-    def isA(m:Material) = b.getType == m
+    lazy val world = b.getWorld
+    lazy val loc   = b.getLocation
+    lazy val (xd, yd, zd) = (b.getX.toDouble, b.getY.toDouble, b.getZ.toDouble)
+    lazy val blockAbove = world.blockAt(xd, yd + 1, zd)
+    lazy val blockBelow = world.blockAt(xd, yd - 1, zd)
+    def blocksAbove: Stream[Block] = blockAbove #:: blockAbove.blocksAbove
+    def blocksBelow: Stream[Block] = blockBelow #:: blockBelow.blocksBelow
+    def is(m:Material)    = b.getType == m
+    def isA(m:Material)   = b.getType == m
+    def isNot(m:Material) = b.getType != m
     def itemStack(n:Int) = new ItemStack(b.getType, 1, b.getData)
+    def erase = {
+      b.world.dropItem(b.loc, b.itemStack(1))
+      b.world.playEffect(b.loc, SMOKE, 1)
+      b.setType(AIR)
+    }
   }
   case class PimpedCancellable(c:Cancellable){
     def cancel = c.setCancelled(true)
@@ -51,12 +63,20 @@ object ScalaPlugin {
     def server   = e.getServer
     def world    = e.getWorld
     def whenPlayer(f: Player => Unit) = if(e.isInstanceOf[Player]) f(e.asInstanceOf[Player])
+    def isA(et:EntityType)  = e.getType == et
+    def isAn(et:EntityType) = e.getType == et
+  }
+  case class PimpedItemStack(i:ItemStack){
+    def isA(m:Material)  = i.getType == m
+    def isAn(m:Material) = i.getType == m
   }
   case class PimpedWorld(w:World){
     def entities = w.getEntities
+    def blockAt(x: Double, y: Double, z: Double) = new Location(w, x, y, z).getBlock
   }
   case class PimpedLocation(loc: Location){
     def world = loc.getWorld
+    def block = loc.getBlock
     def spawn(entityType:  EntityType) = world.spawnCreature(loc, entityType)
     def spawnN(entityType: EntityType, n: Int) = for (i <- 1 to n) spawn(entityType)
   }
@@ -170,6 +190,7 @@ trait ListenerPlugin extends ScalaPlugin {
 case class ListeningFor(listener:Listener) extends ListenerPlugin
 
 trait CommandsPlugin extends ScalaPlugin {
+
   val commands: Map[String, CommandHandler]
   private def lowers: Map[String, CommandHandler] = commands.map{ case (k,v) => (k.toLowerCase, v)}
   override def onEnable(){
@@ -184,11 +205,18 @@ trait CommandsPlugin extends ScalaPlugin {
 }
 
 object Listeners {
+  def OnPlayerMove(f: PlayerMoveEvent => Unit) = new Listener {
+    @EH def on(e:PlayerMoveEvent) = f(e)
+  }
   def OnEntityDamageByEntity(f: EntityDamageByEntityEvent => Unit) = new Listener {
     @EH def on(e:EntityDamageByEntityEvent) = f(e)
   }
   def OnPlayerDamageByEntity(f: (Player, EntityDamageByEntityEvent) => Unit) = new Listener {
     @EH def on(e:EntityDamageByEntityEvent) = e.whenPlayer(f(_, e))
+  }
+  def OnEntityDamageByPlayer(f: (Entity, Player, EntityDamageByEntityEvent) => Unit) = new Listener {
+    @EH def on(e:EntityDamageByEntityEvent) =
+      if(e.getDamager.isInstanceOf[Player]) f(e.getEntity,e.getDamager.asInstanceOf[Player], e)
   }
   def OnPlayerDamage(f: (Player, EntityDamageEvent) => Unit) = new Listener {
     @EH def on(e:EntityDamageEvent)  = e.whenPlayer(f(_, e))

@@ -1,43 +1,52 @@
 package jcdc.pluginfactory
 
-import org.bukkit.Effect
-import org.bukkit.Material._
-import org.bukkit.entity.{Player, Arrow}
-import org.bukkit.entity.EntityType._
+import org.bukkit.Material.{DIAMOND_AXE, LOG}
+import org.bukkit.entity.EntityType.{ARROW, ZOMBIE}
 import ScalaPlugin._
 import Listeners._
+import org.bukkit.entity.Player
 
 class NoRain extends ListenerPlugin {
   val listener = OnWeatherChange(e => e.cancelIf(e.rain, broadcast("Put up an umbrella.")))
 }
 
-class God extends ListenerPlugin with CommandsPlugin {
-  val godMap = collection.mutable.Map[Player, Boolean]().withDefaultValue(false)
-  val listener = OnPlayerDamage { (p, e) => e.cancelIf(godMap(p)) }
-  val commands = Map("god" -> oneArg((p, _) => {
-    godMap.update(p, ! godMap(p))
-    p ! ("god mode is now " + (if(godMap(p)) "on" else "off"))
-  }))
-}
-
 class LightningArrows extends ListeningFor(OnEntityDamageByEntity { e =>
-  if(e.getDamager.isInstanceOf[Arrow]) e.world.strikeLightning(e.loc)
+  if(e.getDamager isAn ARROW) e.world.strikeLightning(e.loc)
 })
 
 class BanArrows extends ListeningFor(OnPlayerDamageByEntity { (p, e) =>
-  if(e.getDamager.isInstanceOf[Arrow]) p.ban("struck by an arrow!")
+  if(e.getDamager isAn ARROW) p.ban("struck by an arrow!")
 })
 
+class Thor extends ListeningFor(OnEntityDamageByPlayer { (e, p, _) =>
+  if (p.getItemInHand isA DIAMOND_AXE) p.world.strikeLightning(e.loc)
+})
+
+class ZombieApocalypse extends ListeningFor(OnPlayerDeath { (p, _) =>  p.loc.spawn(ZOMBIE) })
+
+class TreeDelogger extends ListeningFor(OnBlockBreak { (b,e) =>
+  if(b isA LOG) for(b <- b #:: b.blocksAbove.takeWhile(_ isA LOG)) b.erase
+})
+
+class God extends ListenerPlugin with CommandsPlugin {
+  val isAGod   = collection.mutable.Map[Player, Boolean]().withDefaultValue(false)
+  val listener = OnPlayerDamage { (p, e) => e cancelIf isAGod(p) }
+  val commands = Map("god" -> oneArg((p, _) => {
+    isAGod.update(p, ! isAGod(p))
+    p ! ("god mode is now " + (if(isAGod(p)) "on" else "off"))
+  }))
+}
+
 class BlockChanger extends ListenerPlugin with CommandsPlugin {
-  val users = collection.mutable.Map[Player, Int]()
+  val users    = collection.mutable.Map[Player, Int]()
   val listener = OnBlockDamage((b, e) => users.get(e.getPlayer).foreach(b.setTypeId(_)))
   val commands = Map("bc" -> oneArg((p, c) => c.args.head.toLowerCase match {
     case "off" =>
       users.remove(p)
-      p ! ("bc has been disabled")
+      p ! "bc has been disabled"
     case n     =>
       users += (p -> n.toInt)
-      p !("bc using blockId="+c.args.head.toInt)
+      p ! ("bc using blockId="+c.args.head.toInt)
   }))
 }
 
@@ -51,13 +60,3 @@ object Curses{
 class CurseBan extends ListeningFor(OnPlayerChat((p, e) => Curses.handle(e, e.player.ban("no swearing"))))
 
 class CursePreventer extends ListeningFor(OnPlayerChat((p, e) => Curses.handle(e, ())))
-
-class ZombieApocalypse extends ListeningFor(OnPlayerDeath { (p, e) =>  p.loc.spawn(ZOMBIE) })
-
-class TreeDelogger extends ListeningFor(OnBlockBreak { (b,e) =>
-  if(b.isA(LOG)) for(b <- b.blocksAbove.takeWhile(_.isA(LOG))){
-    b.world.playEffect(b.loc, Effect.SMOKE, 1)
-    b.world.dropItem(b.loc, b.itemStack(1))
-    b.setType(AIR)
-  }
-})
