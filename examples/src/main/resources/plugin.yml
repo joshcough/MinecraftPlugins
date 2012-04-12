@@ -1,0 +1,51 @@
+name: MultiPlayerCommands
+main: jcdc.pluginfactory.examples.MultiPlayerCommands
+author: jacycough
+version: 0.1
+database: true
+commands:
+   gm:
+      description: Game your game mode.
+      usage: /<command> c or s
+   kill:
+      description: Kill entities (only for ops).
+      usage: /<command> player player-name or /<command> entity-type (with an s)
+   set-time:
+      description: Sets the time
+      usage: /<command> h
+   day:
+      description: Sets the time to 1
+      usage: /<command>
+   night:
+      description: Sets the time to 15000
+      usage: /<command>
+   spawn:
+      description: Spawn some mobs
+      usage: /<command> mob-name number-to-spawn
+   entities:
+      description: Display all the entities
+      usage: /<command>
+   feed:
+      description: Fill a players hunger bar.
+      usage: /<command> player-name
+   starve:
+      description: Drain a players hunger bar.
+      usage: /<command> player-name
+   goto:
+      description: Teleport to a player.
+      usage: /<command> player-name
+   shock:
+      description: Shock a player.
+      usage: /<command> player-name
+   ban:
+      description: Ban a list of players
+      usage: /<command> player-name+
+   drill:
+      description: Drill down to bedrock immediately
+      usage: /<command>
+   up:
+      description: Go up to the surface
+      usage: /<command>
+   box:
+      description: Put a box around yourself, made of any material
+      usage: /<command> material-type

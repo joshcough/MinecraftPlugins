@@ -1,5 +1,5 @@
 name: MultiPlayerCommands
-main: jcdc.pluginfactory.examples.examples.MultiPlayerCommands
+main: jcdc.pluginfactory.examples.MultiPlayerCommands
 author: jacycough
 version: 0.1
 database: true
