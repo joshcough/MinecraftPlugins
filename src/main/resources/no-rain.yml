@@ -1,4 +1,4 @@
 name: NoRain
-main: jcdc.pluginfactory.NoRain
+main: jcdc.pluginfactory.examples.NoRain
 author: jacycough
 version: 0.1

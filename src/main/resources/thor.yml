@@ -1,4 +1,4 @@
 name: Thor
-main: jcdc.pluginfactory.Thor
+main: jcdc.pluginfactory.examples.Thor
 author: jacycough
 version: 0.1

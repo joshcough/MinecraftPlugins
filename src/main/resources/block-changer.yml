@@ -1,5 +1,5 @@
 name: BlockChanger
-main: jcdc.pluginfactory.BlockChanger
+main: jcdc.pluginfactory.examples.BlockChanger
 author: jacycough
 version: 0.1
 commands:

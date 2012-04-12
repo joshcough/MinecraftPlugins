@@ -1,5 +1,5 @@
 name: God
-main: jcdc.pluginfactory.God
+main: jcdc.pluginfactory.examples.God
 author: jacycough
 version: 0.1
 commands:

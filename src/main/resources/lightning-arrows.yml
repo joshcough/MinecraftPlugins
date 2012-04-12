@@ -1,4 +1,4 @@
 name: LightningArrows
-main: jcdc.pluginfactory.LightningArrows
+main: jcdc.pluginfactory.examples.LightningArrows
 author: jacycough
 version: 0.1

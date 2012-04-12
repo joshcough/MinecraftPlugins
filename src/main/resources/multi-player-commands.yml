@@ -1,5 +1,5 @@
 name: MultiPlayerCommands
-main: jcdc.pluginfactory.MultiPlayerCommands
+main: jcdc.pluginfactory.examples.examples.MultiPlayerCommands
 author: jacycough
 version: 0.1
 database: true
@@ -43,3 +43,9 @@ commands:
    drill:
       description: Drill down to bedrock immediately
       usage: /<command>
+   up:
+      description: Go up to the surface
+      usage: /<command>
+   box:
+      description: Put a box around yourself, made of any material
+      usage: /<command> material-type
