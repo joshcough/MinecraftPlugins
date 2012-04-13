@@ -10,7 +10,8 @@ case class DB[T](db:EbeanServer, c: Class[T]){
   def query = db.find(c)
   def findAll = query.findList
   def foreach[U](f: T => U) = findAll.foreach(f)
-  def delete(a:AnyRef){ db.delete(a) }
+  def delete(t:T){ db.delete(t) }
+  def update(t:T){ db.update(t) }
 }
 
 trait SingleClassDBPlugin[T] extends ScalaPlugin {

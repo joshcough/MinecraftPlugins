@@ -34,9 +34,11 @@ class WarpPlugin extends CommandsPlugin with SingleClassDBPlugin[Warp]{
     { db.insert(createWarp(warpName, p)); p ! "created warp: " + warpName },
     w => {
       // TODO: can i use an update here?
+      // TODO: well, i need to make a case class out of warp
+      // then i need to put the annotations on its constructor params... have to test that.
       db.delete(w)
       db.insert(createWarp(warpName, p))
-      p ! ("overwrote warp: " + warpName)
+      p ! ("updated warp: " + warpName)
     }
   )})
 
@@ -48,7 +50,7 @@ class WarpPlugin extends CommandsPlugin with SingleClassDBPlugin[Warp]{
 
   // filtering here instead of in sql because the number of warps should be small. nbd.
   def getWarp[T](warpName: String, p: Player)(t: => T, w: Warp => T) =
-    warpsFor(p).filter(_.name == warpName).headOption.fold(t, w)
+    warpsFor(p).filter(_.name == warpName).headOption.fold(t)(w)
 }
 
 @javax.persistence.Entity
@@ -58,9 +60,7 @@ class Warp {
   var id = 0
   var name: String = ""
   var player = ""
-  var x = 0d;
-  var y = 0d;
-  var z = 0d
+  var x = 0d; var y = 0d; var z = 0d
   def location(world: World) = new Location(world, x, y, z)
   override def toString = player + "." + name +(x, y, z)
 }

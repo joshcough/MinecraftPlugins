@@ -24,7 +24,7 @@ class MultiPlayerCommands extends jcdc.pluginfactory.CommandsPlugin {
     "gmc"      -> command((p, _) => p.setGameMode(CREATIVE)),
     "spawn"    ->
       oneOrMoreArgs((p, c) => findEntity(c.args.head).fold(
-        p.sendError("no such creature: " + c.args.head),
+        p.sendError("no such creature: " + c.args.head))(
         e => p.loc.spawnN(e, (if (c.args.length == 2) c.args.head.toInt else 1))
       )),
     "ban"      ->
@@ -36,25 +36,23 @@ class MultiPlayerCommands extends jcdc.pluginfactory.CommandsPlugin {
       opOnly(oneOrMoreArgs((killer, c) => c.args.map(_.toLowerCase) match {
         case "player" :: p :: Nil => killer.kill(p)
         case name :: Nil => findEntity(name).fold(
-          killer.sendError("no such entity: " + name),
+          killer.sendError("no such entity: " + name))(
           e => killer.world.entities.filter { _.isAn(e) }.foreach(_.remove)
         )
         case _ => killer.sendUsage(c.cmd)
       })),
+    "box"      -> materialCommand((p, m, _) => p.blocksAround.foreach(_ changeTo m)),
+    "safe"     -> command((p, _) => p.blocksAround.foreach(_ changeTo BEDROCK)),
+    "up"       -> command((p, _) => p.teleportTo(p.world.getHighestBlockAt(p.loc))),
     "drill"    ->
       command((p, _) => {
         for (b <- p.loc.block.blocksBelow.takeWhile(_ isNot BEDROCK)) {
           if (b isNot AIR) b.erase
           if (b.blockBelow is BEDROCK) {
-            b.nthBlockAbove(4).setType(STATIONARY_LAVA)
-            b.nthBlockAbove(2).setType(STATIONARY_WATER)
+            b.nthBlockAbove(4) changeTo STATIONARY_LAVA
+            b.nthBlockAbove(2) changeTo STATIONARY_WATER
           }
         }
-      }),
-    "up"       -> command((p, _) => p.teleportTo(p.world.getHighestBlockAt(p.loc))),
-    "box"      ->
-      oneArg((p, c) => p.withMaterial(c.args.head)(
-        m => p.loc.block.neighborsForPlayer.foreach(_.setType(m))
-      ))
+      })
   )
 }

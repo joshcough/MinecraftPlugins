@@ -1,8 +1,9 @@
 package jcdc.pluginfactory
 
-import org.bukkit.entity.Player
 import org.bukkit.ChatColor._
+import org.bukkit.Material
 import org.bukkit.command.{CommandSender, Command}
+import org.bukkit.entity.Player
 
 case class CommandArguments(cmd:Command, args: List[String])
 
@@ -32,6 +33,7 @@ trait CommandsPlugin extends ScalaPlugin {
 
   def command(ch:CommandHandler)       = minArgs(0, ch)
   def oneArg (ch:CommandHandler)       = minArgs(1, ch)
+  def twoArgs(ch:CommandHandler)       = minArgs(2, ch)
   def oneOrMoreArgs(ch:CommandHandler) = oneArg(ch)
 
   def p2p(p2pc:PlayerToPlayerCommand): CommandHandler = oneOrMoreArgs((sender, cmd) =>
@@ -39,4 +41,7 @@ trait CommandsPlugin extends ScalaPlugin {
 
   def p2pMany(p2pc:PlayerToPlayerCommand): CommandHandler = (sender: Player, args: CommandArguments) =>
     sender.findPlayers(args.args.toList) { receiver => p2pc(sender, receiver, args) }
+
+  def materialCommand(f: (Player, Material, CommandArguments) => Unit) = oneArg((p, c) =>
+    p.withMaterial(c.args.head)(m => f(p, m, c)))
 }

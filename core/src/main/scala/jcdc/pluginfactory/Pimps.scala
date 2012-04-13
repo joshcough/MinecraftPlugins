@@ -72,8 +72,10 @@ trait Pimps {
     def erase = {
       b.world.dropItem(b.loc, b.itemStack(1))
       b.world.playEffect(b.loc, SMOKE, 1)
-      b.setType(AIR)
+      changeTo(AIR)
     }
+
+    def changeTo(m: Material) = b.setType(m)
   }
 
   case class PimpedCancellable(c:Cancellable){
@@ -100,6 +102,11 @@ trait Pimps {
   case class PimpedWorld(w:World){
     def entities = w.getEntities
     def blockAt(x: Double, y: Double, z: Double) = new Location(w, x, y, z).getBlock
+    def between(loc1:Location, loc2: Location): Stream[Block] = {
+      val ((x1, y1, z1), (x2, y2, z2)) = (loc1.xyz, loc2.xyz)
+      def range(i1: Int, i2: Int) = (if(i1 < i2) i1 to i2 else i2 to i1).toStream
+      for (x <- range(x1,x2); y <- range(y1,y2); z <- range(z1,z2)) yield w.blockAt(x,y,z)
+    }
   }
 
   case class PimpedLocation(loc: Location){
@@ -139,12 +146,13 @@ trait Pimps {
       attemptingWith(om)("No such material: " + nameOrId, f)
     }
     def attemptingWith[T, U](ot: Option[T])(s: => String, f: T => U){
-      ot.fold(player ! s, t => f(t))
+      ot.fold(player ! s)(t => f(t))
     }
 
     def blockOn         = player.loc.block
     def blockAboveHead  = blockOn.nthBlockAbove(2)
     def blocksAboveHead = blockOn.blockAbove.blockAbove.blocksAbove
+    def blocksAround    = blockOn.neighborsForPlayer
 
     def doTo(otherPlayer: Player, f: => Unit, actionName: String){
       f
@@ -170,7 +178,7 @@ trait Pimps {
   }
 
   case class PimpedOption[T](ot: Option[T]){
-    def fold[U](u: => U, f: T => U) = ot.map(f).getOrElse(u)
+    def fold[U](u: => U)(f: T => U) = ot.map(f).getOrElse(u)
   }
 
   def findEntity(nameOrId:String) = Option(EntityType.fromName(nameOrId)).orElse(

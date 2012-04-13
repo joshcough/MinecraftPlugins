@@ -18,29 +18,43 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin {
       p ! ("first position set to: " + e.getClickedBlock.loc.xyz)
     }),
     OnPlayerRightClickBlock((p, e) => if (p isHoldingA WOOD_AXE) {
-      positions.get(p).map(_._1).foreach(l => {
+      for(l <- positions.get(p).map(_._1)) {
         positions.update(p, (l, Some(e.getClickedBlock.loc)))
         p ! ("second position set to: " + e.getClickedBlock.loc.xyz)
-      })
-    }
-  ))
+      }
+    })
+  )
+
+  def run(p: Player)(f: (Location, Location) => Unit) =
+    getPositions(p).fold(p ! "Both positions need to be set!")(locs => f(locs._1, locs._2))
 
   val commands = Map(
-    "/wand" -> command((p, _) => p.world.dropItem(p.loc, new ItemStack(WOOD_AXE, 1))),
-    "/list" -> oneArg((p, _)  => positions.get(p).fold(
-      p ! "No positions set!",
-      lol => p ! ("first: " + lol._1.xyz + ", second: " + lol._2.map(_.xyz).getOrElse("None"))
+    "/wand"   -> command((p, _) => p.world.dropItem(p.loc, new ItemStack(WOOD_AXE, 1))),
+    "/list"   -> command((p, _) => positions.get(p).fold(
+      p ! "No positions set!")(
+      lol => p ! ("first: " + lol._1.xyz + ", second: " + lol._2.fold("Unset!")(_.xyz.toString))
     )),
-    "/set"  -> oneArg((p, c)  => getPositions(p).fold(
-      p ! "Both positions need to be set!",
-      locs => p.withMaterial(c.args.head)(m => {
-        val (x1, y1, z1) = locs._1.xyz
-        val (x2, y2, z2) = locs._2.xyz
-        def range(i1: Int, i2: Int) = if(i1 < i2) i1 to i2 else i2 to i1
-        for (x <- range(x1, x2); y <- range(y1, y2); z <- range(z1, z2)){
-          p.world.blockAt(x, y, z).setType(m)
-        }
-      })
-    ))
+    "/set"    -> materialCommand((p, m, _)  =>
+      run(p)((l1, l2) => p.world.between(l1, l2).foreach(_ changeTo m))
+    ),
+    "/change" -> twoArgs(command((p, c) =>
+      p.withMaterial(c.args(0))(oldM => p.withMaterial(c.args(1))(newM =>
+        run(p)((l1, l2) => p.world.between(l1, l2).filter(_ is oldM).map(_ changeTo newM).force)
+    ))))
   )
 }
+
+/**
+ TODO: figure out how to change this into a monad.
+
+"/change" -> twoArgs(command((p, c) =>
+p.withMaterial(c.args(0))(oldM => p.withMaterial(c.args(1))(newM =>
+run(p)((l1, l2) => p.world.between(l1, l2).filter(_ is oldM).map(_ changeTo newM).force)
+))))
+
+"/change" -> twoArgs(command((p, c) =>
+   for{
+    oldM <- player.findMaterial(c.args(0))
+    newM <- player.findMaterial(c.args(1))
+   } p.world.between(l1, l2).filter(_ is oldM).map(_ changeTo newM).force)
+ **/
