@@ -1,4 +1,8 @@
-sbt compile
+export BUKKIT=`pwd`/lib
+cd ../core
+./sbt package
+cd ../examples
+cp ../core/target/scala-2.9.1-1/jcdc-plugin-factory_2.9.1-1-0.1.jar lib
 cp src/main/resources/$1 src/main/resources/plugin.yml
 sbt package
 echo rm "$BUKKIT/plugins/$2"

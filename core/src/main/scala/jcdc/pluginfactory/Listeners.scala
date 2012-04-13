@@ -4,9 +4,10 @@ import org.bukkit.block.Block
 import org.bukkit.entity.{Entity, Player}
 import org.bukkit.event.{EventHandler => EH, Listener}
 import org.bukkit.event.block.{BlockBreakEvent, BlockDamageEvent}
+import org.bukkit.event.block.Action._
 import org.bukkit.event.entity.{EntityDamageEvent, PlayerDeathEvent, EntityDamageByEntityEvent}
-import org.bukkit.event.player.{PlayerMoveEvent, PlayerChatEvent}
 import org.bukkit.event.weather.WeatherChangeEvent
+import org.bukkit.event.player.{PlayerInteractEvent, PlayerMoveEvent, PlayerChatEvent}
 
 trait MultiListenerPlugin extends ScalaPlugin {
   val listeners:List[Listener]
@@ -18,7 +19,14 @@ trait ListenerPlugin extends ScalaPlugin {
   override def onEnable(){ super.onEnable(); registerListener(listener) }
 }
 
-object Listeners extends Pimps {
+trait ListenersPlugin extends ScalaPlugin with Listeners {
+  val listeners:List[Listener]
+  override def onEnable(){ super.onEnable(); listeners.foreach(registerListener) }
+}
+
+object Listeners extends Listeners
+
+trait Listeners extends Pimps {
   case class ListeningFor(listener:Listener) extends ListenerPlugin
 
   def OnPlayerMove(f: PlayerMoveEvent => Unit) = new Listener {
@@ -51,5 +59,20 @@ object Listeners extends Pimps {
   }
   def OnWeatherChange(f: WeatherChangeEvent => Unit) = new Listener {
     @EH def on(e:WeatherChangeEvent) = f(e)
+  }
+  def OnPlayerInteract(f: (Player, PlayerInteractEvent) => Unit) = new Listener {
+    @EH def on(e:PlayerInteractEvent) = f(e.getPlayer, e)
+  }
+  def OnPlayerRightClickBlock(f: (Player, PlayerInteractEvent) => Unit) = new Listener {
+    @EH def on(e:PlayerInteractEvent) = if (e.getAction == RIGHT_CLICK_BLOCK) f(e.getPlayer, e)
+  }
+  def OnPlayerLeftClickBlock(f: (Player, PlayerInteractEvent) => Unit) = new Listener {
+    @EH def on(e:PlayerInteractEvent) = if (e.getAction == LEFT_CLICK_BLOCK) f(e.getPlayer, e)
+  }
+  def OnPlayerRightClickAir(f: (Player, PlayerInteractEvent) => Unit) = new Listener {
+    @EH def on(e:PlayerInteractEvent) = if (e.getAction == RIGHT_CLICK_AIR) f(e.getPlayer, e)
+  }
+  def OnPlayerLeftClickAir(f: (Player, PlayerInteractEvent) => Unit) = new Listener {
+    @EH def on(e:PlayerInteractEvent) = if (e.getAction == LEFT_CLICK_AIR) f(e.getPlayer, e)
   }
 }

@@ -31,7 +31,7 @@ trait CommandsPlugin extends ScalaPlugin {
     if(cmd.args.length >= n) ch(player, cmd) else player.sendUsage(cmd.cmd)
 
   def command(ch:CommandHandler)       = minArgs(0, ch)
-  def oneArg(ch:CommandHandler)        = minArgs(1, ch)
+  def oneArg (ch:CommandHandler)       = minArgs(1, ch)
   def oneOrMoreArgs(ch:CommandHandler) = oneArg(ch)
 
   def p2p(p2pc:PlayerToPlayerCommand): CommandHandler = oneOrMoreArgs((sender, cmd) =>

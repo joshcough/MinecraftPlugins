@@ -23,7 +23,7 @@ class MultiPlayerCommands extends jcdc.pluginfactory.CommandsPlugin {
     "gms"      -> command((p, _) => p.setGameMode(SURVIVAL)),
     "gmc"      -> command((p, _) => p.setGameMode(CREATIVE)),
     "spawn"    ->
-      oneOrMoreArgs((p, c) => foldOption(findEntity(c.args.head))(
+      oneOrMoreArgs((p, c) => findEntity(c.args.head).fold(
         p.sendError("no such creature: " + c.args.head),
         e => p.loc.spawnN(e, (if (c.args.length == 2) c.args.head.toInt else 1))
       )),
@@ -35,8 +35,8 @@ class MultiPlayerCommands extends jcdc.pluginfactory.CommandsPlugin {
     "kill"     ->
       opOnly(oneOrMoreArgs((killer, c) => c.args.map(_.toLowerCase) match {
         case "player" :: p :: Nil => killer.kill(p)
-        case name :: Nil => foldOption(findEntity(name))(
-          killer.sendUsage(c.cmd),
+        case name :: Nil => findEntity(name).fold(
+          killer.sendError("no such entity: " + name),
           e => killer.world.entities.filter { _.isAn(e) }.foreach(_.remove)
         )
         case _ => killer.sendUsage(c.cmd)
@@ -51,11 +51,9 @@ class MultiPlayerCommands extends jcdc.pluginfactory.CommandsPlugin {
           }
         }
       }),
-    "up"       -> command((p, _) => p.teleport(p.world.getHighestBlockAt(p.loc).loc)),
-    //p.blocksAboveHead.takeWhile(_ isNot AIR).last.loc
+    "up"       -> command((p, _) => p.teleportTo(p.world.getHighestBlockAt(p.loc))),
     "box"      ->
-      oneArg((p, c) => foldOption(findMaterial(c.args.head))(
-        p.sendError("No such material: " + c.args.head),
+      oneArg((p, c) => p.withMaterial(c.args.head)(
         m => p.loc.block.neighborsForPlayer.foreach(_.setType(m))
       ))
   )

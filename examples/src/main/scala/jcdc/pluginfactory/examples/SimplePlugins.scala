@@ -7,7 +7,7 @@ import org.bukkit.entity.EntityType.{ARROW, ZOMBIE}
 import org.bukkit.entity.Player
 
 class Thor extends ListeningFor(OnEntityDamageByPlayer { (e, p, _) =>
-  if (p.getItemInHand isA DIAMOND_AXE) p.world.strikeLightning(e.loc)
+  if (p isHoldingA DIAMOND_AXE) p.world.strikeLightning(e.loc)
 })
 
 class ZombieApocalypse extends ListeningFor(OnPlayerDeath { (p, _) => p.loc.spawn(ZOMBIE) })

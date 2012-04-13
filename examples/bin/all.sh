@@ -8,4 +8,5 @@
 ./bin/thor.sh
 ./bin/tree-delogger.sh
 ./bin/warp.sh
+./bin/world-edit.sh
 ./bin/zombie-apocalypse.sh

@@ -48,7 +48,7 @@ class WarpPlugin extends CommandsPlugin with SingleClassDBPlugin[Warp]{
 
   // filtering here instead of in sql because the number of warps should be small. nbd.
   def getWarp[T](warpName: String, p: Player)(t: => T, w: Warp => T) =
-    foldOption(warpsFor(p).filter(_.name == warpName).headOption)(t, w)
+    warpsFor(p).filter(_.name == warpName).headOption.fold(t, w)
 }
 
 @javax.persistence.Entity

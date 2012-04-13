@@ -31,6 +31,7 @@ trait Pimps {
     def rain = e.toWeatherState
     def sun  = ! e.toWeatherState
   }
+  implicit def pimpedOption[T](ot: Option[T])   = new PimpedOption(ot)
 
   case class PimpedBlock(b:Block) {
     lazy val world = b.getWorld
@@ -102,6 +103,8 @@ trait Pimps {
   }
 
   case class PimpedLocation(loc: Location){
+    lazy val (x,y,z) = (loc.getX.toInt, loc.getY.toInt, loc.getZ.toInt)
+    lazy val xyz = (x, y, z)
     def world = loc.getWorld
     def block = loc.getBlock
     def spawn(entityType:  EntityType) = world.spawnCreature(loc, entityType)
@@ -125,8 +128,22 @@ trait Pimps {
     def world  = player.getWorld
     def server = player.getServer
 
-    def blockOn = player.loc.block
-    def blockAboveHead = blockOn.nthBlockAbove(2)
+    def isHolding  (m: Material) = player.getItemInHand.getType == m
+    def isHoldingA (m: Material) = isHolding(m)
+    def isHoldingAn(m: Material) = isHolding(m)
+
+    def withMaterial[T](nameOrId:String)(f: Material => T) {
+      val om = Option(getMaterial(nameOrId.toUpperCase)).orElse(
+        try Option(getMaterial(nameOrId.toInt)) catch { case e => None }
+      )
+      attemptingWith(om)("No such material: " + nameOrId, f)
+    }
+    def attemptingWith[T, U](ot: Option[T])(s: => String, f: T => U){
+      ot.fold(player ! s, t => f(t))
+    }
+
+    def blockOn         = player.loc.block
+    def blockAboveHead  = blockOn.nthBlockAbove(2)
     def blocksAboveHead = blockOn.blockAbove.blockAbove.blocksAbove
 
     def doTo(otherPlayer: Player, f: => Unit, actionName: String){
@@ -148,6 +165,15 @@ trait Pimps {
     def ban(reason:String){ player.setBanned(true); player.kickPlayer("banned: " + reason) }
     def kill(playerName:String) = findPlayer(playerName)(p => doTo(p, p.setHealth(0), "killed"))
     def teleportTo(otherPlayer: Player) = player.teleport(otherPlayer)
+    def teleportTo(b: Block)            = player.teleport(b.loc)
     def strike = world.strikeLightning(loc)
   }
+
+  case class PimpedOption[T](ot: Option[T]){
+    def fold[U](u: => U, f: T => U) = ot.map(f).getOrElse(u)
+  }
+
+  def findEntity(nameOrId:String) = Option(EntityType.fromName(nameOrId)).orElse(
+    try Option(EntityType.fromId(nameOrId.toInt)) catch { case e => None }
+  )
 }
