@@ -9,8 +9,6 @@ import Material._
 class WorldEdit extends ListenersPlugin with CommandsPlugin {
 
   val positions   = collection.mutable.Map[Player, (Location, Option[Location])]()
-  def getPositions(p: Player): Option[(Location, Location)] =
-    positions.get(p).flatMap(lol   => lol._2.map(loc => (lol._1, loc)))
 
   val listeners = List(
     OnPlayerLeftClickBlock((p, e)  => if (p isHoldingA WOOD_AXE) {
@@ -26,9 +24,6 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin {
     })
   )
 
-  def run(p: Player)(f: (Location, Location) => Unit) =
-    getPositions(p).fold(p ! "Both positions need to be set!")(locs => f(locs._1, locs._2))
-
   val commands = Map(
     "/wand"   -> noArgs(p => p.world.dropItem(p.loc, new ItemStack(WOOD_AXE, 1))),
     "/set"    -> args(material){ case p ~ m  =>
@@ -38,4 +33,10 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin {
       run(p)((l1, l2) => p.world.between(l1, l2).filter(_ is oldM).map(_ changeTo newM).force)
     }
   )
+
+  // helper functions
+  def getPositions(p: Player): Option[(Location, Location)] =
+    positions.get(p).flatMap(lol   => lol._2.map(loc => (lol._1, loc)))
+  def run(p: Player)(f: (Location, Location) => Unit) =
+    getPositions(p).fold(p ! "Both positions need to be set!")(locs => f(locs._1, locs._2))
 }
