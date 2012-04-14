@@ -14,15 +14,15 @@ class WarpPlugin extends CommandsPluginV2 with SingleClassDBPlugin[Warp]{
     "warp"        -> args(warp){ case p ~ w => p.teleport(w.location(p.getWorld)) },
     "delete-warp" -> args(warp){ case p ~ w => db.delete(w); p ! ("deleted warp: " + w.name) },
     "delete-all"  -> opOnly(noArgs(p => db.foreach { w => p ! ("deleting: " + w); db.delete(w) })),
-    "set-warp"    -> args(warp||anyString){ case p ~ warpOrName  => warpOrName match {
-      case Left(w) =>
+    "set-warp"    -> args(warp||anyString){
+      case p ~ Left(w)  =>
         // TODO: can i use an update here?
         // TODO: well, i need to make a case class out of warp
         // then i need to put the annotations on its constructor params... have to test that.
         db.delete(w)
         db.insert(createWarp(w.name, p))
         p ! ("updated warp: " + w.name)
-      case Right(name) => db.insert(createWarp(name, p)); p ! "created warp: " + name }
+      case p ~ Right(name) => db.insert(createWarp(name, p)); p ! "created warp: " + name
     }
   )
 
@@ -50,5 +50,5 @@ class Warp {
   var player = ""
   var x = 0d; var y = 0d; var z = 0d
   def location(world: World) = new Location(world, x, y, z)
-  override def toString = player + "." + name +(x, y, z)
+  override def toString = player + "." + name + (x, y, z)
 }

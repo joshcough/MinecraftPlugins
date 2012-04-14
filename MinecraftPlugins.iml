@@ -13,6 +13,14 @@
       <sourceFolder url="file://$MODULE_DIR$/core/src/main/scala" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples/src/main/scala" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/.idea" />
+      <excludeFolder url="file://$MODULE_DIR$/core/project" />
+      <excludeFolder url="file://$MODULE_DIR$/core/target" />
+      <excludeFolder url="file://$MODULE_DIR$/examples/lib/plugins" />
+      <excludeFolder url="file://$MODULE_DIR$/examples/lib/world" />
+      <excludeFolder url="file://$MODULE_DIR$/examples/lib/world_nether" />
+      <excludeFolder url="file://$MODULE_DIR$/examples/lib/world_the_end" />
+      <excludeFolder url="file://$MODULE_DIR$/examples/project" />
+      <excludeFolder url="file://$MODULE_DIR$/examples/target" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
