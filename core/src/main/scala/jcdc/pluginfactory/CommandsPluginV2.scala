@@ -1,7 +1,6 @@
 package jcdc.pluginfactory
 
 import org.bukkit.ChatColor._
-import org.bukkit.Material
 import org.bukkit.command.{CommandSender, Command}
 import org.bukkit.entity.{EntityType, Player}
 
@@ -104,13 +103,6 @@ trait CommandsPluginV2 extends ScalaPlugin {
     def apply(p:Player, args: List[String]) = Success(t, args)
   }
 
-  def num = new ArgParser[Int] {
-    def apply(p:Player, args: List[String]) = args match {
-      case Nil => Failure("expected int argument")
-      case x :: xs => try Success(x.toInt, xs) catch { case e => Failure("not a number: " + x) }
-    }
-  }
-
   implicit def stringToParser(s: String) = new ArgParser[String]{
     def apply(p:Player, args: List[String]) = args match {
       case Nil => Failure("expected :" + s + ", but got nothing")
@@ -118,37 +110,23 @@ trait CommandsPluginV2 extends ScalaPlugin {
     }
   }
 
-  def anyString = new ArgParser[String] {
-    def apply(p:Player, args: List[String]) = args match {
-      case Nil => Failure("expected string argument")
-      case x :: xs => Success(x, xs)
-    }
-  }
-
-  def player = new ArgParser[Player] {
-    def apply(p:Player, args: List[String]) = args match {
-      case Nil => Failure("expected player name")
-      case x :: xs => p.server.findPlayer(name).fold[ParseResult[Player]](
-        Failure("couldnt find player: " + x))(Success(_, xs))
-    }
-  }
-
-  def material = new ArgParser[Material] {
-    def apply(p:Player, args: List[String]) = args match {
-      case Nil => Failure("expected player name")
-      case x :: xs => p.findMaterial(x).fold[ParseResult[Material]](
-        Failure("no such material: " + x))(Success(_, xs))
-    }
-  }
-
-  def entity = new ArgParser[EntityType] {
-    def findEntity(nameOrId:String) = Option(EntityType.fromName(nameOrId.toLowerCase)).orElse(
-      try Option(EntityType.fromId(nameOrId.toInt)) catch { case e => None }
+  def num       = token("int"){ (_, s) => try Some(s.toInt) catch { case e => None } }
+  def anyString = token("string"){ (_, s) => Some(s) }
+  def player    = token("player"){ (p, s) => p.server.findPlayer(name) }
+  def material  = token("material"){ (_, s) => findMaterial(s) }
+  def entity    = token("entity type"){ (_, s ) =>
+    Option(EntityType.fromName(s.toLowerCase)).orElse(
+      try Option(EntityType.fromId(s.toInt)) catch { case e => None }
     )
+  }
+
+  def token[T](name:String)(f: (Player, String) => Option[T]) = new ArgParser[T] {
     def apply(p:Player, args: List[String]) = args match {
-      case Nil => Failure("expected player name")
-      case x :: xs => findEntity(x).fold[ParseResult[EntityType]](
-        Failure("no such entity type: " + x))(Success(_, xs))
+      case Nil => Failure("expected " + name + ", got nothing")
+      case x :: xs => f(p, x) match {
+        case None => Failure("no such: " + name)
+        case Some(t) => Success(t, xs)
+      }
     }
   }
 }

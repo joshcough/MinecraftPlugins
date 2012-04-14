@@ -139,9 +139,6 @@ trait Pimps {
     def isHoldingA (m: Material) = isHolding(m)
     def isHoldingAn(m: Material) = isHolding(m)
 
-    def findMaterial(nameOrId: String) = Option(getMaterial(nameOrId.toUpperCase)).orElse(
-      try Option(getMaterial(nameOrId.toInt)) catch { case e => None }
-    )
     def withMaterial[T](nameOrId:String)(f: Material => T) {
       attemptingWith(findMaterial(nameOrId))("No such material: " + nameOrId, f)
     }
@@ -184,6 +181,10 @@ trait Pimps {
 
   def findEntity(nameOrId:String) = Option(EntityType.fromName(nameOrId)).orElse(
     try Option(EntityType.fromId(nameOrId.toInt)) catch { case e => None }
+  )
+
+  def findMaterial(nameOrId: String) = Option(getMaterial(nameOrId.toUpperCase)).orElse(
+    try Option(getMaterial(nameOrId.toInt)) catch { case e => None }
   )
 
   def id[T](t:T) = identity(t)

@@ -26,13 +26,7 @@ class WarpPlugin extends CommandsPluginV2 with SingleClassDBPlugin[Warp]{
     }
   )
 
-  def warp = new ArgParser[Warp] {
-    def apply(p:Player, args: List[String]) = args match {
-      case Nil => Failure("expected warp name")
-      case x :: xs => warpsFor(p).filter(_.name == x).headOption.
-        fold(Failure("no such warp: " + x):ParseResult[Warp])(Success(_, xs))
-    }
-  }
+  def warp = token("warp"){ (p, s) => warpsFor(p).find(_.name == s) }
 
   def createWarp(n: String, p: Player): Warp = {
     val w = new Warp(); w.name = n; w.player = p.name; w.x = p.x; w.y = p.y; w.z = p.z; w
