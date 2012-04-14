@@ -5,7 +5,7 @@ import org.bukkit.Material
 import org.bukkit.command.{CommandSender, Command}
 import org.bukkit.entity.{EntityType, Player}
 
-trait CommandsV2 extends ScalaPlugin {
+trait CommandsPluginV2 extends ScalaPlugin {
 
   type CommandHandler = (Player, Command, List[String]) => Unit
   val commands: Map[String, CommandHandler]
@@ -67,6 +67,16 @@ trait CommandsV2 extends ScalaPlugin {
         case Success(t, rest)   => Success(t, rest)
         case Failure(m1)        => p2(p, args) match {
           case Success(t, rest) => Success(t, rest)
+          case Failure(m2)      => Failure(m1 + " or " + m2)
+        }
+      }
+    }
+
+    def ||[U](p2: => ArgParser[U]) = new ArgParser[Either[T,U]] {
+      def apply(p:Player, args: List[String]): ParseResult[Either[T,U]] = self(p, args) match {
+        case Success(t, rest)   => Success(Left(t), rest)
+        case Failure(m1)        => p2(p, args) match {
+          case Success(u, rest) => Success(Right(u), rest)
           case Failure(m2)      => Failure(m1 + " or " + m2)
         }
       }

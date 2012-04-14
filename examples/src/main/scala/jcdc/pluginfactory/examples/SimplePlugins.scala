@@ -1,7 +1,8 @@
 package jcdc.pluginfactory.examples
 
-import jcdc.pluginfactory.{Listeners, ListenerPlugin, CommandsPlugin}
+import jcdc.pluginfactory.{Listeners, ListenerPlugin, CommandsPluginV2}
 import Listeners._
+import org.bukkit.Material
 import org.bukkit.Material.{DIAMOND_AXE, LOG}
 import org.bukkit.entity.EntityType.{ARROW, ZOMBIE}
 import org.bukkit.entity.Player
@@ -20,22 +21,22 @@ class BanArrows extends ListeningFor(OnPlayerDamageByEntity { (p, e) =>
   if (e.getDamager isAn ARROW) p.ban("struck by an arrow!")
 })
 
-class BlockChanger extends ListenerPlugin with CommandsPlugin {
-  val users = collection.mutable.Map[Player, Int]()
-  val listener = OnBlockDamage((b, e) => users.get(e.getPlayer).foreach(b.setTypeId(_)))
-  val commands = Map("bc" -> oneArg((p, c) => c.args.head.toLowerCase match {
-    case "off" => users.remove(p); p ! "bc has been disabled"
-    case n => users += (p -> n.toInt); p ! ("bc using blockId=" + c.args.head.toInt)
-  }))
+class BlockChanger extends ListenerPlugin with CommandsPluginV2 {
+  val users = collection.mutable.Map[Player, Material]()
+  val listener = OnBlockDamage((b, e) => users.get(e.getPlayer).foreach(b changeTo _))
+  val commands = Map("bc" -> args("off"||material){ case p ~ e => e match {
+    case Left(off) => users.remove(p); p ! "bc has been disabled"
+    case Right(m)  => users += (p -> m); p ! ("bc using: " + m)
+  }})
 }
 
-class God extends ListenerPlugin with CommandsPlugin {
+class God extends ListenerPlugin with CommandsPluginV2 {
   val isAGod = collection.mutable.Map[Player, Boolean]().withDefaultValue(false)
   val listener = OnPlayerDamage { (p, e) => e cancelIf isAGod(p) }
-  val commands = Map("god" -> oneArg((p, _) => {
+  val commands = Map("god" -> noArgs { p =>
     isAGod.update(p, !isAGod(p))
     p ! ("god mode is now " + (if (isAGod(p)) "on" else "off"))
-  }))
+  })
 }
 
 class LightningArrows extends ListeningFor(OnEntityDamageByEntity { e =>
