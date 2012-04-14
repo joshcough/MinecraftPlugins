@@ -24,19 +24,25 @@ class BanArrows extends ListeningFor(OnPlayerDamageByEntity { (p, e) =>
 class BlockChanger extends ListenerPlugin with CommandsPlugin {
   val users = collection.mutable.Map[Player, Material]()
   val listener = OnBlockDamage((b, e) => users.get(e.getPlayer).foreach(b changeTo _))
-  val commands = Map("bc" -> args("off"||material){
-    case p ~ Left(off) => users.remove(p); p ! "bc has been disabled"
-    case p ~ Right(m)  => users += (p -> m); p ! ("bc using: " + m)
-  })
+  val commands = List(
+    Command("bc", "Hit blocks to change them to the block with type blockId, or /bc off to turn off.",
+      args("off"||material){
+        case p ~ Left(off) => users.remove(p); p ! "bc has been disabled"
+        case p ~ Right(m)  => users += (p -> m); p ! ("bc using: " + m)
+      }
+    )
+  )
 }
 
 class God extends ListenerPlugin with CommandsPlugin {
   val isAGod = collection.mutable.Map[Player, Boolean]().withDefaultValue(false)
   val listener = OnPlayerDamage { (p, e) => e cancelIf isAGod(p) }
-  val commands = Map("god" -> noArgs { p =>
-    isAGod.update(p, !isAGod(p))
-    p ! ("god mode is now " + (if (isAGod(p)) "on" else "off"))
-  })
+  val commands = List(
+    Command("god", "Toggle God mode.", noArgs { p =>
+      isAGod.update(p, !isAGod(p))
+      p ! ("god mode is now " + (if (isAGod(p)) "on" else "off"))
+    })
+  )
 }
 
 class LightningArrows extends ListeningFor(OnEntityDamageByEntity { e =>

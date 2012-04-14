@@ -9,12 +9,16 @@ class WarpPlugin extends CommandsPlugin with SingleClassDBPlugin[Warp]{
 
   val dbClass = classOf[Warp]
 
-  val commands = Map(
-    "warps"       -> noArgs(p => warpsFor(p).foreach { w => p.sendMessage(w.toString) }),
-    "warp"        -> args(warp){ case p ~ w => p.teleport(w.location(p.world)) },
-    "delete-warp" -> args(warp){ case p ~ w => db.delete(w); p ! ("deleted warp: " + w.name) },
-    "delete-all"  -> opOnly(noArgs(p => db.foreach { w => p ! ("deleting: " + w); db.delete(w) })),
-    "set-warp"    -> args(warp||anyString){
+  val commands = List(
+    Command("warps", "List all warps.",
+      noArgs(p => warpsFor(p).foreach { w => p.sendMessage(w.toString) })),
+    Command("warp", "Warp to the given warp location.",
+      args(warp){ case p ~ w => p.teleport(w.location(p.world)) }),
+    Command("delete-warp", "Delete a warp location.",
+      args(warp){ case p ~ w => db.delete(w); p ! ("deleted warp: " + w.name) }),
+    Command("delete-all", "Delete all warps in the database.",
+      opOnly(noArgs(p => db.foreach { w => p ! ("deleting: " + w); db.delete(w) }))),
+    Command("set-warp", "Create a new warp location.", args(warp||anyString){
       case p ~ Left(w)  =>
         // TODO: can i use an update here?
         // TODO: well, i need to make a case class out of warp
@@ -23,7 +27,7 @@ class WarpPlugin extends CommandsPlugin with SingleClassDBPlugin[Warp]{
         db.insert(createWarp(w.name, p))
         p ! ("updated warp: " + w.name)
       case p ~ Right(name) => db.insert(createWarp(name, p)); p ! "created warp: " + name
-    }
+    })
   )
 
   def warp = token("warp"){ (p, s) => warpsFor(p).find(_.name == s) }

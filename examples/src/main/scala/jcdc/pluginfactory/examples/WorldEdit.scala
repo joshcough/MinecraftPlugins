@@ -24,14 +24,18 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin {
     })
   )
 
-  val commands = Map(
-    "/wand"   -> noArgs(p => p.world.dropItem(p.loc, new ItemStack(WOOD_AXE, 1))),
-    "/set"    -> args(material){ case p ~ m  =>
-      run(p)((l1, l2) => p.world.between(l1, l2).foreach(_ changeTo m))
-    },
-    "/change" -> args(material ~ material){ case p ~ (oldM ~ newM) =>
+  val commands = List(
+    Command("/wand",
+      "Get a WorldEdit wand.",
+      noArgs(p => p.world.dropItem(p.loc, new ItemStack(WOOD_AXE, 1)))),
+    Command("/set",
+      "Set all the selected blocks to the given material type.",
+      args(material){ case p ~ m  => run(p)((l1, l2) => p.world.between(l1, l2).foreach(_ changeTo m))}),
+    Command("/change",
+      "Change all the selected blocks from the first material type to the second material type.",
+      args(material ~ material){ case p ~ (oldM ~ newM) =>
       run(p)((l1, l2) => p.world.between(l1, l2).filter(_ is oldM).map(_ changeTo newM).force)
-    }
+    })
   )
 
   // helper functions
