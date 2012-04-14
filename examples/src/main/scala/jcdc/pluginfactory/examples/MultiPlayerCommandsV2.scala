@@ -4,7 +4,7 @@ import org.bukkit.GameMode._
 import org.bukkit.Material._
 import scala.collection.JavaConversions._
 
-class MultiPlayerCommandsV2 extends jcdc.pluginfactory.CommandsV2 {
+class MultiPlayerCommandsV2 extends jcdc.pluginfactory.CommandsPluginV2 {
   val commands = Map(
     "goto"     -> p2p((you, them) => you.teleportTo(them)),
     "set-time" -> args(num){ case p ~ n => p.world.setTime(n) },
@@ -32,24 +32,17 @@ class MultiPlayerCommandsV2 extends jcdc.pluginfactory.CommandsV2 {
     "up"       -> noArgs(p => p.teleportTo(p.world.getHighestBlockAt(p.loc))),
     "drill"    ->
       noArgs(p =>
-        for (b <- p.loc.block.blocksBelow.takeWhile(_ isNot BEDROCK)) {
-          if (b isNot AIR) b.erase
+        for (b <- p.loc.block.blocksBelow.takeWhile(_ isNot BEDROCK); if (b isNot AIR)) {
+          b.erase
           if (b.blockBelow is BEDROCK) {
             b.nthBlockAbove(4) changeTo STATIONARY_LAVA
             b.nthBlockAbove(2) changeTo STATIONARY_WATER
           }
       }),
     "kill"     ->
-      args(anyString+){ case killer ~ args =>
-        args.map(_.toLowerCase) match {
-          case "player" :: dead :: Nil => killer.kill(dead)
-          case name :: Nil => findEntity(name).fold(
-            killer.sendError("no such entity: " + name))(
-            e => killer.world.entities.filter { _.isAn(e) }.foreach(_.remove)
-          )
-          // TODO: i really want this here: killer.sendUsage(c.cmd)
-          case _ => killer ! (org.bukkit.ChatColor.RED + "kill player playerName or kill entityType")
-        }
+      args(("player" ~ player) || entity){
+        case killer ~ Left(_ ~ deadMan) => killer.kill(deadMan)
+        case killer ~ Right(e) => killer.world.entities.filter { _ isAn e }.foreach(_.remove)
       }
   )
 }

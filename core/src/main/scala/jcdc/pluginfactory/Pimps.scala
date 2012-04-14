@@ -171,7 +171,8 @@ trait Pimps {
     }
     def findPlayers(names:List[String])(f: Player => Unit) = names.foreach(n => findPlayer(n)(f))
     def ban(reason:String){ player.setBanned(true); player.kickPlayer("banned: " + reason) }
-    def kill(playerName:String) = findPlayer(playerName)(p => doTo(p, p.setHealth(0), "killed"))
+    def kill(playerName:String): Unit = findPlayer(playerName)(kill)
+    def kill(p:Player) = doTo(p, p.setHealth(0), "killed")
     def teleportTo(otherPlayer: Player) = player.teleport(otherPlayer)
     def teleportTo(b: Block)            = player.teleport(b.loc)
     def strike = world.strikeLightning(loc)

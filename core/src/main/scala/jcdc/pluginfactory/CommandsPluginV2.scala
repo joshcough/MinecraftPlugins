@@ -142,7 +142,7 @@ trait CommandsPluginV2 extends ScalaPlugin {
   }
 
   def entity = new ArgParser[EntityType] {
-    def findEntity(nameOrId:String) = Option(EntityType.fromName(nameOrId)).orElse(
+    def findEntity(nameOrId:String) = Option(EntityType.fromName(nameOrId.toLowerCase)).orElse(
       try Option(EntityType.fromId(nameOrId.toInt)) catch { case e => None }
     )
     def apply(p:Player, args: List[String]) = args match {
