@@ -27,7 +27,7 @@ trait ListenersPlugin extends ScalaPlugin with Listeners {
 object Listeners extends Listeners
 
 trait Listeners extends Pimps {
-  case class ListeningFor(listener:Listener) extends ListenerPlugin
+  abstract case class ListeningFor(listener:Listener) extends ListenerPlugin
 
   def OnPlayerMove(f: PlayerMoveEvent => Unit) = new Listener {
     @EH def on(e:PlayerMoveEvent) = f(e)

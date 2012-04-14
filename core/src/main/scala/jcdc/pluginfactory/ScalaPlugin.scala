@@ -5,7 +5,10 @@ import org.bukkit.event.Listener
 
 object ScalaPlugin extends Pimps
 
-class ScalaPlugin extends org.bukkit.plugin.java.JavaPlugin with Pimps {
+abstract class ScalaPlugin extends org.bukkit.plugin.java.JavaPlugin with Pimps {
+  val author: String
+  val version: String
+
   val log = Logger.getLogger("Minecraft")
 
   def name = this.getDescription.getName
@@ -25,6 +28,16 @@ class ScalaPlugin extends org.bukkit.plugin.java.JavaPlugin with Pimps {
       catch{ case e: javax.persistence.PersistenceException =>
         logInfoAround("Installing database...", "installed"){ installDDL() }
       }
+  }
+
+  def yaml = {
+    List(
+      "name: " + this.getClass.getSimpleName,
+      "main: " + this.getClass.getName,
+      "author: " + author,
+      "version: " + version,
+      "database: " + (this.dbClasses.size > 0)
+    ).mkString("\n")
   }
 
   // logging

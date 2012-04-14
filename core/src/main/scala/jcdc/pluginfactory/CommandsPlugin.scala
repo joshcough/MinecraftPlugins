@@ -66,15 +66,13 @@ commands:
       usage: /<command> (c or creative or 1 or s or survival or 0)
    ...
    */
-  def yaml = {
-    val name = "name: " + this.getClass.getSimpleName
-    val main = "main: " + this.getClass.getName
+  override def yaml = {
     def commandYaml(c: Command) = "  " +
       c.name + ":\n" +
       "    description: " + c.description.getOrElse("") + "\n" +
       "    usage: /<command> " + c.body.argDesc
     val commandsYaml = "commands:\n" + commands.map(commandYaml).mkString("\n")
-    List(name, main, commandsYaml).mkString("\n")
+    List(super.yaml, commandsYaml).mkString("\n")
   }
 }
 

@@ -6,9 +6,9 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import Material._
 
-class WorldEdit extends ListenersPlugin with CommandsPlugin {
+class WorldEdit extends ListenersPlugin with CommandsPlugin with JCDCPluginFactoryExamplePlugin{
 
-  val positions   = collection.mutable.Map[Player, (Location, Option[Location])]()
+  val positions = collection.mutable.Map[Player, (Location, Option[Location])]()
 
   val listeners = List(
     OnPlayerLeftClickBlock((p, e)  => if (p isHoldingA WOOD_AXE) {
@@ -30,9 +30,10 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin {
       noArgs(p => p.world.dropItem(p.loc, new ItemStack(WOOD_AXE, 1)))),
     Command("/set",
       "Set all the selected blocks to the given material type.",
-      args(material){ case p ~ m  => run(p)((l1, l2) => p.world.between(l1, l2).foreach(_ changeTo m))}),
+      args(material){ case p ~ m  =>
+        run(p)((l1, l2) => p.world.between(l1, l2).foreach(_ changeTo m))}),
     Command("/change",
-      "Change all the selected blocks from the first material type to the second material type.",
+      "Change all the selected blocks of the first material type to the second material type.",
       args(material ~ material){ case p ~ (oldM ~ newM) =>
       run(p)((l1, l2) => p.world.between(l1, l2).filter(_ is oldM).map(_ changeTo newM).force)
     })
