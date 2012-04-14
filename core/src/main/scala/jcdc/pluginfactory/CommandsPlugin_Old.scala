@@ -8,7 +8,7 @@ import org.bukkit.entity.Player
 case class CommandArguments(cmd:Command, args: List[String])
 
 // Command combinators.
-trait CommandsPlugin extends ScalaPlugin {
+trait CommandsPlugin_Old extends ScalaPlugin {
 
   val commands: Map[String, CommandHandler]
   private def lowers: Map[String, CommandHandler] = commands.map{ case (k,v) => (k.toLowerCase, v)}

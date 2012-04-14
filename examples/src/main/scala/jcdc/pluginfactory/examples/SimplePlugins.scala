@@ -1,6 +1,6 @@
 package jcdc.pluginfactory.examples
 
-import jcdc.pluginfactory.{Listeners, ListenerPlugin, CommandsPluginV2}
+import jcdc.pluginfactory.{Listeners, ListenerPlugin, CommandsPlugin}
 import Listeners._
 import org.bukkit.Material
 import org.bukkit.Material.{DIAMOND_AXE, LOG}
@@ -21,7 +21,7 @@ class BanArrows extends ListeningFor(OnPlayerDamageByEntity { (p, e) =>
   if (e.getDamager isAn ARROW) p.ban("struck by an arrow!")
 })
 
-class BlockChanger extends ListenerPlugin with CommandsPluginV2 {
+class BlockChanger extends ListenerPlugin with CommandsPlugin {
   val users = collection.mutable.Map[Player, Material]()
   val listener = OnBlockDamage((b, e) => users.get(e.getPlayer).foreach(b changeTo _))
   val commands = Map("bc" -> args("off"||material){
@@ -30,7 +30,7 @@ class BlockChanger extends ListenerPlugin with CommandsPluginV2 {
   })
 }
 
-class God extends ListenerPlugin with CommandsPluginV2 {
+class God extends ListenerPlugin with CommandsPlugin {
   val isAGod = collection.mutable.Map[Player, Boolean]().withDefaultValue(false)
   val listener = OnPlayerDamage { (p, e) => e cancelIf isAGod(p) }
   val commands = Map("god" -> noArgs { p =>

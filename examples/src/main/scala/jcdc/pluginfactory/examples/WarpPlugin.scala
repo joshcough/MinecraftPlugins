@@ -1,11 +1,11 @@
 package jcdc.pluginfactory.examples
 
-import jcdc.pluginfactory.{CommandsPluginV2, SingleClassDBPlugin}
+import jcdc.pluginfactory.{CommandsPlugin, SingleClassDBPlugin}
 import org.bukkit.{Location, World}
 import org.bukkit.entity.Player
 import scala.collection.JavaConversions._
 
-class WarpPlugin extends CommandsPluginV2 with SingleClassDBPlugin[Warp]{
+class WarpPlugin extends CommandsPlugin with SingleClassDBPlugin[Warp]{
 
   val dbClass = classOf[Warp]
 

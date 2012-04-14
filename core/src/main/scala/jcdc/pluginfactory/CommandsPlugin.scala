@@ -1,10 +1,11 @@
 package jcdc.pluginfactory
 
 import org.bukkit.ChatColor._
+import org.bukkit.GameMode._
 import org.bukkit.command.{CommandSender, Command}
 import org.bukkit.entity.{EntityType, Player}
 
-trait CommandsPluginV2 extends ScalaPlugin {
+trait CommandsPlugin extends ScalaPlugin {
 
   type CommandHandler = (Player, Command, List[String]) => Unit
   val commands: Map[String, CommandHandler]
@@ -110,12 +111,13 @@ trait CommandsPluginV2 extends ScalaPlugin {
     }
   }
 
+  val gamemode = ("c" | "creative" | "1") ^^ { _ => CREATIVE} | ("s" | "survival" | "0") ^^ { _ => SURVIVAL}
   def num       = token("int"){ (_, s) => try Some(s.toInt) catch { case e => None } }
   def anyString = token("string"){ (_, s) => Some(s) }
   def player    = token("player"){ (p, s) => p.server.findPlayer(name) }
   def material  = token("material"){ (_, s) => findMaterial(s) }
   def entity    = token("entity type"){ (_, s ) =>
-    Option(EntityType.fromName(s.toLowerCase)).orElse(
+    Option(EntityType.fromName(s.toUpperCase)).orElse(
       try Option(EntityType.fromId(s.toInt)) catch { case e => None }
     )
   }

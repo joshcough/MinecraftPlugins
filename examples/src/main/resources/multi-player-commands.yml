@@ -6,7 +6,13 @@ database: true
 commands:
    gm:
       description: Game your game mode.
-      usage: /<command> c or s
+      usage: /<command> gamemode (c, creative, 1, s, survival, 0)
+   gmc:
+      description: Game your game mode to creative.
+      usage: /<command>
+   gms:
+      description: Game your game mode to survival.
+      usage: /<command>
    kill:
       description: Kill entities (only for ops).
       usage: /<command> player player-name or /<command> entity-type (with an s)
