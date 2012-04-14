@@ -139,11 +139,11 @@ trait Pimps {
     def isHoldingA (m: Material) = isHolding(m)
     def isHoldingAn(m: Material) = isHolding(m)
 
+    def findMaterial(nameOrId: String) = Option(getMaterial(nameOrId.toUpperCase)).orElse(
+      try Option(getMaterial(nameOrId.toInt)) catch { case e => None }
+    )
     def withMaterial[T](nameOrId:String)(f: Material => T) {
-      val om = Option(getMaterial(nameOrId.toUpperCase)).orElse(
-        try Option(getMaterial(nameOrId.toInt)) catch { case e => None }
-      )
-      attemptingWith(om)("No such material: " + nameOrId, f)
+      attemptingWith(findMaterial(nameOrId))("No such material: " + nameOrId, f)
     }
     def attemptingWith[T, U](ot: Option[T])(s: => String, f: T => U){
       ot.fold(player ! s)(t => f(t))
@@ -184,4 +184,6 @@ trait Pimps {
   def findEntity(nameOrId:String) = Option(EntityType.fromName(nameOrId)).orElse(
     try Option(EntityType.fromId(nameOrId.toInt)) catch { case e => None }
   )
+
+  def id[T](t:T) = identity(t)
 }

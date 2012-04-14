@@ -45,3 +45,4 @@ trait CommandsPlugin extends ScalaPlugin {
   def materialCommand(f: (Player, Material, CommandArguments) => Unit) = oneArg((p, c) =>
     p.withMaterial(c.args.head)(m => f(p, m, c)))
 }
+
