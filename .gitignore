@@ -1,4 +1,4 @@
-src/main/resources/plugin.yml
+examples/src/main/resources/plugin.yml
 project/
 target/
 out/
