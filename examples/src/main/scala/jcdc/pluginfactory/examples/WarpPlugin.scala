@@ -11,7 +11,7 @@ class WarpPlugin extends CommandsPlugin with SingleClassDBPlugin[Warp]{
 
   val commands = Map(
     "warps"       -> noArgs(p => warpsFor(p).foreach { w => p.sendMessage(w.toString) }),
-    "warp"        -> args(warp){ case p ~ w => p.teleport(w.location(p.getWorld)) },
+    "warp"        -> args(warp){ case p ~ w => p.teleport(w.location(p.world)) },
     "delete-warp" -> args(warp){ case p ~ w => db.delete(w); p ! ("deleted warp: " + w.name) },
     "delete-all"  -> opOnly(noArgs(p => db.foreach { w => p ! ("deleting: " + w); db.delete(w) })),
     "set-warp"    -> args(warp||anyString){
