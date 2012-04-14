@@ -10,9 +10,6 @@ commands:
    /set:
       description: Set all the blocks between your first and second locations to the given material type.
       usage: /<command> material (name or id)
-   /list:
-      description: Prints out your first and second locations.
-      usage: /<command>
    /change:
       description: Set all the blocks between your first and second locations from the first material type to the second material type.
       usage: /<command> material1 material2 (names or ids)

@@ -4,7 +4,7 @@ import org.bukkit.GameMode._
 import org.bukkit.Material._
 import scala.collection.JavaConversions._
 
-class MultiPlayerCommands_Old extends jcdc.pluginfactory.CommandsPlugin {
+class MultiPlayerCommands_Old extends jcdc.pluginfactory.CommandsPlugin_Old {
   val commands = Map(
     "goto"     -> p2p((you, them, _) => you.teleportTo(them)),
     "set-time" -> oneArg((p, cmd) => p.world.setTime(cmd.args.head.toInt)),
