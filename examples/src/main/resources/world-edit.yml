@@ -1,15 +1,18 @@
 name: WorldEdit
 main: jcdc.pluginfactory.examples.WorldEdit
-author: jacycough
+author: Josh Cough
 version: 0.1
 database: false
 commands:
-   /wand:
-      description: Get a WorldEdit wand.
-      usage: /<command>
-   /set:
-      description: Set all the blocks between your first and second locations to the given material type.
-      usage: /<command> material (name or id)
-   /change:
-      description: Set all the blocks between your first and second locations from the first material type to the second material type.
-      usage: /<command> material1 material2 (names or ids)
+  /wand:
+    description: Get a WorldEdit wand.
+    usage: /<command> 
+  /set:
+    description: Set all the selected blocks to the given material type.
+    usage: /<command> material-type
+  /change:
+    description: Change all the selected blocks of the first material type to the second material type.
+    usage: /<command> material-type  material-type
+  /walls:
+    description: Create walls with the given material type.
+    usage: /<command> material-type

@@ -37,6 +37,7 @@ trait Pimps {
     lazy val world = b.getWorld
     lazy val loc   = b.getLocation
     private def blockAt(x: Double, y: Double, z: Double) = world.blockAt(x, y, z)
+    lazy val (x, y, z) = (b.getX, b.getY, b.getZ)
     lazy val (xd, yd, zd) = (b.getX.toDouble, b.getY.toDouble, b.getZ.toDouble)
     def copy(x: Double = xd, y: Double = yd, z: Double = zd) = blockAt(x, y, z)
     lazy val blockAbove = blockAt(xd, yd + 1, zd)
@@ -161,7 +162,7 @@ trait Pimps {
     def !* (ss: String*) = ss.foreach(s => player ! s)
     def sendError(message:String) = player.sendMessage(RED + message)
     def sendUsage(cmd:Command)    = sendError(cmd.getUsage)
-    def sendUsage(cmd:CommandArguments) = sendError(cmd.cmd.getUsage)
+//    def sendUsage(cmd:CommandArguments) = sendError(cmd.cmd.getUsage)
     def findPlayer(name:String)(f: Player => Unit) = server.findPlayer(name) match {
       case Some(p) => f(p)
       case None => sendError("kill could not find player: " + name)

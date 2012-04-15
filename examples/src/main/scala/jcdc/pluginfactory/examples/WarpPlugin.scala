@@ -5,7 +5,7 @@ import org.bukkit.{Location, World}
 import org.bukkit.entity.Player
 import scala.collection.JavaConversions._
 
-class WarpPlugin extends CommandsPlugin with SingleClassDBPlugin[Warp] with JCDCPluginFactoryExamplePlugin {
+class WarpPlugin extends CommandsPlugin with SingleClassDBPlugin[Warp] with JCDCPluginFactoryExample {
 
   val dbClass = classOf[Warp]
 

@@ -12,6 +12,7 @@ trait CommandsPlugin extends ScalaPlugin with ArgParsers {
 
   object Command {
     def apply(name: String, desc: String, body: CommandBody) = new Command(name, Some(desc), body)
+    def apply(name: String, body: CommandBody) = new Command(name, None, body)
   }
 
   case class Command(name: String, description: Option[String], body: CommandBody)
@@ -52,24 +53,10 @@ trait CommandsPlugin extends ScalaPlugin with ArgParsers {
         case Success(t, _) => f(new ~(p, t))
       })
 
-  /**
-  Example YAML file:
-
-name: MultiPlayerCommands
-main: jcdc.pluginfactory.examples.MultiPlayerCommands
-author: jacycough
-version: 0.1
-database: true
-commands:
-   gm:
-      description: Game your game mode.
-      usage: /<command> (c or creative or 1 or s or survival or 0)
-   ...
-   */
   override def yaml = {
     def commandYaml(c: Command) = "  " +
       c.name + ":\n" +
-      "    description: " + c.description.getOrElse("") + "\n" +
+      "    description: " + c.description.getOrElse(c.name) + "\n" +
       "    usage: /<command> " + c.body.argDesc
     val commandsYaml = "commands:\n" + commands.map(commandYaml).mkString("\n")
     List(super.yaml, commandsYaml).mkString("\n")

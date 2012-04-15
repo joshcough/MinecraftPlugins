@@ -63,10 +63,10 @@ trait Listeners extends Pimps {
   def OnPlayerInteract(f: (Player, PlayerInteractEvent) => Unit) = new Listener {
     @EH def on(e:PlayerInteractEvent) = f(e.getPlayer, e)
   }
-  def OnPlayerRightClickBlock(f: (Player, PlayerInteractEvent) => Unit) = new Listener {
+  def OnRightClickBlock(f: (Player, PlayerInteractEvent) => Unit) = new Listener {
     @EH def on(e:PlayerInteractEvent) = if (e.getAction == RIGHT_CLICK_BLOCK) f(e.getPlayer, e)
   }
-  def OnPlayerLeftClickBlock(f: (Player, PlayerInteractEvent) => Unit) = new Listener {
+  def OnLeftClickBlock(f: (Player, PlayerInteractEvent) => Unit) = new Listener {
     @EH def on(e:PlayerInteractEvent) = if (e.getAction == LEFT_CLICK_BLOCK) f(e.getPlayer, e)
   }
   def OnPlayerRightClickAir(f: (Player, PlayerInteractEvent) => Unit) = new Listener {
