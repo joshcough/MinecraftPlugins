@@ -93,7 +93,7 @@ trait ArgParsers {
       def describe = self.describe
     }
 
-    def ~[T, U](p2: => ArgParser[U]) = new ArgParser[~[T, U]] {
+    def ~[U](p2: => ArgParser[U]) = new ArgParser[~[T, U]] {
       def apply(p: Player, args: List[String]) = self(p, args) match {
         case Failure(m) => Failure(m)
         case Success(t: T, rest) => p2(p, rest) match {
@@ -161,7 +161,13 @@ trait ArgParsers {
   val gamemode =
     ("c" | "creative" | "1") ^^ {_ => CREATIVE} | ("s" | "survival" | "0") ^^ {_ => SURVIVAL}
 
-  def num = token("int") { (_, s) => try Some(s.toInt) catch { case e => None }}
+  def even(n:Int) = n % 2 == 0
+  def odd(n:Int)  = ! even(n)
+  def num: ArgParser[Int] = token("number") { (_, s) => try Some(s.toInt) catch { case e => None }}
+  def oddNum: ArgParser[Int] = token("odd-number") { (_, s) =>
+    try Some(s.toInt).filter(odd) catch { case e => None }}
+  def evenNum: ArgParser[Int] = token("even-number") { (_, s) =>
+    try Some(s.toInt).filter(even) catch { case e => None }}
   def anyString = token("string") { (_, s) => Some(s) }
   def player = token("player-name") { (p, s) => p.server.findPlayer(s) }
   def material = token("material-type") { (_, s) => findMaterial(s) }

@@ -32,6 +32,7 @@ trait Pimps {
     def sun  = ! e.toWeatherState
   }
   implicit def pimpedOption[T](ot: Option[T])   = new PimpedOption(ot)
+  implicit def blockToLoc(b: Block) = b.getLocation
 
   case class PimpedBlock(b:Block) {
     lazy val world = b.getWorld
@@ -71,9 +72,11 @@ trait Pimps {
     def isNot(m:Material) = b.getType != m
     def itemStack(n:Int) = new ItemStack(b.getType, 1, b.getData)
     def erase = {
-      b.world.dropItem(b.loc, b.itemStack(1))
-      b.world.playEffect(b.loc, SMOKE, 1)
-      changeTo(AIR)
+      if(! (b is AIR)) {
+        b.world.dropItem(b, b.itemStack(1))
+        b.world.playEffect(b, SMOKE, 1)
+        changeTo(AIR)
+      }
     }
 
     def changeTo(m: Material) = b.setType(m)
@@ -102,7 +105,8 @@ trait Pimps {
 
   case class PimpedWorld(w:World){
     def entities = w.getEntities
-    def blockAt(x: Double, y: Double, z: Double) = new Location(w, x, y, z).getBlock
+    def blockAt(x: Int, y: Int, z: Int): Block = blockAt(x.toDouble, y.toDouble, z.toDouble)
+    def blockAt(x: Double, y: Double, z: Double): Block = new Location(w, x, y, z).getBlock
     def between(loc1:Location, loc2: Location): Stream[Block] = {
       val ((x1, y1, z1), (x2, y2, z2)) = (loc1.xyz, loc2.xyz)
       def range(i1: Int, i2: Int) = (if(i1 < i2) i1 to i2 else i2 to i1).toStream
@@ -113,6 +117,8 @@ trait Pimps {
   case class PimpedLocation(loc: Location){
     lazy val (x,y,z) = (loc.getX.toInt, loc.getY.toInt, loc.getZ.toInt)
     lazy val xyz = (x, y, z)
+    lazy val (xd,yd,zd) = (loc.getX, loc.getY, loc.getZ)
+    lazy val xyzd = (xd, yd, zd)
     def world = loc.getWorld
     def block = loc.getBlock
     def spawn(entityType:  EntityType) = world.spawnCreature(loc, entityType)
