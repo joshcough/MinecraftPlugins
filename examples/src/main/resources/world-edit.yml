@@ -28,6 +28,6 @@ commands:
   /empty-tower:
     description: Create walls and floor with the given material type, and set everything inside to air.
     usage: /<command> material-type
-  /excavate:
+  /dig:
     description: Dig
     usage: /<command> number  number

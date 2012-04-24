@@ -115,7 +115,7 @@ trait ArgParsers {
       def describe = "(" + self.describe + " or " + p2.describe + ")"
     }
 
-    def ||[U](p2: => ArgParser[U]) = new ArgParser[Either[T, U]] {
+    def or[U](p2: => ArgParser[U]) = new ArgParser[Either[T, U]] {
       def apply(p: Player, args: List[String]): ParseResult[Either[T, U]] = self(p, args) match {
         case Success(t, rest) => Success(Left(t), rest)
         case Failure(m1) => p2(p, args) match {

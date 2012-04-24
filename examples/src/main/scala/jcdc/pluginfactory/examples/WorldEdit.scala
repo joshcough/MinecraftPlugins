@@ -1,9 +1,8 @@
 package jcdc.pluginfactory.examples
 
-import jcdc.pluginfactory.{CommandsPlugin, ListenersPlugin}
+import jcdc.pluginfactory.{CommandsPlugin, Cube, ListenersPlugin}
 import org.bukkit.{Location, Material}
 import org.bukkit.entity.Player
-import org.bukkit.inventory.ItemStack
 import Material._
 
 class WorldEdit extends ListenersPlugin with CommandsPlugin with JCDCPluginFactoryExample {
@@ -28,7 +27,7 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin with JCDCPluginFacto
     Command(
       name = "/wand",
       desc = "Get a WorldEdit wand.",
-      body = noArgs(p => p.world.dropItem(p.loc, new ItemStack(WOOD_AXE, 1)))
+      body = noArgs(_.loc.dropItem(WOOD_AXE))
     ),
     Command(
       name = "/set",
@@ -45,7 +44,7 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin with JCDCPluginFacto
       name = "/walls",
       desc = "Create walls with the given material type.",
       body = args(material){ case p ~ m => run(p)(g => g.blocks.filter(
-               b => b.x == g.l1.x || b.x == g.l2.x || b.z == g.l1.z || b.z == g.l2.z
+               b => b.x == g.l1.x or b.x == g.l2.x or b.z == g.l1.z or b.z == g.l2.z
              ).map(_ changeTo m).force)}
     )
   )

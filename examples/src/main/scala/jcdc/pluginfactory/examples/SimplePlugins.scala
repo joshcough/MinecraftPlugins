@@ -39,7 +39,7 @@ class BlockChanger extends ListenerPlugin with CommandsPlugin with JCDCPluginFac
     Command(
       name = "bc",
       desc = "Hit blocks to change them to the block with type blockId, or /bc off to turn off.",
-      body = args("off"||material){
+      body = args("off" or material){
         case p ~ Left(off) => users remove p; p ! "bc has been disabled"
         case p ~ Right(m)  => users += (p -> m); p ! ("bc using: " + m)
       }

@@ -45,7 +45,7 @@ class MultiPlayerCommands extends CommandsPlugin with JCDCPluginFactoryExample {
           if (b.blockBelow is BEDROCK) b.nthBlockAbove(2) changeTo STATIONARY_WATER
         })),
     Command("kill",     "Kill entities.",
-      args(("player" ~ player) || entity){
+      args(("player" ~ player) or entity){
         case killer ~ Left(_ ~ deadMan) => killer.kill(deadMan)
         case killer ~ Right(e) => killer.world.entities.filter { _ isAn e }.foreach(_.remove)
       }),

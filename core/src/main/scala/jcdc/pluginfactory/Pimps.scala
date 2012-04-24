@@ -33,52 +33,49 @@ trait Pimps {
   }
   implicit def pimpedOption[T](ot: Option[T])   = new PimpedOption(ot)
   implicit def blockToLoc(b: Block) = b.getLocation
+  implicit def blockToItemStack(b: Block) = new ItemStack(b.getType, 1, b.getData)
+  implicit def materialToItemStack(m: Material) = new ItemStack(m, 1)
 
   case class PimpedBlock(b:Block) {
     lazy val world = b.getWorld
     lazy val loc   = b.getLocation
-    private def blockAt(x: Double, y: Double, z: Double) = world.blockAt(x, y, z)
     lazy val (x, y, z) = (b.getX, b.getY, b.getZ)
     lazy val (xd, yd, zd) = (b.getX.toDouble, b.getY.toDouble, b.getZ.toDouble)
-    def copy(x: Double = xd, y: Double = yd, z: Double = zd) = blockAt(x, y, z)
-    lazy val blockAbove = blockAt(xd, yd + 1, zd)
-    lazy val blockBelow = blockAt(xd, yd - 1, zd)
-    def nthBlockAbove(n:Int) = blockAt(xd, yd + n, zd)
-    def nthBlockBelow(n:Int) = blockAt(xd, yd - n, zd)
+    def copy(x: Double = xd, y: Double = yd, z: Double = zd) = world(x, y, z)
+    lazy val blockAbove = world(xd, yd + 1, zd)
+    lazy val blockBelow = world(xd, yd - 1, zd)
+    def nthBlockAbove(n:Int) = world(xd, yd + n, zd)
+    def nthBlockBelow(n:Int) = world(xd, yd - n, zd)
     def blocksAbove: Stream[Block] = blockAbove #:: blockAbove.blocksAbove
     def blocksBelow: Stream[Block] = blockBelow #:: blockBelow.blocksBelow
     def neighbors4: List[Block] =
-      blockAt(xd + 1, yd, zd) ::
-        blockAt(xd - 1, yd, zd) ::
-        blockAt(xd, yd, zd + 1) ::
-        blockAt(xd, yd, zd - 1) :: Nil
+      world(xd + 1, yd, zd) ::
+      world(xd - 1, yd, zd) ::
+      world(xd, yd, zd + 1) ::
+      world(xd, yd, zd - 1) :: Nil
     def neighbors8: List[Block] = neighbors4 ++ (
-      blockAt(xd + 1, yd, zd + 1) ::
-        blockAt(xd + 1, yd, zd - 1) ::
-        blockAt(xd - 1, yd, zd + 1) ::
-        blockAt(xd - 1, yd, zd - 1) :: Nil
-      )
+      world(xd + 1, yd, zd + 1) ::
+      world(xd + 1, yd, zd - 1) ::
+      world(xd - 1, yd, zd + 1) ::
+      world(xd - 1, yd, zd - 1) :: Nil
+    )
     def neighbors: List[Block] =
       neighbors8 ++
-        (b.blockBelow :: b.blockBelow.neighbors8) ++
-        (b.blockAbove :: b.blockAbove.neighbors8)
+      (b.blockBelow :: b.blockBelow.neighbors8) ++
+      (b.blockAbove :: b.blockAbove.neighbors8)
     def neighborsForPlayer: List[Block] =
       neighbors8 ++ // 8 blocks at the feet of the player
-        (b.blockAbove.neighbors8) ++ // 8 blocks at the head of the player
-        (b.blockBelow :: b.blockBelow.neighbors8) ++ // 9 blocks below the player
-        (b.nthBlockAbove(2) :: b.nthBlockAbove(2).neighbors8) // 9 blocks above the player.
+      (b.blockAbove.neighbors8) ++ // 8 blocks at the head of the player
+      (b.blockBelow :: b.blockBelow.neighbors8) ++ // 9 blocks below the player
+      (b.nthBlockAbove(2) :: b.nthBlockAbove(2).neighbors8) // 9 blocks above the player.
     def is(m:Material)    = b.getType == m
     def isA(m:Material)   = b.getType == m
     def isNot(m:Material) = b.getType != m
-    def itemStack(n:Int) = new ItemStack(b.getType, 1, b.getData)
-    def erase = {
-      if(! (b is AIR)) {
-        b.world.dropItem(b, b.itemStack(1))
-        b.world.playEffect(b, SMOKE, 1)
-        changeTo(AIR)
-      }
+    def erase: Unit = if(! (b is AIR)) {
+      b.world.dropItem(b.loc, b)
+      b.world.playEffect(b.loc, SMOKE, 1)
+      changeTo(AIR)
     }
-
     def changeTo(m: Material) = b.setType(m)
   }
 
@@ -105,12 +102,14 @@ trait Pimps {
 
   case class PimpedWorld(w:World){
     def entities = w.getEntities
+    def apply(x: Int, y: Int, z: Int): Block = blockAt(x.toDouble, y.toDouble, z.toDouble)
+    def apply(x: Double, y: Double, z: Double): Block = new Location(w, x, y, z).getBlock
     def blockAt(x: Int, y: Int, z: Int): Block = blockAt(x.toDouble, y.toDouble, z.toDouble)
     def blockAt(x: Double, y: Double, z: Double): Block = new Location(w, x, y, z).getBlock
     def between(loc1:Location, loc2: Location): Stream[Block] = {
       val ((x1, y1, z1), (x2, y2, z2)) = (loc1.xyz, loc2.xyz)
       def range(i1: Int, i2: Int) = (if(i1 < i2) i1 to i2 else i2 to i1).toStream
-      for (x <- range(x1,x2); y <- range(y1,y2); z <- range(z1,z2)) yield w.blockAt(x,y,z)
+      for (x <- range(x1,x2); y <- range(y1,y2); z <- range(z1,z2)) yield w(x,y,z)
     }
   }
 
@@ -121,8 +120,9 @@ trait Pimps {
     lazy val xyzd = (xd, yd, zd)
     def world = loc.getWorld
     def block = loc.getBlock
-    def spawn(entityType:  EntityType) = world.spawnCreature(loc, entityType)
-    def spawnN(entityType: EntityType, n: Int) = for (i <- 1 to n) spawn(entityType)
+    def spawn(entityType:  EntityType): Unit = world.spawnCreature(loc, entityType)
+    def spawnN(entityType: EntityType, n: Int): Unit = for (i <- 1 to n) spawn(entityType)
+    def dropItem(stack: ItemStack): Unit = loc.world.dropItem(loc, stack)
   }
 
   case class PimpedServer(s:Server){
@@ -186,26 +186,6 @@ trait Pimps {
     def fold[U](u: => U)(f: T => U) = ot.map(f).getOrElse(u)
   }
 
-  case class Cube(l1: Location, l2: Location) {
-    override def toString = "Cube(l1: " + l1.xyz + ", l2: " + l2.xyz + ")"
-    val world  = l1.world
-    val maxX   = math.max(l1.xd, l2.xd)
-    val minX   = math.min(l1.xd, l2.xd)
-    val maxY   = math.max(l1.yd, l2.yd)
-    val minY   = math.min(l1.yd, l2.yd)
-    val maxZ   = math.max(l1.zd, l2.zd)
-    val minZ   = math.min(l1.zd, l2.zd)
-    val blocks = world.between(l1, l2)
-    def walls  = blocks.filter(onWall)
-    def floors = blocks.filter(onFloor)
-    def onWall (b: Block) = b.x == l1.x || b.x == l2.x || b.z == l1.z || b.z == l2.z
-    def onFloor(b: Block) = b.y == minY.toInt
-    def erase = blocks.foreach(_.erase)
-    def contains(p: Player)  : Boolean = this.contains(p.loc)
-    def contains(l: Location): Boolean =
-      l.xd <= maxX && l.xd >= minX && l.yd <= maxY && l.yd >= minY && l.zd <= maxZ && l.zd >= minZ
-  }
-
   def findEntity(nameOrId:String) = Option(EntityType.fromName(nameOrId)).orElse(
     try Option(EntityType.fromId(nameOrId.toInt)) catch { case e => None }
   )
@@ -215,4 +195,9 @@ trait Pimps {
   )
 
   def id[T](t:T) = identity(t)
+
+  implicit def pimpedBoolean(b1:Boolean) = new {
+    def or (b2: => Boolean) = b1 || b2
+    def and(b2: => Boolean) = b1 && b2
+  }
 }
