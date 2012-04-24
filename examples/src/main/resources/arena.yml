@@ -1,0 +1,12 @@
+name: Arena
+main: jcdc.pluginfactory.examples.Arena
+author: Josh Cough
+version: 0.1
+database: false
+commands:
+  /axe:
+    description: Get an Arena wand.
+    usage: /<command> 
+  /arena:
+    description: Set all the selected blocks to the given material type.
+    usage: /<command> material-type

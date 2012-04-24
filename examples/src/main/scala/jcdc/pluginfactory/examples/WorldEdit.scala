@@ -5,7 +5,6 @@ import org.bukkit.{Location, Material}
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import Material._
-import org.bukkit.block.Block
 
 class WorldEdit extends ListenersPlugin with CommandsPlugin with JCDCPluginFactoryExample {
 
@@ -52,10 +51,6 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin with JCDCPluginFacto
   )
 
   // helper functions
-  def getPositions(p: Player): Option[(Location, Location)] =
-    positions.get(p).flatMap(lol   => lol._2.map(loc => (lol._1, loc)))
-  case class Grid(l1:Location, l2: Location, blocks: Stream[Block])
-  def run(p: Player)(f: Grid => Unit) =
-    getPositions(p).fold(p ! "Both positions need to be set!")(locs =>
-      f(Grid(locs._1, locs._2, p.world.between(locs._1, locs._2))))
+  def cube(p: Player): Option[Cube] = positions.get(p).flatMap(lol => lol._2.map(Cube(lol._1, _)))
+  def run(p: Player)(f: Cube => Unit) = cube(p).fold(p ! "Both positions must be set!")(f)
 }

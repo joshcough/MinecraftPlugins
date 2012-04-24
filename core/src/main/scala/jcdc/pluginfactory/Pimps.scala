@@ -186,6 +186,26 @@ trait Pimps {
     def fold[U](u: => U)(f: T => U) = ot.map(f).getOrElse(u)
   }
 
+  case class Cube(l1: Location, l2: Location) {
+    override def toString = "Cube(l1: " + l1.xyz + ", l2: " + l2.xyz + ")"
+    val world  = l1.world
+    val maxX   = math.max(l1.xd, l2.xd)
+    val minX   = math.min(l1.xd, l2.xd)
+    val maxY   = math.max(l1.yd, l2.yd)
+    val minY   = math.min(l1.yd, l2.yd)
+    val maxZ   = math.max(l1.zd, l2.zd)
+    val minZ   = math.min(l1.zd, l2.zd)
+    val blocks = world.between(l1, l2)
+    def walls  = blocks.filter(onWall)
+    def floors = blocks.filter(onFloor)
+    def onWall (b: Block) = b.x == l1.x || b.x == l2.x || b.z == l1.z || b.z == l2.z
+    def onFloor(b: Block) = b.y == minY.toInt
+    def erase = blocks.foreach(_.erase)
+    def contains(p: Player)  : Boolean = this.contains(p.loc)
+    def contains(l: Location): Boolean =
+      l.xd <= maxX && l.xd >= minX && l.yd <= maxY && l.yd >= minY && l.zd <= maxZ && l.zd >= minZ
+  }
+
   def findEntity(nameOrId:String) = Option(EntityType.fromName(nameOrId)).orElse(
     try Option(EntityType.fromId(nameOrId.toInt)) catch { case e => None }
   )

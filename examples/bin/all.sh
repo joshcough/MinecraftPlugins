@@ -2,6 +2,7 @@
 
 # then build all the plugins
 # TODO: this means that they dont work individually anymore...fix that...
+./bin/arena.sh
 ./bin/ban-arrows.sh
 ./bin/block-changer.sh
 ./bin/curse-ban.sh

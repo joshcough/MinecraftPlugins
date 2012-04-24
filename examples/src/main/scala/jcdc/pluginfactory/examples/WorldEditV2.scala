@@ -5,19 +5,37 @@ import org.bukkit.{Location, Material}
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import Material._
-import org.bukkit.block.Block
+import jcdc.pluginfactory.Pimps._
 
-class WorldEditV2 extends ListenersPlugin with CommandsPlugin with JCDCPluginFactoryExample {
 
+trait CubePlugin {
   val positions = collection.mutable.Map[Player, (Location, Option[Location])]()
+
+  def setFirstPosition(p: Player, loc: Location) {
+    positions.update(p, loc -> None)
+    p ! ("first position set to: " + loc.xyz)
+  }
+  def setSecondPosition(p: Player, loc: Location) {
+    positions.get(p).map(_._1).fold(p ! "You must set position 1 first!")(l => {
+      positions.update(p, l -> Some(loc))
+      p ! ("second position set to: " + loc.xyz)
+    })
+  }
+  def cube(p: Player): Option[Cube] = positions.get(p).flatMap(lol => lol._2.map(Cube(lol._1, _)))
+  def run(p: Player)(f: Cube => Unit) = cube(p).fold(p ! "Both positions must be set!")(f)
+  def cubes: collection.Map[Player, Cube] = positions.filter(_._2._2.isDefined).mapValues{
+    case (l1, ol2) => Cube(l1, ol2.get)
+  }
+}
+
+class WorldEditV2 extends ListenersPlugin with CommandsPlugin with CubePlugin with JCDCPluginFactoryExample {
 
   val listeners = List(
     OnLeftClickBlock((p, e) => if (p isHoldingA WOOD_AXE) {
       setFirstPosition(p, e.getClickedBlock)
       e.cancel
     }),
-    OnRightClickBlock((p, e) =>
-      if (p isHoldingA WOOD_AXE) setSecondPosition(p, e.getClickedBlock))
+    OnRightClickBlock((p, e) => if (p isHoldingA WOOD_AXE) setSecondPosition(p, e.getClickedBlock))
   )
 
   val commands = List(
@@ -44,13 +62,13 @@ class WorldEditV2 extends ListenersPlugin with CommandsPlugin with JCDCPluginFac
     Command(
       name = "/erase",
       desc = "Set all the selected blocks to air.",
-      body = noArgs (p => run(p)(_.blocks.foreach(_ changeTo AIR)))
+      body = noArgs(run(_)(_.erase))
     ),
     Command(
       name = "/change",
       desc = "Change all the selected blocks of the first material type to the second material type.",
       body = args(material ~ material) { case p ~ (oldM ~ newM) =>
-        run(p)(_.blocks.filter(_ is oldM).map(_ changeTo newM).force)
+        run(p)(cube => for(b <- cube.blocks; if b is oldM) b changeTo newM)
       }
     ),
     Command(
@@ -61,9 +79,9 @@ class WorldEditV2 extends ListenersPlugin with CommandsPlugin with JCDCPluginFac
     Command(
       name = "/empty-tower",
       desc = "Create walls and floor with the given material type, and set everything inside to air.",
-      body = args(material) { case p ~ m =>
-        run(p)(g => g.blocks.map(b => if (g.onWall(b)) b changeTo m else b changeTo AIR))
-      }
+      body = args(material) { case p ~ m => run(p)(cube =>
+        for(b <- cube.blocks) if (cube.onWall(b) || cube.onFloor(b)) b changeTo m else b.erase
+      )}
     ),
     Command(
       name = "/excavate",
@@ -77,25 +95,4 @@ class WorldEditV2 extends ListenersPlugin with CommandsPlugin with JCDCPluginFac
       }
     )
   )
-
-  // helper functions
-  case class Grid(l1: Location, l2: Location, blocks: Stream[Block]) {
-    def walls = blocks.filter(onWall)
-    def onWall(b: Block) = b.x == l1.x || b.x == l2.x || b.z == l1.z || b.z == l2.z
-  }
-  def setFirstPosition(p: Player, loc: Location) {
-    positions.update(p, loc -> None)
-    p ! ("first position set to: " + loc.xyz)
-  }
-  def setSecondPosition(p: Player, loc: Location) {
-    positions.get(p).map(_._1).fold(p ! "You must set position 1 first!")(l => {
-      positions.update(p, l -> Some(loc))
-      p ! ("second position set to: " + loc.xyz)
-    })
-  }
-  def getPositions(p: Player): Option[(Location, Location)] =
-    positions.get(p).flatMap(lol => lol._2.map(loc => (lol._1, loc)))
-  def run(p: Player)(f: Grid => Unit) =
-    getPositions(p).fold(p ! "Both positions need to be set!")(locs =>
-      f(Grid(locs._1, locs._2, p.world.between(locs._1, locs._2))))
 }
