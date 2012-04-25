@@ -1,0 +1,9 @@
+name: NPC
+main: jcdc.pluginfactory.examples.NPC
+author: Josh Cough
+version: 0.1
+database: false
+commands:
+  spawn:
+    description: Spawn a human
+    usage: /<command> 

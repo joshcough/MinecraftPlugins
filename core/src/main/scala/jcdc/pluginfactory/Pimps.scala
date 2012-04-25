@@ -12,6 +12,8 @@ import org.bukkit.inventory.ItemStack
 import ChatColor._
 import Effect._
 import Material._
+import org.bukkit.craftbukkit.CraftWorld
+import net.minecraft.server.WorldServer
 
 object Pimps extends Pimps
 
@@ -111,6 +113,8 @@ trait Pimps {
       def range(i1: Int, i2: Int) = (if(i1 < i2) i1 to i2 else i2 to i1).toStream
       for (x <- range(x1,x2); y <- range(y1,y2); z <- range(z1,z2)) yield w(x,y,z)
     }
+    def mcWorld = w.asInstanceOf[CraftWorld]
+    def worldServer: WorldServer = mcWorld.getHandle
   }
 
   case class PimpedLocation(loc: Location){

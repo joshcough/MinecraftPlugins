@@ -16,16 +16,24 @@ case class Cube(l1: Location, l2: Location) {
   val minZ    = math.min(l1.zd, l2.zd)
   val blocks  = world.between(l1, l2)
 
+  // todo: i could probably use eastWall, westWall, northWall, southWall
+  // todo: and then combine them here. those should be easy to write using
+  // todo: world.between.
   def walls   = blocks.filter(onWall)
   def onWall(b: Block)    = b.x == l1.x or b.x == l2.x or b.z == l1.z or b.z == l2.z
 
-  def floors  = world.between(world(maxX, minY, maxZ), world(minX, minY, minZ))
+  def floor  = world.between(world(maxX, minY, maxZ), world(minX, minY, minZ))
   def onFloor(b: Block)   = b.y == minY.toInt
 
   def ceiling = world.between(world(maxX, maxY, maxZ), world(minX, maxY, minZ))
   def onCeiling(b: Block) = b.y == maxY.toInt
 
   def insides = world.between(world(maxX-1, maxY-1, maxZ-1), world(minX-1, minY-1, minZ-1))
+
+  // todo: i could really use outsides, or box, or something, that is the inverse of insides.
+  // todo: which is walls + ceiling + floor
+  // but i should be careful...
+  // right now the walls extend into the borders of the ceiling and floor.
 
   def contains(p: Player)  : Boolean = this.contains(p.loc)
   def contains(l: Location): Boolean = (
