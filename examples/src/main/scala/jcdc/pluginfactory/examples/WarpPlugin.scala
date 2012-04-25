@@ -19,7 +19,7 @@ class WarpPlugin extends CommandsPlugin with SingleClassDBPlugin[Warp] with JCDC
     Command("delete-all", "Delete all warps in the database.",
       opOnly(noArgs(p => db.foreach { w => p ! ("deleting: " + w); db.delete(w) }))),
     Command("set-warp", "Create a new warp location.",
-      args(warpToken.named("old-warp-name")||anyString.named("new-warp-name")){
+      args(warpToken.named("old-warp-name") or anyString.named("new-warp-name")){
         case p ~ Left(w)  =>
           // TODO: can i use an update here?
           // making Warp a case class gave lots of unsolved issues...

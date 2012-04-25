@@ -25,7 +25,7 @@ case class Cube(l1: Location, l2: Location) {
   def ceiling = world.between(world(maxX, maxY, maxZ), world(minX, maxY, minZ))
   def onCeiling(b: Block) = b.y == maxY.toInt
 
-  def insides = world.between(world(maxX-1 , maxY-1, maxZ-1), world(minX-1, minY-1, minZ-1))
+  def insides = world.between(world(maxX-1, maxY-1, maxZ-1), world(minX-1, minY-1, minZ-1))
 
   def contains(p: Player)  : Boolean = this.contains(p.loc)
   def contains(l: Location): Boolean =
@@ -34,4 +34,8 @@ case class Cube(l1: Location, l2: Location) {
   def erase: Unit = blocks.foreach(_.erase)
   def set(newM: Material): Unit = for(b <- blocks) b changeTo newM
   def change(oldM: Material, newM: Material): Unit = for(b <- blocks; if b is oldM) b changeTo newM
+
+  // expand in all directions
+  def expand(n:Int)   = Cube(world(maxX+n, maxY+n, maxZ+n), world(minX-n, minY-n, minZ-n))
+  def expandUp(n:Int) = Cube(world(maxX, maxY+n, maxZ), world(minX, minY, minZ))
 }
