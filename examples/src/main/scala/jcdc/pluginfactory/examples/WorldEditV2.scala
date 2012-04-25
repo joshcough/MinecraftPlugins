@@ -18,16 +18,16 @@ class WorldEditV2 extends ListenersPlugin with CommandsPlugin with CubePlugin wi
     Command("/wand",  "Get a WorldEdit wand.",   noArgs(_.loc.dropItem(WOOD_AXE))),
     Command("/pos1",  "Set the first position",  noArgs(p => setFirstPosition(p, p.loc))),
     Command("/pos2",  "Set the second position", noArgs(p => setSecondPosition(p, p.loc))),
-    Command("/erase", "Set all the selected blocks to air.", noArgs(run(_)(_.erase))),
+    Command("/erase", "Set all the selected blocks to air.", noArgs(run(_)(_.eraseAll))),
     Command(
       name = "/set",
       desc = "Set all the selected blocks to the given material type.",
-      body = args(material) { case p ~ m => run(p)(_ set m) }
+      body = args(material) { case p ~ m => run(p)(_ setAll m) }
     ),
     Command(
       name = "/change",
       desc = "Change all the selected blocks of the first material type to the second material type.",
-      body = args(material ~ material) { case p ~ (oldM ~ newM) => run(p)(_.change(oldM, newM)) }
+      body = args(material ~ material) { case p ~ (oldM ~ newM) => run(p)(_.changeAll(oldM, newM)) }
     ),
     Command(
       name = "/walls",
@@ -47,7 +47,7 @@ class WorldEditV2 extends ListenersPlugin with CommandsPlugin with CubePlugin wi
       body = args(oddNum ~ num) { case p ~ (radius ~ depth) =>
         val b = radius / 2
         val (x, y, z) = p.loc.xyzd
-        Cube(p.world(x + b, y, z + b), p.world(x - b, y - depth, z - b)).erase
+        Cube(p.world(x + b, y, z + b), p.world(x - b, y - depth, z - b)).eraseAll
       }
     )
   )

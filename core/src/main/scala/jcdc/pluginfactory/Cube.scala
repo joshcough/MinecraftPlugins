@@ -28,12 +28,16 @@ case class Cube(l1: Location, l2: Location) {
   def insides = world.between(world(maxX-1, maxY-1, maxZ-1), world(minX-1, minY-1, minZ-1))
 
   def contains(p: Player)  : Boolean = this.contains(p.loc)
-  def contains(l: Location): Boolean =
-    l.xd <= maxX and l.xd >= minX and l.yd <= maxY and l.yd >= minY and l.zd <= maxZ and l.zd >= minZ
+  def contains(l: Location): Boolean = (
+    l.xd <= maxX and l.xd >= minX and
+    l.yd <= maxY and l.yd >= minY and
+    l.zd <= maxZ and l.zd >= minZ
+  )
 
-  def erase: Unit = blocks.foreach(_.erase)
-  def set(newM: Material): Unit = for(b <- blocks) b changeTo newM
-  def change(oldM: Material, newM: Material): Unit = for(b <- blocks; if b is oldM) b changeTo newM
+  def eraseAll: Unit = blocks.foreach(_.erase)
+  def setAll(newM: Material): Unit = for(b <- blocks) b changeTo newM
+  def changeAll(oldM: Material, newM: Material): Unit =
+    for(b <- blocks; if b is oldM) b changeTo newM
 
   // expand in all directions
   def expand(n:Int)    = Cube(world(maxX+n, maxY+n, maxZ+n), world(minX-n, minY-n, minZ-n))
