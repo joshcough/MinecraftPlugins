@@ -20,7 +20,6 @@ trait MinecraftParsers extends ParserCombinators[Player] {
 
 trait CommandsPlugin extends ScalaPlugin with MinecraftParsers {
 
-  type Description = String
   case class CommandBody(argDesc: String, f:(Player, BukkitCommand, List[String]) => Unit)
 
   object Command {
@@ -46,8 +45,7 @@ trait CommandsPlugin extends ScalaPlugin with MinecraftParsers {
   }
 
   def opOnly(ch: CommandBody): CommandBody = CommandBody(
-    ch.argDesc + " [Op Only]",
-    (player: Player, c: BukkitCommand, args: List[String]) =>
+    ch.argDesc + " [Op Only]", (player: Player, c: BukkitCommand, args: List[String]) =>
       if (player.isOp) ch.f(player, c, args)
       else player.sendMessage(RED + "You must be an op to run /" + c.getName)
   )
@@ -66,12 +64,12 @@ trait CommandsPlugin extends ScalaPlugin with MinecraftParsers {
         case Success(t, _) => f(new ~(p, t))
       })
 
-  override def yaml = {
+  override def yml = {
     def commandYaml(c: Command) = "  " +
       c.name + ":\n" +
       "    description: " + c.description.getOrElse(c.name) + "\n" +
       "    usage: /<command> " + c.body.argDesc
     val commandsYaml = "commands:\n" + commands.map(commandYaml).mkString("\n")
-    List(super.yaml, commandsYaml).mkString("\n")
+    List(super.yml, commandsYaml).mkString("\n")
   }
 }

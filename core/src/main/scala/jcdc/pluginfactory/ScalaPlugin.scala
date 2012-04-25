@@ -30,15 +30,13 @@ abstract class ScalaPlugin extends org.bukkit.plugin.java.JavaPlugin with Pimps 
       }
   }
 
-  def yaml = {
-    List(
+  def yml = List(
       "name: " + this.getClass.getSimpleName,
       "main: " + this.getClass.getName,
       "author: " + author,
       "version: " + version,
       "database: " + (this.dbClasses.size > 0)
     ).mkString("\n")
-  }
 
   // logging
   def logInfo(message:String) { log.info("["+name+"] - " + message) }

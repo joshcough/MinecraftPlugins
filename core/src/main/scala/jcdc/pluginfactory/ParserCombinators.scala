@@ -62,15 +62,10 @@ trait ParserCombinators[C] {
       def describe = "(" + self.describe + " or " + p2.describe + ")"
     }
 
-    def * : Parser[List[T]] = {
-      val x: Parser[~[T, List[T]]] = (this ~ (this *))
-      (x ^^ {case t ~ ts => t :: ts}) | success(List[T]()).named(self.describe + "*")
-    }
+    def * : Parser[List[T]] = ((this+) | success(List[T]())).named(self.describe + "*")
 
-    def + : Parser[List[T]] = {
-      val x: Parser[~[T, List[T]]] = (this ~ (this *))
-      (x ^^ { case t ~ ts => t :: ts}).named(self.describe + "+")
-    }
+    def + : Parser[List[T]] =
+      ((this ~ (this *)) ^^ { case t ~ ts => t :: ts}).named(self.describe + "+")
   }
 
   def opt[T](parser: Parser[T]) = new Parser[Option[T]] {
@@ -94,26 +89,22 @@ trait ParserCombinators[C] {
     def describe = s
   }
 
-
-  def even(n: Int) = n % 2 == 0
-  def odd(n: Int) = !even(n)
-  def num: Parser[Int] = token("number") { (_, s) => try Some(s.toInt) catch { case e => None } }
-  def oddNum: Parser[Int] = token("odd-number") { (_, s) =>
-    try Some(s.toInt).filter(odd) catch { case e => None }
-  }
-  def evenNum: Parser[Int] = token("even-number") { (_, s) =>
-    try Some(s.toInt).filter(even) catch { case e => None }
-  }
-  def anyString = token("string") { (_, s) => Some(s) }
-
   def token[T](name: String)(f: (ParseContext, String) => Option[T]) = new Parser[T] {
     def apply(p: ParseContext, args: List[String]) = args match {
       case Nil => Failure("expected " + name + ", got nothing")
       case x :: xs => f(p, x) match {
-        case None => Failure("no such: " + name)
+        case None => Failure("invalid " + name + ": " + x)
         case Some(t) => Success(t, xs)
       }
     }
     def describe = name
   }
+
+  def anyString = token("string") { (_, s) => Some(s) }
+  def even(n: Int) = n % 2 == 0
+  def odd (n: Int) = !even(n)
+  def tryNum(s: String)    = try Some(s.toInt) catch { case e => None }
+  def num:     Parser[Int] = token("number") { (_, s) => tryNum(s) }
+  def oddNum:  Parser[Int] = token("odd-number") { (_, s) => tryNum(s).filter(odd) }
+  def evenNum: Parser[Int] = token("even-number") { (_, s) => tryNum(s).filter(even) }
 }

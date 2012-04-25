@@ -36,6 +36,7 @@ case class Cube(l1: Location, l2: Location) {
   def change(oldM: Material, newM: Material): Unit = for(b <- blocks; if b is oldM) b changeTo newM
 
   // expand in all directions
-  def expand(n:Int)   = Cube(world(maxX+n, maxY+n, maxZ+n), world(minX-n, minY-n, minZ-n))
-  def expandUp(n:Int) = Cube(world(maxX, maxY+n, maxZ), world(minX, minY, minZ))
+  def expand(n:Int)    = Cube(world(maxX+n, maxY+n, maxZ+n), world(minX-n, minY-n, minZ-n))
+  def expandUp(n:Int)  = Cube(world(maxX,   maxY+n, maxZ),   world(minX,   minY,   minZ))
+  def expandOut(n:Int) = Cube(world(maxX+n, maxY,   maxZ+n), world(minX-n, minY,   minZ-n))
 }
