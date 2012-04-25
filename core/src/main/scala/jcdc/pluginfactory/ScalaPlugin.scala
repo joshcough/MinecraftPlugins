@@ -2,6 +2,7 @@ package jcdc.pluginfactory
 
 import java.util.logging.Logger
 import org.bukkit.event.Listener
+import org.bukkit.craftbukkit.CraftServer
 
 object ScalaPlugin extends Pimps
 
@@ -11,6 +12,7 @@ abstract class ScalaPlugin extends org.bukkit.plugin.java.JavaPlugin with Pimps 
 
   def name = this.getDescription.getName
   def server = getServer
+  def craftServer = org.bukkit.Bukkit.getServer.asInstanceOf[CraftServer]
 
   // setup stuff
   override def onEnable(){ super.onEnable(); setupDatabase; logInfo(name + " enabled!") }

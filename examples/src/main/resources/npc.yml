@@ -5,5 +5,11 @@ version: 0.1
 database: false
 commands:
   spawn:
-    description: Spawn a human
-    usage: /<command> 
+    description: Spawn an NPC
+    usage: /<command> string
+  fd:
+    description: Move an NPC forward
+    usage: /<command> npc  number
+  kill-npc:
+    description: Kill an NPC
+    usage: /<command> npc
