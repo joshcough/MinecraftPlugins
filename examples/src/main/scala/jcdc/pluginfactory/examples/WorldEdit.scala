@@ -5,7 +5,7 @@ import org.bukkit.{Location, Material}
 import org.bukkit.entity.Player
 import Material._
 
-class WorldEdit extends ListenersPlugin with CommandsPlugin with JCDCPluginFactoryExample {
+class WorldEdit extends ListenersPlugin with CommandsPlugin {
 
   val positions = collection.mutable.Map[Player, (Location, Option[Location])]()
 

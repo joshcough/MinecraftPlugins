@@ -6,7 +6,7 @@ import org.bukkit.Material._
 import org.bukkit.entity.EntityType._
 import scala.collection.JavaConversions._
 
-class MultiPlayerCommands extends CommandsPlugin with JCDCPluginFactoryExample {
+class MultiPlayerCommands extends CommandsPlugin {
   val commands = List(
     Command("goto",     "Teleport to a player.", p2p((you, them) => you.teleportTo(them))),
     Command("set-time", "Sets the time.", args(num){ case p ~ n => p.world.setTime(n) }),

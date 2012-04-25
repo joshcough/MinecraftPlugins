@@ -4,7 +4,7 @@ import jcdc.pluginfactory.{CommandsPlugin, ListenersPlugin}
 import org.bukkit.Material
 import Material._
 
-class Arena extends ListenersPlugin with CommandsPlugin with CubePlugin with JCDCPluginFactoryExample {
+class Arena extends ListenersPlugin with CommandsPlugin with CubePlugin {
 
   val listeners = List(
     OnLeftClickBlock((p, e) => if (p isHoldingA STONE_AXE) {

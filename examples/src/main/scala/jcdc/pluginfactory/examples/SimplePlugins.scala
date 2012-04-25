@@ -7,32 +7,30 @@ import org.bukkit.Material.{DIAMOND_AXE, LOG}
 import org.bukkit.entity.EntityType.{ARROW, ZOMBIE}
 import org.bukkit.entity.Player
 
-trait JCDCPluginFactoryExample { val author = "Josh Cough"; val version = "0.1" }
-
 class Thor extends ListeningFor(OnEntityDamageByPlayer { (e, p, _) =>
   if (p isHoldingA DIAMOND_AXE) p.world.strikeLightning(e.loc)
-}) with JCDCPluginFactoryExample
+})
 
 class ZombieApocalypse extends ListeningFor(OnPlayerDeath { (p, _) => p.loc spawn ZOMBIE })
-  with JCDCPluginFactoryExample
+ 
 
 class TreeDelogger extends ListeningFor(OnBlockBreak { (b, e) =>
   if (b isA LOG) for (b <- b #:: b.blocksAbove.takeWhile(_ isA LOG)) b.erase
-}) with JCDCPluginFactoryExample
+})
 
 class BanArrows extends ListeningFor(OnPlayerDamageByEntity { (p, e) =>
   if (e.getDamager isAn ARROW) p.ban("struck by an arrow!")
-}) with JCDCPluginFactoryExample
+})
 
 class LightningArrows extends ListeningFor(OnEntityDamageByEntity { e =>
   if (e.getDamager isAn ARROW) e.world.strikeLightning(e.loc)
-}) with JCDCPluginFactoryExample
+})
 
-class NoRain extends ListenerPlugin with JCDCPluginFactoryExample{
+class NoRain extends ListenerPlugin{
   val listener = OnWeatherChange(e => e.cancelIf(e.rain, broadcast("Put up an umbrella.")))
 }
 
-class BlockChanger extends ListenerPlugin with CommandsPlugin with JCDCPluginFactoryExample {
+class BlockChanger extends ListenerPlugin with CommandsPlugin {
   val users = collection.mutable.Map[Player, Material]()
   val listener = OnBlockDamage((b, e) => users.get(e.getPlayer).foreach(b changeTo _))
   val commands = List(
@@ -47,7 +45,7 @@ class BlockChanger extends ListenerPlugin with CommandsPlugin with JCDCPluginFac
   )
 }
 
-class God extends ListenerPlugin with CommandsPlugin with JCDCPluginFactoryExample {
+class God extends ListenerPlugin with CommandsPlugin {
   val gods = collection.mutable.Map[Player, Boolean]().withDefaultValue(false)
   implicit def playerToGod(p:Player)= new { def isAGod = gods(p) }
   val listener = OnPlayerDamage { (p, e) => e cancelIf p.isAGod }
@@ -72,7 +70,7 @@ object Curses {
 }
 
 class CurseBan extends ListeningFor(OnPlayerChat((p, e) => Curses.handle(e, e.player.ban("no swearing"))))
-  with JCDCPluginFactoryExample
+ 
 
 class CursePreventer extends ListeningFor(OnPlayerChat((p, e) => Curses.handle(e, ())))
-  with JCDCPluginFactoryExample
+ 
