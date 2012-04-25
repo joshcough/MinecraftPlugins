@@ -5,6 +5,13 @@ import org.bukkit.entity.Player
 import net.minecraft.server.{MinecraftServer, EntityPlayer, World => MCWorld, ItemInWorldManager}
 import org.bukkit.craftbukkit.CraftServer
 
+/**
+ * helpful urls:
+ * http://dev.bukkit.org/server-mods/npccreatures/
+ * https://github.com/Steveice10/NPCCreatures/blob/master/src/main/java/ch/spacebase/npccreatures/npcs/NPCManager.java
+ * https://github.com/CitizensDev/Citizens/blob/master/src/core/net/citizensnpcs/resources/npclib/CraftNPC.java
+ * https://github.com/Bukkit/CraftBukkit/blob/master/src/main/java/net/minecraft/server/Entity.java
+ */
 class NPC extends CommandsPlugin {
 
   val commands = List(
