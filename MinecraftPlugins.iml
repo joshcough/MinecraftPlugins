@@ -27,6 +27,15 @@
     <orderEntry type="library" name="scala-compiler-2.9.1" level="application" />
     <orderEntry type="library" name="craftbukkit-1.2.5-R1.0" level="project" />
     <orderEntry type="library" name="servlet-api-2.5" level="project" />
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/examples/lib/NetLogo.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
   </component>
 </module>
 

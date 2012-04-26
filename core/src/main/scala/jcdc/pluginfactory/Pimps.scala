@@ -181,6 +181,7 @@ trait Pimps {
     def ban(reason:String){ player.setBanned(true); player.kickPlayer("banned: " + reason) }
     def kill(playerName:String): Unit = findPlayer(playerName)(kill)
     def kill(p:Player) = doTo(p, p.setHealth(0), "killed")
+    def die = player.setHealth(0)
     def teleportTo(otherPlayer: Player) = player.teleport(otherPlayer)
     def teleportTo(b: Block)            = player.teleport(b.loc)
     def strike = world.strikeLightning(loc)

@@ -1,5 +1,7 @@
 package jcdc.pluginfactory
 
+import java.io.File
+
 trait ParserCombinators[C] {
 
   type ParseContext = C
@@ -101,10 +103,27 @@ trait ParserCombinators[C] {
   }
 
   def anyString = token("string") { (_, s) => Some(s) }
+  def tryOption[T](t: => T) = try Some(t) catch { case e => None }
+
+  // number parsers
   def even(n: Int) = n % 2 == 0
   def odd (n: Int) = !even(n)
-  def tryNum(s: String)    = try Some(s.toInt) catch { case e => None }
-  def num:     Parser[Int] = token("number") { (_, s) => tryNum(s) }
-  def oddNum:  Parser[Int] = token("odd-number") { (_, s) => tryNum(s).filter(odd) }
-  def evenNum: Parser[Int] = token("even-number") { (_, s) => tryNum(s).filter(even) }
+  def tryNum(s: String)     = tryOption(s.toInt)
+  def num:     Parser[Int]  = token("number") { (_, s) => tryNum(s) }
+  def oddNum:  Parser[Int]  = token("odd-number") { (_, s) => tryNum(s).filter(odd) }
+  def evenNum: Parser[Int]  = token("even-number") { (_, s) => tryNum(s).filter(even) }
+
+  // file parsers
+  def file:    Parser[File] = token("file") { (_, s) => Some(new File(s)) }
+  def newFile: Parser[File] = token("new-file"){ (_, s) => tryOption {
+    val f = new File(s)
+    f.createNewFile()
+    f
+  }}
+  // todo, maybe deal with exception handling here...
+  def existingFile: Parser[File] = token("existing-file"){ (_, s) =>
+    val f = new File(s)
+    if (f.exists()) Some(f) else None
+  }
+  def existingOrNewFile: Parser[File] = existingFile | newFile
 }
