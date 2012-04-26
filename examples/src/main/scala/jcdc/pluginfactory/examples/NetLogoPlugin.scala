@@ -13,17 +13,18 @@ class NetLogoPlugin extends CommandsPlugin with NPCPlugin {
    * It gets populated during nl:setup, and then gets updated after each call to go.
    * The Long key is the turtle id.
    */
-  var turtles = Map[Long, CraftPlayer]()
+  val turtles = collection.mutable.Map[Long, CraftPlayer]()
   var workspace: Option[HeadlessWorkspace] = None
 
   val commands = List(
-    Command("load", "Load a model", args(existingFile) { case p ~ model =>
+    Command("open", "Open a model", args(existingFile) { case p ~ model =>
       // implicitly start over.
       dispose()
       workspace = Some(HeadlessWorkspace.newInstance)
       // model must be a file on the server....
       // maybe it could somehow be a url that we pull down?
       workspace.foreach(_.open(model.getAbsolutePath))
+      p ! ("loaded " + model)
     }),
     Command("setup", "Call the setup proc.",    noArgs { callProc(_, "setup") }),
     Command("go",    "Call the go proc once.",  noArgs { callProc(_, "go") }),
@@ -46,10 +47,7 @@ class NetLogoPlugin extends CommandsPlugin with NPCPlugin {
   def callProc(p: Player, proc:String) = usingWorkspace(p)(_.command(proc))
 
   def usingWorkspace(p: Player)(f: HeadlessWorkspace => Unit) =
-    workspace.fold(p ! "call nl:load first!"){ ws =>
-      f(ws)
-      updateTurtlesInMinecraftWorld(p, ws)
-    }
+    workspace.fold(p ! "call load first!"){ ws => f(ws); update(p, ws) }
 
   def dispose(){
     turtles.values.foreach(_.die)
@@ -62,10 +60,14 @@ class NetLogoPlugin extends CommandsPlugin with NPCPlugin {
   // update the positions of all living turtles
   // update the turtles map so we know who was alive last tick.
   // todo: this might be able to be folded into usingWorkspace. nbd though.
-  def updateTurtlesInMinecraftWorld(p:Player, workspace: HeadlessWorkspace): Unit = {
-    println("in update function")
-    workspace.world.turtles.toLogoList.scalaIterator.collect{case t: Turtle => t}.foreach{ t =>
-      println(t)
+  def update(p:Player, ws: HeadlessWorkspace): Unit = {
+    nlTurtles(ws).foreach{ case (l, t) =>
+      val loc = p.world(t.xcor, 5.6, t.ycor).loc
+      if (! turtles.contains(l)) turtles += (l -> NPCHuman(p.world, loc, l.toString))
+      else turtles(l).teleport(loc)
     }
   }
+
+  def nlTurtles(ws: HeadlessWorkspace): Map[Long, Turtle] =
+    ws.world.turtles.toLogoList.scalaIterator.collect{case t: Turtle => t}.map(t => (t.id, t)).toMap
 }
