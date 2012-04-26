@@ -3,6 +3,7 @@ package jcdc.pluginfactory.examples
 import jcdc.pluginfactory.{NPCPlugin, CommandsPlugin}
 import org.bukkit.craftbukkit.entity.CraftPlayer
 import org.nlogo.headless.HeadlessWorkspace
+import org.nlogo.agent.Turtle
 import org.bukkit.entity.Player
 
 class NetLogoPlugin extends CommandsPlugin with NPCPlugin {
@@ -26,20 +27,18 @@ class NetLogoPlugin extends CommandsPlugin with NPCPlugin {
     }),
     Command("setup", "Call the setup proc.",    noArgs { callProc(_, "setup") }),
     Command("go",    "Call the go proc once.",  noArgs { callProc(_, "go") }),
-    Command("call",  "Call a NetLogo proc.",    args(anyString) {
-      case p ~ proc => callProc(p, proc)
+    Command("call",  "Call a NetLogo proc.",    args(anyString+) {
+      case p ~ proc => callProc(p, proc.mkString(" "))
     }),
-    Command("loop",  "Call go until it is finished.", noArgs { p =>
-      // do the same thing as go, but in a loop.
-      // we probably have to start a new thread here to do that
-      // i need to be able to detect the stop condition
+    Command("loop",  "Call go until it is finished.", args(num) { case p ~ n =>
+      new Thread(new Runnable() { def run() { for (_ <- 0 to n) callProc(p, "go") } }).start()
     }),
     Command("dispose", "Start over.", noArgs{ p =>
       // todo: what if we are running the go loop in a new thread here?
       // we probably should shut it down...
       dispose()
     }),
-    Command("report", "Report something...", args(anyString*){ case p ~ reporter =>
+    Command("report", "Report something...", args(anyString+){ case p ~ reporter =>
       usingWorkspace(p)(ws => p ! (ws.report(reporter.mkString(" ")).toString))
     })
   )
@@ -49,7 +48,7 @@ class NetLogoPlugin extends CommandsPlugin with NPCPlugin {
   def usingWorkspace(p: Player)(f: HeadlessWorkspace => Unit) =
     workspace.fold(p ! "call nl:load first!"){ ws =>
       f(ws)
-      updateTurtlesInMinecraftWorld(p)
+      updateTurtlesInMinecraftWorld(p, ws)
     }
 
   def dispose(){
@@ -63,7 +62,10 @@ class NetLogoPlugin extends CommandsPlugin with NPCPlugin {
   // update the positions of all living turtles
   // update the turtles map so we know who was alive last tick.
   // todo: this might be able to be folded into usingWorkspace. nbd though.
-  def updateTurtlesInMinecraftWorld(p:Player): Unit = {
-
+  def updateTurtlesInMinecraftWorld(p:Player, workspace: HeadlessWorkspace): Unit = {
+    println("in update function")
+    workspace.world.turtles.toLogoList.scalaIterator.collect{case t: Turtle => t}.foreach{ t =>
+      println(t)
+    }
   }
 }

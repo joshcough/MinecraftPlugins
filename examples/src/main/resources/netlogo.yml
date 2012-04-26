@@ -1,0 +1,27 @@
+name: NetLogoPlugin
+main: jcdc.pluginfactory.examples.NetLogoPlugin
+author: Josh Cough
+version: 0.1
+database: false
+commands:
+  load:
+    description: Load a model
+    usage: /<command> existing-file
+  setup:
+    description: Call the setup proc.
+    usage: /<command> 
+  go:
+    description: Call the go proc once.
+    usage: /<command> 
+  call:
+    description: Call a NetLogo proc.
+    usage: /<command> string+
+  loop:
+    description: Call go until it is finished.
+    usage: /<command> number
+  dispose:
+    description: Start over.
+    usage: /<command> 
+  report:
+    description: Report something...
+    usage: /<command> string+
