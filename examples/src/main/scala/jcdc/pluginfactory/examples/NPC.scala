@@ -22,11 +22,14 @@ class NPC extends CommandsPlugin {
   val npcTok = token("npc"){ (_, s) => npcs.get(s) }
 
   val commands = List(
-    Command("spawn", "Spawn an NPC", args(anyString){ case p ~ s => spawnNPC(p, s) }),
-    Command("fd", "Move an NPC forward", args(npcTok ~ num){ case p ~ (npc ~ distance) =>
+    Command("npc:spawn", "Spawn an NPC", args(anyString){ case p ~ s => spawnNPC(p, s) }),
+    Command("npc:fd", "Move an NPC forward", args(npcTok ~ num){ case p ~ (npc ~ distance) =>
       npc.teleport(p.world(npc.x + distance, npc.y, npc.z))
     }),
-    Command("kill-npc", "Kill an NPC", args(npcTok){ case p ~ npc =>
+    Command("npc:tp", "Teleport an NPC", args(npcTok ~ num ~ num){ case p ~ (npc ~ x ~ z) =>
+      npc.teleport(p.world(x, npc.y, z))
+    }),
+    Command("ncp:kill-npc", "Kill an NPC", args(npcTok){ case p ~ npc =>
       npcs -= npc.name
       p.kill(npc)
     })
