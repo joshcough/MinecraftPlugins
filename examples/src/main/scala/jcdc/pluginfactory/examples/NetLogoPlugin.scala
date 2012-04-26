@@ -47,7 +47,7 @@ class NetLogoPlugin extends CommandsPlugin with NPCPlugin {
   def callProc(p: Player, proc:String) = usingWorkspace(p)(_.command(proc))
 
   def usingWorkspace(p: Player)(f: HeadlessWorkspace => Unit) =
-    workspace.fold(p ! "call load first!"){ ws => f(ws); update(p, ws) }
+    workspace.fold(p ! "call open first!"){ ws => f(ws); update(p, ws) }
 
   def dispose(){
     turtles.values.foreach(_.die)
