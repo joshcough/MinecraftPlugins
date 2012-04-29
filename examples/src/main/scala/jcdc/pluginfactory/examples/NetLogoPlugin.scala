@@ -27,6 +27,8 @@ class NetLogoPlugin extends CommandsPlugin with NPCPlugin {
       // maybe it could somehow be a url that we pull down?
       workspace.foreach(_.open(model.getAbsolutePath))
       p ! ("loaded " + model)
+      // call setup on load, because that just makes sense.
+      callProc(_, "setup")
     }),
     Command("setup", "Call the setup proc.",    noArgs { callProc(_, "setup") }),
     Command("go",    "Call the go proc once.",  noArgs { callProc(_, "go") }),
@@ -80,7 +82,7 @@ class NetLogoPlugin extends CommandsPlugin with NPCPlugin {
     }
     // if turtles die, kill them
     val deadTurtles = entities.filter{ case (id, _) => ! turtles.contains(id) }
-    deadTurtles.foreach{ case (id, npc) => despawn(npc); entities.remove(id) }
+    deadTurtles.foreach{ case (id, npc) => npc.die; entities.remove(id) }
 
     // a hack for wolf-sheep that might be useful later in other models.
     val patches: Iterator[Patch] = ws.world.patches.toLogoList.scalaIterator.collect{case p: Patch => p}
@@ -93,17 +95,55 @@ class NetLogoPlugin extends CommandsPlugin with NPCPlugin {
     case _        => human _
   })(id.toString, loc)
 
+  // for reference, see:
+  // https://github.com/haveric/Wool-Trees/blob/master/src/haveric/woolTrees/Commands.java
   val colors = Map(
+    // black
+    0d  ->  (WOOL, Some(15:Byte)),
+    // grey
+    5d  ->  (WOOL, Some(7:Byte)),
+    // white
+    9.9 ->  (WOOL, Some(0:Byte)),
+    // red
+    15d ->  (WOOL, Some(14:Byte)),
+    // orange
+    25d ->  (WOOL, Some(1:Byte)),
     // brown
-    35d -> DIRT,
+    35d ->  (DIRT, None),  // 12b for wool
+    // yellow
+    45d ->  (WOOL, Some(4:Byte)),
     // green
-    55d -> GRASS
+    55d ->  (GRASS, None), // 13b for wool
+    // lime
+    65d ->  (WOOL, Some(5:Byte)), // light green in Minecraft.
+    // turquoise??
+    // 75d ->  (WOOL, ??)
+    // cyan
+    85d ->  (WOOL, Some(9:Byte)),
+    // sky??
+    // 95d -> (WOOL, ??),
+    // blue
+    105d -> (WOOL, Some(11:Byte)),
+    // violet
+    115d -> (WOOL, Some(10:Byte)), // purple in Minecraft, i think.
+    // magenta
+    125d -> (WOOL, Some(2:Byte)),
+    // pink
+    135d -> (WOOL, Some(6:Byte))
   )
 
   def updatePatchColorMaybe(patch: Patch, world: World): Unit = {
-    colors.get(patch.pcolorDouble).foreach{ m =>
+    colors.get(patch.pcolorDouble).foreach{ case (m, color) =>
       val block = world(patch.pxcor, 3, patch.pycor)
       if (! (block is m)) block changeTo m
+      if (block is WOOL) color.foreach(block.setData)
     }
   }
 }
+
+/**
+    } else if (args[i].equalsIgnoreCase("lightblue")){
+      colorArray.add(3);
+    } else if (args[i].equalsIgnoreCase("lightgray") || args[i].equalsIgnoreCase("lightgrey")){
+      colorArray.add(8);
+ */

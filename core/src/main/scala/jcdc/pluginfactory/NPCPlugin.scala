@@ -14,11 +14,7 @@ import ch.spacebase.npccreatures.NPCCreatures
  * https://github.com/Bukkit/CraftBukkit/blob/master/src/main/java/net/minecraft/server/Entity.java
  */
 trait NPCPlugin extends ScalaPlugin with MinecraftParsers {
-  private var npcManager: NPCManager = _
-  override def onEnable(){
-    super.onEnable()
-    npcManager = server.getPluginManager.getPlugin("NPCCreatures").asInstanceOf[NPCCreatures].getNPCManager
-  }
+  private lazy val npcManager = server.getPluginManager.getPlugin("NPCCreatures").asInstanceOf[NPCCreatures].getNPCManager
   def npcType = token("npc-type"){ (_, s) => Option(NPCType.getByName(s)) }
   def human(name: String, loc:Location) = this.npcManager.spawnNPC(name, loc, NPCType.HUMAN)
   def wolf (name: String, loc:Location) = this.npcManager.spawnNPC(name, loc, NPCType.WOLF)
