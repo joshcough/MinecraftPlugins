@@ -8,10 +8,10 @@ class WorldEditV2 extends ListenersPlugin with CommandsPlugin with CubePlugin {
 
   val listeners = List(
     OnLeftClickBlock((p, e) => if (p isHoldingA WOOD_AXE) {
-      setFirstPosition(p, e.getClickedBlock)
+      setFirstPosition(p, e.loc)
       e.cancel
     }),
-    OnRightClickBlock((p, e) => if (p isHoldingA WOOD_AXE) setSecondPosition(p, e.getClickedBlock))
+    OnRightClickBlock((p, e) => if (p isHoldingA WOOD_AXE) setSecondPosition(p, e.loc))
   )
 
   val commands = List(

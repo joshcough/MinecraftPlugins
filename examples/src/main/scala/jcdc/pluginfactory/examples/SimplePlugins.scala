@@ -1,15 +1,27 @@
 package jcdc.pluginfactory.examples
 
-import jcdc.pluginfactory.{Listeners, ListenerPlugin, CommandsPlugin}
-import Listeners._
+import jcdc.pluginfactory.{ListenersPlugin, Listeners, ListenerPlugin, CommandsPlugin}
 import org.bukkit.Material
-import org.bukkit.Material.{DIAMOND_AXE, LOG}
+import org.bukkit.Material._
+import org.bukkit.block.Block
 import org.bukkit.entity.EntityType.{ARROW, ZOMBIE}
 import org.bukkit.entity.Player
+import Listeners._
+
 
 class Thor extends ListeningFor(OnEntityDamageByPlayer { (e, p, _) =>
   if (p isHoldingA DIAMOND_AXE) p.world.strikeLightning(e.loc)
 })
+
+class Farmer extends ListenersPlugin {
+  def dropSeedsAt(b: Block) = b.world.dropItem(b.loc, SEEDS)
+  def hasHoe(p: Player) =
+    List(WOOD_HOE, STONE_HOE, IRON_HOE, GOLD_HOE, DIAMOND_HOE).exists(p isHolding _)
+  val listeners = List(
+    OnBlockBreak{ (b, e) => if (b is LONG_GRASS) dropSeedsAt(b) },
+    OnRightClickBlock{ (p, e) => if (hasHoe(p) and (e.block is GRASS)) dropSeedsAt(e.block) }
+  )
+}
 
 class ZombieApocalypse extends ListeningFor(OnPlayerDeath { (p, _) => p.loc spawn ZOMBIE })
  

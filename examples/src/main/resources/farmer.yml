@@ -1,0 +1,4 @@
+name: Farmer
+main: jcdc.pluginfactory.examples.Farmer
+author: jacycough
+version: 0.1

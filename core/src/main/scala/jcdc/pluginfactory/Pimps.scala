@@ -5,7 +5,6 @@ import org.bukkit.block.Block
 import org.bukkit.command.Command
 import org.bukkit.event.Cancellable
 import org.bukkit.event.entity.EntityEvent
-import org.bukkit.event.player.PlayerEvent
 import org.bukkit.event.weather.WeatherChangeEvent
 import org.bukkit.inventory.ItemStack
 import ChatColor._
@@ -14,6 +13,7 @@ import Material._
 import org.bukkit.craftbukkit.CraftWorld
 import net.minecraft.server.WorldServer
 import org.bukkit.entity.{LivingEntity, Entity, EntityType, Player}
+import org.bukkit.event.player.{PlayerInteractEvent, PlayerEvent}
 
 object Pimps extends Pimps
 
@@ -34,6 +34,7 @@ trait Pimps {
     def rain = e.toWeatherState
     def sun  = ! e.toWeatherState
   }
+  implicit def pimpPlayerInteractEvent(e:PlayerInteractEvent) = new PimpedPlayerInteractEvent(e)
   implicit def pimpedOption[T](ot: Option[T])   = new PimpedOption(ot)
   implicit def blockToLoc(b: Block) = b.getLocation
   implicit def blockToItemStack(b: Block) = new ItemStack(b.getType, 1, b.getData)
@@ -189,6 +190,11 @@ trait Pimps {
     def teleportTo(otherPlayer: Player) = player.teleport(otherPlayer)
     def teleportTo(b: Block)            = player.teleport(b.loc)
     def strike = world.strikeLightning(loc)
+  }
+
+  case class PimpedPlayerInteractEvent(e: PlayerInteractEvent){
+    def block = e.getClickedBlock
+    def loc = block.loc
   }
 
   case class PimpedOption[T](ot: Option[T]){

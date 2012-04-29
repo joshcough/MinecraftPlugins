@@ -11,14 +11,14 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin {
 
   val listeners = List(
     OnLeftClickBlock((p, e)  => if (p isHoldingA WOOD_AXE) {
-      positions.update(p, (e.getClickedBlock.loc, None))
+      positions.update(p, (e.loc, None))
       e.cancel
-      p ! ("first position set to: " + e.getClickedBlock.loc.xyz)
+      p ! ("first position set to: " + e.loc.xyz)
     }),
     OnRightClickBlock((p, e) => if (p isHoldingA WOOD_AXE) {
       for(l <- positions.get(p).map(_._1)) {
-        positions.update(p, (l, Some(e.getClickedBlock.loc)))
-        p ! ("second position set to: " + e.getClickedBlock.loc.xyz)
+        positions.update(p, (l, Some(e.loc)))
+        p ! ("second position set to: " + e.loc.xyz)
       }
     })
   )

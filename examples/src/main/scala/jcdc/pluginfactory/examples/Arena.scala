@@ -8,11 +8,11 @@ class Arena extends ListenersPlugin with CommandsPlugin with CubePlugin {
 
   val listeners = List(
     OnLeftClickBlock((p, e) => if (p isHoldingA STONE_AXE) {
-      setFirstPosition(p, e.getClickedBlock)
+      setFirstPosition(p, e.loc)
       e.cancel
     }),
     OnRightClickBlock((p, e) =>
-      if (p isHoldingA STONE_AXE) setSecondPosition(p, e.getClickedBlock)),
+      if (p isHoldingA STONE_AXE) setSecondPosition(p, e.loc)),
     OnPlayerMove((p, e) => cubes.foreach{ case (cp, cube) =>
       if (cube.contains(e.getTo) and ! cube.contains(e.getFrom))
         p ! ("You are entering the battle arena of " + cp.name + "!")

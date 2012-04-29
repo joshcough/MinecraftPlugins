@@ -6,10 +6,12 @@
 ./bin/ban-arrows.sh
 ./bin/block-changer.sh
 ./bin/curse-ban.sh
+./bin/farmer.sh
 ./bin/god.sh
 ./bin/lightning-arrows.sh
 ./bin/multi-player-commands.sh
 ./bin/no-rain.sh
+./bin/netlogo.sh
 ./bin/npc.sh
 ./bin/thor.sh
 ./bin/tree-delogger.sh
