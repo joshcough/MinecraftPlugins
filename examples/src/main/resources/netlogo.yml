@@ -18,10 +18,13 @@ commands:
     usage: /<command> string+
   loop:
     description: Call go until it is finished.
-    usage: /<command> number
+    usage: /<command> number  optional(long)
   dispose:
     description: Start over.
     usage: /<command> 
   report:
     description: Report something...
     usage: /<command> string+
+  count-entities:
+    description: Show the number of entities
+    usage: /<command>

@@ -8,7 +8,12 @@ import scala.collection.JavaConversions._
 
 class MultiPlayerCommands extends CommandsPlugin {
   val commands = List(
-    Command("goto",     "Teleport to a player.", p2p((you, them) => you.teleportTo(them))),
+    Command("goto",     "Teleport to a player.", args(player or (num ~ num ~ opt(num))){
+      case you ~ Left(them) => you.teleportTo(them)
+      case you ~ Right(x ~ y ~ Some(z)) => you.teleport(you.world(x, y, z))
+      case you ~ Right(x ~ z ~ None) =>
+        you.teleportTo(you.world.getHighestBlockAt(you.world(x, 0, z)))
+    }),
     Command("set-time", "Sets the time.", args(num){ case p ~ n => p.world.setTime(n) }),
     Command("day",      "Sets the time to 1.", noArgs(_.world.setTime(1))),
     Command("night",    "Sets the time to 15000.", noArgs(_.world.setTime(15000))),

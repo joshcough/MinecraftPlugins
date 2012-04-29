@@ -1,10 +1,12 @@
 package jcdc.pluginfactory.examples
 
 import jcdc.pluginfactory.{NPCPlugin, CommandsPlugin}
-import org.bukkit.craftbukkit.entity.CraftPlayer
 import org.nlogo.headless.HeadlessWorkspace
-import org.nlogo.agent.Turtle
 import org.bukkit.entity.Player
+import ch.spacebase.npccreatures.npcs.entity.NPC
+import org.nlogo.agent.{Patch, Turtle}
+import org.bukkit.{Material, World, Location}
+import Material._
 
 class NetLogoPlugin extends CommandsPlugin with NPCPlugin {
 
@@ -13,7 +15,7 @@ class NetLogoPlugin extends CommandsPlugin with NPCPlugin {
    * It gets populated during nl:setup, and then gets updated after each call to go.
    * The Long key is the turtle id.
    */
-  val turtles = collection.mutable.Map[Long, CraftPlayer]()
+  val entities = collection.mutable.Map[Long, NPC]()
   var workspace: Option[HeadlessWorkspace] = None
 
   val commands = List(
@@ -31,9 +33,13 @@ class NetLogoPlugin extends CommandsPlugin with NPCPlugin {
     Command("call",  "Call a NetLogo proc.",    args(anyString+) {
       case p ~ proc => callProc(p, proc.mkString(" "))
     }),
-    Command("loop",  "Call go until it is finished.", args(num) { case p ~ n =>
-      new Thread(new Runnable() { def run() { for (_ <- 0 to n) callProc(p, "go") } }).start()
-    }),
+    Command("loop",  "Call go until it is finished.", args(num ~ opt(long)) {
+      case p ~ (n ~ sleepTime) =>
+        new Thread(new Runnable() { def run() {
+          for (_ <- 0 to n) { callProc(p, "go"); sleepTime.foreach(Thread.sleep) }
+          p ! ("looped " + n + " times.")
+        }}).start()
+      }),
     Command("dispose", "Start over.", noArgs{ p =>
       // todo: what if we are running the go loop in a new thread here?
       // we probably should shut it down...
@@ -41,6 +47,9 @@ class NetLogoPlugin extends CommandsPlugin with NPCPlugin {
     }),
     Command("report", "Report something...", args(anyString+){ case p ~ reporter =>
       usingWorkspace(p)(ws => p ! (ws.report(reporter.mkString(" ")).toString))
+    }),
+    Command("count-entities", "Show the number of entities", noArgs{ p =>
+      p ! (entities.size + " entities.")
     })
   )
 
@@ -50,24 +59,51 @@ class NetLogoPlugin extends CommandsPlugin with NPCPlugin {
     workspace.fold(p ! "call open first!"){ ws => f(ws); update(p, ws) }
 
   def dispose(){
-    turtles.values.foreach(_.die)
+    entities.values.foreach(despawn)
+    entities.clear()
     workspace.foreach(_.dispose())
     workspace = None
   }
 
-  // if new turtles are born, create them.
-  // if turtles die, kill them?
-  // update the positions of all living turtles
   // update the turtles map so we know who was alive last tick.
   // todo: this might be able to be folded into usingWorkspace. nbd though.
   def update(p:Player, ws: HeadlessWorkspace): Unit = {
-    nlTurtles(ws).foreach{ case (l, t) =>
-      val loc = p.world(t.xcor, 5.6, t.ycor).loc
-      if (! turtles.contains(l)) turtles += (l -> NPCHuman(p.world, loc, l.toString))
-      else turtles(l).teleport(loc)
+    val turtles: Map[Long, Turtle] =
+      ws.world.turtles.toLogoList.scalaIterator.collect{case t: Turtle => t}.map(t => (t.id, t)).toMap
+
+    turtles.foreach{ case (id, t) =>
+      val loc = p.world(t.xcor, 4d, t.ycor).loc
+      // if new turtles are born, create them.
+      if (! entities.contains(id)) entities += (id -> npc(id, loc, t.getBreed.printName))
+      // update the positions of existing turtles
+      else entities(id).teleport(loc)
     }
+    // if turtles die, kill them
+    val deadTurtles = entities.filter{ case (id, _) => ! turtles.contains(id) }
+    deadTurtles.foreach{ case (id, npc) => despawn(npc); entities.remove(id) }
+
+    // a hack for wolf-sheep that might be useful later in other models.
+    val patches: Iterator[Patch] = ws.world.patches.toLogoList.scalaIterator.collect{case p: Patch => p}
+    patches.foreach(updatePatchColorMaybe(_, p.world))
   }
 
-  def nlTurtles(ws: HeadlessWorkspace): Map[Long, Turtle] =
-    ws.world.turtles.toLogoList.scalaIterator.collect{case t: Turtle => t}.map(t => (t.id, t)).toMap
+  def npc(id:Long, loc: Location, breed: String) = (breed.toLowerCase match {
+    case "wolves" => wolf  _
+    case "sheep"  => sheep _
+    case _        => human _
+  })(id.toString, loc)
+
+  val colors = Map(
+    // brown
+    35d -> DIRT,
+    // green
+    55d -> GRASS
+  )
+
+  def updatePatchColorMaybe(patch: Patch, world: World): Unit = {
+    colors.get(patch.pcolorDouble).foreach{ m =>
+      val block = world(patch.pxcor, 3, patch.pycor)
+      if (! (block is m)) block changeTo m
+    }
+  }
 }

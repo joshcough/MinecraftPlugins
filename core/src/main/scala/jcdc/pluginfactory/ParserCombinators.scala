@@ -112,6 +112,7 @@ trait ParserCombinators[C] {
   def num:     Parser[Int]  = token("number") { (_, s) => tryNum(s) }
   def oddNum:  Parser[Int]  = token("odd-number") { (_, s) => tryNum(s).filter(odd) }
   def evenNum: Parser[Int]  = token("even-number") { (_, s) => tryNum(s).filter(even) }
+  def long:    Parser[Long] = token("long") { (_, s) => tryOption(s.toLong) }
 
   // file parsers
   def file:    Parser[File] = token("file") { (_, s) => Some(new File(s)) }

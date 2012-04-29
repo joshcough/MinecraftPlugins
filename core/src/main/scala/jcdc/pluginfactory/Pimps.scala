@@ -3,7 +3,6 @@ package jcdc.pluginfactory
 import org.bukkit.{ChatColor, Effect, Location, Material, OfflinePlayer, Server, World}
 import org.bukkit.block.Block
 import org.bukkit.command.Command
-import org.bukkit.entity.{Entity, EntityType, Player}
 import org.bukkit.event.Cancellable
 import org.bukkit.event.entity.EntityEvent
 import org.bukkit.event.player.PlayerEvent
@@ -14,21 +13,23 @@ import Effect._
 import Material._
 import org.bukkit.craftbukkit.CraftWorld
 import net.minecraft.server.WorldServer
+import org.bukkit.entity.{LivingEntity, Entity, EntityType, Player}
 
 object Pimps extends Pimps
 
 trait Pimps {
 
-  implicit def pimpedEntity(e:Entity)           = new PimpedEntity(e)
-  implicit def pimpedPlayer(player:Player)      = new PimpedPlayer(player)
-  implicit def pimpedLocaton(l:Location)        = new PimpedLocation(l)
-  implicit def pimpedWorld(w:World)             = new PimpedWorld(w)
-  implicit def pimpedServer(s:Server)           = new PimpedServer(s)
-  implicit def pimpedBlock(b:Block)             = new PimpedBlock(b)
-  implicit def pimpedItemStack(i:ItemStack)     = new PimpedItemStack(i)
-  implicit def pimpedCancellable(c:Cancellable) = new PimpedCancellable(c)
-  implicit def pimpedEntityEvent(e:EntityEvent) = new PimpedEntity(e.getEntity)
-  implicit def pimpedPlayerEvent(e:PlayerEvent) = new PimpedPlayer(e.getPlayer)
+  implicit def pimpedEntity(e:Entity)             = new PimpedEntity(e)
+  implicit def pimpedLivingEntity(e:LivingEntity) = new PimpedLivingEntity(e)
+  implicit def pimpedPlayer(player:Player)        = new PimpedPlayer(player)
+  implicit def pimpedLocaton(l:Location)          = new PimpedLocation(l)
+  implicit def pimpedWorld(w:World)               = new PimpedWorld(w)
+  implicit def pimpedServer(s:Server)             = new PimpedServer(s)
+  implicit def pimpedBlock(b:Block)               = new PimpedBlock(b)
+  implicit def pimpedItemStack(i:ItemStack)       = new PimpedItemStack(i)
+  implicit def pimpedCancellable(c:Cancellable)   = new PimpedCancellable(c)
+  implicit def pimpedEntityEvent(e:EntityEvent)   = new PimpedEntity(e.getEntity)
+  implicit def pimpedPlayerEvent(e:PlayerEvent)   = new PimpedPlayer(e.getPlayer)
   implicit def pimpedWeatherChangeEvent(e:WeatherChangeEvent) = new {
     def rain = e.toWeatherState
     def sun  = ! e.toWeatherState
@@ -90,11 +91,18 @@ trait Pimps {
 
   case class PimpedEntity(e:Entity){
     def loc      = e.getLocation
+    def x        = loc.x
+    def y        = loc.y
+    def z        = loc.z
     def server   = e.getServer
     def world    = e.getWorld
     def whenPlayer(f: Player => Unit) = if(e.isInstanceOf[Player]) f(e.asInstanceOf[Player])
     def isA(et:EntityType)  = e.getType == et
     def isAn(et:EntityType) = e.getType == et
+  }
+  
+  case class PimpedLivingEntity(e: LivingEntity){
+    def die = e.setHealth(0)
   }
 
   case class PimpedItemStack(i:ItemStack){
@@ -138,11 +146,8 @@ trait Pimps {
   }
 
   case class PimpedPlayer(player:Player){
-    def name   = player.getName
-    def x      = player.getLocation.getX
-    def y      = player.getLocation.getY
-    def z      = player.getLocation.getZ
     def loc    = player.getLocation
+    def name   = player.getName
     def world  = player.getWorld
     def server = player.getServer
 
@@ -181,7 +186,6 @@ trait Pimps {
     def ban(reason:String){ player.setBanned(true); player.kickPlayer("banned: " + reason) }
     def kill(playerName:String): Unit = findPlayer(playerName)(kill)
     def kill(p:Player) = doTo(p, p.setHealth(0), "killed")
-    def die = player.setHealth(0)
     def teleportTo(otherPlayer: Player) = player.teleport(otherPlayer)
     def teleportTo(b: Block)            = player.teleport(b.loc)
     def strike = world.strikeLightning(loc)

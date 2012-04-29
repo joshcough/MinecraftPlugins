@@ -1,57 +1,63 @@
 name: MultiPlayerCommands
 main: jcdc.pluginfactory.examples.MultiPlayerCommands
-author: jacycough
+author: Josh Cough
 version: 0.1
-database: true
+database: false
 commands:
-   gm:
-      description: Game your game mode.
-      usage: /<command> gamemode (c, creative, 1, s, survival, 0)
-   gmc:
-      description: Game your game mode to creative.
-      usage: /<command>
-   gms:
-      description: Game your game mode to survival.
-      usage: /<command>
-   kill:
-      description: Kill entities (only for ops).
-      usage: /<command> player player-name or /<command> entity-type (with an s)
-   set-time:
-      description: Sets the time
-      usage: /<command> h
-   day:
-      description: Sets the time to 1
-      usage: /<command>
-   night:
-      description: Sets the time to 15000
-      usage: /<command>
-   spawn:
-      description: Spawn some mobs
-      usage: /<command> mob-name number-to-spawn
-   entities:
-      description: Display all the entities
-      usage: /<command>
-   feed:
-      description: Fill a players hunger bar.
-      usage: /<command> player-name
-   starve:
-      description: Drain a players hunger bar.
-      usage: /<command> player-name
-   goto:
-      description: Teleport to a player.
-      usage: /<command> player-name
-   shock:
-      description: Shock a player.
-      usage: /<command> player-name
-   ban:
-      description: Ban a list of players
-      usage: /<command> player-name+
-   drill:
-      description: Drill down to bedrock immediately
-      usage: /<command>
-   up:
-      description: Go up to the surface
-      usage: /<command>
-   box:
-      description: Put a box around yourself, made of any material
-      usage: /<command> material-type
+  goto:
+    description: Teleport to a player.
+    usage: /<command> (player-name or number  number  optional(number))
+  set-time:
+    description: Sets the time.
+    usage: /<command> number
+  day:
+    description: Sets the time to 1.
+    usage: /<command> 
+  night:
+    description: Sets the time to 15000.
+    usage: /<command> 
+  entities:
+    description: Display all the entities.
+    usage: /<command> 
+  feed:
+    description: Fill a players hunger bar
+    usage: /<command> player-name [Op Only]
+  starve:
+    description: Drain a players hunger bar.
+    usage: /<command> player-name [Op Only]
+  shock:
+    description: Shock a player.
+    usage: /<command> player-name [Op Only]
+  gm:
+    description: Set your game mode
+    usage: /<command> (((c or creative) or 1) or ((s or survival) or 0))
+  gms:
+    description: Set your game mode to survival.
+    usage: /<command> 
+  gmc:
+    description: Set your game mode to creative.
+    usage: /<command> 
+  spawn:
+    description: Spawn some mobs.
+    usage: /<command> entity-type  optional(number to spawn)
+  ban:
+    description: Ban some players.
+    usage: /<command> string+
+  box:
+    description: Put a box around yourself, made of any material.
+    usage: /<command> material-type
+  safe:
+    description: Put yourself in a box made of bedrock.
+    usage: /<command> 
+  up:
+    description: Go up to the surface.
+    usage: /<command> 
+  drill:
+    description: Drill down to bedrock immediately.
+    usage: /<command> 
+  kill:
+    description: Kill entities.
+    usage: /<command> (player  player-name or entity-type)
+  creeper-kill:
+    description: Surround a player with creepers
+    usage: /<command> player-name [Op Only]

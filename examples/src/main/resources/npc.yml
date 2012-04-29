@@ -1,12 +1,15 @@
-name: NPC
-main: jcdc.pluginfactory.examples.NPC
+name: NPCTest
+main: jcdc.pluginfactory.examples.NPCTest
 author: Josh Cough
 version: 0.1
 database: false
 commands:
-  npc:spawn:
+  npc:
     description: Spawn an NPC
     usage: /<command> string
+  npc:spawn:
+    description: Spawn an Entity
+    usage: /<command> entity-type
   npc:fd:
     description: Move an NPC forward
     usage: /<command> npc  number
