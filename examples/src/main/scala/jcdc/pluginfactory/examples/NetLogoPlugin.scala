@@ -28,7 +28,7 @@ class NetLogoPlugin extends CommandsPlugin with NPCPlugin {
       workspace.foreach(_.open(model.getAbsolutePath))
       p ! ("loaded " + model)
       // call setup on load, because that just makes sense.
-      callProc(_, "setup")
+      callProc(p, "setup")
     }),
     Command("setup", "Call the setup proc.",    noArgs { callProc(_, "setup") }),
     Command("go",    "Call the go proc once.",  noArgs { callProc(_, "go") }),
@@ -97,6 +97,7 @@ class NetLogoPlugin extends CommandsPlugin with NPCPlugin {
 
   // for reference, see:
   // https://github.com/haveric/Wool-Trees/blob/master/src/haveric/woolTrees/Commands.java
+  // http://ccl.northwestern.edu/netlogo/docs/programming.html#colors
   val colors = Map(
     // black
     0d  ->  (WOOL, Some(15:Byte)),
