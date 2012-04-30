@@ -1,8 +1,8 @@
 package jcdc.pluginfactory
 
 import java.util.logging.Logger
-import org.bukkit.event.Listener
 import org.bukkit.craftbukkit.CraftServer
+import org.bukkit.event.{Event, Listener}
 
 object ScalaPlugin extends Pimps
 
@@ -13,6 +13,8 @@ abstract class ScalaPlugin extends org.bukkit.plugin.java.JavaPlugin with Pimps 
   def name = this.getDescription.getName
   def server = getServer
   def craftServer = org.bukkit.Bukkit.getServer.asInstanceOf[CraftServer]
+
+  def fire(e:Event) = server.getPluginManager.callEvent(e)
 
   // setup stuff
   override def onEnable(){ super.onEnable(); setupDatabase; logInfo(name + " enabled!") }
@@ -28,7 +30,6 @@ abstract class ScalaPlugin extends org.bukkit.plugin.java.JavaPlugin with Pimps 
     catch{
       case e: javax.persistence.PersistenceException => logTask("Installing DB"){ installDDL() }
     }
-
 
   def yml(author:String, version: String) = List(
       "name: "     + this.getClass.getSimpleName,

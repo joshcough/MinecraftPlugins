@@ -1,14 +1,15 @@
 package jcdc.pluginfactory.examples
 
-import jcdc.pluginfactory.{NPCPlugin, CommandsPlugin}
 import org.nlogo.headless.HeadlessWorkspace
 import org.bukkit.entity.Player
 import ch.spacebase.npccreatures.npcs.entity.NPC
 import org.nlogo.agent.{Patch, Turtle}
 import org.bukkit.{Material, World, Location}
 import Material._
+import jcdc.pluginfactory.{ListenersPlugin, NPCPlugin, CommandsPlugin}
+import org.bukkit.event.{EventHandler, Listener}
 
-class NetLogoPlugin extends CommandsPlugin with NPCPlugin {
+class NetLogoPlugin extends CommandsPlugin with ListenersPlugin with NPCPlugin {
 
   /**
    * This map holds the state of the NetLogo world on the last tick (or the last call to go).
@@ -18,17 +19,25 @@ class NetLogoPlugin extends CommandsPlugin with NPCPlugin {
   val entities = collection.mutable.Map[Long, NPC]()
   var workspace: Option[HeadlessWorkspace] = None
 
+  object NetLogoEventListener extends Listener {
+    @EventHandler def on(e:NetLogoEvent) = {
+      callProc(e.getPlayer, "go")
+      Thread.sleep(e.getSleepTime)
+      if(e.getTicksRemaining > 0)
+        fire(new NetLogoEvent(e.getPlayer, e.getTicksRemaining - 1, e.getSleepTime))
+    }
+  }
+
+  val listeners = List(NetLogoEventListener)
+
   val commands = List(
     Command("open", "Open a model", args(existingFile) { case p ~ model =>
-      // implicitly start over.
-      dispose()
-      workspace = Some(HeadlessWorkspace.newInstance)
-      // model must be a file on the server....
-      // maybe it could somehow be a url that we pull down?
-      workspace.foreach(_.open(model.getAbsolutePath))
-      p ! ("loaded " + model)
+      openModel(p, model)
       // call setup on load, because that just makes sense.
       callProc(p, "setup")
+    }),
+    Command("open-no-setup", "Open a model without setting up.", args(existingFile) {
+      case p ~ model => openModel(p, model)
     }),
     Command("setup", "Call the setup proc.",    noArgs { callProc(_, "setup") }),
     Command("go",    "Call the go proc once.",  noArgs { callProc(_, "go") }),
@@ -42,6 +51,9 @@ class NetLogoPlugin extends CommandsPlugin with NPCPlugin {
           p ! ("looped " + n + " times.")
         }}).start()
       }),
+    Command("loop-new",  "Call go until it is finished.", args(num ~ opt(long)) {
+      case p ~ (n ~ sleepTime) => fire(new NetLogoEvent(p, n, sleepTime.getOrElse(0L)))
+    }),
     Command("dispose", "Start over.", noArgs{ p =>
       // todo: what if we are running the go loop in a new thread here?
       // we probably should shut it down...
@@ -54,6 +66,16 @@ class NetLogoPlugin extends CommandsPlugin with NPCPlugin {
       p ! (entities.size + " entities.")
     })
   )
+
+  def openModel(p: Player, model: java.io.File){
+    // implicitly start over.
+    dispose()
+    workspace = Some(HeadlessWorkspace.newInstance)
+    // model must be a file on the server....
+    // maybe it could somehow be a url that we pull down?
+    workspace.get.open(model.getAbsolutePath)
+    p ! ("loaded " + model)
+  }
 
   def callProc(p: Player, proc:String) = usingWorkspace(p)(_.command(proc))
 
@@ -82,7 +104,7 @@ class NetLogoPlugin extends CommandsPlugin with NPCPlugin {
     }
     // if turtles die, kill them
     val deadTurtles = entities.filter{ case (id, _) => ! turtles.contains(id) }
-    deadTurtles.foreach{ case (id, npc) => npc.die; entities.remove(id) }
+    deadTurtles.foreach{ case (id, npc) => despawn(npc); entities.remove(id) }
 
     // a hack for wolf-sheep that might be useful later in other models.
     val patches: Iterator[Patch] = ws.world.patches.toLogoList.scalaIterator.collect{case p: Patch => p}
@@ -133,6 +155,13 @@ class NetLogoPlugin extends CommandsPlugin with NPCPlugin {
     135d -> (WOOL, Some(6:Byte))
   )
 
+  /**
+  } else if (args[i].equalsIgnoreCase("lightblue")){
+      colorArray.add(3);
+    } else if (args[i].equalsIgnoreCase("lightgray") || args[i].equalsIgnoreCase("lightgrey")){
+      colorArray.add(8);
+   */
+
   def updatePatchColorMaybe(patch: Patch, world: World): Unit = {
     colors.get(patch.pcolorDouble).foreach{ case (m, color) =>
       val block = world(patch.pxcor, 3, patch.pycor)
@@ -141,10 +170,3 @@ class NetLogoPlugin extends CommandsPlugin with NPCPlugin {
     }
   }
 }
-
-/**
-    } else if (args[i].equalsIgnoreCase("lightblue")){
-      colorArray.add(3);
-    } else if (args[i].equalsIgnoreCase("lightgray") || args[i].equalsIgnoreCase("lightgrey")){
-      colorArray.add(8);
- */

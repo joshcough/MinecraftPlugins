@@ -7,6 +7,9 @@ commands:
   open:
     description: Open a model
     usage: /<command> existing-file
+  open-no-setup:
+    description: Open a model
+    usage: /<command> existing-file
   setup:
     description: Call the setup proc.
     usage: /<command> 
@@ -17,6 +20,9 @@ commands:
     description: Call a NetLogo proc.
     usage: /<command> string+
   loop:
+    description: Call go until it is finished.
+    usage: /<command> number  optional(long)
+  loop-new:
     description: Call go until it is finished.
     usage: /<command> number  optional(long)
   dispose:
