@@ -43,9 +43,16 @@ case class Cube(l1: Location, l2: Location) {
   )
 
   def eraseAll: Unit = blocks.foreach(_.erase)
-  def setAll(newM: Material): Unit = for(b <- blocks) b changeTo newM
-  def changeAll(oldM: Material, newM: Material): Unit =
-    for(b <- blocks; if b is oldM) b changeTo newM
+  def setAll(newM: Material, data: Option[Byte]=None): Unit =
+    for(b <- blocks){
+      b changeTo newM
+      data.foreach(b.setData)
+    }
+  def changeAll(oldM: Material, newM: Material, data: Option[Byte]=None): Unit =
+    for(b <- blocks; if b is oldM){
+      b changeTo newM
+      data.foreach(b.setData)
+    }
 
   // expand in all directions
   def expand(n:Int)    = Cube(world(maxX+n, maxY+n, maxZ+n), world(minX-n, minY-n, minZ-n))

@@ -6,11 +6,11 @@ import ch.spacebase.npccreatures.npcs.entity.NPC
 import org.nlogo.agent.{Patch, Turtle}
 import org.bukkit.{Material, World, Location}
 import Material._
-import jcdc.pluginfactory.{ListenersPlugin, NPCPlugin, CommandsPlugin}
 import org.bukkit.event.{EventHandler, Listener}
 import org.bukkit.inventory.ItemStack
 import net.minecraft.server.EntityPlayer
 import org.bukkit.craftbukkit.entity.CraftPlayer
+import jcdc.pluginfactory.{Cube, ListenersPlugin, NPCPlugin, CommandsPlugin}
 
 object NetLogoEvent{
   implicit def toJ(e: NetLogoEvent)  = new NetLogoEventJ(e)
@@ -187,14 +187,12 @@ class NetLogoPlugin extends CommandsPlugin with ListenersPlugin with NPCPlugin {
    */
   def updatePatchColorMaybe(patch: Patch, world: World): Unit = {
     colors.get(patch.pcolorDouble).foreach{ case (m, color) =>
-      val z = 3 + tryO(patch.variables(5).asInstanceOf[Double].toInt).getOrElse(0)
-      val bottomBlock = world(patch.pxcor, z, patch.pycor)
-      val allBlocks = bottomBlock.andBlocksAbove.take(z - 3)
-      allBlocks.foreach{ b =>
-        if (! (b is m)) b changeTo m
-        if (b is WOOL) color.foreach(b.setData)
-      }
-      if (z == 3) bottomBlock.blocksAbove.takeWhile(_ isNot AIR).foreach(_ changeTo AIR)
+      val lowZ     = 3
+      val topZ     = lowZ + tryO(patch.variables(5).asInstanceOf[Double].toInt).getOrElse(0)
+      val lowBlock = world(patch.pxcor, lowZ, patch.pycor)
+      val topBlock = world(patch.pxcor, topZ, patch.pycor)
+      Cube(lowBlock, topBlock).setAll(m, color)
+      topBlock.blocksAbove.takeWhile(_ isNot AIR).foreach(_ changeTo AIR)
     }
   }
 
