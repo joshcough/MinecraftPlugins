@@ -27,7 +27,7 @@ class ZombieApocalypse extends ListeningFor(OnPlayerDeath { (p, _) => p.loc spaw
  
 
 class TreeDelogger extends ListeningFor(OnBlockBreak { (b, e) =>
-  if (b isA LOG) for (b <- b #:: b.blocksAbove.takeWhile(_ isA LOG)) b.erase
+  if (b isA LOG) for (b <- b.andBlocksAbove.takeWhile(_ isA LOG)) b.erase
 })
 
 class BanArrows extends ListeningFor(OnPlayerDamageByEntity { (p, e) =>

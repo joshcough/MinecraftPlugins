@@ -39,8 +39,14 @@ trait CommandsPlugin extends ScalaPlugin with MinecraftParsers {
 
   override def onCommand(sender: CommandSender, cmd: BukkitCommand,
                          commandLabel: String, args: Array[String]) = {
+    val p = sender.asInstanceOf[Player]
     for (ch <- lowers.get(cmd.getName.toLowerCase))
-      ch.body.f(sender.asInstanceOf[Player], cmd, args.toList)
+      try ch.body.f(p, cmd, args.toList)
+      catch { case e =>
+        p ! e.getMessage
+        p ! e.getStackTraceString
+        e.printStackTrace
+      }
     true
   }
 

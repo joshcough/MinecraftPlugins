@@ -51,27 +51,32 @@ trait Pimps {
     def nthBlockAbove(n:Int) = world(xd, yd + n, zd)
     def nthBlockBelow(n:Int) = world(xd, yd - n, zd)
     def blocksAbove: Stream[Block] = blockAbove #:: blockAbove.blocksAbove
+    def andBlocksAbove: Stream[Block] = b #:: blocksAbove
     def blocksBelow: Stream[Block] = blockBelow #:: blockBelow.blocksBelow
-    def neighbors4: List[Block] =
-      world(xd + 1, yd, zd) ::
-      world(xd - 1, yd, zd) ::
-      world(xd, yd, zd + 1) ::
-      world(xd, yd, zd - 1) :: Nil
-    def neighbors8: List[Block] = neighbors4 ++ (
-      world(xd + 1, yd, zd + 1) ::
-      world(xd + 1, yd, zd - 1) ::
-      world(xd - 1, yd, zd + 1) ::
-      world(xd - 1, yd, zd - 1) :: Nil
+    def andBlocksBelow: Stream[Block] = b #:: blocksBelow
+    def neighbors4: Stream[Block] =
+      world(xd + 1, yd, zd) #::
+      world(xd - 1, yd, zd) #::
+      world(xd, yd, zd + 1) #::
+      world(xd, yd, zd - 1) #:: Stream.empty
+    def andNeighbors4: Stream[Block] = b #:: neighbors4
+    def neighbors8: Stream[Block] = neighbors4 ++ (
+      world(xd + 1, yd, zd + 1) #::
+      world(xd + 1, yd, zd - 1) #::
+      world(xd - 1, yd, zd + 1) #::
+      world(xd - 1, yd, zd - 1) #:: Stream.empty
     )
-    def neighbors: List[Block] =
+    def andNeighbors8: Stream[Block] = b #:: neighbors8
+    def neighbors: Stream[Block] =
       neighbors8 ++
-      (b.blockBelow :: b.blockBelow.neighbors8) ++
-      (b.blockAbove :: b.blockAbove.neighbors8)
-    def neighborsForPlayer: List[Block] =
+      (b.blockBelow #:: b.blockBelow.neighbors8) #:::
+      (b.blockAbove #:: b.blockAbove.neighbors8)
+    def andNeighbors: Stream[Block] = b #:: neighbors
+    def neighborsForPlayer: Stream[Block] =
       neighbors8 ++ // 8 blocks at the feet of the player
       (b.blockAbove.neighbors8) ++ // 8 blocks at the head of the player
-      (b.blockBelow :: b.blockBelow.neighbors8) ++ // 9 blocks below the player
-      (b.nthBlockAbove(2) :: b.nthBlockAbove(2).neighbors8) // 9 blocks above the player.
+      (b.blockBelow #:: b.blockBelow.neighbors8) #::: // 9 blocks below the player
+      (b.nthBlockAbove(2) #:: b.nthBlockAbove(2).neighbors8) // 9 blocks above the player.
     def is(m:Material)    = b.getType == m
     def isA(m:Material)   = b.getType == m
     def isNot(m:Material) = b.getType != m
@@ -157,12 +162,12 @@ trait Pimps {
     def isHoldingAn(m: Material) = isHolding(m)
 
     def withMaterial[T](nameOrId:String)(f: Material => T) {
-      attemptingWith(findMaterial(nameOrId))("No such material: " + nameOrId, f)
+      attemptO(findMaterial(nameOrId))("No such material: " + nameOrId, f)
     }
-    def attemptingWith[T, U](ot: Option[T])(s: => String, f: T => U){
+    def attemptO[T, U](ot: Option[T])(s: => String, f: T => U){
       ot.fold(player ! s)(t => f(t))
     }
-
+    def attempt[T](f: => Unit) = try f catch { case e => this.!(e.getMessage) }
     def blockOn         = player.loc.block
     def blockAboveHead  = blockOn.nthBlockAbove(2)
     def blocksAboveHead = blockOn.blockAbove.blockAbove.blocksAbove
@@ -200,6 +205,7 @@ trait Pimps {
   case class PimpedOption[T](ot: Option[T]){
     def fold[U](u: => U)(f: T => U) = ot.map(f).getOrElse(u)
   }
+  def tryO[T](f: => T): Option[T] = try Some(f) catch { case e => None }
 
   def findEntity(nameOrId:String) = Option(EntityType.fromName(nameOrId)).orElse(
     try Option(EntityType.fromId(nameOrId.toInt)) catch { case e => None }

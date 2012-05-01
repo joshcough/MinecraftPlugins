@@ -8,6 +8,18 @@ import org.bukkit.{Material, World, Location}
 import Material._
 import jcdc.pluginfactory.{ListenersPlugin, NPCPlugin, CommandsPlugin}
 import org.bukkit.event.{EventHandler, Listener}
+import org.bukkit.inventory.ItemStack
+import net.minecraft.server.EntityPlayer
+import org.bukkit.craftbukkit.entity.CraftPlayer
+
+object NetLogoEvent{
+  implicit def toJ(e: NetLogoEvent)  = new NetLogoEventJ(e)
+  implicit def toS(e: NetLogoEventJ) = e.event
+}
+case class NetLogoEvent(player:Player, ticksRemaining: Int, sleepTime: Option[Long]){
+  def tick = this.copy(ticksRemaining = ticksRemaining - 1)
+}
+import NetLogoEvent._
 
 class NetLogoPlugin extends CommandsPlugin with ListenersPlugin with NPCPlugin {
 
@@ -20,12 +32,12 @@ class NetLogoPlugin extends CommandsPlugin with ListenersPlugin with NPCPlugin {
   var workspace: Option[HeadlessWorkspace] = None
 
   object NetLogoEventListener extends Listener {
-    @EventHandler def on(e:NetLogoEvent) = {
-      callProc(e.getPlayer, "go")
-      Thread.sleep(e.getSleepTime)
-      if(e.getTicksRemaining > 0)
-        fire(new NetLogoEvent(e.getPlayer, e.getTicksRemaining - 1, e.getSleepTime))
-    }
+    @EventHandler def on(e:NetLogoEventJ): Unit =
+      if(e.ticksRemaining > 0) {
+        go(e.player)
+        e.sleepTime.foreach(Thread.sleep)
+        fire(e.tick)
+      }
   }
 
   val listeners = List(NetLogoEventListener)
@@ -52,7 +64,7 @@ class NetLogoPlugin extends CommandsPlugin with ListenersPlugin with NPCPlugin {
         }}).start()
       }),
     Command("loop-new",  "Call go until it is finished.", args(num ~ opt(long)) {
-      case p ~ (n ~ sleepTime) => fire(new NetLogoEvent(p, n, sleepTime.getOrElse(0L)))
+      case p ~ (n ~ sleepTime) => fire(NetLogoEvent(p, n, sleepTime))
     }),
     Command("dispose", "Start over.", noArgs{ p =>
       // todo: what if we are running the go loop in a new thread here?
@@ -78,6 +90,7 @@ class NetLogoPlugin extends CommandsPlugin with ListenersPlugin with NPCPlugin {
   }
 
   def callProc(p: Player, proc:String) = usingWorkspace(p)(_.command(proc))
+  def go(p: Player): Unit = callProc(p, "go")
 
   def usingWorkspace(p: Player)(f: HeadlessWorkspace => Unit) =
     workspace.fold(p ! "call open first!"){ ws => f(ws); update(p, ws) }
@@ -101,6 +114,7 @@ class NetLogoPlugin extends CommandsPlugin with ListenersPlugin with NPCPlugin {
       if (! entities.contains(id)) entities += (id -> npc(id, loc, t.getBreed.printName))
       // update the positions of existing turtles
       else entities(id).teleport(loc)
+      updateHolding(entities(id), t)
     }
     // if turtles die, kill them
     val deadTurtles = entities.filter{ case (id, _) => ! turtles.contains(id) }
@@ -120,6 +134,13 @@ class NetLogoPlugin extends CommandsPlugin with ListenersPlugin with NPCPlugin {
   // for reference, see:
   // https://github.com/haveric/Wool-Trees/blob/master/src/haveric/woolTrees/Commands.java
   // http://ccl.northwestern.edu/netlogo/docs/programming.html#colors
+  /**
+   * Yet unhandled Minecraft colors.
+   * } else if (args[i].equalsIgnoreCase("lightblue")){
+   *   colorArray.add(3);
+   * } else if (args[i].equalsIgnoreCase("lightgray") || args[i].equalsIgnoreCase("lightgrey")){
+   *   colorArray.add(8);
+   **/
   val colors = Map(
     // black
     0d  ->  (WOOL, Some(15:Byte)),
@@ -156,17 +177,40 @@ class NetLogoPlugin extends CommandsPlugin with ListenersPlugin with NPCPlugin {
   )
 
   /**
-  } else if (args[i].equalsIgnoreCase("lightblue")){
-      colorArray.add(3);
-    } else if (args[i].equalsIgnoreCase("lightgray") || args[i].equalsIgnoreCase("lightgrey")){
-      colorArray.add(8);
+   * A couple of things are going on here...
+   *
+   * In the simple case, the patch is just on the ground, and we update its
+   * color, if its color is a valid minecraft color (from the color map above)
+   *
+   * However, if the patch has a z variable, then we do some other crap
+   * // TODO: explain that other crap
    */
-
   def updatePatchColorMaybe(patch: Patch, world: World): Unit = {
     colors.get(patch.pcolorDouble).foreach{ case (m, color) =>
-      val block = world(patch.pxcor, 3, patch.pycor)
-      if (! (block is m)) block changeTo m
-      if (block is WOOL) color.foreach(block.setData)
+      val z = 3 + tryO(patch.variables(5).asInstanceOf[Double].toInt).getOrElse(0)
+      val bottomBlock = world(patch.pxcor, z, patch.pycor)
+      val allBlocks = bottomBlock.andBlocksAbove.take(z - 3)
+      allBlocks.foreach{ b =>
+        if (! (b is m)) b changeTo m
+        if (b is WOOL) color.foreach(b.setData)
+      }
+      if (z == 3) bottomBlock.blocksAbove.takeWhile(_ isNot AIR).foreach(_ changeTo AIR)
     }
   }
+
+  /**
+   * Some special minecraft-netlogo integration code.
+   * If t happens to have a 'holding' variable, and it happens to be a double
+   * then update what the player has in his hands.
+   */
+  def updateHolding(npc: NPC, t:Turtle): Unit = tryO(
+    entities(t.id).asInstanceOf[CraftPlayer].setItemInHand(
+      t.variables(t.LAST_PREDEFINED_VAR + 1) match {
+        case d: java.lang.Double => colors.get(d).fold(new ItemStack(AIR)){ case (m, oc) =>
+          oc.fold(new ItemStack(m))(new ItemStack(m, 1, 0:Short, _))
+        }
+        case _ => new ItemStack(AIR)
+      }
+    )
+  )
 }
