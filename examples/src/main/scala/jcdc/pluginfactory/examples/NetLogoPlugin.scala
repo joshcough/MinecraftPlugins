@@ -1,7 +1,6 @@
 package jcdc.pluginfactory.examples
 
 import ch.spacebase.npccreatures.npcs.entity.NPC
-import jcdc.pluginfactory.{Cube, ListenersPlugin, NPCPlugin, CommandsPlugin}
 import org.nlogo.agent.{Agent, Patch, Turtle}
 import org.nlogo.headless.HeadlessWorkspace
 import org.bukkit.craftbukkit.entity.CraftPlayer
@@ -9,6 +8,7 @@ import org.bukkit.entity.Player
 import org.bukkit.event.{EventHandler, Listener}
 import org.bukkit.{Material, World}
 import Material._
+import jcdc.pluginfactory._
 
 object NetLogoEvent{
   implicit def toJ(e: NetLogoEvent)  = new NetLogoEventJ(e)
@@ -19,7 +19,7 @@ case class NetLogoEvent(player:Player, ticksRemaining: Int, sleepTime: Option[Lo
 }
 import NetLogoEvent._
 
-class NetLogoPlugin extends CommandsPlugin with ListenersPlugin with NPCPlugin {
+class NetLogoPlugin extends CommandsPlugin with ListenersPlugin with NPCPlugin with CommonCommands {
 
   /**
    * This map holds the state of the NetLogo world on the last tick (or the last call to go).
@@ -43,7 +43,7 @@ class NetLogoPlugin extends CommandsPlugin with ListenersPlugin with NPCPlugin {
 
   val listeners = List(NetLogoEventListener)
 
-  val commands = List(
+  val commands = commonCommands ::: worldEditingCommands ::: List(
     Command("open", "Open a model", args(existingFile ~ boolOrTrue) {
       case p ~ (model ~ updatePatches) =>
         openModel(p, model, updatePatches)

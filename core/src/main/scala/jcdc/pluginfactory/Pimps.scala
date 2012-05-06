@@ -197,8 +197,6 @@ trait Pimps {
     def !  (s:String)    = if(s != null) player.sendMessage(s)
     def !* (ss: String*) = ss.foreach(s => player ! s)
     def sendError(message:String) = player.sendMessage(RED + message)
-    def sendUsage(cmd:Command)    = sendError(cmd.getUsage)
-//    def sendUsage(cmd:CommandArguments) = sendError(cmd.cmd.getUsage)
     def findPlayer(name:String)(f: Player => Unit) = server.findPlayer(name) match {
       case Some(p) => f(p)
       case None => sendError("kill could not find player: " + name)

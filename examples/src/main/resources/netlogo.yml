@@ -4,12 +4,54 @@ author: Josh Cough
 version: 0.1
 database: false
 commands:
+  goto:
+    description: Teleport to a player.
+    usage: /<command> (player-name or number  number  optional(number))
+  set-time:
+    description: Sets the time.
+    usage: /<command> number
+  day:
+    description: Sets the time to 1.
+    usage: /<command> 
+  night:
+    description: Sets the time to 15000.
+    usage: /<command> 
+  gm:
+    description: Set your game mode
+    usage: /<command> (((c or creative) or 1) or ((s or survival) or 0))
+  gms:
+    description: Set your game mode to survival.
+    usage: /<command> 
+  gmc:
+    description: Set your game mode to creative.
+    usage: /<command> 
+  kill:
+    description: Kill entities.
+    usage: /<command> (player  player-name or entity-type)
+  /wand:
+    description: Get a WorldEdit wand.
+    usage: /<command> 
+  /pos1:
+    description: Set the first position
+    usage: /<command> 
+  /pos2:
+    description: Set the second position
+    usage: /<command> 
+  /erase:
+    description: Set all the selected blocks to air.
+    usage: /<command> 
+  /set:
+    description: Set all the selected blocks to the given material type.
+    usage: /<command> material-type
+  /change:
+    description: Change all the selected blocks of the first material type to the second material type.
+    usage: /<command> material-type  material-type
   open:
     description: Open a model
-    usage: /<command> existing-file
+    usage: /<command> existing-file  optional(boolean)
   open-no-setup:
-    description: Open a model
-    usage: /<command> existing-file
+    description: Open a model without setting up.
+    usage: /<command> existing-file  optional(boolean)
   setup:
     description: Call the setup proc.
     usage: /<command> 
@@ -33,4 +75,4 @@ commands:
     usage: /<command> string+
   count-entities:
     description: Show the number of entities
-    usage: /<command>
+    usage: /<command> 

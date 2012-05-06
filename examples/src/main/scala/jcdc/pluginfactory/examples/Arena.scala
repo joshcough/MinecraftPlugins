@@ -1,8 +1,8 @@
 package jcdc.pluginfactory.examples
 
-import jcdc.pluginfactory.{CommandsPlugin, ListenersPlugin}
 import org.bukkit.Material
 import Material._
+import jcdc.pluginfactory.{CubePlugin, CommandsPlugin, ListenersPlugin}
 
 class Arena extends ListenersPlugin with CommandsPlugin with CubePlugin {
 

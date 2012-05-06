@@ -1,6 +1,5 @@
-package jcdc.pluginfactory.examples
+package jcdc.pluginfactory
 
-import jcdc.pluginfactory.Cube
 import jcdc.pluginfactory.Pimps._
 import org.bukkit.Location
 import org.bukkit.entity.Player
@@ -20,7 +19,7 @@ trait CubePlugin {
   }
   def cube(p: Player): Option[Cube] = positions.get(p).flatMap(lol => lol._2.map(Cube(lol._1, _)))
   def run(p: Player)(f: Cube => Unit) = cube(p).fold(p ! "Both positions must be set!")(f)
-  def cubes: collection.Map[Player, Cube] = positions.filter(_._2._2.isDefined).mapValues{
+  def cubes: collection.Map[Player, Cube] = positions.filter(_._2._2.isDefined).mapValues {
     case (l1, ol2) => Cube(l1, ol2.get)
   }
 }

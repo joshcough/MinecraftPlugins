@@ -1,8 +1,8 @@
 package jcdc.pluginfactory.examples
 
-import jcdc.pluginfactory.{CommandsPlugin, Cube, ListenersPlugin}
 import org.bukkit.Material
 import Material._
+import jcdc.pluginfactory.{CubePlugin, CommandsPlugin, Cube, ListenersPlugin}
 
 class WorldEditV2 extends ListenersPlugin with CommandsPlugin with CubePlugin {
 
