@@ -1,9 +1,11 @@
 # put everything in a bukkit dir so we don't pollute the users current directory.
-mkdir bukkit
+mkdir -p bukkit/lib
 cd bukkit
 
 # get bukkit (the minecraft server)
 curl -L "http://dl.bukkit.org/latest-rb/craftbukkit.jar" -o craftbukkit.jar
+cp craftbukkit.jar lib/
+cd lib
 
 # get scala
 curl "http://repo1.maven.org/maven2/org/scala-lang/scala-library/2.9.1-1/scala-library-2.9.1-1.jar" -o scala-library-2.9.1-1.jar
