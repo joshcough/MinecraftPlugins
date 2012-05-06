@@ -1,5 +1,5 @@
 name: NetLogoPlugin
-main: jcdc.pluginfactory.examples.NetLogoPlugin
+main: jcdc.pluginfactory.NetLogoPlugin
 author: Josh Cough
 version: 0.1
 database: false
