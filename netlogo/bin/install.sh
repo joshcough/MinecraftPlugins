@@ -24,9 +24,13 @@ tar xfvz netlogo-5.0.1.tar.gz
 cp netlogo-5.0.1/NetLogo.jar .
 cp -r netlogo-5.0.1/lib/* .
 
+# get the flat world that is needed to run models.
 cd ..
 curl -L "https://github.com/downloads/joshcough/MinecraftPlugins/flat-world.tar.gz" -o world.tar.gz
 tar xfvz world.tar.gz
+
+# get the netlogo plugin
+curl "https://github.com/downloads/joshcough/MinecraftPlugins/NetLogoPlugin-0.1.jar" -o jcdc-plugin-factory-0.1.jar
 
 echo "java -Djava.ext.dirs=lib -Xmx1024M -Xms512M -jar craftbukkit.jar nogui" > run-server.sh
 chmod +x run-server.sh
