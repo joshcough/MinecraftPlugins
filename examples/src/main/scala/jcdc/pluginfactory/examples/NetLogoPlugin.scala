@@ -1,16 +1,14 @@
 package jcdc.pluginfactory.examples
 
-import org.nlogo.headless.HeadlessWorkspace
-import org.bukkit.entity.Player
 import ch.spacebase.npccreatures.npcs.entity.NPC
-import org.nlogo.agent.{Patch, Turtle}
-import org.bukkit.{Material, World, Location}
-import Material._
-import org.bukkit.event.{EventHandler, Listener}
-import org.bukkit.inventory.ItemStack
-import net.minecraft.server.EntityPlayer
-import org.bukkit.craftbukkit.entity.CraftPlayer
 import jcdc.pluginfactory.{Cube, ListenersPlugin, NPCPlugin, CommandsPlugin}
+import org.nlogo.agent.{Agent, Patch, Turtle}
+import org.nlogo.headless.HeadlessWorkspace
+import org.bukkit.craftbukkit.entity.CraftPlayer
+import org.bukkit.entity.Player
+import org.bukkit.event.{EventHandler, Listener}
+import org.bukkit.{Material, World}
+import Material._
 
 object NetLogoEvent{
   implicit def toJ(e: NetLogoEvent)  = new NetLogoEventJ(e)
@@ -93,7 +91,7 @@ class NetLogoPlugin extends CommandsPlugin with ListenersPlugin with NPCPlugin {
   def go(p: Player): Unit = callProc(p, "go")
 
   def usingWorkspace(p: Player)(f: HeadlessWorkspace => Unit) =
-    workspace.fold(p ! "call open first!"){ ws => f(ws); update(p, ws) }
+    workspace.fold(p ! "call open first!"){ ws => f(ws); update(p.world, ws) }
 
   def dispose(){
     entities.values.foreach(despawn)
@@ -102,79 +100,61 @@ class NetLogoPlugin extends CommandsPlugin with ListenersPlugin with NPCPlugin {
     workspace = None
   }
 
-  // update the turtles map so we know who was alive last tick.
-  // todo: this might be able to be folded into usingWorkspace. nbd though.
-  def update(p:Player, ws: HeadlessWorkspace): Unit = {
+  /**
+   * Update the Minecraft world based on the NetLogo world.
+   */
+  def update(world: World, ws: HeadlessWorkspace): Unit = {
     val turtles: Map[Long, Turtle] =
       ws.world.turtles.toLogoList.scalaIterator.collect{case t: Turtle => t}.map(t => (t.id, t)).toMap
 
     turtles.foreach{ case (id, t) =>
-      val loc = p.world(t.xcor, 4d, t.ycor).loc
-      // if new turtles are born, create them.
-      if (! entities.contains(id)) entities += (id -> npc(id, loc, t.getBreed.printName))
-      // update the positions of existing turtles
+      val loc = world(t.xcor, 4d, t.ycor).loc
+      /**
+       * if new turtles are born in netlogo, create an npc for them in minecraft.
+       * npc plugin handles the breedname automatically, spawning a human if the breedname is unknown.
+       */
+      if (! entities.contains(id)) entities += (id -> spawn(id, loc, t.getBreed.printName))
+      /* update the positions of existing npcs based on their turtles position. */
       else entities(id).teleport(loc)
-      updateHolding(entities(id), t)
+      updateItemInHand(entities(id), ws, t)
     }
-    // if turtles die, kill them
+
+    /* if turtles die in netlogo, kill them in minecraft */
     val deadTurtles = entities.filter{ case (id, _) => ! turtles.contains(id) }
     deadTurtles.foreach{ case (id, npc) => despawn(npc); entities.remove(id) }
 
-    // a hack for wolf-sheep that might be useful later in other models.
+    /* update minecraft blocks based on netlogo patch colors */
     val patches: Iterator[Patch] = ws.world.patches.toLogoList.scalaIterator.collect{case p: Patch => p}
-    patches.foreach(updatePatchColorMaybe(_, p.world))
+    patches.foreach(updateBlockColorMaybe(ws, _, world))
   }
 
-  def npc(id:Long, loc: Location, breed: String) = (breed.toLowerCase match {
-    case "wolves" => wolf  _
-    case "sheep"  => sheep _
-    case _        => human _
-  })(id.toString, loc)
-
-  // for reference, see:
-  // https://github.com/haveric/Wool-Trees/blob/master/src/haveric/woolTrees/Commands.java
-  // http://ccl.northwestern.edu/netlogo/docs/programming.html#colors
   /**
-   * Yet unhandled Minecraft colors.
-   * } else if (args[i].equalsIgnoreCase("lightblue")){
-   *   colorArray.add(3);
-   * } else if (args[i].equalsIgnoreCase("lightgray") || args[i].equalsIgnoreCase("lightgrey")){
-   *   colorArray.add(8);
+   * for reference, see:
+   * https://github.com/haveric/Wool-Trees/blob/master/src/haveric/woolTrees/Commands.java
+   * http://ccl.northwestern.edu/netlogo/docs/programming.html#colors
+   *
+   * Yet unhandled Minecraft colors: lightblue -> 3, lightgrey -> 8
    **/
-  val colors = Map(
-    // black
-    0d  ->  (WOOL, Some(15:Byte)),
-    // grey
-    5d  ->  (WOOL, Some(7:Byte)),
-    // white
-    9.9 ->  (WOOL, Some(0:Byte)),
-    // red
-    15d ->  (WOOL, Some(14:Byte)),
-    // orange
-    25d ->  (WOOL, Some(1:Byte)),
-    // brown
-    35d ->  (DIRT, None),  // 12b for wool
-    // yellow
-    45d ->  (WOOL, Some(4:Byte)),
-    // green
-    55d ->  (GRASS, None), // 13b for wool
-    // lime
-    65d ->  (WOOL, Some(5:Byte)), // light green in Minecraft.
-    // turquoise??
-    // 75d ->  (WOOL, ??)
-    // cyan
-    85d ->  (WOOL, Some(9:Byte)),
-    // sky??
-    // 95d -> (WOOL, ??),
-    // blue
-    105d -> (WOOL, Some(11:Byte)),
-    // violet
-    115d -> (WOOL, Some(10:Byte)), // purple in Minecraft, i think.
-    // magenta
-    125d -> (WOOL, Some(2:Byte)),
-    // pink
-    135d -> (WOOL, Some(6:Byte))
-  )
+  import Color._
+  def colors(netLogoColor: Double, default: MaterialAndData): MaterialAndData = netLogoColor match {
+    case 0d   => BLACK.wool
+    case 5d   => GREY.wool
+    case 9.9  => WHITE.wool
+    case 15d  => RED.wool
+    case 25d  => ORANGE.wool
+    case 35d  => DIRT // brown
+    case 45d  => YELLOW.wool
+    case 55d  => GRASS // green
+    case 65d  => LIGHT_GREEN.wool // lime in NetLogo
+    // 75d    => ?? turquoise
+    case 85d  => CYAN.wool
+    // 95d    => ?? sky
+    case 105d => BLUE.wool
+    case 115d => VIOLET.wool
+    case 125d => MAGENTA.wool
+    case 135d => PINK.wool
+    case _    => default
+  }
 
   /**
    * A couple of things are going on here...
@@ -185,15 +165,12 @@ class NetLogoPlugin extends CommandsPlugin with ListenersPlugin with NPCPlugin {
    * However, if the patch has a z variable, then we do some other crap
    * // TODO: explain that other crap
    */
-  def updatePatchColorMaybe(patch: Patch, world: World): Unit = {
-    colors.get(patch.pcolorDouble).foreach{ case (m, color) =>
-      val lowZ     = 3
-      val topZ     = lowZ + tryO(patch.variables(5).asInstanceOf[Double].toInt).getOrElse(0)
-      val lowBlock = world(patch.pxcor, lowZ, patch.pycor)
-      val topBlock = world(patch.pxcor, topZ, patch.pycor)
-      Cube(lowBlock, topBlock).setAll(m, color)
-      topBlock.blocksAbove.takeWhile(_ isNot AIR).foreach(_ changeTo AIR)
-    }
+  def updateBlockColorMaybe(ws: HeadlessWorkspace, p: Patch, w: World): Unit = {
+    val lowZ = 3
+    val topZ = lowZ + tryO(agentVar(ws, p, "z").asInstanceOf[Double].toInt).getOrElse(0)
+    val (lowBlock,topBlock) = (w(p.pxcor, lowZ, p.pycor), w(p.pxcor, topZ, p.pycor))
+    Cube(lowBlock, topBlock).blocks.foreach(b => colors(p.pcolorDouble, b).update(b))
+    topBlock.blocksAbove.takeWhile(_ isNot AIR).foreach(_ changeTo AIR)
   }
 
   /**
@@ -201,14 +178,13 @@ class NetLogoPlugin extends CommandsPlugin with ListenersPlugin with NPCPlugin {
    * If t happens to have a 'holding' variable, and it happens to be a double
    * then update what the player has in his hands.
    */
-  def updateHolding(npc: NPC, t:Turtle): Unit = tryO(
-    entities(t.id).asInstanceOf[CraftPlayer].setItemInHand(
-      t.variables(t.LAST_PREDEFINED_VAR + 1) match {
-        case d: java.lang.Double => colors.get(d).fold(new ItemStack(AIR)){ case (m, oc) =>
-          oc.fold(new ItemStack(m))(new ItemStack(m, 1, 0:Short, _))
-        }
-        case _ => new ItemStack(AIR)
-      }
-    )
-  )
+  def updateItemInHand(npc: NPC, ws: HeadlessWorkspace, t:Turtle): Unit = tryO{
+    val player =  entities(t.id).asInstanceOf[CraftPlayer]
+    player.setItemInHand(colors(agentVar(ws, t, "holding").asInstanceOf[Double], player.holding))
+  }
+
+  def agentVar(ws: HeadlessWorkspace, a:Agent, varName:String): Option[Object] = {
+    val index = ws.world.indexOfVariable(a, varName)
+    if (index == -1) None else Some(a.variables(index))
+  }
 }

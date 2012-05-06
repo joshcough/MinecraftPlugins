@@ -43,11 +43,8 @@ case class Cube(l1: Location, l2: Location) {
   )
 
   def eraseAll: Unit = blocks.foreach(_.erase)
-  def setAll(newM: Material, data: Option[Byte]=None): Unit =
-    for(b <- blocks){
-      b changeTo newM
-      data.foreach(b.setData)
-    }
+  def setAll(newM: MaterialAndData): Unit = for(b <- blocks) newM.update(b)
+
   def changeAll(oldM: Material, newM: Material, data: Option[Byte]=None): Unit =
     for(b <- blocks; if b is oldM){
       b changeTo newM

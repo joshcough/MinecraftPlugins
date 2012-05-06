@@ -30,21 +30,29 @@ trait Pimps {
   implicit def pimpedCancellable(c:Cancellable)   = new PimpedCancellable(c)
   implicit def pimpedEntityEvent(e:EntityEvent)   = new PimpedEntity(e.getEntity)
   implicit def pimpedPlayerEvent(e:PlayerEvent)   = new PimpedPlayer(e.getPlayer)
+  implicit def pimpedOption[T](ot: Option[T])     = new PimpedOption(ot)
+  implicit def blockToItemStack(b: Block)         = new ItemStack(b.getType, 1, b.getData)
+  implicit def materialToItemStack(m: Material)   = new ItemStack(m, 1)
+  implicit def materialToMaterialAndData(m:Material) = MaterialAndData(m, None)
+  implicit def materialAndDataToItemStack(m:MaterialAndData) = m.itemStack
+  implicit def itemStackToMaterialAndData(is:ItemStack) = MaterialAndData(is.getType, {
+    // i'm not sure if this check is really needed, but i guess it doesnt hurt...
+    if(is.getData.getData < (0:Byte)) None else Some(is.getData.getData)
+  })
+  implicit def blockToMaterialAndData(b:Block)    = MaterialAndData(b.getType, Some(b.getData))
+  implicit def pimpPlayerInteractEvent(e:PlayerInteractEvent) = new PimpedPlayerInteractEvent(e)
+  implicit def blockToLoc(b: Block) = b.getLocation
   implicit def pimpedWeatherChangeEvent(e:WeatherChangeEvent) = new {
     def rain = e.toWeatherState
     def sun  = ! e.toWeatherState
   }
-  implicit def pimpPlayerInteractEvent(e:PlayerInteractEvent) = new PimpedPlayerInteractEvent(e)
-  implicit def pimpedOption[T](ot: Option[T])   = new PimpedOption(ot)
-  implicit def blockToLoc(b: Block) = b.getLocation
-  implicit def blockToItemStack(b: Block) = new ItemStack(b.getType, 1, b.getData)
-  implicit def materialToItemStack(m: Material) = new ItemStack(m, 1)
 
   case class PimpedBlock(b:Block) {
     lazy val world = b.getWorld
     lazy val loc   = b.getLocation
     lazy val (x, y, z) = (b.getX, b.getY, b.getZ)
     lazy val (xd, yd, zd) = (b.getX.toDouble, b.getY.toDouble, b.getZ.toDouble)
+    lazy val chunk = world.getChunkAt(b)
     def copy(x: Double = xd, y: Double = yd, z: Double = zd) = world(x, y, z)
     lazy val blockAbove = world(xd, yd + 1, zd)
     lazy val blockBelow = world(xd, yd - 1, zd)
@@ -85,7 +93,13 @@ trait Pimps {
       b.world.playEffect(b.loc, SMOKE, 1)
       changeTo(AIR)
     }
-    def changeTo(m: Material) = b.setType(m)
+    def changeTo(m: Material) = {
+      if (! chunk.isLoaded) {
+        println("chunk not loaded for block: " + (x,y,z) + " chunk: " + chunk)
+        chunk.load()
+      }
+      b.setType(m)
+    }
   }
 
   case class PimpedCancellable(c:Cancellable){
@@ -157,6 +171,7 @@ trait Pimps {
     def world  = player.getWorld
     def server = player.getServer
 
+    def holding = player.getItemInHand
     def isHolding  (m: Material) = player.getItemInHand.getType == m
     def isHoldingA (m: Material) = isHolding(m)
     def isHoldingAn(m: Material) = isHolding(m)
@@ -179,7 +194,7 @@ trait Pimps {
       player       ! (GREEN + "you have " + actionName + " " + otherPlayer.name)
     }
 
-    def !  (s:String)    = player.sendMessage(s)
+    def !  (s:String)    = if(s != null) player.sendMessage(s)
     def !* (ss: String*) = ss.foreach(s => player ! s)
     def sendError(message:String) = player.sendMessage(RED + message)
     def sendUsage(cmd:Command)    = sendError(cmd.getUsage)
@@ -220,5 +235,35 @@ trait Pimps {
   implicit def pimpedBoolean(b1:Boolean) = new {
     def or (b2: => Boolean) = b1 || b2
     def and(b2: => Boolean) = b1 && b2
+  }
+
+  sealed case class Color(data:Byte){
+    def wool = MaterialAndData(WOOL, Some(data))
+  }
+  object Color {
+    val WHITE       = new Color(0)
+    val ORANGE      = new Color(1)
+    val MAGENTA     = new Color(2)
+    val LIGHT_BLUE  = new Color(3)
+    val YELLOW      = new Color(4)
+    val LIGHT_GREEN = new Color(5)
+    val PINK        = new Color(6)
+    val GREY        = new Color(7)
+    val LIGHT_GREY  = new Color(8)
+    val CYAN        = new Color(9)
+    val VIOLET      = new Color(10)
+    val BLUE        = new Color(11)
+    val BROWN       = new Color(12)
+    val GREEN       = new Color(13)
+    val RED         = new Color(14)
+    val BLACK       = new Color(15)
+  }
+
+  case class MaterialAndData(m: Material, data: Option[Byte]){
+    def update(b: Block) = {
+      b changeTo m
+      data.foreach(b.setData)
+    }
+    def itemStack = data.fold(new ItemStack(m))(new ItemStack(m, 1, 0:Short, _))
   }
 }
