@@ -23,3 +23,10 @@ curl "https://github.com/downloads/joshcough/MinecraftPlugins/jcdc-plugin-factor
 tar xfvz netlogo-5.0.1.tar.gz
 cp netlogo-5.0.1/NetLogo.jar .
 cp -r netlogo-5.0.1/lib/* .
+
+cd ..
+curl -L "https://github.com/downloads/joshcough/MinecraftPlugins/flat-world.tar.gz" -o world.tar.gz
+tar xfvz world.tar.gz
+
+echo "java -Djava.ext.dirs=lib -Xmx1024M -Xms512M -jar craftbukkit.jar nogui" > run-server.sh
+chmod +x run-server.sh
