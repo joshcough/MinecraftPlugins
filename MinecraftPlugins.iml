@@ -25,12 +25,22 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="scala-compiler-2.9.1" level="application" />
-    <orderEntry type="library" name="craftbukkit-1.2.5-R1.0" level="project" />
     <orderEntry type="library" name="servlet-api-2.5" level="project" />
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/examples/lib/NetLogo.jar!/" />
+          <root url="jar://$MODULE_DIR$/bukkit/craftbukkit.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/bukkit/craftbukkit.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/bukkit/NetLogo.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -39,7 +49,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/examples/lib/npccreatures-dev-SNAPSHOT.jar!/" />
+          <root url="jar://$MODULE_DIR$/bukkit/NPCCreatures.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
