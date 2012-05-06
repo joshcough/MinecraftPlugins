@@ -75,4 +75,4 @@ commands:
     usage: /<command> string+
   count-entities:
     description: Show the number of entities
-    usage: /<command> 
+    usage: /<command>

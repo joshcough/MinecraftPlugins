@@ -1,4 +1,4 @@
-package jcdc.pluginfactory.examples
+package jcdc.pluginfactory
 
 import ch.spacebase.npccreatures.npcs.entity.NPC
 import org.nlogo.agent.{Agent, Patch, Turtle}
@@ -8,7 +8,6 @@ import org.bukkit.entity.Player
 import org.bukkit.event.{EventHandler, Listener}
 import org.bukkit.{Material, World}
 import Material._
-import jcdc.pluginfactory._
 
 object NetLogoEvent{
   implicit def toJ(e: NetLogoEvent)  = new NetLogoEventJ(e)
@@ -48,12 +47,12 @@ class NetLogoPlugin extends CommandsPlugin with ListenersPlugin with NPCPlugin w
       case p ~ (model ~ updatePatches) =>
         openModel(p, model, updatePatches)
         // call setup on load, because that just makes sense.
-        callProc(p, "setup")
+        setup(p)
     }),
     Command("open-no-setup", "Open a model without setting up.", args(existingFile ~ boolOrTrue) {
       case p ~ (model ~ updatePatches) => openModel(p, model, updatePatches)
     }),
-    Command("setup", "Call the setup proc.",    noArgs { callProc(_, "setup") }),
+    Command("setup", "Call the setup proc.",    noArgs { setup(_) }),
     Command("go",    "Call the go proc once.",  noArgs { go(_) }),
     Command("call",  "Call a NetLogo proc.",    args(anyString+) {
       case p ~ proc => callProc(p, proc.mkString(" "))
@@ -136,6 +135,7 @@ class NetLogoPlugin extends CommandsPlugin with ListenersPlugin with NPCPlugin w
      * update minecraft blocks based on netlogo patch colors
      * currently, this is always done at setup, but then can be skipped.
      */
+    println("updatePatches: " + updatePatches + ", setupComplete: " + setupComplete)
     if (updatePatches || ! setupComplete){
       val patches = ws.world.patches.toLogoList.scalaIterator.collect{case p: Patch => p}
       patches.foreach(updateBlockColorMaybe(ws, _, world))

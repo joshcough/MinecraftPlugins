@@ -1,4 +1,4 @@
-package jcdc.pluginfactory.examples;
+package jcdc.pluginfactory;
 
 import org.bukkit.event.HandlerList;
 
