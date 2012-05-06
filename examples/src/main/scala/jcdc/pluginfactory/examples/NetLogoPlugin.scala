@@ -28,6 +28,9 @@ class NetLogoPlugin extends CommandsPlugin with ListenersPlugin with NPCPlugin {
    */
   val entities = collection.mutable.Map[Long, NPC]()
   var workspace: Option[HeadlessWorkspace] = None
+  // whether or not to check all the patches for updates each tick
+  var updatePatches = true
+  var setupComplete = false
 
   object NetLogoEventListener extends Listener {
     @EventHandler def on(e:NetLogoEventJ): Unit =
@@ -41,16 +44,17 @@ class NetLogoPlugin extends CommandsPlugin with ListenersPlugin with NPCPlugin {
   val listeners = List(NetLogoEventListener)
 
   val commands = List(
-    Command("open", "Open a model", args(existingFile) { case p ~ model =>
-      openModel(p, model)
-      // call setup on load, because that just makes sense.
-      callProc(p, "setup")
+    Command("open", "Open a model", args(existingFile ~ boolOrTrue) {
+      case p ~ (model ~ updatePatches) =>
+        openModel(p, model, updatePatches)
+        // call setup on load, because that just makes sense.
+        callProc(p, "setup")
     }),
-    Command("open-no-setup", "Open a model without setting up.", args(existingFile) {
-      case p ~ model => openModel(p, model)
+    Command("open-no-setup", "Open a model without setting up.", args(existingFile ~ boolOrTrue) {
+      case p ~ (model ~ updatePatches) => openModel(p, model, updatePatches)
     }),
     Command("setup", "Call the setup proc.",    noArgs { callProc(_, "setup") }),
-    Command("go",    "Call the go proc once.",  noArgs { callProc(_, "go") }),
+    Command("go",    "Call the go proc once.",  noArgs { go(_) }),
     Command("call",  "Call a NetLogo proc.",    args(anyString+) {
       case p ~ proc => callProc(p, proc.mkString(" "))
     }),
@@ -77,10 +81,11 @@ class NetLogoPlugin extends CommandsPlugin with ListenersPlugin with NPCPlugin {
     })
   )
 
-  def openModel(p: Player, model: java.io.File){
+  def openModel(p: Player, model: java.io.File, updatePatches: Boolean){
     // implicitly start over.
     dispose()
     workspace = Some(HeadlessWorkspace.newInstance)
+    this.updatePatches = updatePatches
     // model must be a file on the server....
     // maybe it could somehow be a url that we pull down?
     workspace.get.open(model.getAbsolutePath)
@@ -89,6 +94,10 @@ class NetLogoPlugin extends CommandsPlugin with ListenersPlugin with NPCPlugin {
 
   def callProc(p: Player, proc:String) = usingWorkspace(p)(_.command(proc))
   def go(p: Player): Unit = callProc(p, "go")
+  def setup(p: Player): Unit = {
+    callProc(p, "setup")
+    setupComplete = true
+  }
 
   def usingWorkspace(p: Player)(f: HeadlessWorkspace => Unit) =
     workspace.fold(p ! "call open first!"){ ws => f(ws); update(p.world, ws) }
@@ -123,37 +132,45 @@ class NetLogoPlugin extends CommandsPlugin with ListenersPlugin with NPCPlugin {
     val deadTurtles = entities.filter{ case (id, _) => ! turtles.contains(id) }
     deadTurtles.foreach{ case (id, npc) => despawn(npc); entities.remove(id) }
 
-    /* update minecraft blocks based on netlogo patch colors */
-    val patches: Iterator[Patch] = ws.world.patches.toLogoList.scalaIterator.collect{case p: Patch => p}
-    patches.foreach(updateBlockColorMaybe(ws, _, world))
+    /**
+     * update minecraft blocks based on netlogo patch colors
+     * currently, this is always done at setup, but then can be skipped.
+     */
+    if (updatePatches || ! setupComplete){
+      val patches = ws.world.patches.toLogoList.scalaIterator.collect{case p: Patch => p}
+      patches.foreach(updateBlockColorMaybe(ws, _, world))
+    }
   }
 
   /**
    * for reference, see:
    * https://github.com/haveric/Wool-Trees/blob/master/src/haveric/woolTrees/Commands.java
    * http://ccl.northwestern.edu/netlogo/docs/programming.html#colors
-   *
-   * Yet unhandled Minecraft colors: lightblue -> 3, lightgrey -> 8
    **/
   import Color._
-  def colors(netLogoColor: Double, default: MaterialAndData): MaterialAndData = netLogoColor match {
-    case 0d   => BLACK.wool
-    case 5d   => GREY.wool
-    case 9.9  => WHITE.wool
-    case 15d  => RED.wool
-    case 25d  => ORANGE.wool
-    case 35d  => DIRT // brown
-    case 45d  => YELLOW.wool
-    case 55d  => GRASS // green
-    case 65d  => LIGHT_GREEN.wool // lime in NetLogo
-    // 75d    => ?? turquoise
-    case 85d  => CYAN.wool
-    // 95d    => ?? sky
-    case 105d => BLUE.wool
-    case 115d => VIOLET.wool
-    case 125d => MAGENTA.wool
-    case 135d => PINK.wool
-    case _    => default
+  def colors(netLogoColor: Double): MaterialAndData = netLogoColor match {
+    case x if x % 10 < 2           => BLACK.wool
+    case x if x >= 2   && x <= 5   => GREY.wool
+    case x if x >  5   && x <  8   => LIGHT_GREY.wool
+    case x if x >= 8   && x <  12  => WHITE.wool
+    case x if x >= 12  && x <= 18  => RED.wool
+    case x if x >= 22  && x <= 28  => ORANGE.wool
+    case x if x >= 32  && x <= 38  => DIRT  // choosing not to use brown, but dirt instead
+    case x if x >= 42  && x <= 48  => YELLOW.wool
+    case x if x >= 52  && x <= 58  => GRASS // choosing not to use green, but grass instead
+    case x if x >= 62  && x <= 68  => LIGHT_GREEN.wool // lime in NetLogo
+    // there doesnt seem to be a turquoise in MineCraft...using light green instead.
+    case x if x >= 72  && x <= 78  => LIGHT_GREEN.wool
+    case x if x >= 82  && x <= 88  => CYAN.wool
+    case x if x >= 92  && x <= 98  => LIGHT_BLUE.wool // sky in NetLogo
+    case x if x >= 102 && x <= 108 => BLUE.wool
+    case x if x >= 112 && x <= 118 => VIOLET.wool
+    case x if x >= 122 && x <= 128 => MAGENTA.wool
+    case x if x >= 132 && x <= 138 => PINK.wool
+    case x if x % 10 > 8           => WHITE.wool
+    // this could only happen if we are given a double outside the color range
+    // i could imagine a few scenarios where that would happen, but it doesn't much matter.
+    case _    => WHITE.wool
   }
 
   /**
@@ -169,7 +186,7 @@ class NetLogoPlugin extends CommandsPlugin with ListenersPlugin with NPCPlugin {
     val lowZ = 3
     val topZ = lowZ + tryO(agentVar(ws, p, "z").asInstanceOf[Double].toInt).getOrElse(0)
     val (lowBlock,topBlock) = (w(p.pxcor, lowZ, p.pycor), w(p.pxcor, topZ, p.pycor))
-    Cube(lowBlock, topBlock).blocks.foreach(b => colors(p.pcolorDouble, b).update(b))
+    Cube(lowBlock, topBlock).blocks.foreach(b => colors(p.pcolorDouble).update(b))
     topBlock.blocksAbove.takeWhile(_ isNot AIR).foreach(_ changeTo AIR)
   }
 
@@ -180,7 +197,7 @@ class NetLogoPlugin extends CommandsPlugin with ListenersPlugin with NPCPlugin {
    */
   def updateItemInHand(npc: NPC, ws: HeadlessWorkspace, t:Turtle): Unit = tryO{
     val player =  entities(t.id).asInstanceOf[CraftPlayer]
-    player.setItemInHand(colors(agentVar(ws, t, "holding").asInstanceOf[Double], player.holding))
+    player.setItemInHand(colors(agentVar(ws, t, "holding").asInstanceOf[Double]))
   }
 
   def agentVar(ws: HeadlessWorkspace, a:Agent, varName:String): Option[Object] = {
