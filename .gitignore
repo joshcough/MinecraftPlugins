@@ -6,3 +6,4 @@ out/
 .lib/
 plugins/
 bukkit/
+.DS_Store
