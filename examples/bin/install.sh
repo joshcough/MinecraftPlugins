@@ -6,7 +6,7 @@ cd bukkit
 curl -L "http://dl.bukkit.org/latest-rb/craftbukkit.jar" -o craftbukkit.jar
 
 # get scala
-curl "http://repo1.maven.org/maven2/org/scala-lang/scala-compiler/2.9.1-1/scala-compiler-2.9.1-1.jar" -o scala-compiler-2.9.1-1.jar
+curl "http://repo1.maven.org/maven2/org/scala-lang/scala-library/2.9.1-1/scala-library-2.9.1-1.jar" -o scala-library-2.9.1-1.jar
 
 # get npc creatures (needed by the netlogo plugin)
 curl "http://dev.bukkit.org/media/files/584/232/NPCCreatures.jar" -o NPCCreatures.jar
