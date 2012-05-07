@@ -46,7 +46,7 @@ run Minecraft commands, which is done by pressing the / key, and then typing in 
 
     /open Flocking.nlogo
 
-The plugin many commands, and a complete listing of them can be found here: https://github.com/joshcough/MinecraftPlugins/blob/master/netlogo/src/main/resources/netlogo.yml
+The plugin contains many commands, and a complete listing of them can be found here: https://github.com/joshcough/MinecraftPlugins/blob/master/netlogo/src/main/resources/netlogo.yml
 
 ### Opening a model
 
