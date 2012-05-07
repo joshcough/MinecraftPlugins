@@ -38,20 +38,20 @@ inspected after every tick. I may change this in the future as models with many 
 
 Here is an example of loading a model:
 
-    `/open models/Rope.nlogo false`
+    /open models/Rope.nlogo false
     
 This assumes that you have placed a models directory in the Bukkit directory, 
 and it contains Rope.nlogo (which ships with the models library in the NetLogo distribution).
   
 Here are several more examples:
   
-    `/open models/WolfSheep.nlogo`
+    /open models/WolfSheep.nlogo
     
-    `/open models/WolfSheep.nlogo false`
+    /open models/WolfSheep.nlogo false
     
-    `/open /Users/jcough/myModels/MyModel.nlogo`
+    /open /Users/jcough/myModels/MyModel.nlogo
     
-    `/open /Users/jcough/myModels/MyModel.nlogo false`
+    /open /Users/jcough/myModels/MyModel.nlogo false
   
 When a model is opened, the setup procedure is run automatically by the observer. 
 Therefore, a model must have a setup procedure, and it must be an observer procedure.
