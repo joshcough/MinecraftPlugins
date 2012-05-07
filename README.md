@@ -33,7 +33,7 @@ class LightningArrows extends ListeningFor(OnEntityDamageByEntity { e =>
 
 To install the and run a Minecraft server using the NetLogo plugin on a Mac or Linux:
   
-  1. Download and run: https://raw.github.com/joshcough/MinecraftPlugins/master/netlogo/bin/install.sh. This can be done in a terminal, like this:
+  1. Download and run the install script I've created. It downloads the Minecraft server, NetLogo, Scala, and everything else needed to run the server. To download it, open a terminal and type this:
 
     `curl https://raw.github.com/joshcough/MinecraftPlugins/master/netlogo/bin/install.sh | sh`
 
