@@ -16,18 +16,17 @@ To install the and run a Minecraft server using the NetLogo plugin on a Mac or L
   2. run the run-server.sh in the bukkit directory. (`cd bukkit; ./run-server.sh`)
   3. Connect to the server with a regular Minecraft client. 
 
-### Opening a model
-
-  * open filename optional(boolean) 
-
 Once connected, you can open most Minecraft models and run them. An example of doing so can be 
 found here: http://www.youtube.com/watch?v=e3i_aQ8c2OA. To open and run NetLogo models, you must 
 run Minecraft commands, which is done by pressing the / key, and then typing in the command like so:
 
     /open Flocking.nlogo
 
-The plugin supports the following commands 
-(also found at https://github.com/joshcough/MinecraftPlugins/blob/master/netlogo/src/main/resources/netlogo.yml):
+The plugin many commands, and a complete listing of them can be found here: https://github.com/joshcough/MinecraftPlugins/blob/master/netlogo/src/main/resources/netlogo.yml
+
+### Opening a model
+
+  * open filename optional(boolean) 
   
 Opens the model with the given filename. The file location is relative to the bukkit directory 
 in which the server is running. However, a full filepath can be given. Currently, the file must 
