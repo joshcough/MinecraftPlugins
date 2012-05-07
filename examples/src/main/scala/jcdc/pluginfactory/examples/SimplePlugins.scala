@@ -24,7 +24,6 @@ class Farmer extends ListenersPlugin {
 }
 
 class ZombieApocalypse extends ListeningFor(OnPlayerDeath { (p, _) => p.loc spawn ZOMBIE })
- 
 
 class TreeDelogger extends ListeningFor(OnBlockBreak { (b, e) =>
   if (b isA LOG) for (b <- b.andBlocksAbove.takeWhile(_ isA LOG)) b.erase
@@ -32,10 +31,6 @@ class TreeDelogger extends ListeningFor(OnBlockBreak { (b, e) =>
 
 class BanArrows extends ListeningFor(OnPlayerDamageByEntity { (p, e) =>
   if (e.getDamager isAn ARROW) p.ban("struck by an arrow!")
-})
-
-class LightningArrows extends ListeningFor(OnEntityDamageByEntity { e =>
-  if (e.getDamager isAn ARROW) e.world.strikeLightning(e.loc)
 })
 
 class NoRain extends ListenerPlugin{
