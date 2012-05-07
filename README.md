@@ -37,7 +37,7 @@ To install the and run a Minecraft server using the NetLogo plugin on a Mac or L
 
     `curl https://raw.github.com/joshcough/MinecraftPlugins/master/netlogo/bin/install.sh | sh`
 
-  2. run the run-server.sh in the bukkit directory. (`cd bukkit; ./run-server.sh`)
+  2. Run the run-server.sh in the bukkit directory. (`cd bukkit; ./run-server.sh`)
   3. Connect to the server with a regular Minecraft client. 
 
 Once connected, you can open most Minecraft models and run them. An example of doing so can be 
