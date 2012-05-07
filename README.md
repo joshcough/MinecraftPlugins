@@ -18,7 +18,7 @@ Note: The core API is built on Bukkit version 1.2.5-R1 (http://bukkit.org/).
 
 While there will be much more written soon in this section, here is an example that demonstrates how amazingly
 simple it is to write Minecraft plugins using this API. The following example demonstrates how to strike
-an entity (any player or mob) with lightning if that entity is struck by lightning:
+an entity (any player or mob) with lightning if that entity is hit with an arrow:
 
 ```scala
 import jcdc.pluginfactory.Listeners._
