@@ -6,7 +6,7 @@ import Pimps._
 import org.bukkit.{Material, Location}
 
 case class Cube(l1: Location, l2: Location) {
-  override def toString = "Cube(l1: " + l1.xyz + ", l2: " + l2.xyz + ")"
+  override def toString = s"Cube(l1: ${l1.xyz}, l2: ${l2.xyz})"
   val world   = l1.world
   val maxX    = math.max(l1.xd, l2.xd)
   val minX    = math.min(l1.xd, l2.xd)

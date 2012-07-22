@@ -2,7 +2,6 @@ package jcdc.pluginfactory
 
 import org.bukkit.{ChatColor, Effect, Location, Material, OfflinePlayer, Server, World}
 import org.bukkit.block.Block
-import org.bukkit.command.Command
 import org.bukkit.event.Cancellable
 import org.bukkit.event.entity.EntityEvent
 import org.bukkit.event.weather.WeatherChangeEvent
@@ -19,18 +18,8 @@ object Pimps extends Pimps
 
 trait Pimps {
 
-  implicit def pimpedEntity(e:Entity)             = new PimpedEntity(e)
-  implicit def pimpedLivingEntity(e:LivingEntity) = new PimpedLivingEntity(e)
-  implicit def pimpedPlayer(player:Player)        = new PimpedPlayer(player)
-  implicit def pimpedLocaton(l:Location)          = new PimpedLocation(l)
-  implicit def pimpedWorld(w:World)               = new PimpedWorld(w)
-  implicit def pimpedServer(s:Server)             = new PimpedServer(s)
-  implicit def pimpedBlock(b:Block)               = new PimpedBlock(b)
-  implicit def pimpedItemStack(i:ItemStack)       = new PimpedItemStack(i)
-  implicit def pimpedCancellable(c:Cancellable)   = new PimpedCancellable(c)
   implicit def pimpedEntityEvent(e:EntityEvent)   = new PimpedEntity(e.getEntity)
   implicit def pimpedPlayerEvent(e:PlayerEvent)   = new PimpedPlayer(e.getPlayer)
-  implicit def pimpedOption[T](ot: Option[T])     = new PimpedOption(ot)
   implicit def blockToItemStack(b: Block)         = new ItemStack(b.getType, 1, b.getData)
   implicit def materialToItemStack(m: Material)   = new ItemStack(m, 1)
   implicit def materialToMaterialAndData(m:Material) = MaterialAndData(m, None)
@@ -40,14 +29,9 @@ trait Pimps {
     if(is.getData.getData < (0:Byte)) None else Some(is.getData.getData)
   })
   implicit def blockToMaterialAndData(b:Block)    = MaterialAndData(b.getType, Some(b.getData))
-  implicit def pimpPlayerInteractEvent(e:PlayerInteractEvent) = new PimpedPlayerInteractEvent(e)
   implicit def blockToLoc(b: Block) = b.getLocation
-  implicit def pimpedWeatherChangeEvent(e:WeatherChangeEvent) = new {
-    def rain = e.toWeatherState
-    def sun  = ! e.toWeatherState
-  }
 
-  case class PimpedBlock(b:Block) {
+  implicit class PimpedBlock(b:Block) {
     lazy val world = b.getWorld
     lazy val loc   = b.getLocation
     lazy val (x, y, z) = (b.getX, b.getY, b.getZ)
@@ -95,21 +79,21 @@ trait Pimps {
     }
     def changeTo(m: Material) = {
       if (! chunk.isLoaded) {
-        println("chunk not loaded for block: " + (x,y,z) + " chunk: " + chunk)
+        println("chunk not loaded for block: ${(x,y,z)} chunk: $chunk")
         chunk.load()
       }
       b.setType(m)
     }
   }
 
-  case class PimpedCancellable(c:Cancellable){
+  implicit class PimpedCancellable(c:Cancellable){
     def cancel = c.setCancelled(true)
     def cancelIf(b: => Boolean, runBeforeCancelling: => Unit = () => ()){
       if(b) { runBeforeCancelling; c.setCancelled(true) }
     }
   }
 
-  case class PimpedEntity(e:Entity){
+  implicit class PimpedEntity(e:Entity){
     def loc      = e.getLocation
     def x        = loc.x
     def y        = loc.y
@@ -120,17 +104,17 @@ trait Pimps {
     def isA(et:EntityType)  = e.getType == et
     def isAn(et:EntityType) = e.getType == et
   }
-  
-  case class PimpedLivingEntity(e: LivingEntity){
+
+  implicit class PimpedLivingEntity(e: LivingEntity){
     def die = e.setHealth(0)
   }
 
-  case class PimpedItemStack(i:ItemStack){
+  implicit class PimpedItemStack(i:ItemStack){
     def isA(m:Material)  = i.getType == m
     def isAn(m:Material) = i.getType == m
   }
 
-  case class PimpedWorld(w:World){
+  implicit class PimpedWorld(w:World){
     def entities = w.getEntities
     def apply(x: Int, y: Int, z: Int): Block = blockAt(x.toDouble, y.toDouble, z.toDouble)
     def apply(x: Double, y: Double, z: Double): Block = new Location(w, x, y, z).getBlock
@@ -145,7 +129,7 @@ trait Pimps {
     def worldServer: WorldServer = mcWorld.getHandle
   }
 
-  case class PimpedLocation(loc: Location){
+  implicit class PimpedLocation(loc: Location){
     lazy val (x,y,z) = (loc.getX.toInt, loc.getY.toInt, loc.getZ.toInt)
     lazy val xyz = (x, y, z)
     lazy val (xd,yd,zd) = (loc.getX, loc.getY, loc.getZ)
@@ -157,7 +141,7 @@ trait Pimps {
     def dropItem(stack: ItemStack): Unit = loc.world.dropItem(loc, stack)
   }
 
-  case class PimpedServer(s:Server){
+  implicit class PimpedServer(s:Server){
     def findPlayer(name:String) = Option(s.getPlayer(name))
     def findOnlinePlayer = findPlayer _
     def findOfflinePlayer(name:String) = Option(s.getOfflinePlayer(name))
@@ -165,7 +149,7 @@ trait Pimps {
     def findOfflinePlayers(names: List[String]): List[OfflinePlayer] = names.map(findOfflinePlayer).flatten
   }
 
-  case class PimpedPlayer(player:Player){
+  implicit class PimpedPlayer(player:Player){
     def loc    = player.getLocation
     def name   = player.getName
     def world  = player.getWorld
@@ -177,12 +161,12 @@ trait Pimps {
     def isHoldingAn(m: Material) = isHolding(m)
 
     def withMaterial[T](nameOrId:String)(f: Material => T) {
-      attemptO(findMaterial(nameOrId))("No such material: " + nameOrId, f)
+      attemptO(findMaterial(nameOrId))("No such material: $nameOrId", f)
     }
     def attemptO[T, U](ot: Option[T])(s: => String, f: T => U){
       ot.fold(player ! s)(t => f(t))
     }
-    def attempt[T](f: => Unit) = try f catch { case e => this.!(e.getMessage) }
+    def attempt[T](f: => Unit) = try f catch { case e: Exception => this.!(e.getMessage) }
     def blockOn         = player.loc.block
     def blockAboveHead  = blockOn.nthBlockAbove(2)
     def blocksAboveHead = blockOn.blockAbove.blockAbove.blocksAbove
@@ -190,8 +174,8 @@ trait Pimps {
 
     def doTo(otherPlayer: Player, f: => Unit, actionName: String){
       f
-      otherPlayer  ! (GREEN + "you have been " + actionName + " by " + player.name)
-      player       ! (GREEN + "you have " + actionName + " " + otherPlayer.name)
+      otherPlayer  ! (GREEN + s"you have been $actionName by ${player.name}")
+      player       ! (GREEN + s"you have $actionName ${otherPlayer.name}")
     }
 
     def !  (s:String)    = if(s != null) player.sendMessage(s)
@@ -202,7 +186,7 @@ trait Pimps {
       case None => sendError("kill could not find player: " + name)
     }
     def findPlayers(names:List[String])(f: Player => Unit) = names.foreach(n => findPlayer(n)(f))
-    def ban(reason:String){ player.setBanned(true); player.kickPlayer("banned: " + reason) }
+    def ban(reason:String){ player.setBanned(true); player.kickPlayer("banned: $reason") }
     def kill(playerName:String): Unit = findPlayer(playerName)(kill)
     def kill(p:Player) = doTo(p, p.setHealth(0), "killed")
     def teleportTo(otherPlayer: Player) = player.teleport(otherPlayer)
@@ -210,22 +194,27 @@ trait Pimps {
     def strike = world.strikeLightning(loc)
   }
 
-  case class PimpedPlayerInteractEvent(e: PlayerInteractEvent){
+  implicit class PimpedPlayerInteractEvent(e: PlayerInteractEvent){
     def block = e.getClickedBlock
     def loc = block.loc
   }
 
-  case class PimpedOption[T](ot: Option[T]){
+  implicit class PimpedWeatherChangeEvent(e:WeatherChangeEvent) {
+    def rain = e.toWeatherState
+    def sun  = ! e.toWeatherState
+  }
+
+  implicit class PimpedOption[T](ot: Option[T]){
     def fold[U](u: => U)(f: T => U) = ot.map(f).getOrElse(u)
   }
-  def tryO[T](f: => T): Option[T] = try Some(f) catch { case e => None }
+  def tryO[T](f: => T): Option[T] = try Some(f) catch { case e: Exception => None }
 
   def findEntity(nameOrId:String) = Option(EntityType.fromName(nameOrId)).orElse(
-    try Option(EntityType.fromId(nameOrId.toInt)) catch { case e => None }
+    try Option(EntityType.fromId(nameOrId.toInt)) catch { case e: Exception => None }
   )
 
   def findMaterial(nameOrId: String) = Option(getMaterial(nameOrId.toUpperCase)).orElse(
-    try Option(getMaterial(nameOrId.toInt)) catch { case e => None }
+    try Option(getMaterial(nameOrId.toInt)) catch { case e: Exception => None }
   )
 
   def id[T](t:T) = identity(t)

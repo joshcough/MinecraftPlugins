@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ScalacSettings">
-    <option name="COMPILER_LIBRARY_NAME" value="scala-compiler-2.9.1" />
+    <option name="COMPILER_LIBRARY_NAME" value="scala-compiler-2.10.0-M5" />
     <option name="COMPILER_LIBRARY_LEVEL" value="Global" />
     <option name="MAXIMUM_HEAP_SIZE" value="512" />
     <option name="VM_PARAMETERS" value="-Xms512m -Xss4m -server" />

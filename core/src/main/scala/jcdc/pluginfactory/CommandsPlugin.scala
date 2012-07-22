@@ -13,7 +13,7 @@ trait MinecraftParsers extends ParserCombinators[Player] {
   def material = token("material-type") { (_, s) => findMaterial(s) }
   def entity = token("entity-type") { (_, s) =>
     Option(EntityType.fromName(s.toUpperCase)).orElse(
-      try Option(EntityType.fromId(s.toInt)) catch { case e => None }
+      try Option(EntityType.fromId(s.toInt)) catch { case e: Exception => None }
     )
   }
 }
@@ -42,7 +42,7 @@ trait CommandsPlugin extends ScalaPlugin with MinecraftParsers {
     val p = sender.asInstanceOf[Player]
     for (ch <- lowers.get(cmd.getName.toLowerCase))
       try ch.body.f(p, cmd, args.toList)
-      catch { case e =>
+      catch { case e: Exception =>
         p ! e.getMessage
         p ! e.getStackTraceString
         e.printStackTrace
@@ -51,9 +51,9 @@ trait CommandsPlugin extends ScalaPlugin with MinecraftParsers {
   }
 
   def opOnly(ch: CommandBody): CommandBody = CommandBody(
-    ch.argDesc + " [Op Only]", (player: Player, c: BukkitCommand, args: List[String]) =>
+    s"${ch.argDesc} [Op Only]", (player: Player, c: BukkitCommand, args: List[String]) =>
       if (player.isOp) ch.f(player, c, args)
-      else player.sendMessage(RED + "You must be an op to run /" + c.getName)
+      else player.sendMessage(RED + s"You must be an op to run /${c.getName}")
   )
 
   type PlayerToPlayer = (Player, Player) => Unit

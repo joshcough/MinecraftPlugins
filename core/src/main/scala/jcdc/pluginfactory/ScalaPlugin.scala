@@ -17,8 +17,8 @@ abstract class ScalaPlugin extends org.bukkit.plugin.java.JavaPlugin with Pimps 
   def fire(e:Event) = server.getPluginManager.callEvent(e)
 
   // setup stuff
-  override def onEnable(){ super.onEnable(); setupDatabase; logInfo(name + " enabled!") }
-  override def onDisable(){ super.onDisable(); logInfo(name + " disabled!") }
+  override def onEnable(){ super.onEnable(); setupDatabase; logInfo(s"$name enabled!") }
+  override def onDisable(){ super.onDisable(); logInfo(s"$name disabled!") }
   def registerListener(listener:Listener): Unit =
     server.getPluginManager.registerEvents(listener, this)
 
@@ -40,10 +40,10 @@ abstract class ScalaPlugin extends org.bukkit.plugin.java.JavaPlugin with Pimps 
     ).mkString("\n")
 
   // logging
-  def logInfo(message:String) { log.info("["+name+"] - " + message) }
+  def logInfo(message:String) { log.info(s"[$name] - $message") }
   def logTask[T](message:String)(f: => T): T = {
-    logInfo("Starting: " + message); val t = f; logInfo("Finished: " + message); t
+    logInfo(s"Starting: $message"); val t = f; logInfo(s"Finished: $message"); t
   }
-  def logError(e:Throwable){ log.log(java.util.logging.Level.SEVERE, "["+name+"] - " + e.getMessage, e) }
-  def broadcast(message:String) = server.broadcastMessage("["+name+"] - " + message)
+  def logError(e:Throwable){ log.log(java.util.logging.Level.SEVERE, s"[$name] - ${e.getMessage}", e) }
+  def broadcast(message:String) = server.broadcastMessage(s"[$name] - $message")
 }

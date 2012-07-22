@@ -8,7 +8,6 @@ import org.bukkit.entity.EntityType.{ARROW, ZOMBIE}
 import org.bukkit.entity.Player
 import Listeners._
 
-
 class Thor extends ListeningFor(OnEntityDamageByPlayer { (e, p, _) =>
   if (p isHoldingA DIAMOND_AXE) p.world.strikeLightning(e.loc)
 })
@@ -76,8 +75,7 @@ object Curses {
   def handle(e: PlayerChatEvent, f: => Unit) = e.cancelIf(containsSwear(e), f)
 }
 
-class CurseBan extends ListeningFor(OnPlayerChat((p, e) => Curses.handle(e, e.player.ban("no swearing"))))
+class CurseBan extends ListeningFor(OnPlayerChat((p, e) => Curses.handle(e, e.getPlayer.ban("no swearing"))))
  
-
 class CursePreventer extends ListeningFor(OnPlayerChat((p, e) => Curses.handle(e, ())))
  

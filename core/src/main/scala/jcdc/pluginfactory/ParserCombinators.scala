@@ -7,7 +7,7 @@ trait ParserCombinators[C] {
   type ParseContext = C
 
   case class ~[+A, +B](a: A, b: B) {
-    override def toString = "(" + a + "~" + b + ")"
+    override def toString = s"($a ~ $b)"
   }
 
   trait ParseResult[T]
@@ -47,10 +47,10 @@ trait ParserCombinators[C] {
         case Success(t, rest) => Success(t, rest)
         case Failure(m1) => p2(p, args) match {
           case Success(t, rest) => Success(t, rest)
-          case Failure(m2) => Failure(m1 + " or " + m2)
+          case Failure(m2) => Failure(s"$m1 or $m2")
         }
       }
-      def describe = "(" + self.describe + " or " + p2.describe + ")"
+      def describe = s"(${self.describe} or ${p2.describe})"
     }
 
     def or[U](p2: => Parser[U]) = new Parser[Either[T, U]] {
@@ -58,10 +58,10 @@ trait ParserCombinators[C] {
         case Success(t, rest) => Success(Left(t), rest)
         case Failure(m1) => p2(p, args) match {
           case Success(u, rest) => Success(Right(u), rest)
-          case Failure(m2) => Failure(m1 + " or " + m2)
+          case Failure(m2) => Failure(s"$m1 or $m2")
         }
       }
-      def describe = "(" + self.describe + " or " + p2.describe + ")"
+      def describe = s"(${self.describe} or ${p2.describe})"
     }
 
     def * : Parser[List[T]] = ((this+) | success(List[T]())).named(self.describe + "*")
@@ -75,7 +75,7 @@ trait ParserCombinators[C] {
       case Failure(m) => Success(None: Option[T], args)
       case Success(t, rest) => Success(Some(t), rest)
     }
-    def describe = "optional(" + parser.describe + ")"
+    def describe = s"optional(${parser.describe})"
   }
 
   def success[T](t: T) = new Parser[T] {
@@ -85,17 +85,17 @@ trait ParserCombinators[C] {
 
   implicit def stringToParser(s: String) = new Parser[String] {
     def apply(p: ParseContext, args: List[String]) = args match {
-      case Nil => Failure("expected :" + s + ", but got nothing")
-      case x :: xs => if (x == s) Success(x, xs) else Failure("expected: " + s + ", but got: " + x)
+      case Nil => Failure(s"expected :$s, but got nothing")
+      case x :: xs => if (x == s) Success(x, xs) else Failure(s"expected: $s, but got: $x")
     }
     def describe = s
   }
 
   def token[T](name: String)(f: (ParseContext, String) => Option[T]) = new Parser[T] {
     def apply(p: ParseContext, args: List[String]) = args match {
-      case Nil => Failure("expected " + name + ", got nothing")
+      case Nil => Failure(s"expected $name, got nothing")
       case x :: xs => f(p, x) match {
-        case None => Failure("invalid " + name + ": " + x)
+        case None => Failure(s"invalid $name: $x")
         case Some(t) => Success(t, xs)
       }
     }
@@ -103,7 +103,7 @@ trait ParserCombinators[C] {
   }
 
   def anyString = token("string") { (_, s) => Some(s) }
-  def tryOption[T](t: => T) = try Some(t) catch { case e => None }
+  def tryOption[T](t: => T) = try Some(t) catch { case e: Exception => None }
 
   // number parsers
   def even(n: Int) = n % 2 == 0
