@@ -10,7 +10,9 @@ abstract class ScalaPlugin extends org.bukkit.plugin.java.JavaPlugin with Pimps 
 
   val log = Logger.getLogger("Minecraft")
 
-  def name = this.getDescription.getName
+  def name = try { this.getDescription.getName } catch {
+    case e: Exception => this.getClass.getSimpleName
+  }
   def server = getServer
   def craftServer = org.bukkit.Bukkit.getServer.asInstanceOf[CraftServer]
 
@@ -32,7 +34,7 @@ abstract class ScalaPlugin extends org.bukkit.plugin.java.JavaPlugin with Pimps 
     }
 
   def yml(author:String, version: String) = List(
-      "name: "     + this.getClass.getSimpleName,
+      "name: "     + this.name,
       "main: "     + this.getClass.getName,
       "author: "   + author,
       "version: "  + version,

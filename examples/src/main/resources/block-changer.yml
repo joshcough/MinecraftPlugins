@@ -1,9 +1,0 @@
-name: BlockChanger
-main: jcdc.pluginfactory.examples.BlockChanger
-author: jacycough
-version: 0.1
-commands:
-   bc:
-      description: Hit blocks to change them to the block with type blockId, or /bc off to turn off.
-      usage: /<command> blockId or off
-

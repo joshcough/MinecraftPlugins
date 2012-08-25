@@ -9,7 +9,7 @@ import org.bukkit.event.entity.{EntityDamageEvent, PlayerDeathEvent, EntityDamag
 import org.bukkit.event.weather.WeatherChangeEvent
 import org.bukkit.event.player.{PlayerInteractEvent, PlayerMoveEvent, PlayerChatEvent}
 
-trait ListenerPlugin extends ScalaPlugin {
+trait ListenerPlugin extends ScalaPlugin with Listeners {
   val listener:Listener
   override def onEnable(){ super.onEnable(); registerListener(listener) }
 }
