@@ -67,7 +67,7 @@ trait CommandsPlugin extends ScalaPlugin with MinecraftParsers {
       argsParser.describe,
       (p: Player, c: BukkitCommand, args: List[String]) => argsParser(p, args) match {
         case Failure(msg) => p ! (RED + " " + msg)
-        case Success(t, _) => f(new ~(p, t))
+        case Success(t, _, _) => f(new ~(p, t))
       })
 
   override def yml(author:String, version: String) = {

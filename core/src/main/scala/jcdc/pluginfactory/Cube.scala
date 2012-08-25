@@ -4,6 +4,7 @@ import org.bukkit.block.Block
 import org.bukkit.entity.Player
 import Pimps._
 import org.bukkit.{Material, Location}
+import collection.JavaConversions.asScalaIterator
 
 case class Cube(l1: Location, l2: Location) {
   override def toString = s"Cube(l1: ${l1.xyz}, l2: ${l2.xyz})"
@@ -55,4 +56,6 @@ case class Cube(l1: Location, l2: Location) {
   def expand(n:Int)    = Cube(world(maxX+n, maxY+n, maxZ+n), world(minX-n, minY-n, minZ-n))
   def expandUp(n:Int)  = Cube(world(maxX,   maxY+n, maxZ),   world(minX,   minY,   minZ))
   def expandOut(n:Int) = Cube(world(maxX+n, maxY,   maxZ+n), world(minX-n, minY,   minZ-n))
+
+  def players: Iterator[Player] = world.getPlayers.iterator.filter(contains)
 }

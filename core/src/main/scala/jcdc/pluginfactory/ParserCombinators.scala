@@ -10,55 +10,54 @@ trait ParserCombinators[C] {
     override def toString = s"($a ~ $b)"
   }
 
-  trait ParseResult[T]
-  case class Failure[T](message: String) extends ParseResult[T]
-  case class Success[T](t: T, rest: List[String]) extends ParseResult[T]
+  trait ParseResult[+T]{
+    def map[U](f: T => U): ParseResult[U]
+    def flatMapWithNext[U](f: (T, ParseContext,List[String]) => ParseResult[U]): ParseResult[U]
+    def mapFailure[U >: T](f: String => ParseResult[U]): ParseResult[U]
+  }
+  case class Failure(message: String) extends ParseResult[Nothing]{
+    def map[U](f: Nothing => U) = this
+    def flatMapWithNext[U](f: (Nothing, ParseContext,List[String]) => ParseResult[U]) = this
+    def mapFailure[U >: Nothing](f: String => ParseResult[U]) = f(message)
+  }
+  case class Success[+T](t: T, c: ParseContext, rest: List[String]) extends ParseResult[T]{
+    def map[U](f: T => U): ParseResult[U] = Success(f(t), c, rest)
+    def flatMapWithNext[U](f: (T, ParseContext, List[String]) => ParseResult[U]) = f(t, c, rest)
+    def mapFailure[U >: T](a: String => ParseResult[U]): ParseResult[U] = this
+  }
 
-  trait Parser[T] { self =>
-    def apply(p: ParseContext, args: List[String]): ParseResult[T]
+  trait Parser[+T] extends ((ParseContext, List[String]) => ParseResult[T]) { self =>
+    def apply(c: ParseContext, args: List[String]): ParseResult[T]
     def describe: String
 
     def named(name: String) = new Parser[T] {
-      def apply(p: ParseContext, args: List[String]) = self(p, args)
+      def apply(c: ParseContext, args: List[String]) = self(c, args)
       def describe: String = name
     }
 
     def ^^[U](f: T => U) = new Parser[U] {
-      def apply(p: ParseContext, args: List[String]): ParseResult[U] = self(p, args) match {
-        case Failure(m) => Failure(m)
-        case Success(t, rest) => Success(f(t), rest)
-      }
+      def apply(c: ParseContext, args: List[String]): ParseResult[U] = self(c, args) map f
       def describe = self.describe
     }
 
     def ~[U](p2: => Parser[U]) = new Parser[~[T, U]] {
-      def apply(p: ParseContext, args: List[String]) = self(p, args) match {
-        case Failure(m) => Failure(m)
-        case Success(t: T, rest) => p2(p, rest) match {
-          case Failure(m) => Failure(m)
-          case Success(u, rest) => Success(new ~(t, u), rest)
-        }
+      def apply(c: ParseContext, args: List[String]) = self(c, args) flatMapWithNext {
+        (t, c, rest) => p2(c, rest) map { u => new ~(t, u) }
       }
       def describe = self.describe + "  " + p2.describe
     }
 
-    def | (p2: => Parser[T]) = new Parser[T] {
-      def apply(p: ParseContext, args: List[String]): ParseResult[T] = self(p, args) match {
-        case Success(t, rest) => Success(t, rest)
-        case Failure(m1) => p2(p, args) match {
-          case Success(t, rest) => Success(t, rest)
-          case Failure(m2) => Failure(s"$m1 or $m2")
-        }
+    def |[U >: T] (p2: => Parser[U]) = new Parser[U] {
+      def apply(c: ParseContext, args: List[String]): ParseResult[U] = self(c, args) mapFailure { m1 =>
+        p2(c, args) mapFailure { m2 => Failure(s"$m1 or $m2") }
       }
       def describe = s"(${self.describe} or ${p2.describe})"
     }
 
     def or[U](p2: => Parser[U]) = new Parser[Either[T, U]] {
-      def apply(p: ParseContext, args: List[String]): ParseResult[Either[T, U]] = self(p, args) match {
-        case Success(t, rest) => Success(Left(t), rest)
-        case Failure(m1) => p2(p, args) match {
-          case Success(u, rest) => Success(Right(u), rest)
-          case Failure(m2) => Failure(s"$m1 or $m2")
+      def apply(c: ParseContext, args: List[String]): ParseResult[Either[T, U]] =
+        self(c, args) map (Left(_)) mapFailure { m1 => p2(c, args) map (Right(_)) mapFailure { m2 =>
+          Failure(s"$m1 or $m2")
         }
       }
       def describe = s"(${self.describe} or ${p2.describe})"
@@ -71,32 +70,32 @@ trait ParserCombinators[C] {
   }
 
   def opt[T](parser: Parser[T]) = new Parser[Option[T]] {
-    def apply(p: ParseContext, args: List[String]): ParseResult[Option[T]] = parser(p, args) match {
-      case Failure(m) => Success(None: Option[T], args)
-      case Success(t, rest) => Success(Some(t), rest)
+    def apply(c: ParseContext, args: List[String]): ParseResult[Option[T]] = parser(c, args) match {
+      case Failure(m) => Success(None: Option[T], c, args)
+      case Success(t, c, rest) => Success(Some(t), c, rest)
     }
     def describe = s"optional(${parser.describe})"
   }
 
   def success[T](t: T) = new Parser[T] {
-    def apply(p: ParseContext, args: List[String]) = Success(t, args)
+    def apply(c: ParseContext, args: List[String]) = Success(t, c, args)
     def describe = t.toString
   }
 
   implicit def stringToParser(s: String) = new Parser[String] {
-    def apply(p: ParseContext, args: List[String]) = args match {
+    def apply(c: ParseContext, args: List[String]) = args match {
       case Nil => Failure(s"expected :$s, but got nothing")
-      case x :: xs => if (x == s) Success(x, xs) else Failure(s"expected: $s, but got: $x")
+      case x :: xs => if (x == s) Success(x, c, xs) else Failure(s"expected: $s, but got: $x")
     }
     def describe = s
   }
 
   def token[T](name: String)(f: (ParseContext, String) => Option[T]) = new Parser[T] {
-    def apply(p: ParseContext, args: List[String]) = args match {
+    def apply(c: ParseContext, args: List[String]) = args match {
       case Nil => Failure(s"expected $name, got nothing")
-      case x :: xs => f(p, x) match {
+      case x :: xs => f(c, x) match {
         case None => Failure(s"invalid $name: $x")
-        case Some(t) => Success(t, xs)
+        case Some(t) => Success(t, c, xs)
       }
     }
     def describe = name

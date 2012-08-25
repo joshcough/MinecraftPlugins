@@ -45,7 +45,7 @@ class MultiPlayerCommands extends CommandsPlugin {
       noArgs(p => p.teleportTo(p.world.getHighestBlockAt(p.loc)))),
     Command("drill",    "Drill down to bedrock immediately.",
       noArgs(p =>
-        for (b <- p.loc.block.blocksBelow.takeWhile(_ isNot BEDROCK); if (b isNot AIR)) {
+        for (b <- p.blockOn.blocksBelow.takeWhile(_ isNot BEDROCK); if (b isNot AIR)) {
           b.erase
           if (b.blockBelow is BEDROCK) b.nthBlockAbove(2) changeTo STATIONARY_WATER
         })),
