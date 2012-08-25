@@ -87,7 +87,7 @@ trait Pimps {
   }
 
   implicit class PimpedCancellable(c:Cancellable){
-    def cancel = c.setCancelled(true)
+    def cancel: Unit = c.setCancelled(true)
     def cancelIf(b: => Boolean, runBeforeCancelling: => Unit = () => ()){
       if(b) { runBeforeCancelling; c.setCancelled(true) }
     }
@@ -204,9 +204,6 @@ trait Pimps {
     def sun  = ! e.toWeatherState
   }
 
-  implicit class PimpedOption[T](ot: Option[T]){
-    def fold[U](u: => U)(f: T => U) = ot.map(f).getOrElse(u)
-  }
   def tryO[T](f: => T): Option[T] = try Some(f) catch { case e: Exception => None }
 
   def findEntity(nameOrId:String) = Option(EntityType.fromName(nameOrId)).orElse(
