@@ -1,10 +1,11 @@
 package jcdc.pluginfactory.examples
 
 import jcdc.pluginfactory.ScalaPlugin
+import java.io.{File, FileWriter}
 
 object YMLGenerator {
 
-  def main(args: Array[String]) = {
+  def main(args: Array[String]): Unit = {
     List[ScalaPlugin](
       new Arena,
       new GetOffMyLawn,
@@ -27,11 +28,12 @@ object YMLGenerator {
   }
 
   def writeYML(plugin: ScalaPlugin): Unit = {
-    val ymlFile = s"./src/main/resources/${plugin.name.toLowerCase}.yml"
+    val resources = new File("./src/main/resources")
+    resources.mkdir
+    val ymlFile = new File(resources, s"${plugin.name.toLowerCase}.yml")
     val ymlContents = plugin.yml("Josh Cough", "0.1")
-    val f = new java.io.FileWriter(ymlFile)
+    val f = new FileWriter(ymlFile)
     f.write(ymlContents)
     f.close
   }
-
 }
