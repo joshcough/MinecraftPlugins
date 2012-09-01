@@ -1,5 +1,7 @@
 all: compile-core compile-examples arena ban-arrows block-changer curse-ban farmer god lightning-arrows multi-player-commands no-rain thor tree-delogger warp-plugin world-edit
 
+most: compile-core compile-examples
+
 compile-core:
 	cd ../core; rm -rf ../target; ./sbt package publish-local
 	cp ../core/target/scala-2.10/jcdc-plugin-factory_2.10-0.1.jar $(BUKKIT)/lib/jcdc-plugin-factory-0.1.jar
@@ -27,6 +29,9 @@ farmer:
 
 god:
 	$(call plugin, "god.yml", "God.jar")
+
+lawn:
+	$(call plugin, "getoffmylawn.yml", "GetOffMyLawn.jar")
 
 lightning-arrows:
 	$(call plugin, "lightningarrows.yml", "LightningArrows.jar")
