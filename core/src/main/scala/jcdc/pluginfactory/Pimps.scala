@@ -159,6 +159,7 @@ trait Pimps {
     def isHolding  (m: Material) = player.getItemInHand.getType == m
     def isHoldingA (m: Material) = isHolding(m)
     def isHoldingAn(m: Material) = isHolding(m)
+    def isHoldingAnyOf(ms: Material*) = ms.exists(isHolding)
 
     def withMaterial[T](nameOrId:String)(f: Material => T) {
       attemptO(findMaterial(nameOrId))("No such material: $nameOrId", f)

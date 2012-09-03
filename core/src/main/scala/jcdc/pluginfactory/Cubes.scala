@@ -4,7 +4,7 @@ import jcdc.pluginfactory.Pimps._
 import org.bukkit.Location
 import org.bukkit.entity.Player
 
-trait CubePlugin {
+trait Cubes {
   val positions = collection.mutable.Map[Player, (Location, Option[Location])]()
 
   def setFirstPosition(p: Player, loc: Location) {

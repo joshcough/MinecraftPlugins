@@ -3,9 +3,12 @@ package jcdc.pluginfactory
 import org.bukkit.GameMode._
 import org.bukkit.Material
 import Material._
+import Pimps._
 import scala.collection.JavaConversions._
 
-trait CommonCommands extends CommandsPlugin with CubePlugin {
+object CommonCommands extends CommonCommands
+
+trait CommonCommands extends MinecraftParsers with Cubes {
 
   // some simple useful commands
   val goto  = Command("goto",     "Teleport to a player.", args(player or (num ~ num ~ opt(num))){

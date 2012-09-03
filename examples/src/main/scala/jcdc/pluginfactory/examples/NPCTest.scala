@@ -1,6 +1,6 @@
 package jcdc.pluginfactory.examples
 
-import jcdc.pluginfactory.{NPCPlugin, CommandsPlugin}
+import jcdc.pluginfactory.{NPCPlugin, Command, CommandsPlugin}
 import org.bukkit.entity.{EntityType, LivingEntity}
 
 class NPCTest extends CommandsPlugin with NPCPlugin {

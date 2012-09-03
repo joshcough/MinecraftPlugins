@@ -7,20 +7,27 @@ import org.bukkit.{Material, Location}
 import collection.JavaConversions.asScalaIterator
 
 case class Cube(l1: Location, l2: Location) {
-  override def toString = s"Cube(l1: ${l1.xyz}, l2: ${l2.xyz})"
-  val world   = l1.world
-  val maxX    = math.max(l1.xd, l2.xd)
-  val minX    = math.min(l1.xd, l2.xd)
-  val maxY    = math.max(l1.yd, l2.yd)
-  val minY    = math.min(l1.yd, l2.yd)
-  val maxZ    = math.max(l1.zd, l2.zd)
-  val minZ    = math.min(l1.zd, l2.zd)
-  val blocks  = world.between(l1, l2)
 
-  // todo: i could probably use eastWall, westWall, northWall, southWall
-  // todo: and then combine them here. those should be easy to write using
-  // todo: world.between.
-  def walls   = blocks.filter(onWall)
+  override def toString = s"Cube(l1: ${l1.xyz}, l2: ${l2.xyz})"
+  val world     = l1.world
+
+  val maxX      = math.max(l1.xd, l2.xd)
+  val minX      = math.min(l1.xd, l2.xd)
+  val maxY      = math.max(l1.yd, l2.yd)
+  val minY      = math.min(l1.yd, l2.yd)
+  val maxZ      = math.max(l1.zd, l2.zd)
+  val minZ      = math.min(l1.zd, l2.zd)
+
+  val blocks    = world.between(l1, l2)
+
+  def northWall = world.between(world(minX, minY, maxZ), world(maxX, maxY, maxZ))
+  def southWall = world.between(world(minX, minY, minZ), world(maxX, maxY, minZ))
+  def eastWall  = world.between(world(maxX, minY, minZ), world(maxX, maxY, maxZ))
+  def westWall  = world.between(world(minX, minY, minZ), world(minX, maxY, maxZ))
+
+  // TODO: can i do this more efficiently?
+  def walls     = blocks.filter(onWall)
+
   def onWall(b: Block)    = b.x == l1.x or b.x == l2.x or b.z == l1.z or b.z == l2.z
 
   def floor  = world.between(world(maxX, minY, maxZ), world(minX, minY, minZ))

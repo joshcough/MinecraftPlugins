@@ -1,6 +1,6 @@
 package jcdc.pluginfactory.examples
 
-import jcdc.pluginfactory.{CommandsPlugin, Cube, ListenersPlugin}
+import jcdc.pluginfactory.{Command, CommandsPlugin, Cube, ListenersPlugin}
 import org.bukkit.{Location, Material}
 import org.bukkit.entity.Player
 import Material._

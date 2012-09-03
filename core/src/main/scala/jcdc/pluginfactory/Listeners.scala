@@ -38,22 +38,22 @@ trait Listeners extends Pimps {
       if(e.getDamager.isInstanceOf[Player]) f(e.getEntity,e.getDamager.asInstanceOf[Player], e)
   }
   def OnPlayerDamage(f: (Player, EntityDamageEvent) => Unit) = new Listener {
-    @EH def on(e:EntityDamageEvent)  = e.whenPlayer(f(_, e))
+    @EH def on(e:EntityDamageEvent)   = e.whenPlayer(f(_, e))
   }
   def OnPlayerDeath(f: (Player, PlayerDeathEvent) => Unit) = new Listener {
-    @EH def on(e:PlayerDeathEvent)   = f(e.getEntity, e)
+    @EH def on(e:PlayerDeathEvent)    = f(e.getEntity, e)
   }
   def OnPlayerChat(f: (Player, PlayerChatEvent) => Unit) = new Listener {
-    @EH def on(e:PlayerChatEvent)    = f(e.getPlayer, e)
+    @EH def on(e:PlayerChatEvent)     = f(e.getPlayer, e)
   }
   def OnBlockBreak(f: (Block, BlockBreakEvent) => Unit) = new Listener {
-    @EH def on(e:BlockBreakEvent)    = f(e.getBlock, e)
+    @EH def on(e:BlockBreakEvent)     = f(e.getBlock, e)
   }
   def OnBlockDamage(f: (Block, BlockDamageEvent) => Unit) = new Listener {
-    @EH def on(e:BlockDamageEvent)   = f(e.getBlock, e)
+    @EH def on(e:BlockDamageEvent)    = f(e.getBlock, e)
   }
   def OnWeatherChange(f: WeatherChangeEvent => Unit) = new Listener {
-    @EH def on(e:WeatherChangeEvent) = f(e)
+    @EH def on(e:WeatherChangeEvent)  = f(e)
   }
   def OnPlayerInteract(f: (Player, PlayerInteractEvent) => Unit) = new Listener {
     @EH def on(e:PlayerInteractEvent) = f(e.getPlayer, e)

@@ -1,6 +1,6 @@
 package jcdc.pluginfactory.examples
 
-import jcdc.pluginfactory.CommandsPlugin
+import jcdc.pluginfactory.{Command, CommandsPlugin}
 import org.bukkit.GameMode._
 import org.bukkit.Material._
 import org.bukkit.entity.EntityType._

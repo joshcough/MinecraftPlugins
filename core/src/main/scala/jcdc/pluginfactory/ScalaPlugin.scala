@@ -1,6 +1,7 @@
 package jcdc.pluginfactory
 
 import java.util.logging.Logger
+import javax.persistence.PersistenceException
 import org.bukkit.craftbukkit.CraftServer
 import org.bukkit.event.{Event, Listener}
 
@@ -27,11 +28,10 @@ abstract class ScalaPlugin extends org.bukkit.plugin.java.JavaPlugin with Pimps 
   // db setup stuff.
   def dbClasses: List[Class[_]] = Nil
   override def getDatabaseClasses = new java.util.ArrayList[Class[_]](){ dbClasses.foreach(add) }
-  def setupDatabase: Unit = if(dbClasses.nonEmpty)
-    try getDatabase.find(dbClasses.head).findRowCount
-    catch{
-      case e: javax.persistence.PersistenceException => logTask("Installing DB"){ installDDL() }
-    }
+  def setupDatabase: Unit =
+    if(dbClasses.nonEmpty)
+      try getDatabase.find(dbClasses.head).findRowCount
+      catch{ case e: PersistenceException => logTask("Installing DB"){ installDDL() } }
 
   def yml(author:String, version: String) = List(
       "name: "     + this.name,

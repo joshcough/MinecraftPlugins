@@ -1,6 +1,6 @@
 package jcdc.pluginfactory.examples
 
-import jcdc.pluginfactory.{CommandsPlugin, SingleClassDBPlugin}
+import jcdc.pluginfactory.{Command, CommandsPlugin, SingleClassDBPlugin}
 import org.bukkit.{Location, World}
 import org.bukkit.entity.Player
 import scala.collection.JavaConversions._

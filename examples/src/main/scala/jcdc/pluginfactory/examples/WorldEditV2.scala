@@ -2,9 +2,9 @@ package jcdc.pluginfactory.examples
 
 import org.bukkit.Material
 import Material._
-import jcdc.pluginfactory.{CubePlugin, CommandsPlugin, Cube, ListenersPlugin}
+import jcdc.pluginfactory.{Cubes, Command, CommandsPlugin, Cube, ListenersPlugin}
 
-class WorldEditV2 extends ListenersPlugin with CommandsPlugin with CubePlugin {
+class WorldEditV2 extends ListenersPlugin with CommandsPlugin with Cubes {
 
   val listeners = List(
     OnLeftClickBlock((p, e) => if (p isHoldingA WOOD_AXE) {

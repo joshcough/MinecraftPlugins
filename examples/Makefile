@@ -10,6 +10,10 @@ compile-examples:
 	rm -rf target
 	./sbt compile "run-main jcdc.pluginfactory.examples.YMLGenerator"
 
+compile-fast:
+	cd ../core; ./sbt package publish-local
+	./sbt compile 
+
 plugin = ./bin/plugin.sh $1 $2
 
 arena:
