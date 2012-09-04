@@ -5,7 +5,6 @@ import org.bukkit.command.{CommandSender, Command => BukkitCommand}
 import org.bukkit.GameMode._
 import org.bukkit.entity.{EntityType, Player}
 import Pimps._
-import util.Try
 
 case class CommandBody(argDesc: String, f:(Player, BukkitCommand, List[String]) => Unit)
 
@@ -15,6 +14,8 @@ object Command {
 }
 
 case class Command(name: String, description: Option[String], body: CommandBody)
+
+object MinecraftParsers extends MinecraftParsers
 
 trait MinecraftParsers extends ParserCombinators[Player] {
   val gamemode =
