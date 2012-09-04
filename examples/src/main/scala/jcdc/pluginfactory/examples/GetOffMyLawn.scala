@@ -22,8 +22,7 @@ class GetOffMyLawn extends ListenerPlugin with CommandsPlugin with Cubes {
       body = noArgs(owner => run(owner)(lawn =>
         for(p <- lawn.players; if(p != owner)) {
           p.teleportTo(p.world.getHighestBlockAt(p.world(lawn.maxX + 5, 0, lawn.maxZ + 5)))
-          p.strike
-          p ! (s"'Get off my lawn!!!', said ${owner.name}.")
+          p.strikeWith(s"'Get off my lawn!!!', said ${owner.name}.")
         }
       ))
     )

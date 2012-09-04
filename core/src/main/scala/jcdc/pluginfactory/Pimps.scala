@@ -194,6 +194,10 @@ trait Pimps {
     def teleportTo(otherPlayer: Player) = player.teleport(otherPlayer)
     def teleportTo(b: Block)            = player.teleport(b.loc)
     def strike = world.strikeLightning(loc)
+    def strikeWith(message:String) {
+      strike
+      player ! message
+    }
   }
 
   implicit class PimpedPlayerInteractEvent(e: PlayerInteractEvent){
