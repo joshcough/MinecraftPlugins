@@ -13,6 +13,7 @@ import org.bukkit.craftbukkit.CraftWorld
 import net.minecraft.server.WorldServer
 import org.bukkit.entity.{LivingEntity, Entity, EntityType, Player}
 import org.bukkit.event.player.{PlayerInteractEvent, PlayerEvent}
+import util.Try
 
 object Pimps extends Pimps
 
@@ -205,14 +206,14 @@ trait Pimps {
     def sun  = ! e.toWeatherState
   }
 
-  def tryO[T](f: => T): Option[T] = try Some(f) catch { case e: Exception => None }
+  def tryO[T](f: => T): Option[T] = Try(Option(f)).getOrElse(None)
 
   def findEntity(nameOrId:String) = Option(EntityType.fromName(nameOrId)).orElse(
-    try Option(EntityType.fromId(nameOrId.toInt)) catch { case e: Exception => None }
+    tryO(EntityType.fromId(nameOrId.toInt))
   )
 
   def findMaterial(nameOrId: String) = Option(getMaterial(nameOrId.toUpperCase)).orElse(
-    try Option(getMaterial(nameOrId.toInt)) catch { case e: Exception => None }
+    tryO(getMaterial(nameOrId.toInt))
   )
 
   def id[T](t:T) = identity(t)
@@ -225,6 +226,7 @@ trait Pimps {
   sealed case class Color(data:Byte){
     def wool = MaterialAndData(WOOL, Some(data))
   }
+
   object Color {
     val WHITE       = new Color(0)
     val ORANGE      = new Color(1)

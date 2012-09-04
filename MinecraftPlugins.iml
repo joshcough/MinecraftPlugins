@@ -14,6 +14,7 @@
       <sourceFolder url="file://$MODULE_DIR$/core/src/main/scala" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples/src/main/scala" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/netlogo/src/main/scala" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/core/src/test/scala" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/.idea" />
       <excludeFolder url="file://$MODULE_DIR$/bukkit" />
       <excludeFolder url="file://$MODULE_DIR$/core/project" />
@@ -23,7 +24,6 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="scala-compiler-2.10.0-M5" level="application" />
     <orderEntry type="library" name="servlet-api-2.5" level="project" />
     <orderEntry type="module-library">
       <library>
@@ -39,7 +39,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/bukkit/lib/NetLogo.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.scala-lang/scala-library/jars/scala-library-2.10.0-M7.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -48,7 +48,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/bukkit/lib/NPCCreatures.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.scalacheck/scalacheck_2.10/jars/scalacheck_2.10-1.10.1.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

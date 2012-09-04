@@ -5,6 +5,7 @@ import org.bukkit.command.{CommandSender, Command => BukkitCommand}
 import org.bukkit.GameMode._
 import org.bukkit.entity.{EntityType, Player}
 import Pimps._
+import util.Try
 
 case class CommandBody(argDesc: String, f:(Player, BukkitCommand, List[String]) => Unit)
 
@@ -21,9 +22,7 @@ trait MinecraftParsers extends ParserCombinators[Player] {
   def player   = token("player-name") { (p, s) => p.server.findPlayer(s) }
   def material = token("material-type") { (_, s) => findMaterial(s) }
   def entity   = token("entity-type") { (_, s) =>
-    Option(EntityType.fromName(s.toUpperCase)).orElse(
-      try Option(EntityType.fromId(s.toInt)) catch { case e: Exception => None }
-    )
+    Option(EntityType.fromName(s.toUpperCase)).orElse(tryO(EntityType.fromId(s.toInt)))
   }
 
   def opOnly(ch: CommandBody): CommandBody = CommandBody(

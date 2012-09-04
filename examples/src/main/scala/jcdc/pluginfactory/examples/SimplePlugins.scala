@@ -52,7 +52,7 @@ class BlockChanger extends ListenerPlugin with CommandsPlugin {
 
 class God extends ListenerPlugin with CommandsPlugin {
   val gods = collection.mutable.Map[Player, Boolean]().withDefaultValue(false)
-  implicit def playerToGod(p:Player)= new { def isAGod = gods(p) }
+  implicit def playerToGod(p:Player) = new { def isAGod = gods(p) }
   val listener = OnPlayerDamage { (p, e) => e cancelIf p.isAGod }
   val commands = List(
     Command(

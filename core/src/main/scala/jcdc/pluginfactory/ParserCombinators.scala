@@ -1,6 +1,7 @@
 package jcdc.pluginfactory
 
 import java.io.File
+import util.Try
 
 trait ParserCombinators[C] {
 
@@ -102,7 +103,7 @@ trait ParserCombinators[C] {
   }
 
   def anyString = token("string") { (_, s) => Some(s) }
-  def tryOption[T](t: => T) = try Some(t) catch { case e: Exception => None }
+  def tryOption[T](f: => T): Option[T] = Try(Option(f)).getOrElse(None)
 
   // number parsers
   def even(n: Int) = n % 2 == 0
