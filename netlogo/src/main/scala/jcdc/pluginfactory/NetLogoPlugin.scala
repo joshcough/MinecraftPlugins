@@ -18,7 +18,7 @@ case class NetLogoEvent(player:Player, ticksRemaining: Int, sleepTime: Option[Lo
 }
 import NetLogoEvent._
 
-class NetLogoPlugin extends CommandsPlugin with ListenersPlugin with NPCPlugin with CommonCommands {
+class NetLogoPlugin extends CommandsPlugin with ListenersPlugin with NPCPlugin with WorldEditCommands {
 
   /**
    * This map holds the state of the NetLogo world on the last tick (or the last call to go).
@@ -42,7 +42,7 @@ class NetLogoPlugin extends CommandsPlugin with ListenersPlugin with NPCPlugin w
 
   val listeners = List(NetLogoEventListener)
 
-  val commands = commonCommands ::: worldEditingCommands ::: List(
+  val commands = CommonCommands.all ::: allWorldEditingCommands ::: List(
     Command("open", "Open a model", args(existingFile ~ boolOrTrue) {
       case p ~ (model ~ updatePatches) =>
         openModel(p, model, updatePatches)

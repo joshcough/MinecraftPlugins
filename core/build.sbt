@@ -19,4 +19,6 @@ resolvers ++= Seq(
   "Sonatype Releases" at "http://oss.sonatype.org/content/repositories/releases"
 )
 
+// TODO: put this back when 2.10 is finally out, i think
+//libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.10.0" % "test"
 libraryDependencies += "org.scalacheck" % "scalacheck_2.10.0-M7" % "1.10.0" % "test"

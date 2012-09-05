@@ -1,9 +1,10 @@
 package jcdc.pluginfactory.examples
 
 import jcdc.pluginfactory._
+import Pimps._
 import org.bukkit.event.player.PlayerMoveEvent
 
-class GetOffMyLawn extends ListenerPlugin with CommandsPlugin with Cubes {
+class GetOffMyLawn extends ListenerPlugin with WorldEditCommands with Cubes {
 
   def movingOntoLawn(e:PlayerMoveEvent, lawn: Cube) =
     lawn.contains(e.getTo) && ! lawn.contains(e.getFrom)
@@ -14,8 +15,8 @@ class GetOffMyLawn extends ListenerPlugin with CommandsPlugin with Cubes {
   )
 
   val commands = List(
-    CommonCommands.pos1,
-    CommonCommands.pos2,
+    pos1,
+    pos2,
     Command(
       name = "GetOffMyLawn",
       desc = "Kick everyone off your lawn, and strikes them with lightning",

@@ -6,9 +6,10 @@ import Material._
 import Pimps._
 import scala.collection.JavaConversions._
 
-object CommonCommands extends CommonCommands
-
-trait CommonCommands extends MinecraftParsers with Cubes {
+/**
+ * These are stateless, and therefore can just be imported.
+ */
+object CommonCommands extends MinecraftParsers {
 
   // some simple useful commands
   val goto  = Command("goto",     "Teleport to a player.", args(player or (num ~ num ~ opt(num))){
@@ -33,6 +34,13 @@ trait CommonCommands extends MinecraftParsers with Cubes {
       case killer ~ Right(e) => killer.world.entities.filter { _ isAn e }.foreach(_.remove)
     })
 
+  val all = List(goto, time, day, night, gm, gms, gmc, kill)
+}
+
+/**
+ * These all depend on the Cube state, so need to be mixed in.
+ */
+trait WorldEditCommands extends MinecraftParsers with Cubes {
   // some common world editing commands
   val wand  = Command("/wand",  "Get a WorldEdit wand.",   noArgs(_.loc.dropItem(WOOD_AXE)))
   val pos1  = Command("/pos1",  "Set the first position",  noArgs(p => setFirstPosition(p, p.loc)))
@@ -48,7 +56,5 @@ trait CommonCommands extends MinecraftParsers with Cubes {
     desc = "Change all the selected blocks of the first material type to the second material type.",
     body = args(material ~ material) { case p ~ (oldM ~ newM) => run(p)(_.changeAll(oldM, newM)) }
   )
-
-  val commonCommands = List(goto, time, day, night, gm, gms, gmc, kill)
-  val worldEditingCommands = List(wand, pos1, pos2, erase, set, change)
+  val allWorldEditingCommands = List(wand, pos1, pos2, erase, set, change)
 }
