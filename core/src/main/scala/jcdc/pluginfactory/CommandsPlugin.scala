@@ -23,7 +23,7 @@ trait MinecraftParsers extends ParserCombinators[Player] {
   def player   = token("player-name") { (p, s) => p.server.findPlayer(s) }
   def material = token("material-type") { (_, s) => findMaterial(s) }
   def entity   = token("entity-type") { (_, s) =>
-    Option(EntityType.fromName(s.toUpperCase)).orElse(tryO(EntityType.fromId(s.toInt)))
+    Option(EntityType.fromName(s.toUpperCase)).orElse(Option(EntityType.valueOf(s.toUpperCase)))
   }
 
   def opOnly(ch: CommandBody): CommandBody = CommandBody(

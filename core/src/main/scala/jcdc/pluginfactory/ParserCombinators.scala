@@ -12,18 +12,21 @@ trait ParserCombinators[C] {
   }
 
   trait ParseResult[+T]{
+    def get: T
     def map[U](f: T => U): ParseResult[U]
     def flatMapWithNext[U](f: (T, ParseContext,List[String]) => ParseResult[U]): ParseResult[U]
     def mapFailure[U >: T](f: String => ParseResult[U]): ParseResult[U]
   }
   case class Failure(message: String) extends ParseResult[Nothing]{
+    def get: Nothing = throw new IllegalStateException("can't get from a failure")
     def map[U](f: Nothing => U) = this
     def flatMapWithNext[U](f: (Nothing, ParseContext,List[String]) => ParseResult[U]) = this
     def mapFailure[U >: Nothing](f: String => ParseResult[U]) = f(message)
   }
-  case class Success[+T](t: T, c: ParseContext, rest: List[String]) extends ParseResult[T]{
-    def map[U](f: T => U): ParseResult[U] = Success(f(t), c, rest)
-    def flatMapWithNext[U](f: (T, ParseContext, List[String]) => ParseResult[U]) = f(t, c, rest)
+  case class Success[+T](value: T, c: ParseContext, rest: List[String]) extends ParseResult[T]{
+    def get: T = value
+    def map[U](f: T => U): ParseResult[U] = Success(f(value), c, rest)
+    def flatMapWithNext[U](f: (T, ParseContext, List[String]) => ParseResult[U]) = f(value, c, rest)
     def mapFailure[U >: T](a: String => ParseResult[U]): ParseResult[U] = this
   }
 
@@ -128,7 +131,7 @@ trait ParserCombinators[C] {
   // todo, maybe deal with exception handling here...
   def existingFile: Parser[File] = token("existing-file"){ (_, s) =>
     val f = new File(s)
-    if (f.exists()) Some(f) else None
+    if (f.exists) Some(f) else None
   }
   def existingOrNewFile: Parser[File] = existingFile | newFile
 }
