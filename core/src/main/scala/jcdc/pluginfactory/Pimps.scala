@@ -79,10 +79,7 @@ trait Pimps {
       changeTo(AIR)
     }
     def changeTo(m: Material) = {
-      if (! chunk.isLoaded) {
-        println("chunk not loaded for block: ${(x,y,z)} chunk: $chunk")
-        chunk.load()
-      }
+      if (! chunk.isLoaded) chunk.load
       b.setType(m)
     }
   }
@@ -200,7 +197,7 @@ trait Pimps {
     }
   }
 
-  implicit class PimpedPlayerInteractEvent(e: PlayerInteractEvent){
+  implicit class PimpedPlayerInteractEvent(e: PlayerInteractEvent) {
     def block = e.getClickedBlock
     def loc = block.loc
   }

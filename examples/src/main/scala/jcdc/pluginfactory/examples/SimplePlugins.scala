@@ -27,6 +27,12 @@ class TreeDelogger extends ListeningFor(OnBlockBreak { (b, e) =>
   if (b isA LOG) for (b <- b.andBlocksAbove.takeWhile(_ isA LOG)) b.erase
 })
 
+class TreeDeloggerAlternate extends ListenerPlugin {
+  val listener = OnBlockBreak { (b, e) =>
+    if (b isA LOG) for (b <- b.andBlocksAbove.takeWhile(_ isA LOG)) b.erase
+  }
+}
+
 class BanArrows extends ListeningFor(OnPlayerDamageByEntity { (p, e) =>
   if (e.getDamager isAn ARROW) p.ban("struck by an arrow!")
 })
@@ -43,7 +49,7 @@ class BlockChanger extends ListenerPlugin with CommandsPlugin {
       name = "bc",
       desc = "Hit blocks to change them to the block with type blockId, or /bc off to turn off.",
       body = args("off" or material){
-        case p ~ Left(off) => users remove p; p ! "bc has been disabled"
+        case p ~ Left(_) => users remove p; p ! "bc has been disabled"
         case p ~ Right(m)  => users += (p -> m); p ! ("bc using: " + m)
       }
     )
