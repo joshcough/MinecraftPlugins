@@ -40,7 +40,7 @@ lawn:
 lightning-arrows:
 	$(call plugin, "lightningarrows.yml", "LightningArrows.jar")
 
-multi-player-commands:
+mpc:
 	$(call plugin, "multiplayercommands.yml", "MultiPlayerCommands.jar")
 
 no-rain:

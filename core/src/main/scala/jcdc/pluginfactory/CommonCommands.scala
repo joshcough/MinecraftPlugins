@@ -7,8 +7,8 @@ import Pimps._
 import scala.collection.JavaConversions._
 
 /**
- * These are stateless, and therefore can just be imported.
- */
+* These are stateless, and therefore can just be imported.
+*/
 object CommonCommands extends MinecraftParsers {
 
   // some simple useful commands
@@ -38,8 +38,8 @@ object CommonCommands extends MinecraftParsers {
 }
 
 /**
- * These all depend on the Cube state, so need to be mixed in.
- */
+* These all depend on the Cube state, so need to be mixed in.
+*/
 trait WorldEditCommands extends MinecraftParsers with Cubes {
   // some common world editing commands
   val wand  = Command("/wand",  "Get a WorldEdit wand.",   noArgs(_.loc.dropItem(WOOD_AXE)))
