@@ -6,17 +6,17 @@ import ch.spacebase.npccreatures.npcs.entity.NPC
 import ch.spacebase.npccreatures.NPCCreatures
 
 /**
- * helpful urls:
- * http://dev.bukkit.org/server-mods/npccreatures/
- * https://github.com/Steveice10/NPCCreatures/blob/master/src/main/java/ch/spacebase/npccreatures/npcs/NPCManager.java
- * https://github.com/Steveice10/NPCCreatures/blob/master/src/main/java/ch/spacebase/npccreatures/npcs/nms/NPCNetHandler.java
- * https://github.com/CitizensDev/Citizens/blob/master/src/core/net/citizensnpcs/resources/npclib/CraftNPC.java
- * https://github.com/Bukkit/CraftBukkit/blob/master/src/main/java/net/minecraft/server/Entity.java
- */
-trait NPCPlugin extends ScalaPlugin with MinecraftParsers {
+* helpful urls:
+* http://dev.bukkit.org/server-mods/npccreatures/
+* https://github.com/Steveice10/NPCCreatures/blob/master/src/main/java/ch/spacebase/npccreatures/npcs/NPCManager.java
+* https://github.com/Steveice10/NPCCreatures/blob/master/src/main/java/ch/spacebase/npccreatures/npcs/nms/NPCNetHandler.java
+* https://github.com/CitizensDev/Citizens/blob/master/src/core/net/citizensnpcs/resources/npclib/CraftNPC.java
+* https://github.com/Bukkit/CraftBukkit/blob/master/src/main/java/net/minecraft/server/Entity.java
+*/
+trait NPCPlugin extends CommandsPlugin {
   private lazy val npcManager =
     server.getPluginManager.getPlugin("NPCCreatures").asInstanceOf[NPCCreatures].getNPCManager
-  def npcType = token("npc-type"){ (_, s) => Option(NPCType.getByName(s)) }
+  def npcType = token("npc-type"){ s => Option(NPCType.getByName(s)) }
 
   def despawn(npc:NPC){ npcManager.despawnById(npc.getNPCId) }
   private def spawn(name:String, loc: Location, npcType:NPCType): NPC =

@@ -209,8 +209,8 @@ trait Pimps {
 
   def tryO[T](f: => T): Option[T] = Try(Option(f)).getOrElse(None)
 
-  def findEntity(nameOrId:String) = Option(EntityType.fromName(nameOrId)).orElse(
-    tryO(EntityType.fromId(nameOrId.toInt))
+  def findEntity(name:String) = Option(EntityType.fromName(name.toUpperCase)).orElse(
+    Option(EntityType.valueOf(name.toUpperCase))
   )
 
   def findMaterial(nameOrId: String) = Option(getMaterial(nameOrId.toUpperCase)).orElse(

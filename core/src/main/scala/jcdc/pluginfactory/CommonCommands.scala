@@ -6,10 +6,7 @@ import Material._
 import Pimps._
 import scala.collection.JavaConversions._
 
-/**
-* These are stateless, and therefore can just be imported.
-*/
-object CommonCommands extends MinecraftParsers {
+trait CommonCommands extends CommandsPlugin {
 
   // some simple useful commands
   val goto  = Command("goto",     "Teleport to a player.", args(player or (num ~ num ~ opt(num))){
@@ -37,10 +34,7 @@ object CommonCommands extends MinecraftParsers {
   val all = List(goto, time, day, night, gm, gms, gmc, kill)
 }
 
-/**
-* These all depend on the Cube state, so need to be mixed in.
-*/
-trait WorldEditCommands extends MinecraftParsers with Cubes {
+trait WorldEditCommands extends CommandsPlugin with Cubes {
   // some common world editing commands
   val wand  = Command("/wand",  "Get a WorldEdit wand.",   noArgs(_.loc.dropItem(WOOD_AXE)))
   val pos1  = Command("/pos1",  "Set the first position",  noArgs(p => setFirstPosition(p, p.loc)))

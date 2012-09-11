@@ -3,7 +3,7 @@ package jcdc.pluginfactory
 import org.bukkit.ChatColor._
 import org.bukkit.command.{CommandSender, Command => BukkitCommand}
 import org.bukkit.GameMode._
-import org.bukkit.entity.{EntityType, Player}
+import org.bukkit.entity.Player
 import Pimps._
 
 case class CommandBody(argDesc: String, f:(Player, BukkitCommand, List[String]) => Unit)
@@ -15,16 +15,20 @@ object Command {
 
 case class Command(name: String, description: Option[String], body: CommandBody)
 
-object MinecraftParsers extends MinecraftParsers
+object BasicMinecraftParsers extends BasicMinecraftParsers
 
-trait MinecraftParsers extends ParserCombinators[Player] {
-  val gamemode =
-    ("c" | "creative" | "1") ^^ {_ => CREATIVE} | ("s" | "survival" | "0") ^^ {_ => SURVIVAL}
-  def player   = token("player-name") { (p, s) => p.server.findPlayer(s) }
-  def material = token("material-type") { (_, s) => findMaterial(s) }
-  def entity   = token("entity-type") { (_, s) =>
-    Option(EntityType.fromName(s.toUpperCase)).orElse(Option(EntityType.valueOf(s.toUpperCase)))
-  }
+trait BasicMinecraftParsers extends ParserCombinators {
+  val gamemode = ("c" | "creative" | "1") ^^^ CREATIVE | ("s" | "survival" | "0") ^^^ SURVIVAL
+  def entity   = token("entity-type")  (findEntity)
+  def material = token("material-type")(findMaterial)
+}
+
+trait CommandsPlugin extends ScalaPlugin with BasicMinecraftParsers {
+
+  val commands: List[Command]
+
+  // this one can't be in the basic parsers class, because it needs the server
+  def player   = token("player-name")   (server.findPlayer)
 
   def opOnly(ch: CommandBody): CommandBody = CommandBody(
     s"${ch.argDesc} [Op Only]", (player: Player, c: BukkitCommand, args: List[String]) =>
@@ -40,16 +44,14 @@ trait MinecraftParsers extends ParserCombinators[Player] {
 
   def args[T](argsParser: Parser[T])(f: ~[Player, T] => Unit): CommandBody =
     CommandBody(
-      argsParser.describe,
-      (p: Player, c: BukkitCommand, args: List[String]) => argsParser(p, args) match {
-        case Failure(msg) => p ! (RED + " " + msg)
-        case Success(t, _, _) => f(new ~(p, t))
-      })
-}
-
-trait CommandsPlugin extends ScalaPlugin with MinecraftParsers {
-
-  val commands: List[Command]
+      argsParser.toString, (p: Player, c: BukkitCommand, args: List[String]) => {
+        parseAll(argsParser, args.mkString(" ")) match {
+          case Failure(msg, _) => p ! (RED + " " + msg)
+          case Error  (msg, _) => p ! (RED + " " + msg)
+          case Success(t, _)   => f(new ~(p, t))
+        }
+      }
+    )
 
   private def lowers = commands.map(c => (c.name.toLowerCase, c)).toMap
 

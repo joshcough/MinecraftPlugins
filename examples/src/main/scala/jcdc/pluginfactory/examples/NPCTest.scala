@@ -8,7 +8,7 @@ class NPCTest extends CommandsPlugin with NPCPlugin {
   val npcs = collection.mutable.Map[String, LivingEntity]()
   val ids = Iterator.from(0)
   // this parses an npc by its name.
-  val npcTok = token("npc") { (_, s) => npcs.get(s) }
+  val npcTok = token("npc")(npcs.get)
 
   val commands = List(
     Command("npc", "Spawn an NPC", args(anyString) {

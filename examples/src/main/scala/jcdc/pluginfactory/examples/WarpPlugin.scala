@@ -10,27 +10,40 @@ class WarpPlugin extends CommandsPlugin with SingleClassDBPlugin[Warp] {
   val dbClass = classOf[Warp]
 
   val commands = List(
+
     Command("warps", "List all warps.",
       noArgs(p => warpsFor(p).foreach { w => p.sendMessage(w.toString) })),
+
     Command("warp", "Warp to the given warp location.",
-      args(warpToken){ case p ~ w => p.teleport(w.location(p.world)) }),
+      args(warpToken){ case p ~ wt => withWarp(p, wt)(w => p.teleport(w.location(p.world))) }),
+
     Command("delete-warp", "Delete a warp location.",
-      args(warpToken){ case p ~ w => db.delete(w); p ! ("deleted warp: " + w.name) }),
+      args(warpToken){ case p ~ wt => withWarp(p, wt){w =>
+        db.delete(w)
+        p ! ("deleted warp: " + w.name)}
+      }),
+
     Command("delete-all", "Delete all warps in the database.",
       opOnly(noArgs(p => db.foreach { w => p ! ("deleting: " + w); db.delete(w) }))),
+
     Command("set-warp", "Create a new warp location.",
       args(warpToken.named("old-warp-name") or anyString.named("new-warp-name")){
-        case p ~ Left(w)  =>
+        case p ~ Left(wt)  => withWarp(p, wt){ w =>
           // TODO: can i use an update here?
           // making Warp a case class gave lots of unsolved issues...
           db.delete(w)
           db.insert(createWarp(w.name, p))
           p ! ("updated warp: " + w.name)
+        }
         case p ~ Right(name) => db.insert(createWarp(name, p)); p ! "created warp: " + name
     })
   )
 
-  def warpToken = token("warp-name"){ (p, s) => warpsFor(p).find(_.name == s) }
+  def withWarp(p:Player, w:String)(f: Warp => Unit) =
+    warpsFor(p).find(_.name == w).fold(p ! "No such warp $w")(f)
+
+  def warpToken = anyString.named("warp-name")
+
   def createWarp(n: String, p: Player): Warp = {
     val w = new Warp(); w.name = n; w.player = p.name; w.x = p.x; w.y = p.y; w.z = p.z; w
   }
