@@ -115,14 +115,14 @@ trait ParserCombinators {
   def even(n: Int) = n % 2 == 0
   def odd (n: Int) = !even(n)
   def tryNum(s: String)     = tryOption(s.toInt)
-  def num:     Parser[Int]  = token("number") { s => tryNum(s) }
-  def oddNum:  Parser[Int]  = token("odd-number") { s => tryNum(s).filter(odd) }
-  def evenNum: Parser[Int]  = token("even-number") { s => tryNum(s).filter(even) }
+  def num:     Parser[Int]  = token("number") { tryNum(_) }
+  def oddNum:  Parser[Int]  = token("odd-number") { tryNum(_).filter(odd) }
+  def evenNum: Parser[Int]  = token("even-number") { tryNum(_).filter(even) }
   def long:    Parser[Long] = token("long") { s => tryOption(s.toLong) }
 
-  def bool:    Parser[Boolean] = token("boolean") { s => tryOption(s.toBoolean) }
-  def boolOrTrue: Parser[Boolean]  = opt(bool) ^^ { ob => ob.getOrElse(true) }
-  def boolOrFalse: Parser[Boolean] = opt(bool) ^^ { ob => ob.getOrElse(false) }
+  def bool:        Parser[Boolean] = token("boolean") { s => tryOption(s.toBoolean) }
+  def boolOrTrue:  Parser[Boolean] = opt(bool) ^^ { _.getOrElse(true) }
+  def boolOrFalse: Parser[Boolean] = opt(bool) ^^ { _.getOrElse(false) }
 
   // file parsers
   def file:    Parser[File] = token("file") { s => Some(new File(s)) }
