@@ -5,8 +5,9 @@ import org.bukkit.Material._
 import org.bukkit.block.Block
 import org.bukkit.entity.EntityType.{ARROW, ZOMBIE}
 import org.bukkit.entity.Player
-import jcdc.pluginfactory.{ListenersPlugin, Listeners, ListenerPlugin, Command, CommandsPlugin}
+import jcdc.pluginfactory._
 import Listeners._
+import jcdc.pluginfactory.Listeners.ListeningFor
 
 class Thor extends ListeningFor(OnEntityDamageByPlayer { (e, p, _) =>
   if (p isHoldingA DIAMOND_AXE) p.world.strikeLightning(e.loc)
@@ -23,7 +24,7 @@ class Farmer extends ListenersPlugin {
 
 class ZombieApocalypse extends ListeningFor(OnPlayerDeath { (p, _) => p.loc spawn ZOMBIE })
 
-class TreeDelogger extends ListeningFor(OnBlockBreak { (b, e) =>
+class TreeDelogger extends ListeningFor(OnBlockBreak { (b, _) =>
   if (b isA LOG) for (b <- b.andBlocksAbove.takeWhile(_ isA LOG)) b.erase
 })
 
@@ -41,18 +42,16 @@ class NoRain extends ListenerPlugin {
   val listener = OnWeatherChange(e => e.cancelIf(e.rain, broadcast("Put up an umbrella.")))
 }
 
-class BlockChanger extends ListenerPlugin with CommandsPlugin {
-  val users = collection.mutable.Map[Player, Material]()
+class BlockChanger extends ListenerPlugin with CommandPlugin {
+  val users    = collection.mutable.Map[Player, Material]()
   val listener = OnBlockDamage((b, e) => users.get(e.getPlayer).foreach(b changeTo _))
-  val commands = List(
-    Command(
-      name = "bc",
-      desc = "Hit blocks to change them to the block with type blockId, or /bc off to turn off.",
-      body = args(material or "off"){
-        case p ~ Left(m)  => users += (p -> m); p ! ("bc using: " + m)
-        case p ~ Right(_) => users remove p; p ! "bc has been disabled"
-      }
-    )
+  val command  = Command(
+    name = "bc",
+    desc = "Hit blocks to change them to the block with type blockId, or /bc off to turn off.",
+    body = args(material or "off"){
+      case p ~ Left(m)  => users += (p -> m); p ! ("bc using: " + m)
+      case p ~ Right(_) => users remove p; p ! "bc has been disabled"
+    }
   )
 }
 

@@ -17,18 +17,23 @@ case class Command(name: String, description: Option[String], body: CommandBody)
 
 object BasicMinecraftParsers extends BasicMinecraftParsers
 
-trait BasicMinecraftParsers extends ParserCombinators {
-  val gamemode = ("c" | "creative" | "1") ^^^ CREATIVE | ("s" | "survival" | "0") ^^^ SURVIVAL
+trait BasicMinecraftParsers extends ScalaPlugin with ParserCombinators {
+  val gamemode =
+    ("c" | "creative" | "1") ^^^ CREATIVE |
+    ("s" | "survival" | "0") ^^^ SURVIVAL
   def entity   = token("entity-type")  (findEntity)
   def material = token("material-type")(findMaterial)
+  def player   = token("player-name")  (server.findPlayer)
+}
+
+trait CommandPlugin extends CommandsPlugin {
+  val command: Command
+  def commands = List(command)
 }
 
 trait CommandsPlugin extends ScalaPlugin with BasicMinecraftParsers {
 
-  val commands: List[Command]
-
-  // this one can't be in the basic parsers class, because it needs the server
-  def player   = token("player-name")   (server.findPlayer)
+  def commands: List[Command]
 
   def opOnly(ch: CommandBody): CommandBody = CommandBody(
     s"${ch.argDesc} [Op Only]", (player: Player, c: BukkitCommand, args: List[String]) =>
@@ -88,21 +93,20 @@ trait CommandsPlugin extends ScalaPlugin with BasicMinecraftParsers {
   object ConsolePlayer {
 
     import org.bukkit._
-    import inventory._
-    import InventoryView.Property
-    import org.bukkit.entity._
+    import org.bukkit.inventory._
+    import org.bukkit.inventory.InventoryView.Property
     import conversations.{ConversationAbandonedEvent, Conversation}
-    import org.bukkit.util.Vector
     import java.net.InetSocketAddress
-    import map.MapView
-    import metadata.MetadataValue
-    import permissions.{PermissionAttachmentInfo, Permission, PermissionAttachment}
+    import org.bukkit.entity._
+    import org.bukkit.map.MapView
+    import org.bukkit.metadata.MetadataValue
+    import org.bukkit.permissions.{PermissionAttachmentInfo, Permission, PermissionAttachment}
     import org.bukkit.plugin.Plugin
     import org.bukkit.potion.{PotionEffectType, PotionEffect}
     import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause
     import org.bukkit.event.entity.EntityDamageEvent
     import org.bukkit.block.Block
-    import java.util
+    import org.bukkit.util.Vector
 
     def origin = server.getWorlds.get(0).blockAt(0,0,0)
 
@@ -216,7 +220,7 @@ trait CommandsPlugin extends ScalaPlugin with BasicMinecraftParsers {
       def leaveVehicle: Boolean = false
       def getCompassTarget: Location = origin
       def remove {}
-      def serialize: java.util.Map[String, AnyRef] = new util.HashMap[String, AnyRef]
+      def serialize: java.util.Map[String, AnyRef] = new java.util.HashMap[String, AnyRef]
       def recalculatePermissions {}
       def getLineOfSight(p1: java.util.HashSet[java.lang.Byte], p2: Int): java.util.List[Block] = new java.util.LinkedList()
       def setLastDamage(p1: Int) {}
