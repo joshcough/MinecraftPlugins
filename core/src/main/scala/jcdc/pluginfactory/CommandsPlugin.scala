@@ -49,7 +49,7 @@ trait CommandsPlugin extends ScalaPlugin with BasicMinecraftParsers {
 
   def args[T](argsParser: Parser[T])(f: ~[Player, T] => Unit): CommandBody =
     CommandBody(
-      argsParser.toString, (p: Player, c: BukkitCommand, args: List[String]) => {
+      argsParser.describe, (p: Player, c: BukkitCommand, args: List[String]) => {
         argsParser(args) match {
           case Failure(msg) => p ! (RED + " " + msg)
           case Success(t, _)   => f(new ~(p, t))

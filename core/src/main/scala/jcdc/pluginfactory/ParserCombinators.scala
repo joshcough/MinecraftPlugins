@@ -120,9 +120,9 @@ trait ParserCombinators {
   def evenNum: Parser[Int]  = token("even-number") { s => tryNum(s).filter(even) }
   def long:    Parser[Long] = token("long") { s => tryOption(s.toLong) }
 
-  def bool:    Parser[Boolean] = token("boolean") { s => tryOption(s.toBoolean) }
-  def boolOrTrue: Parser[Boolean]  = opt(bool) ^^ { ob => ob.getOrElse(true) }
-  def boolOrFalse: Parser[Boolean] = opt(bool) ^^ { ob => ob.getOrElse(false) }
+  def bool:        Parser[Boolean] = token("boolean") { s => tryOption(s.toBoolean) }
+  def boolOrTrue:  Parser[Boolean] = opt(bool) ^^ { _.getOrElse(true) }
+  def boolOrFalse: Parser[Boolean] = opt(bool) ^^ { _.getOrElse(false) }
 
   // file parsers
   def file:    Parser[File] = token("file") { s => Some(new File(s)) }
