@@ -1,0 +1,87 @@
+What is Minecraft?
+ - maybe give a little demo
+ - what is a minecraft server?
+ - what is bukkit, and the bukkit api?
+
+
+Bukkit API
+
+  give another little demo of events and entering some commands
+
+  start with listeners because they are easy
+
+    show tree delogger, since that is just one listener
+    so the java example and the steps involved:
+      * create plugin class
+      * create listener class w/ strange annotation
+      * register listener in plugin
+      * create the plugin yml
+
+  then go to commands commands
+
+    show block changer - it has a command and a listener
+    show the java example
+      * create the plugin class
+      * create the command in the class
+      * create the listener class
+      * create that horrible while loop that does all the work
+
+  take a second to explain:
+    * is this average or maybe even crappy java code? sure...
+    * could this be better in java? - probably...but its not atypical
+    * im going to show that its better and easier to fix it up in scala than to bother trying in java
+   
+
+Starting with Scala from Java
+ - build a jar from java, use it from sbt
+ - drop in a src/main/scala, and build with sbt
+ - if your build is too complicated for that...
+
+
+Make Listeners Better
+
+  start just briefly showing the old then, then showing this:
+
+    class TreeDelogger extends ListenerPlugin {
+      val listener = OnBlockBreak { (b, e) =>
+        if (b isA LOG) for (b <- b.andBlocksAbove.takeWhile(_ isA LOG)) b.erase
+      }
+    }
+
+  theres a lot going on here...
+
+    1) HOFS
+    2) PIMPING
+    3) TRAITS, general superclass cleanup (that could have been done in java, sort of)
+    4) STREAMS - andBlocksAbove
+    5) Even For-Comps...
+
+    OnBlockBreak is a function that takes a function that takes a block and an event, and returns a listener
+    and a bunch of magic is happinging in ListenerPlugin
+    but that magic is exactly what we want. this plugin says exactly what we want it to say
+    "when a block breaks, check if its a log. if it is, take it, and any logs above them, and chop them down!"
+    theres more magic too... Pimping with isA, andBlocksAbove, erase
+
+   Ugh yeah, there is a lot going on here so i need to organize it.
+
+Making Commands Better
+
+ once again, quickly show the java code for BlockChanger then show the scala:
+
+    class BlockChanger extends ListenerPlugin with CommandPlugin {
+      val users    = collection.mutable.Map[Player, Material]()
+      val listener = OnBlockDamage((b, e) => users.get(e.getPlayer).foreach(b changeTo _))
+      val command  = Command(
+        name = "bc",
+        desc = "Hit blocks to change them to the block with type blockId, or /bc off to turn off.",
+        body = args(material or "off"){
+          case p ~ Left(m)  => users += (p -> m); p ! ("bc using: " + m)
+          case p ~ Right(_) => users remove p; p ! "bc has been disabled"
+        }
+      )
+    }
+
+  once again, a lot going on. 
+
+  1) MIXING IN MORE TRAITS
+  2) PARSER COMBINATORS (most important)
