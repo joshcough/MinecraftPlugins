@@ -79,6 +79,8 @@ object Curses {
   def handle(e: PlayerChatEvent, f: => Unit) = e.cancelIf(containsSwear(e), f)
 }
 
-class CurseBan extends ListeningFor(OnPlayerChat((p, e) => Curses.handle(e, e.getPlayer.ban("no swearing"))))
+class CurseBan extends ListeningFor(OnPlayerChat((p, e) =>
+  Curses.handle(e, e.getPlayer.ban("no swearing")))
+)
  
 class CursePreventer extends ListeningFor(OnPlayerChat((p, e) => Curses.handle(e, ())))
