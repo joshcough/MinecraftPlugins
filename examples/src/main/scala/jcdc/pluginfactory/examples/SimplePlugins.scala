@@ -24,7 +24,7 @@ class Farmer extends ListenersPlugin {
 
 class ZombieApocalypse extends ListeningFor(OnPlayerDeath { (p, _) => p.loc spawn ZOMBIE })
 
-class TreeDelogger extends ListeningFor(OnBlockBreak { (b, _) =>
+class TreeDelogger extends ListeningFor(OnBlockBreak { (b, e) =>
   if (b isA LOG) for (b <- b.andBlocksAbove.takeWhile(_ isA LOG)) b.erase
 })
 
@@ -47,10 +47,10 @@ class BlockChanger extends ListenerPlugin with CommandPlugin {
   val listener = OnBlockDamage((b, e) => users.get(e.getPlayer).foreach(b changeTo _))
   val command  = Command(
     name = "bc",
-    desc = "Hit blocks to change them to the block with type blockId, or /bc off to turn off.",
-    body = args(material or "off"){
-      case p ~ Left(m)  => users += (p -> m); p ! ("bc using: " + m)
-      case p ~ Right(_) => users -= p;        p ! "bc has been disabled"
+    desc = "Hit blocks to change them to the block with type blockId, or just /bc to turn it off.",
+    body = args(opt(material)){
+      case p ~ Some(m)  => users += (p -> m); p ! ("bc using: " + m)
+      case p ~ None     => users -= p;        p ! "bc has been disabled"
     }
   )
 }

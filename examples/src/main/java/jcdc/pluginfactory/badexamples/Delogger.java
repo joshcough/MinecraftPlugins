@@ -11,7 +11,6 @@ import org.bukkit.plugin.java.JavaPlugin;
  * and the plugin.yml file is here: http://www.youtube.com/watch?v=bONATOUrDig
  */
 public class Delogger extends JavaPlugin {
-    public static Delogger plugin;
     public final Logger logger = Logger.getLogger("Minecraft");
     public final DeloggerListener listener = new DeloggerListener(this);
 
