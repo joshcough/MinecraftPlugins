@@ -13,7 +13,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class Delogger extends JavaPlugin {
     public static Delogger plugin;
     public final Logger logger = Logger.getLogger("Minecraft");
-    public final MyBlockListener listener = new MyBlockListener(this);
+    public final DeloggerListener listener = new DeloggerListener(this);
 
     public void onDisable() {
         PluginDescriptionFile pdffile = this.getDescription();

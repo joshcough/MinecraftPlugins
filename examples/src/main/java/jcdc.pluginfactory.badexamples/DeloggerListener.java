@@ -12,11 +12,11 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 
 //http://www.youtube.com/watch?v=YZdp3hqoWKk
-public class MyBlockListener implements Listener {
+public class DeloggerListener implements Listener {
 
     public static Delogger plugin;
 
-    public MyBlockListener(Delogger instance) {
+    public DeloggerListener(Delogger instance) {
         plugin = instance;
     }
 
@@ -47,6 +47,5 @@ public class MyBlockListener implements Listener {
                 }
             }
         }
-
     }
 }
