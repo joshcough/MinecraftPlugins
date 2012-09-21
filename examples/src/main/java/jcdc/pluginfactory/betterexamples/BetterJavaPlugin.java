@@ -1,18 +1,18 @@
 package jcdc.pluginfactory.betterexamples;
 
 import org.bukkit.Effect;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
-import scala.*;
+import scala.Option;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -66,6 +66,7 @@ public class BetterJavaPlugin extends JavaPlugin {
     return new Location(b.getWorld(), b.getX(), b.getY() + 1, b.getZ()).getBlock();
   }
 
+  abstract class F0<A>{    abstract A run(); }
   abstract class F1<A, B>{ abstract B run(A a); }
 
   public class Cmd {
@@ -91,6 +92,7 @@ public class BetterJavaPlugin extends JavaPlugin {
     abstract boolean isFailure();
     abstract boolean isSuccess();
     abstract T get();
+    abstract String error();
   }
   class Success<T> extends ParseResult<T> {
     private final T t;
@@ -102,6 +104,7 @@ public class BetterJavaPlugin extends JavaPlugin {
     boolean isFailure() { return false; }
     boolean isSuccess() { return true; }
     T get(){ return t; }
+    String error(){ throw new RuntimeException("cant get error message Success"); }
   }
   class Failure<T> extends ParseResult<T> {
     private String message;
@@ -111,19 +114,61 @@ public class BetterJavaPlugin extends JavaPlugin {
     boolean isFailure() { return true; }
     boolean isSuccess() { return false; }
     T get(){ throw new RuntimeException("cant get from Failure"); }
+    String error(){ return message; }
   }
 
   abstract class ArgParser<T> {
     abstract ParseResult<T> parse(LinkedList<String> args);
+    ArgParser<T> or(final ArgParser<T> p2){
+      final ArgParser<T> self = this;
+      return new ArgParser<T>() {
+        ParseResult<T> parse(LinkedList<String> args) {
+          ParseResult<T> pr1 = self.parse(args);
+          if(pr1.isSuccess()) return pr1;
+          else {
+            ParseResult<T> pr2 = p2.parse(args);
+            if(pr2.isSuccess()) return pr2;
+            else return new Failure<T>(pr1.error() + " or " + pr2.error());
+          }
+        }
+      };
+    }
 
-  // TODO: this is going to be difficult...
+    <U> ArgParser<U> map(final F1<T, U> f1){
+      final ArgParser<T> self = this;
+      return new ArgParser<U>() {
+        ParseResult<U> parse(LinkedList<String> args) {
+          ParseResult<T> pr = self.parse(args);
+          if(pr.isSuccess()) {
+            LinkedList<String> ss = new LinkedList<String>(args);
+            ss.removeFirst();
+            return new Success<U>(f1.run(pr.get()), ss);
+          }
+          else return (Failure<U>)pr;
+        }
+      };
+    }
 
-//    def |[U >: T] (p2: => Parser[U]) = new Parser[U] {
-//      def apply(args: List[String]): ParseResult[U] = self(args) mapFailure { m1 =>
-//        p2(args) mapFailure { m2 => Failure(s"$m1 or $m2") }
-//      }
-//      def describe = s"(${self.describe} or ${p2.describe})"
-//    }
+    <U> ArgParser<U> outputting(final U u){
+      return map(new F1<T, U>() {
+        U run(T t) { return u; }
+      });
+    }
+  }
+
+  ArgParser<String> match(final String s){
+    return new ArgParser<String>(){
+      ParseResult<String> parse(LinkedList<String> args) {
+        if(args.size() > 0) {
+          if(args.getFirst().equalsIgnoreCase(s)){
+            LinkedList<String> ss = new LinkedList<String>(args);
+            return new Success<String>(ss.removeFirst(), ss);
+          }
+          else return new Failure<String>("expected: " + s + ", but got: " + args.getFirst());
+        }
+        else return new Failure<String>("expected: " + s + ", but got nothing");
+      }
+    };
   }
 
   ArgParser<String> anyString = new ArgParser<String>() {
@@ -189,8 +234,7 @@ public class BetterJavaPlugin extends JavaPlugin {
     };
   });
 
-  // TODO: this is also going to be difficult
-//  val gamemode =
-//      ("c" | "creative" | "1") ^^^ CREATIVE |
-//      ("s" | "survival" | "0") ^^^ SURVIVAL
+  public ArgParser<GameMode> gamemode =
+    match("c").or(match("creative")).or(match("1")).outputting(GameMode.CREATIVE).or(
+    match("s").or(match("survival")).or(match("0")).outputting(GameMode.SURVIVAL));
 }
