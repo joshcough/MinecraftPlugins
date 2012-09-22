@@ -1,6 +1,6 @@
 package jcdc.pluginfactory.betterexamples;
 
-import jcdc.pluginfactory.java.BetterJavaPlugin;
+import jcdc.pluginfactory.betterjava.BetterJavaPlugin;
 
 import org.bukkit.Material;
 import org.bukkit.block.Block;

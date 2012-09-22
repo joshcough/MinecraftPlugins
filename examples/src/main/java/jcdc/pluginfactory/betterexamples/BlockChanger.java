@@ -11,8 +11,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockDamageEvent;
 import scala.Option;
 
-import jcdc.pluginfactory.java.BetterJavaPlugin;
-import static jcdc.pluginfactory.java.JavaParsers.opt;
+import jcdc.pluginfactory.betterjava.BetterJavaPlugin;
+import static jcdc.pluginfactory.betterjava.JavaParsers.opt;
 
 public class BlockChanger extends BetterJavaPlugin {
   public final Map<Player, Material> blockChangerUsers = new HashMap<Player, Material>();
@@ -26,7 +26,7 @@ public class BlockChanger extends BetterJavaPlugin {
       }
     });
 
-    commands.add(new Cmd(
+    commands.add(new Command(
         "bc",
         "Hit blocks to change them to the block with type blockId, or just /bc to turn it off.",
         new CommandBody<Option<Material>>(opt(material)) {

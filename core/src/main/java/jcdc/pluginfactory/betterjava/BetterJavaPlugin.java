@@ -1,11 +1,10 @@
-package jcdc.pluginfactory.java;
+package jcdc.pluginfactory.betterjava;
 
 import org.bukkit.Effect;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -18,26 +17,26 @@ import scala.runtime.AbstractFunction1;
 import java.util.*;
 import java.util.logging.Logger;
 
-import static jcdc.pluginfactory.java.JavaParsers.*;
+import static jcdc.pluginfactory.betterjava.JavaParsers.*;
 
 public class BetterJavaPlugin extends JavaPlugin {
   public final Logger logger = Logger.getLogger("Minecraft");
 
   public List<Listener> listeners = new ArrayList<Listener>();
-  public List<Cmd> commands = new ArrayList<Cmd>();
+  public List<Command> commands = new ArrayList<Command>();
+
+  public void onEnable() {
+    for (Listener l : listeners) { getServer().getPluginManager().registerEvents(l, this); }
+    info(getDescription().getName() + " version " + getVersion() + " is now enabled.");
+  }
 
   public void onDisable() {
     info(getDescription().getName() + " is now disabled.");
   }
 
-  public void onEnable() {
-    for (Listener l : listeners) { register(l); }
-    info(getDescription().getName() + " version " + getVersion() + " is now enabled.");
-  }
-
-  @Override
-  public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
-    for(Cmd c: commands){
+  public boolean onCommand(CommandSender sender, org.bukkit.command.Command cmd,
+                           String commandLabel, String[] args) {
+    for(Command c: commands){
       if(c.name.toLowerCase().equals(commandLabel.toLowerCase())){
         // todo: doesnt work for console yet.
         c.body.parseAndRun((Player) sender, args);
@@ -46,17 +45,9 @@ public class BetterJavaPlugin extends JavaPlugin {
     return true;
   }
 
-  public void info(String message) {
-    logger.info(message);
-  }
+  public void info(String message) { logger.info(message); }
 
-  public String getVersion() {
-    return getDescription().getVersion();
-  }
-
-  public void register(Listener listener) {
-    getServer().getPluginManager().registerEvents(listener, this);
-  }
+  public String getVersion() { return getDescription().getVersion(); }
 
   public void erase(Block b){
     b.getWorld().playEffect(b.getLocation(), Effect.SMOKE, 1);
@@ -68,11 +59,11 @@ public class BetterJavaPlugin extends JavaPlugin {
     return new Location(b.getWorld(), b.getX(), b.getY() + 1, b.getZ()).getBlock();
   }
 
-  public class Cmd {
+  public class Command {
     final String name;
     final String description;
     final CommandBody body;
-    public <T> Cmd(String name, String description, CommandBody<T> body){
+    public <T> Command(String name, String description, CommandBody<T> body){
       this.name = name;
       this.description = description;
       this.body = body;
@@ -81,9 +72,7 @@ public class BetterJavaPlugin extends JavaPlugin {
 
   abstract public class CommandBody<T>{
     private ArgParser<T> argParser;
-    public CommandBody(ArgParser<T> argParser){
-      this.argParser = argParser;
-    }
+    public CommandBody(ArgParser<T> argParser){ this.argParser = argParser; }
     abstract public void run(Player p, T t);
     public void parseAndRun(Player p, String[] args){
       ParseResult<T> pr = argParser.parse(args);

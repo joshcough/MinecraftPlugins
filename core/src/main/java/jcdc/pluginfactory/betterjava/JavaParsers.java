@@ -1,4 +1,4 @@
-package jcdc.pluginfactory.java;
+package jcdc.pluginfactory.betterjava;
 
 import scala.Function1;
 import scala.Option;
@@ -9,14 +9,14 @@ import java.util.LinkedList;
 
 public class JavaParsers {
 
-  static abstract class ParseResult<T>{
+  static public abstract class ParseResult<T>{
     abstract boolean isFailure();
     abstract boolean isSuccess();
     abstract T get();
     abstract String error();
   }
 
-  static class Success<T> extends ParseResult<T> {
+  static public class Success<T> extends ParseResult<T> {
     private final T t;
     private final LinkedList<String> rest;
     public Success(T t, LinkedList<String> rest){
@@ -29,7 +29,7 @@ public class JavaParsers {
     String error(){ throw new RuntimeException("cant get error message Success"); }
   }
 
-  static class Failure<T> extends ParseResult<T> {
+  static public  class Failure<T> extends ParseResult<T> {
     private String message;
     public Failure(String message){
       this.message = message;
@@ -40,17 +40,17 @@ public class JavaParsers {
     String error(){ return message; }
   }
 
-  static abstract class ArgParser<T> {
-    abstract ParseResult<T> parse(LinkedList<String> args);
+  static public abstract class ArgParser<T> {
+    public abstract ParseResult<T> parse(LinkedList<String> args);
 
-    ParseResult<T> parse(String[] args){
+    public ParseResult<T> parse(String[] args){
       return parse(new LinkedList<String>(Arrays.asList(args)));
     }
 
-    ArgParser<T> or(final ArgParser<T> p2){
+    public ArgParser<T> or(final ArgParser<T> p2){
       final ArgParser<T> self = this;
       return new ArgParser<T>() {
-        ParseResult<T> parse(LinkedList<String> args) {
+        public ParseResult<T> parse(LinkedList<String> args) {
           ParseResult<T> pr1 = self.parse(args);
           if(pr1.isSuccess()) return pr1;
           else {
@@ -62,10 +62,10 @@ public class JavaParsers {
       };
     }
 
-    <U> ArgParser<U> map(final Function1<T, U> f1){
+    public <U> ArgParser<U> map(final Function1<T, U> f1){
       final ArgParser<T> self = this;
       return new ArgParser<U>() {
-        ParseResult<U> parse(LinkedList<String> args) {
+        public ParseResult<U> parse(LinkedList<String> args) {
           ParseResult<T> pr = self.parse(args);
           if(pr.isSuccess()) {
             LinkedList<String> ss = new LinkedList<String>(args);
@@ -84,9 +84,9 @@ public class JavaParsers {
     }
   }
 
-  static ArgParser<String> match(final String s){
+  static public ArgParser<String> match(final String s){
     return new ArgParser<String>(){
-      ParseResult<String> parse(LinkedList<String> args) {
+      public ParseResult<String> parse(LinkedList<String> args) {
         if(args.size() > 0) {
           if(args.getFirst().equalsIgnoreCase(s)){
             LinkedList<String> ss = new LinkedList<String>(args);
@@ -99,9 +99,8 @@ public class JavaParsers {
     };
   }
 
-  static ArgParser<String> anyString = new ArgParser<String>() {
-    @Override
-    ParseResult<String> parse(LinkedList<String> args) {
+  static public ArgParser<String> anyString = new ArgParser<String>() {
+    public ParseResult<String> parse(LinkedList<String> args) {
       if(args.size() > 0) {
         LinkedList<String> ss = new LinkedList<String>(args);
         return new Success<String>(ss.removeFirst(), ss);
@@ -112,8 +111,7 @@ public class JavaParsers {
 
   static public <T> ArgParser<Option<T>> opt(final ArgParser<T> p){
     return new ArgParser<Option<T>>(){
-      @Override
-      ParseResult<Option<T>> parse(LinkedList<String> args) {
+      public ParseResult<Option<T>> parse(LinkedList<String> args) {
         ParseResult<T> pr = p.parse(args);
         if(pr.isFailure()) return new Success<Option<T>>(Option.<T>empty(), args);
         else {
@@ -127,7 +125,7 @@ public class JavaParsers {
 
   static public <T> ArgParser<T> token(final String name, final Function1<String, Option<T>> f){
     return new ArgParser<T>() {
-      ParseResult<T> parse(LinkedList<String> args) {
+      public ParseResult<T> parse(LinkedList<String> args) {
         if(args.isEmpty()) return new Failure<T>("expected " + name + ", got nothing");
         else{
           Option<T> ot = f.apply(args.getFirst());

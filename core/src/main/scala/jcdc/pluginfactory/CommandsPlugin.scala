@@ -135,7 +135,7 @@ trait CommandsPlugin extends ScalaPlugin with BasicMinecraftParsers {
       def setBedSpawnLocation(p1: Location) {}
       def getHealth: Int = 0
       def getItemInHand: ItemStack = new ItemStack(Material.AIR)
-      def getDisplayName: String = getServer.getName
+      override def getDisplayName: String = getServer.getName
       def damage(p1: Int, p2: Entity) {}
       def damage(p1: Int) {}
       def getNearbyEntities(p1: Double, p2: Double, p3: Double): java.util.List[Entity] = new java.util.LinkedList[Entity]()
