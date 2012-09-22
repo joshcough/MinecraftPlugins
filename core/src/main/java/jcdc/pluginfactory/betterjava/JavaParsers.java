@@ -112,6 +112,22 @@ public class JavaParsers {
     };
   }
 
+  static public <T> ArgParser<T> success(final T t){
+    return new ArgParser<T>() {
+      public ParseResult<T> parse(List<String> args) {
+        return new Success<T>(t, args);
+      }
+    };
+  }
+
+  static public ArgParser<Void> nothing(){
+    return new ArgParser<Void>() {
+      public ParseResult<Void> parse(List<String> args) {
+        return new Success<Void>(null, args);
+      }
+    };
+  }
+
   static public ArgParser<String> anyString = new ArgParser<String>() {
     public ParseResult<String> parse(List<String> args) {
       if(! args.isEmpty()) return successAndDropOne(args.get(0), args);
@@ -141,4 +157,11 @@ public class JavaParsers {
       }
     };
   }
+
+  static public ArgParser<Integer> integer = token("player", new AbstractFunction1<String, Option<Integer>>() {
+    public Option<Integer> apply(String s) {
+      try{ return Option.apply(Integer.parseInt(s)); }
+      catch (Exception e) { return Option.empty(); }
+    };
+  });
 }

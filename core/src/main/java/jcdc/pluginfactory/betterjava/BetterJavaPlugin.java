@@ -81,23 +81,34 @@ public class BetterJavaPlugin extends JavaPlugin {
     }
   }
 
+  abstract public class EmptyCommandBody extends CommandBody<Void> {
+    public EmptyCommandBody(){ super(nothing()); }
+    public void run(Player p, Void v){ run(p); }
+    abstract public void run(Player p);
+  }
+
+  // TODO: not really safe
+  public Option<Material> findMaterial(String nameOrId){
+    Material m = Material.getMaterial(nameOrId);
+    if(m == null) m = Material.getMaterial(Integer.parseInt(nameOrId));
+    return Option.apply(m);
+  }
+
+  public Option<EntityType> findEntity(String name){
+    EntityType e = EntityType.fromName(name.toUpperCase());
+    if(e == null) e = EntityType.valueOf(name.toUpperCase());
+    return Option.apply(e);
+  }
+
   public ArgParser<Material> material = token("material",
     new AbstractFunction1<String, Option<Material>>() {
-      public Option<Material> apply(String s) {
-        Material m = Material.getMaterial(s);
-        if(m == null) m = Material.getMaterial(Integer.parseInt(s));
-        return Option.apply(m);
-      };
+      public Option<Material> apply(String s) { return findMaterial(s);};
     }
   );
 
   public ArgParser<EntityType> entity = token("entity",
     new AbstractFunction1<String, Option<EntityType>>() {
-      public Option<EntityType> apply(String s) {
-        EntityType e = EntityType.fromName(s.toUpperCase());
-        if(e == null) e = EntityType.valueOf(s.toUpperCase());
-        return Option.apply(e);
-      };
+      public Option<EntityType> apply(String s) { return findEntity(s); };
     }
   );
 

@@ -14,7 +14,7 @@ class Thor extends ListeningFor(OnEntityDamageByPlayer { (e, p, _) =>
 })
 
 class Farmer extends ListenersPlugin {
-  def dropSeedsAt(b: Block) = b.world.dropItem(b.loc, SEEDS)
+  def dropSeedsAt(b: Block) = b.loc.dropItem(SEEDS)
   def hasHoe(p: Player) = p.isHoldingAnyOf(WOOD_HOE, STONE_HOE, IRON_HOE, GOLD_HOE, DIAMOND_HOE)
   val listeners = List(
     OnBlockBreak{ (b, e) => if (b is LONG_GRASS) dropSeedsAt(b) },
