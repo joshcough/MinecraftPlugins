@@ -1,9 +1,7 @@
 package jcdc.pluginfactory.betterjava;
 
-import org.bukkit.Effect;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Material;
+import org.bukkit.*;
+import static org.bukkit.ChatColor.*;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.EntityType;
@@ -59,6 +57,19 @@ public class BetterJavaPlugin extends JavaPlugin {
     return new Location(b.getWorld(), b.getX(), b.getY() + 1, b.getZ()).getBlock();
   }
 
+  public void spawnN(EntityType e, int numToSpawn, Location l){
+    for(int i = 0; i < numToSpawn; i++){ l.getWorld().spawnCreature(l, e); }
+  }
+
+  public void ban(Player p, String reason){
+    p.sendMessage(reason);
+    p.setBanned(true);
+  }
+
+  static public void teleport(Player p, int x, int y, int z){
+    p.teleport(new Location(p.getWorld(), x, y, z));
+  }
+
   public class Command {
     final String name;
     final String description;
@@ -69,6 +80,13 @@ public class BetterJavaPlugin extends JavaPlugin {
       this.body = body;
     }
   }
+
+  static public void doTo(Player p1, Player p2, Runnable r, String actionName){
+    r.run();
+    p2.sendMessage(GREEN + "you have been " + actionName + " by " + p1.getName());
+    p1.sendMessage(GREEN + "you have " + actionName + " " + p2.getName());
+  }
+
 
   abstract public class CommandBody<T>{
     private ArgParser<T> argParser;
@@ -81,8 +99,8 @@ public class BetterJavaPlugin extends JavaPlugin {
     }
   }
 
-  abstract public class EmptyCommandBody extends CommandBody<Void> {
-    public EmptyCommandBody(){ super(nothing()); }
+  abstract public class NoArgCommandBody extends CommandBody<Void> {
+    public NoArgCommandBody(){ super(nothing()); }
     public void run(Player p, Void v){ run(p); }
     abstract public void run(Player p);
   }

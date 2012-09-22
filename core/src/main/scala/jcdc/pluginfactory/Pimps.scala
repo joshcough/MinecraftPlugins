@@ -144,7 +144,8 @@ trait Pimps {
     def findOnlinePlayer = findPlayer _
     def findOfflinePlayer(name:String) = Option(s.getOfflinePlayer(name))
     def findOnlinePlayers(names: List[String]): List[Player] = names.map(findOnlinePlayer).flatten
-    def findOfflinePlayers(names: List[String]): List[OfflinePlayer] = names.map(findOfflinePlayer).flatten
+    def findOfflinePlayers(names: List[String]): List[OfflinePlayer] =
+      names.map(findOfflinePlayer).flatten
   }
 
   implicit class PimpedPlayer(player:Player){

@@ -1,9 +1,14 @@
 package jcdc.pluginfactory.betterjava;
 
+import scala.Function0;
 import scala.Function1;
 import scala.Option;
 import scala.Tuple2;
+import scala.runtime.AbstractFunction0;
 import scala.runtime.AbstractFunction1;
+import scala.util.Either;
+import scala.util.Left;
+import scala.util.Right;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -48,12 +53,16 @@ public class JavaParsers {
     }
 
     public <U> ArgParser<Tuple2<T, U>> and(final ArgParser<U> p2){
+      return andLazy(constant(p2));
+    }
+
+    public <U> ArgParser<Tuple2<T, U>> andLazy(final Function0<ArgParser<U>> p2){
       final ArgParser<T> self = this;
       return new ArgParser<Tuple2<T, U>>() {
         public ParseResult<Tuple2<T, U>> parse(List<String> args) {
           ParseResult<T> pr1 = self.parse(args);
           if(pr1.isSuccess()){
-            ParseResult<U> pr2 = p2.parse(pr1.rest());
+            ParseResult<U> pr2 = p2.apply().parse(pr1.rest());
             if(pr2.isSuccess()) return new Success<Tuple2<T, U>>(
               new Tuple2<T, U>(pr1.get(), pr2.get()), pr2.rest());
             else return new Failure<Tuple2<T, U>>(pr2.error());
@@ -63,14 +72,20 @@ public class JavaParsers {
       };
     }
 
-    public ArgParser<T> or(final ArgParser<T> p2){
+    private <T> Function0<T> constant(final T t){
+      return new AbstractFunction0<T>(){ public T apply() { return t; } };
+    };
+
+    public ArgParser<T> or(final ArgParser<T> p2){ return orLazy(constant(p2)); }
+
+    public ArgParser<T> orLazy(final Function0<ArgParser<T>> p2){
       final ArgParser<T> self = this;
       return new ArgParser<T>() {
         public ParseResult<T> parse(List<String> args) {
           ParseResult<T> pr1 = self.parse(args);
           if(pr1.isSuccess()) return pr1;
           else {
-            ParseResult<T> pr2 = p2.parse(args);
+            ParseResult<T> pr2 = p2.apply().parse(args);
             if(pr2.isSuccess()) return pr2;
             else return new Failure<T>(pr1.error() + " or " + pr2.error());
           }
@@ -91,6 +106,27 @@ public class JavaParsers {
 
     public <U> ArgParser<U> outputting(final U u){
       return map(new AbstractFunction1<T, U>() { public U apply(T t) { return u; } });
+    }
+
+    public ArgParser<List<T>> star(){
+      return this.plus().orLazy(new AbstractFunction0<ArgParser<List<T>>>(){
+        public ArgParser<List<T>> apply() {
+          return success((List<T>) (new LinkedList<T>()));
+        }
+      });
+    }
+
+    public ArgParser<List<T>> plus(){
+      final ArgParser<T> self = this;
+      return this.andLazy(new AbstractFunction0<ArgParser<List<T>>>(){
+        public ArgParser<List<T>> apply() { return self.star(); }
+      }).map(new AbstractFunction1<Tuple2<T, List<T>>, List<T>>() {
+        public List<T> apply(Tuple2<T, List<T>> t) {
+          LinkedList<T> ts = new LinkedList<T>(t._2());
+          ts.addFirst(t._1());
+          return ts;
+        }
+      });
     }
   }
 
@@ -124,6 +160,22 @@ public class JavaParsers {
     return new ArgParser<Void>() {
       public ParseResult<Void> parse(List<String> args) {
         return new Success<Void>(null, args);
+      }
+    };
+  }
+
+  static public <T, U> ArgParser<Either<T,U>> either(final ArgParser<T> pt, final ArgParser<U> pu){
+    return new ArgParser<Either<T,U>>() {
+      public ParseResult<Either<T,U>> parse(List<String> args) {
+        ParseResult<T> pr1 = pt.parse(args);
+        if(pr1.isSuccess())
+          return new Success<Either<T, U>>(new Left<T, U>(pr1.get()), pr1.rest());
+        else {
+          ParseResult<U> pr2 = pu.parse(args);
+          if(pr2.isSuccess())
+            return new Success<Either<T, U>>(new Right<T, U>(pr2.get()), pr2.rest());
+          else return new Failure<Either<T,U>>(pr1.error() + " or " + pr2.error());
+        }
       }
     };
   }
