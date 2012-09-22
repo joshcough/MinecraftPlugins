@@ -2,10 +2,12 @@ package jcdc.pluginfactory.betterjava;
 
 import scala.Function1;
 import scala.Option;
+import scala.Tuple2;
 import scala.runtime.AbstractFunction1;
 
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.List;
 
 public class JavaParsers {
 
@@ -18,11 +20,8 @@ public class JavaParsers {
 
   static public class Success<T> extends ParseResult<T> {
     private final T t;
-    private final LinkedList<String> rest;
-    public Success(T t, LinkedList<String> rest){
-      this.t = t;
-      this.rest = rest;
-    }
+    private final List<String> rest;
+    public Success(T t, List<String> rest){ this.t = t; this.rest = rest; }
     boolean isFailure() { return false; }
     boolean isSuccess() { return true; }
     T get(){ return t; }
@@ -31,9 +30,7 @@ public class JavaParsers {
 
   static public  class Failure<T> extends ParseResult<T> {
     private String message;
-    public Failure(String message){
-      this.message = message;
-    }
+    public Failure(String message){ this.message = message; }
     boolean isFailure() { return true; }
     boolean isSuccess() { return false; }
     T get(){ throw new RuntimeException("cant get from Failure"); }
@@ -41,16 +38,34 @@ public class JavaParsers {
   }
 
   static public abstract class ArgParser<T> {
-    public abstract ParseResult<T> parse(LinkedList<String> args);
+    public abstract ParseResult<T> parse(List<String> args);
 
     public ParseResult<T> parse(String[] args){
       return parse(new LinkedList<String>(Arrays.asList(args)));
     }
 
+    public <U> ArgParser<Tuple2<T, U>> and(final ArgParser<U> p2){
+      final ArgParser<T> self = this;
+      return new ArgParser<Tuple2<T, U>>() {
+        public ParseResult<Tuple2<T, U>> parse(List<String> args) {
+          ParseResult<T> pr1 = self.parse(args);
+          if(pr1.isSuccess()){
+            ParseResult<U> pr2 = p2.parse(((Success<T>)pr1).rest);
+            if(pr2.isSuccess()) return new Success<Tuple2<T, U>>(
+                new Tuple2<T, U>(pr1.get(), pr2.get()), ((Success<T>)pr2).rest);
+            // TODO: need describe to make this work...
+            else return new Failure<Tuple2<T, U>>("didnt get this and that...");
+          }
+          // TODO: need describe to make this work...
+          else return new Failure<Tuple2<T, U>>("didnt get this and that...");
+        }
+      };
+    }
+
     public ArgParser<T> or(final ArgParser<T> p2){
       final ArgParser<T> self = this;
       return new ArgParser<T>() {
-        public ParseResult<T> parse(LinkedList<String> args) {
+        public ParseResult<T> parse(List<String> args) {
           ParseResult<T> pr1 = self.parse(args);
           if(pr1.isSuccess()) return pr1;
           else {
@@ -65,34 +80,31 @@ public class JavaParsers {
     public <U> ArgParser<U> map(final Function1<T, U> f1){
       final ArgParser<T> self = this;
       return new ArgParser<U>() {
-        public ParseResult<U> parse(LinkedList<String> args) {
+        public ParseResult<U> parse(List<String> args) {
           ParseResult<T> pr = self.parse(args);
-          if(pr.isSuccess()) {
-            LinkedList<String> ss = new LinkedList<String>(args);
-            ss.removeFirst();
-            return new Success<U>(f1.apply(pr.get()), ss);
-          }
+          if(pr.isSuccess()) return new Success<U>(f1.apply(pr.get()), ((Success<T>)pr).rest);
           else return (Failure<U>)pr;
         }
       };
     }
 
     public <U> ArgParser<U> outputting(final U u){
-      return map(new AbstractFunction1<T, U>() {
-        public U apply(T t) { return u; }
-      });
+      return map(new AbstractFunction1<T, U>() { public U apply(T t) { return u; } });
     }
+  }
+
+  static private <T> Success<T> successAndDropOne(T t, List<String> orig){
+    LinkedList<String> ss = new LinkedList<String>(orig);
+    ss.removeFirst();
+    return new Success<T>(t, ss);
   }
 
   static public ArgParser<String> match(final String s){
     return new ArgParser<String>(){
-      public ParseResult<String> parse(LinkedList<String> args) {
-        if(args.size() > 0) {
-          if(args.getFirst().equalsIgnoreCase(s)){
-            LinkedList<String> ss = new LinkedList<String>(args);
-            return new Success<String>(ss.removeFirst(), ss);
-          }
-          else return new Failure<String>("expected: " + s + ", but got: " + args.getFirst());
+      public ParseResult<String> parse(List<String> args) {
+        if(! args.isEmpty()) {
+          if(args.get(0).equalsIgnoreCase(s)) return successAndDropOne(args.get(0), args);
+          else return new Failure<String>("expected: " + s + ", but got: " + args.get(0));
         }
         else return new Failure<String>("expected: " + s + ", but got nothing");
       }
@@ -100,39 +112,30 @@ public class JavaParsers {
   }
 
   static public ArgParser<String> anyString = new ArgParser<String>() {
-    public ParseResult<String> parse(LinkedList<String> args) {
-      if(args.size() > 0) {
-        LinkedList<String> ss = new LinkedList<String>(args);
-        return new Success<String>(ss.removeFirst(), ss);
-      }
+    public ParseResult<String> parse(List<String> args) {
+      if(! args.isEmpty()) return successAndDropOne(args.get(0), args);
       else return new Failure<String>("expected a string, but didn't get any");
     }
   };
 
   static public <T> ArgParser<Option<T>> opt(final ArgParser<T> p){
     return new ArgParser<Option<T>>(){
-      public ParseResult<Option<T>> parse(LinkedList<String> args) {
+      public ParseResult<Option<T>> parse(List<String> args) {
         ParseResult<T> pr = p.parse(args);
         if(pr.isFailure()) return new Success<Option<T>>(Option.<T>empty(), args);
-        else {
-          LinkedList<String> ss = new LinkedList<String>(args);
-          ss.removeFirst();
-          return new Success<Option<T>>(Option.apply(pr.get()), ss);
-        }
+        else return new Success<Option<T>>(Option.apply(pr.get()), ((Success<T>)pr).rest);
       }
     };
   }
 
   static public <T> ArgParser<T> token(final String name, final Function1<String, Option<T>> f){
     return new ArgParser<T>() {
-      public ParseResult<T> parse(LinkedList<String> args) {
+      public ParseResult<T> parse(List<String> args) {
         if(args.isEmpty()) return new Failure<T>("expected " + name + ", got nothing");
         else{
-          Option<T> ot = f.apply(args.getFirst());
-          LinkedList<String> ss = new LinkedList<String>(args);
-          ss.removeFirst();
-          if(ot.isDefined()) return new Success<T>(ot.get(), ss);
-          else return new Failure<T>("invalid " + name + ": " + args.getFirst());
+          Option<T> ot = f.apply(args.get(0));
+          if(ot.isDefined()) return successAndDropOne(ot.get(), args);
+          else return new Failure<T>("invalid " + name + ": " + args.get(0));
         }
       }
     };
