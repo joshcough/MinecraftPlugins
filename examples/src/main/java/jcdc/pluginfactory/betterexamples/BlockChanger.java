@@ -10,16 +10,16 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockDamageEvent;
 import scala.Option;
+import static jcdc.pluginfactory.betterexamples.JavaParsers.opt;
 
 public class BlockChanger extends BetterJavaPlugin {
-  public final Map<Player, Material> BlockChangerUsers = new HashMap<Player, Material>();
+  public final Map<Player, Material> blockChangerUsers = new HashMap<Player, Material>();
 
   public BlockChanger() {
     listeners.add(new Listener() {
-      @EventHandler
-      public void onBlockDamage(BlockDamageEvent event) {
-        if (BlockChangerUsers.containsKey(event.getPlayer())) {
-          event.getBlock().setTypeId(BlockChangerUsers.get(event.getPlayer()).getId());
+      @EventHandler public void onBlockDamage(BlockDamageEvent event) {
+        if (blockChangerUsers.containsKey(event.getPlayer())) {
+          event.getBlock().setTypeId(blockChangerUsers.get(event.getPlayer()).getId());
         }
       }
     });
@@ -30,10 +30,10 @@ public class BlockChanger extends BetterJavaPlugin {
         new CommandBody<Option<Material>>(opt(material)) {
           public void run(Player p, Option<Material> om) {
             if (om.isDefined()) {
-              BlockChangerUsers.put(p, om.get());
+              blockChangerUsers.put(p, om.get());
               p.sendMessage(ChatColor.BLUE + "BlockChanger using: " + om.get().name());
             } else {
-              BlockChangerUsers.remove(p);
+              blockChangerUsers.remove(p);
               p.sendMessage(ChatColor.RED + "BlockChanger has been disabled!");
             }
           }
