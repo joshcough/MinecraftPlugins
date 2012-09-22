@@ -20,7 +20,8 @@ public class MultiPlayerCommands extends BetterJavaPlugin {
     commands.add(new Command("goto", "Teleport to a player.",
       new CommandBody<Either<Player, Tuple2<Tuple2<Integer, Integer>, Option<Integer>>>>(
           either(player, integer.and(integer).and(opt(integer)))) {
-        public void run(Player you, Either<Player, Tuple2<Tuple2<Integer, Integer>, Option<Integer>>> e) {
+        public void run(Player you,
+                        Either<Player, Tuple2<Tuple2<Integer, Integer>, Option<Integer>>> e) {
           if(e.isLeft()) you.teleport(e.left().get());
           else{
             Tuple2<Tuple2<Integer, Integer>, Option<Integer>> t = e.right().get();
@@ -96,30 +97,39 @@ public class MultiPlayerCommands extends BetterJavaPlugin {
         p.teleport(p.getWorld().getHighestBlockAt(p.getLocation()).getLocation());
       }
     }));
+    commands.add(new Command("kill", "Kill entities.",
+      new CommandBody<Either<Tuple2<String, Player>, EntityType>>(
+        either(match("player").and(player), entity)) {
+        public void run(Player killer, final Either<Tuple2<String, Player>, EntityType> e) {
+          if(e.isLeft()) doTo(killer, e.left().get()._2(), new Runnable() {
+            public void run() { e.left().get()._2().setHealth(0); } }, "killed"
+          );
+          else for(Entity en: killer.getWorld().getEntities()){
+            if(en.getType() == e.right().get()) en.remove();
+          }
+        }
+    }));
   }
+
+  /**
+   TODO: still need to implement these, but they require all the block pimping
+   which will be non-trivial and ugly in java.
+
+   Command("box",      "Put a box around yourself, made of any material.",
+     args(material){ case p ~ m  => p.blocksAround.foreach(_ changeTo m) }),
+
+   Command("safe",     "Put yourself in a box made of bedrock.",
+    noArgs(_.blocksAround.foreach(_ changeTo BEDROCK))),
+
+   Command("drill",    "Drill down to bedrock immediately.", noArgs(p =>
+     for (b <- p.blockOn.blocksBelow.takeWhile(_ isNot BEDROCK); if (b isNot AIR)) {
+     b.erase
+     if (b.blockBelow is BEDROCK) b.nthBlockAbove(2) changeTo STATIONARY_WATER
+    })),
+
+   Command("creeper-kill", "Surround a player with creepers", opOnly(p2p((_, them) => {
+    them.setGameMode(SURVIVAL)
+    them.loc.block.neighbors8.foreach(_.loc.spawn(CREEPER))
+   })
+   **/
 }
-
-/**
- Command("box",      "Put a box around yourself, made of any material.",
- args(material){ case p ~ m  => p.blocksAround.foreach(_ changeTo m) }),
- Command("safe",     "Put yourself in a box made of bedrock.",
- noArgs(_.blocksAround.foreach(_ changeTo BEDROCK))),
-
- Command("drill",    "Drill down to bedrock immediately.",
- noArgs(p =>
- for (b <- p.blockOn.blocksBelow.takeWhile(_ isNot BEDROCK); if (b isNot AIR)) {
- b.erase
- if (b.blockBelow is BEDROCK) b.nthBlockAbove(2) changeTo STATIONARY_WATER
- })),
- Command("kill",     "Kill entities.",
- args(("player" ~ player) or entity){
- case killer ~ Left(_ ~ deadMan) => killer.kill(deadMan)
- case killer ~ Right(e) => killer.world.entities.filter { _ isAn e }.foreach(_.remove)
- }),
- Command("creeper-kill", "Surround a player with creepers", opOnly(p2p((_, them) => {
- them.setGameMode(SURVIVAL)
- them.loc.block.neighbors8.foreach(_.loc.spawn(CREEPER))
- })))
- )
- }
- **/
