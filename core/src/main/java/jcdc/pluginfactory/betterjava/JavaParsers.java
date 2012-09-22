@@ -77,7 +77,7 @@ public class JavaParsers {
       };
     }
 
-    <U> ArgParser<U> outputting(final U u){
+    public <U> ArgParser<U> outputting(final U u){
       return map(new AbstractFunction1<T, U>() {
         public U apply(T t) { return u; }
       });
