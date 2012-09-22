@@ -10,7 +10,9 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockDamageEvent;
 import scala.Option;
-import static jcdc.pluginfactory.betterexamples.JavaParsers.opt;
+
+import jcdc.pluginfactory.java.BetterJavaPlugin;
+import static jcdc.pluginfactory.java.JavaParsers.opt;
 
 public class BlockChanger extends BetterJavaPlugin {
   public final Map<Player, Material> blockChangerUsers = new HashMap<Player, Material>();

@@ -1,4 +1,4 @@
-package jcdc.pluginfactory.betterexamples;
+package jcdc.pluginfactory.java;
 
 import org.bukkit.Effect;
 import org.bukkit.GameMode;
@@ -18,7 +18,7 @@ import scala.runtime.AbstractFunction1;
 import java.util.*;
 import java.util.logging.Logger;
 
-import static jcdc.pluginfactory.betterexamples.JavaParsers.*;
+import static jcdc.pluginfactory.java.JavaParsers.*;
 
 public class BetterJavaPlugin extends JavaPlugin {
   public final Logger logger = Logger.getLogger("Minecraft");

@@ -1,4 +1,4 @@
-package jcdc.pluginfactory.betterexamples;
+package jcdc.pluginfactory.java;
 
 import scala.Function1;
 import scala.Option;
@@ -139,5 +139,4 @@ public class JavaParsers {
       }
     };
   }
-
 }

@@ -1,5 +1,7 @@
 package jcdc.pluginfactory.betterexamples;
 
+import jcdc.pluginfactory.java.BetterJavaPlugin;
+
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
