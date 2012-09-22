@@ -31,7 +31,7 @@ trait CommonCommands extends CommandsPlugin {
       case killer ~ Right(e) => killer.world.entities.filter { _ isAn e }.foreach(_.remove)
     })
 
-  val all = List(goto, time, day, night, gm, gms, gmc, kill)
+  val allCommonCommands = List(goto, time, day, night, gm, gms, gmc, kill)
 }
 
 trait WorldEditCommands extends CommandsPlugin with Cubes {

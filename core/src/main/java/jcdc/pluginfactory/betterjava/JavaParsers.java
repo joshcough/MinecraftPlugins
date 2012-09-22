@@ -26,11 +26,11 @@ public class JavaParsers {
     boolean isFailure() { return false; }
     boolean isSuccess() { return true; }
     T get(){ return t; }
-    List<String> rest(){ return rest; }
+    List<String> rest() { return rest; }
     String error(){ throw new RuntimeException("cant get error message Success"); }
   }
 
-  static public  class Failure<T> extends ParseResult<T> {
+  static public class Failure<T> extends ParseResult<T> {
     private String message;
     public Failure(String message){ this.message = message; }
     boolean isFailure() { return true; }
