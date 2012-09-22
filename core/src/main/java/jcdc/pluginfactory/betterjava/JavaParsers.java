@@ -16,6 +16,7 @@ public class JavaParsers {
     abstract boolean isSuccess();
     abstract T get();
     abstract String error();
+    abstract List<String> rest();
   }
 
   static public class Success<T> extends ParseResult<T> {
@@ -25,6 +26,7 @@ public class JavaParsers {
     boolean isFailure() { return false; }
     boolean isSuccess() { return true; }
     T get(){ return t; }
+    List<String> rest(){ return rest; }
     String error(){ throw new RuntimeException("cant get error message Success"); }
   }
 
@@ -33,7 +35,8 @@ public class JavaParsers {
     public Failure(String message){ this.message = message; }
     boolean isFailure() { return true; }
     boolean isSuccess() { return false; }
-    T get(){ throw new RuntimeException("cant get from Failure"); }
+    T get(){ throw new RuntimeException("cant get value from Failure"); }
+    List<String> rest(){ throw new RuntimeException("cant get rest Failure"); }
     String error(){ return message; }
   }
 
@@ -50,14 +53,12 @@ public class JavaParsers {
         public ParseResult<Tuple2<T, U>> parse(List<String> args) {
           ParseResult<T> pr1 = self.parse(args);
           if(pr1.isSuccess()){
-            ParseResult<U> pr2 = p2.parse(((Success<T>)pr1).rest);
+            ParseResult<U> pr2 = p2.parse(pr1.rest());
             if(pr2.isSuccess()) return new Success<Tuple2<T, U>>(
-                new Tuple2<T, U>(pr1.get(), pr2.get()), ((Success<T>)pr2).rest);
-            // TODO: need describe to make this work...
-            else return new Failure<Tuple2<T, U>>("didnt get this and that...");
+              new Tuple2<T, U>(pr1.get(), pr2.get()), pr2.rest());
+            else return new Failure<Tuple2<T, U>>(pr2.error());
           }
-          // TODO: need describe to make this work...
-          else return new Failure<Tuple2<T, U>>("didnt get this and that...");
+          else return new Failure<Tuple2<T, U>>(pr1.error());
         }
       };
     }
@@ -82,7 +83,7 @@ public class JavaParsers {
       return new ArgParser<U>() {
         public ParseResult<U> parse(List<String> args) {
           ParseResult<T> pr = self.parse(args);
-          if(pr.isSuccess()) return new Success<U>(f1.apply(pr.get()), ((Success<T>)pr).rest);
+          if(pr.isSuccess()) return new Success<U>(f1.apply(pr.get()), pr.rest());
           else return (Failure<U>)pr;
         }
       };
@@ -123,7 +124,7 @@ public class JavaParsers {
       public ParseResult<Option<T>> parse(List<String> args) {
         ParseResult<T> pr = p.parse(args);
         if(pr.isFailure()) return new Success<Option<T>>(Option.<T>empty(), args);
-        else return new Success<Option<T>>(Option.apply(pr.get()), ((Success<T>)pr).rest);
+        else return new Success<Option<T>>(Option.apply(pr.get()), pr.rest());
       }
     };
   }
