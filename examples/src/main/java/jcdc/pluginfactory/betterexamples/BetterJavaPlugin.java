@@ -13,6 +13,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import scala.Option;
+import scala.runtime.AbstractFunction1;
 
 import java.util.*;
 import java.util.logging.Logger;
@@ -39,7 +40,7 @@ public class BetterJavaPlugin extends JavaPlugin {
     for(Cmd c: commands){
       if(c.name.toLowerCase().equals(commandLabel.toLowerCase())){
         // todo: doesnt work for console yet.
-        c.body.parseAndRun((Player)sender, args);
+        c.body.parseAndRun((Player) sender, args);
       }
     }
     return true;
@@ -91,24 +92,28 @@ public class BetterJavaPlugin extends JavaPlugin {
     }
   }
 
-  public ArgParser<Material> material = token("material", new F1<String, Option<Material>>() {
-    Option<Material> run(String s) {
-      Material m = Material.getMaterial(s);
-      if(m == null) m = Material.getMaterial(Integer.parseInt(s));
-      return Option.apply(m);
-    };
-  });
+  public ArgParser<Material> material = token("material",
+    new AbstractFunction1<String, Option<Material>>() {
+      public Option<Material> apply(String s) {
+        Material m = Material.getMaterial(s);
+        if(m == null) m = Material.getMaterial(Integer.parseInt(s));
+        return Option.apply(m);
+      };
+    }
+  );
 
-  public ArgParser<EntityType> entity = token("entity", new F1<String, Option<EntityType>>() {
-    Option<EntityType> run(String s) {
-      EntityType e = EntityType.fromName(s.toUpperCase());
-      if(e == null) e = EntityType.valueOf(s.toUpperCase());
-      return Option.apply(e);
-    };
-  });
+  public ArgParser<EntityType> entity = token("entity",
+    new AbstractFunction1<String, Option<EntityType>>() {
+      public Option<EntityType> apply(String s) {
+        EntityType e = EntityType.fromName(s.toUpperCase());
+        if(e == null) e = EntityType.valueOf(s.toUpperCase());
+        return Option.apply(e);
+      };
+    }
+  );
 
-  public ArgParser<Player> player = token("player", new F1<String, Option<Player>>() {
-    Option<Player> run(String s) {
+  public ArgParser<Player> player = token("player", new AbstractFunction1<String, Option<Player>>() {
+    public Option<Player> apply(String s) {
       return Option.apply(getServer().getPlayer(s));
     };
   });

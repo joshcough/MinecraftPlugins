@@ -1,14 +1,13 @@
 package jcdc.pluginfactory.betterexamples;
 
+import scala.Function1;
 import scala.Option;
+import scala.runtime.AbstractFunction1;
 
 import java.util.Arrays;
 import java.util.LinkedList;
 
 public class JavaParsers {
-
-  static abstract class F0<A>{    abstract A run(); }
-  static abstract class F1<A, B>{ abstract B run(A a); }
 
   static abstract class ParseResult<T>{
     abstract boolean isFailure();
@@ -63,7 +62,7 @@ public class JavaParsers {
       };
     }
 
-    <U> ArgParser<U> map(final F1<T, U> f1){
+    <U> ArgParser<U> map(final Function1<T, U> f1){
       final ArgParser<T> self = this;
       return new ArgParser<U>() {
         ParseResult<U> parse(LinkedList<String> args) {
@@ -71,7 +70,7 @@ public class JavaParsers {
           if(pr.isSuccess()) {
             LinkedList<String> ss = new LinkedList<String>(args);
             ss.removeFirst();
-            return new Success<U>(f1.run(pr.get()), ss);
+            return new Success<U>(f1.apply(pr.get()), ss);
           }
           else return (Failure<U>)pr;
         }
@@ -79,10 +78,8 @@ public class JavaParsers {
     }
 
     <U> ArgParser<U> outputting(final U u){
-      return map(new F1<T, U>() {
-        U run(T t) {
-          return u;
-        }
+      return map(new AbstractFunction1<T, U>() {
+        public U apply(T t) { return u; }
       });
     }
   }
@@ -128,12 +125,12 @@ public class JavaParsers {
     };
   }
 
-  static public <T> ArgParser<T> token(final String name, final F1<String, Option<T>> f){
+  static public <T> ArgParser<T> token(final String name, final Function1<String, Option<T>> f){
     return new ArgParser<T>() {
       ParseResult<T> parse(LinkedList<String> args) {
         if(args.isEmpty()) return new Failure<T>("expected " + name + ", got nothing");
         else{
-          Option<T> ot = f.run(args.getFirst());
+          Option<T> ot = f.apply(args.getFirst());
           LinkedList<String> ss = new LinkedList<String>(args);
           ss.removeFirst();
           if(ot.isDefined()) return new Success<T>(ot.get(), ss);
