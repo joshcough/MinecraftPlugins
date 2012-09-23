@@ -14,10 +14,10 @@ public class TreeDeloggerV2 extends JavaPlugin {
 
   class TreeDeloggerListener implements Listener {
     @EventHandler public void onBlockBreak(BlockBreakEvent event) {
-      Block current = event.getBlock();
-      while (current.getType() == Material.LOG) {
-        erase(current);
-        current = blockAbove(current);
+      Block currentBlock = event.getBlock();
+      while (currentBlock.getType() == Material.LOG) {
+        erase(currentBlock);
+        currentBlock = blockAbove(currentBlock);
       }
     }
   };

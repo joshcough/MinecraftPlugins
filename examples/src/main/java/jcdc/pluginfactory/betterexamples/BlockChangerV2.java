@@ -16,7 +16,7 @@ import java.util.Map;
 public class BlockChangerV2 extends JavaPlugin {
   public final Map<Player, Material> blockChangerUsers = new HashMap<Player, Material>();
 
-  Listener l = new Listener() {
+  class BlockChangerListener implements Listener {
     @EventHandler public void onBlockDamage(BlockDamageEvent event) {
       if (blockChangerUsers.containsKey(event.getPlayer())) {
         event.getBlock().setTypeId(blockChangerUsers.get(event.getPlayer()).getId());
@@ -25,7 +25,7 @@ public class BlockChangerV2 extends JavaPlugin {
   };
 
   public void onEnable() {
-    getServer().getPluginManager().registerEvents(l, this);
+    getServer().getPluginManager().registerEvents(new BlockChangerListener(), this);
   }
 
   public boolean onCommand(CommandSender sender, Command cmd,
