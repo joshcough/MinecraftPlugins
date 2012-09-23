@@ -54,9 +54,9 @@ public class BetterJavaPlugin extends JavaPlugin {
     Player p = sender instanceof Player ? (Player)sender : consolePlayer;
     for(Command c: commands){
       if(c.name.toLowerCase().equals(commandLabel.toLowerCase())){
-        handled = true;
         try{
           c.body.parseAndRun(p, args);
+          handled = true;
         } catch (Exception e){
           p.sendMessage(e.getMessage());
           e.printStackTrace();

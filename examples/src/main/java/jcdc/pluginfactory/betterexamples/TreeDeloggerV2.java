@@ -11,7 +11,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class TreeDelogger2 extends JavaPlugin {
+public class TreeDeloggerV2 extends JavaPlugin {
 
   Listener l = new Listener() {
     @EventHandler public void onBlockBreak(BlockBreakEvent event) {

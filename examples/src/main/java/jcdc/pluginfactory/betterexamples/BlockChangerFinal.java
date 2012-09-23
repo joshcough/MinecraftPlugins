@@ -14,10 +14,10 @@ import scala.Option;
 import jcdc.pluginfactory.betterjava.BetterJavaPlugin;
 import static jcdc.pluginfactory.betterjava.JavaParsers.opt;
 
-public class BlockChanger extends BetterJavaPlugin {
+public class BlockChangerFinal extends BetterJavaPlugin {
   public final Map<Player, Material> blockChangerUsers = new HashMap<Player, Material>();
 
-  public BlockChanger() {
+  public BlockChangerFinal() {
     listeners.add(new Listener() {
       @EventHandler public void onBlockDamage(BlockDamageEvent event) {
         if (blockChangerUsers.containsKey(event.getPlayer())) {

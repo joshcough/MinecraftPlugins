@@ -8,8 +8,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 
-public class TreeDelogger extends BetterJavaPlugin {
-  public TreeDelogger() {
+public class TreeDeloggerFinal extends BetterJavaPlugin {
+  public TreeDeloggerFinal() {
     listeners.add(new Listener() {
       @EventHandler public void onBlockBreak(BlockBreakEvent event) {
         Block current = event.getBlock();

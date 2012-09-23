@@ -13,7 +13,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.util.HashMap;
 import java.util.Map;
 
-public class BlockChanger2 extends JavaPlugin {
+public class BlockChangerV2 extends JavaPlugin {
   public final Map<Player, Material> blockChangerUsers = new HashMap<Player, Material>();
 
   Listener l = new Listener() {

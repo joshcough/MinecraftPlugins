@@ -17,6 +17,7 @@ import java.util.List;
 public class MultiPlayerCommands extends BetterJavaPlugin {
 
   public MultiPlayerCommands(){
+
     commands.add(new Command("goto", "Teleport to a player.",
       new CommandBody<Either<Player, Tuple2<Tuple2<Integer, Integer>, Option<Integer>>>>(
           either(player, integer.and(integer).and(opt(integer)))) {
@@ -35,51 +36,63 @@ public class MultiPlayerCommands extends BetterJavaPlugin {
         }
       }
     ));
+
     commands.add(new Command("set-time", "Sets the time.", new CommandBody<Integer>(integer) {
       public void run(Player p, Integer i) { p.getWorld().setTime(i.longValue()); }
     }));
+
     commands.add(new Command("day", "Sets the time to day.", new NoArgCommandBody() {
       public void run(Player p) { p.getWorld().setTime(1); }
     }));
+
     commands.add(new Command("night", "Sets the time to night.", new NoArgCommandBody() {
       public void run(Player p) { p.getWorld().setTime(15000); }
     }));
+
     commands.add(new Command("entities", "Display all the entities.", new NoArgCommandBody() {
       public void run(Player p) {
         for(Entity e: p.getWorld().getEntities()){ p.sendMessage(e.toString()); }
       }
     }));
+
     commands.add(new Command("feed", "Fill a players hunger bar", new CommandBody<Player>(player) {
       public void run(Player you, final Player them) { doTo(you, them, new Runnable(){
         public void run() { them.setFoodLevel(20); }
       }, "fed"); }
     }));
+
     commands.add(new Command("starve", "Drain a players hunger bar", new CommandBody<Player>(player)
     {
       public void run(Player you, final Player them) { doTo(you, them, new Runnable(){
         public void run() { them.setFoodLevel(0); }
       }, "starved"); }
     }));
+
     commands.add(new Command("shock", "Shock a player.", new CommandBody<Player>(player) {
       public void run(Player you, final Player them) { doTo(you, them, new Runnable(){
         public void run() { them.getWorld().strikeLightning(them.getLocation()); }
       }, "starved"); }
     }));
+
     commands.add(new Command("gm", "Set your game mode", new CommandBody<GameMode>(gamemode) {
       public void run(Player you, GameMode gm) { you.setGameMode(gm); }
     }));
+
     commands.add(new Command("gms", "Set your game mode to survival", new NoArgCommandBody() {
       public void run(Player you) { you.setGameMode(GameMode.SURVIVAL); }
     }));
+
     commands.add(new Command("gmc", "Set your game mode to creative", new NoArgCommandBody() {
       public void run(Player you) { you.setGameMode(GameMode.CREATIVE); }
     }));
+
     commands.add(new Command("spawn", "Spawn some mobs.",
       new CommandBody<Tuple2<EntityType, Option<Integer>>>(entity.and(opt(integer))) {
         public void run(Player p, Tuple2<EntityType, Option<Integer>> t) {
           spawnN(t._1(), t._2().isDefined() ? t._2().get() : 1, p.getLocation());
         }
     }));
+
     commands.add(new Command("ban", "Ban some players.",
       new CommandBody<List<String>>(anyString.plus()) {
         public void run(Player you, List<String> ss) {
@@ -92,11 +105,13 @@ public class MultiPlayerCommands extends BetterJavaPlugin {
         }
       }
     ));
+
     commands.add(new Command("up", "Go up to the surface.", new NoArgCommandBody() {
       public void run(Player p) {
         p.teleport(p.getWorld().getHighestBlockAt(p.getLocation()).getLocation());
       }
     }));
+
     commands.add(new Command("kill", "Kill entities.",
       new CommandBody<Either<Tuple2<String, Player>, EntityType>>(
         either(match("player").and(player), entity)) {
