@@ -1,4 +1,4 @@
-all: compile-core compile-examples arena ban-arrows block-changer curse-ban farmer god lightning-arrows mpc no-rain thor tree-delogger warp-plugin world-edit
+all: compile-core compile-examples arena ban-arrows block-changer block-changer-gold curse-ban farmer god lightning-arrows mpc no-rain thor tree-delogger warp-plugin world-edit yellow-brick-road zombie-apocalypse
 
 most: compile-core compile-examples
 

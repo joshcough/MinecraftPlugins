@@ -167,10 +167,10 @@ trait Pimps {
       ot.fold(player ! s)(t => f(t))
     }
     def attempt[T](f: => Unit) = try f catch { case e: Exception => this.!(e.getMessage) }
-    def blockOn         = player.loc.block
-    def blockAboveHead  = blockOn.nthBlockAbove(2)
-    def blocksAboveHead = blockOn.blockAbove.blockAbove.blocksAbove
-    def blocksAround    = blockOn.neighborsForPlayer
+    def blockOn         = player.loc.block.blockBelow
+    def blockAboveHead  = blockOn.nthBlockAbove(3)
+    def blocksAboveHead = blockAboveHead.blocksAbove
+    def blocksAround    = blockOn.blockAbove.neighborsForPlayer
 
     def doTo(otherPlayer: Player, f: => Unit, actionName: String){
       f
