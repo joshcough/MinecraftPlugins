@@ -55,6 +55,10 @@ class BlockChanger extends ListenerPlugin with CommandPlugin {
   )
 }
 
+class BlockChangerGold extends ListeningFor(OnBlockDamage((b, e) =>
+  if (e.getPlayer.name == "joshcough") b changeTo GOLD_BLOCK
+))
+
 class God extends ListenerPlugin with CommandsPlugin {
   val gods = collection.mutable.Map[Player, Boolean]().withDefaultValue(false)
   implicit def playerToGod(p:Player) = new { def isAGod = gods(p) }
