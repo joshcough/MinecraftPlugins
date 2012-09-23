@@ -25,6 +25,9 @@ ban-arrows:
 block-changer:
 	$(call plugin, "blockchanger.yml", "BlockChanger.jar")
 
+block-changer-gold:
+	$(call plugin, "blockchangergold.yml", "BlockChangerGold.jar")
+
 curse-ban:
 	$(call plugin, "curseban.yml", "CurseBan.jar")
 
@@ -57,6 +60,9 @@ warp-plugin:
 
 world-edit:
 	$(call plugin, "worldedit.yml", "WorldEdit.jar")
+
+yellow-brick-road:
+	$(call plugin, "yellowbrickroad.yml", "YellowBrickRoad.jar")
 
 zombie-apocalypse: 
 	$(call plugin, "zombieapocalypse.yml", "ZombieApocalyspse.jar")

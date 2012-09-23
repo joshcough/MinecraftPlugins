@@ -59,6 +59,10 @@ class BlockChangerGold extends ListeningFor(OnBlockDamage((b, e) =>
   if (e.getPlayer.name == "joshcough") b changeTo GOLD_BLOCK
 ))
 
+class YellowBrickRoad extends ListeningFor(OnPlayerMove((p, e) =>
+  if (p.blockOn isNot AIR) p.blockOn changeTo GOLD_BLOCK
+))
+
 class God extends ListenerPlugin with CommandsPlugin {
   val gods = collection.mutable.Map[Player, Boolean]().withDefaultValue(false)
   implicit def playerToGod(p:Player) = new { def isAGod = gods(p) }

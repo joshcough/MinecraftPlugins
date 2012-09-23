@@ -14,6 +14,7 @@ object YMLGenerator {
       new NPCTest,
       new BanArrows,
       new BlockChanger,
+      new BlockChangerGold,
       new CurseBan,
       new CursePreventer,
       new Farmer,
@@ -24,7 +25,8 @@ object YMLGenerator {
       new ZombieApocalypse,
       new WarpPlugin,
       new WorldEdit,
-      new WorldEditV2).foreach(writeYML)
+      new WorldEditV2,
+      new YellowBrickRoad).foreach(writeYML)
   }
 
   def writeYML(plugin: ScalaPlugin): Unit = {
