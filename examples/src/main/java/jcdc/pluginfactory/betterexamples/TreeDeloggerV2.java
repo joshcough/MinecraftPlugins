@@ -1,6 +1,5 @@
 package jcdc.pluginfactory.betterexamples;
 
-import jcdc.pluginfactory.betterjava.BetterJavaPlugin;
 import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -13,7 +12,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class TreeDeloggerV2 extends JavaPlugin {
 
-  Listener l = new Listener() {
+  class TreeDeloggerListener implements Listener {
     @EventHandler public void onBlockBreak(BlockBreakEvent event) {
       Block current = event.getBlock();
       while (current.getType() == Material.LOG) {
@@ -24,7 +23,7 @@ public class TreeDeloggerV2 extends JavaPlugin {
   };
 
   public void onEnable() {
-    getServer().getPluginManager().registerEvents(l, this);
+    getServer().getPluginManager().registerEvents(new TreeDeloggerListener(), this);
   }
 
   public void erase(Block b){
