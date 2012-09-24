@@ -40,7 +40,7 @@ public class BetterJavaPlugin extends JavaPlugin {
   public List<Command> commands = new ArrayList<Command>();
 
   public void onEnable() {
-    for (Listener l : listeners) { getServer().getPluginManager().registerEvents(l, this); }
+    for (Listener l : listeners) { register(l); }
     info(getDescription().getName() + " version " + getVersion() + " is now enabled.");
   }
 
@@ -64,6 +64,10 @@ public class BetterJavaPlugin extends JavaPlugin {
       }
     }
     return handled;
+  }
+
+  public void register(Listener l){
+    getServer().getPluginManager().registerEvents(l, this);
   }
 
   public void info(String message) { logger.info(message); }
