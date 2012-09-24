@@ -155,6 +155,7 @@ trait Pimps {
     def server = player.getServer
 
     def holding = player.getItemInHand
+    def is(pname: String) = name == pname
     def isHolding  (m: Material) = player.getItemInHand.getType == m
     def isHoldingA (m: Material) = isHolding(m)
     def isHoldingAn(m: Material) = isHolding(m)

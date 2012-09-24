@@ -56,7 +56,7 @@ class BlockChanger extends ListenerPlugin with CommandPlugin {
 }
 
 class BlockChangerGold extends ListeningFor(OnBlockDamage((b, e) =>
-  if (e.getPlayer.name == "joshcough") b changeTo GOLD_BLOCK
+  if (e.getPlayer is "joshcough") b changeTo GOLD_BLOCK
 ))
 
 class YellowBrickRoad extends ListeningFor(OnPlayerMove((p, e) =>
