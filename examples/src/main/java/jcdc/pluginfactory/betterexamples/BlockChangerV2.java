@@ -14,18 +14,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class BlockChangerV2 extends JavaPlugin {
-  public final Map<Player, Material> blockChangerUsers = new HashMap<Player, Material>();
-
-  class BlockChangerListener implements Listener {
-    @EventHandler public void onBlockDamage(BlockDamageEvent event) {
-      if (blockChangerUsers.containsKey(event.getPlayer())) {
-        event.getBlock().setTypeId(blockChangerUsers.get(event.getPlayer()).getId());
-      }
-    }
-  };
+  public final Map<Player, Material> blocks = new HashMap<Player, Material>();
 
   public void onEnable() {
-    getServer().getPluginManager().registerEvents(new BlockChangerListener(), this);
+    getServer().getPluginManager().registerEvents(new Listener (){
+      @EventHandler public void onBlockDamage(BlockDamageEvent event) {
+        if (blocks.containsKey(event.getPlayer())) {
+          event.getBlock().setTypeId(blocks.get(event.getPlayer()).getId());
+        }
+      }
+    }, this);
   }
 
   public boolean onCommand(CommandSender sender, Command cmd,
@@ -39,12 +37,12 @@ public class BlockChangerV2 extends JavaPlugin {
 
   private void blockChange(Player p, String[] args){
     if(args.length == 0) {
-      blockChangerUsers.remove(p);
+      blocks.remove(p);
       p.sendMessage(ChatColor.RED + "BlockChanger has been disabled!");
     }
     else try {
       Material m = findMaterial(args[1]);
-      blockChangerUsers.put(p, m);
+      blocks.put(p, m);
       p.sendMessage(ChatColor.BLUE + "BlockChanger using: " + m.name());
     } catch (IllegalArgumentException e) {
       p.sendMessage("no such material: " + args[1]);
