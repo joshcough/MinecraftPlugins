@@ -8,7 +8,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class BlockChangerGold extends JavaPlugin {
 
-  class BlockChangerListener implements Listener {
+  Listener l = new Listener(){
     @EventHandler
     public void onBlockDamage(BlockDamageEvent event) {
       event.getBlock().setType(Material.GOLD_BLOCK);
@@ -16,6 +16,6 @@ public class BlockChangerGold extends JavaPlugin {
   };
 
   public void onEnable() {
-    getServer().getPluginManager().registerEvents(new BlockChangerListener(), this);
+    getServer().getPluginManager().registerEvents(l, this);
   }
 }
