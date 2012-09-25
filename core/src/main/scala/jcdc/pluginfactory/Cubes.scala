@@ -1,6 +1,6 @@
 package jcdc.pluginfactory
 
-import jcdc.pluginfactory.Pimps._
+import EnrichmentClasses._
 import org.bukkit.Location
 import org.bukkit.entity.Player
 

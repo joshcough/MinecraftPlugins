@@ -6,9 +6,9 @@ import org.bukkit.craftbukkit.CraftServer
 import org.bukkit.event.{Event, Listener}
 import util.Try
 
-object ScalaPlugin extends Pimps
+object ScalaPlugin extends EnrichmentClasses
 
-abstract class ScalaPlugin extends org.bukkit.plugin.java.JavaPlugin with Pimps {
+abstract class ScalaPlugin extends org.bukkit.plugin.java.JavaPlugin with EnrichmentClasses {
 
   val log = Logger.getLogger("Minecraft")
 

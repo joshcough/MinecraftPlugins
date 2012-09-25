@@ -3,7 +3,7 @@ package jcdc.pluginfactory
 import org.bukkit.GameMode._
 import org.bukkit.Material
 import Material._
-import Pimps._
+import EnrichmentClasses._
 import scala.collection.JavaConversions._
 
 trait CommonCommands extends CommandsPlugin {

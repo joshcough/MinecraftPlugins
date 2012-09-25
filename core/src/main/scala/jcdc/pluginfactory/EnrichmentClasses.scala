@@ -15,14 +15,14 @@ import org.bukkit.entity.{LivingEntity, Entity, EntityType, Player}
 import org.bukkit.event.player.{PlayerInteractEvent, PlayerEvent}
 import util.Try
 
-object Pimps extends Pimps
+object EnrichmentClasses extends EnrichmentClasses
 
-trait Pimps {
+trait EnrichmentClasses {
 
-  implicit def pimpedEntityEvent(e:EntityEvent)   = new PimpedEntity(e.getEntity)
-  implicit def pimpedPlayerEvent(e:PlayerEvent)   = new PimpedPlayer(e.getPlayer)
-  implicit def blockToItemStack(b: Block)         = new ItemStack(b.getType, 1, b.getData)
-  implicit def materialToItemStack(m: Material)   = new ItemStack(m, 1)
+  implicit def richEntityEvent(e:EntityEvent)   = new RichEntity(e.getEntity)
+  implicit def richPlayerEvent(e:PlayerEvent)   = new RichPlayer(e.getPlayer)
+  implicit def blockToItemStack(b: Block)       = new ItemStack(b.getType, 1, b.getData)
+  implicit def materialToItemStack(m: Material) = new ItemStack(m, 1)
   implicit def materialToMaterialAndData(m:Material) = MaterialAndData(m, None)
   implicit def materialAndDataToItemStack(m:MaterialAndData) = m.itemStack
   implicit def itemStackToMaterialAndData(is:ItemStack) = MaterialAndData(is.getType, {
@@ -32,7 +32,7 @@ trait Pimps {
   implicit def blockToMaterialAndData(b:Block)    = MaterialAndData(b.getType, Some(b.getData))
   implicit def blockToLoc(b: Block) = b.getLocation
 
-  implicit class PimpedBlock(b:Block) {
+  implicit class RichBlock(b:Block) {
     lazy val world = b.getWorld
     lazy val loc   = b.getLocation
     lazy val (x, y, z) = (b.getX, b.getY, b.getZ)
@@ -84,14 +84,14 @@ trait Pimps {
     }
   }
 
-  implicit class PimpedCancellable(c:Cancellable){
+  implicit class RichCancellable(c:Cancellable){
     def cancel: Unit = c.setCancelled(true)
     def cancelIf(b: => Boolean, runBeforeCancelling: => Unit = () => ()){
       if(b) { runBeforeCancelling; c.setCancelled(true) }
     }
   }
 
-  implicit class PimpedEntity(e:Entity){
+  implicit class RichEntity(e:Entity){
     def loc      = e.getLocation
     def x        = loc.x
     def y        = loc.y
@@ -103,16 +103,16 @@ trait Pimps {
     def isAn(et:EntityType) = e.getType == et
   }
 
-  implicit class PimpedLivingEntity(e: LivingEntity){
+  implicit class RichLivingEntity(e: LivingEntity){
     def die = e.setHealth(0)
   }
 
-  implicit class PimpedItemStack(i:ItemStack){
+  implicit class RichItemStack(i:ItemStack){
     def isA(m:Material)  = i.getType == m
     def isAn(m:Material) = i.getType == m
   }
 
-  implicit class PimpedWorld(w:World){
+  implicit class RichWorld(w:World){
     def entities = w.getEntities
     def apply(x: Int, y: Int, z: Int): Block = blockAt(x.toDouble, y.toDouble, z.toDouble)
     def apply(x: Double, y: Double, z: Double): Block = new Location(w, x, y, z).getBlock
@@ -127,7 +127,7 @@ trait Pimps {
     def worldServer: WorldServer = mcWorld.getHandle
   }
 
-  implicit class PimpedLocation(loc: Location){
+  implicit class RichLocation(loc: Location){
     lazy val (x,y,z) = (loc.getX.toInt, loc.getY.toInt, loc.getZ.toInt)
     lazy val xyz = (x, y, z)
     lazy val (xd,yd,zd) = (loc.getX, loc.getY, loc.getZ)
@@ -139,7 +139,7 @@ trait Pimps {
     def dropItem(stack: ItemStack): Unit = loc.world.dropItem(loc, stack)
   }
 
-  implicit class PimpedServer(s:Server){
+  implicit class RichServer(s:Server){
     def findPlayer(name:String) = Option(s.getPlayer(name))
     def findOnlinePlayer = findPlayer _
     def findOfflinePlayer(name:String) = Option(s.getOfflinePlayer(name))
@@ -148,7 +148,7 @@ trait Pimps {
       names.map(findOfflinePlayer).flatten
   }
 
-  implicit class PimpedPlayer(player:Player){
+  implicit class RichPlayer(player:Player){
     def loc    = player.getLocation
     def name   = player.getName
     def world  = player.getWorld
@@ -199,12 +199,12 @@ trait Pimps {
     }
   }
 
-  implicit class PimpedPlayerInteractEvent(e: PlayerInteractEvent) {
+  implicit class RichPlayerInteractEvent(e: PlayerInteractEvent) {
     def block = e.getClickedBlock
     def loc = block.loc
   }
 
-  implicit class PimpedWeatherChangeEvent(e:WeatherChangeEvent) {
+  implicit class RichWeatherChangeEvent(e:WeatherChangeEvent) {
     def rain = e.toWeatherState
     def sun  = ! e.toWeatherState
   }
@@ -221,7 +221,7 @@ trait Pimps {
 
   def id[T](t:T) = identity(t)
 
-  implicit def pimpedBoolean(b1:Boolean) = new {
+  implicit def richBoolean(b1:Boolean) = new {
     def or (b2: => Boolean) = b1 || b2
     def and(b2: => Boolean) = b1 && b2
   }

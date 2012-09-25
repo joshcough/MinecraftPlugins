@@ -4,7 +4,7 @@ import org.bukkit.ChatColor._
 import org.bukkit.command.{CommandSender, Command => BukkitCommand}
 import org.bukkit.GameMode._
 import org.bukkit.entity.Player
-import Pimps._
+import EnrichmentClasses._
 
 case class CommandBody(argDesc: String, f:(Player, BukkitCommand, List[String]) => Unit)
 

@@ -1,7 +1,7 @@
 package jcdc.pluginfactory.examples
 
 import jcdc.pluginfactory._
-import Pimps._
+import EnrichmentClasses._
 import org.bukkit.event.player.PlayerMoveEvent
 
 class GetOffMyLawn extends ListenerPlugin with WorldEditCommands with Cubes {

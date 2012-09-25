@@ -2,7 +2,7 @@ package jcdc.pluginfactory
 
 import org.bukkit.block.Block
 import org.bukkit.entity.Player
-import Pimps._
+import EnrichmentClasses._
 import org.bukkit.{Material, Location}
 import collection.JavaConversions.asScalaIterator
 
