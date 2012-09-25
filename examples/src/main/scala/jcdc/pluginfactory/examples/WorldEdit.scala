@@ -25,7 +25,7 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin {
 
   val commands = List(
     Command(
-      name = "/wand",
+      name = "wand",
       desc = "Get a WorldEdit wand.",
       body = noArgs(_.loc.dropItem(WOOD_AXE))
     ),
@@ -39,17 +39,10 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin {
       desc = "Change all the selected blocks of the first material type to the second material type.",
       body = args(material ~ material){ case p ~ (oldM ~ newM) =>
                run(p)(_.blocks.filter(_ is oldM).map(_ changeTo newM).force)}
-    ),
-    Command(
-      name = "/walls",
-      desc = "Create walls with the given material type.",
-      body = args(material){ case p ~ m => run(p)(g => g.blocks.filter(
-               b => b.x == g.l1.x or b.x == g.l2.x or b.z == g.l1.z or b.z == g.l2.z
-             ).map(_ changeTo m).force)}
     )
   )
 
   // helper functions
   def cube(p: Player): Option[Cube] = positions.get(p).flatMap(lol => lol._2.map(Cube(lol._1, _)))
-  def run(p: Player)(f: Cube => Unit) = cube(p).fold(p ! "Both positions must be set!")(f)
+  def run (p: Player)(f: Cube => Unit) = cube(p).fold(p ! "Both positions must be set!")(f)
 }
