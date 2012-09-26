@@ -7,7 +7,7 @@ demo-bc-gold: clean-plugins compile block-changer-gold lightning-arrows no-rain 
 demo-bc: clean-plugins compile block-changer
 
 clean-plugins:
-	cd ../bukkit/plugins; rm *.jar
+	cd ../bukkit/plugins; rm -f *.jar
 
 compile:
 	cd ../core; ./sbt package publish-local

@@ -101,7 +101,7 @@ trait EnrichmentClasses {
     def whenPlayer(f: Player => Unit) = if(e.isInstanceOf[Player]) f(e.asInstanceOf[Player])
     def isA(et:EntityType)  = e.getType == et
     def isAn(et:EntityType) = e.getType == et
-    def shock = world.shockLightning(loc)
+    def shock = world.strikeLightning(loc)
   }
 
   implicit class RichLivingEntity(e: LivingEntity){

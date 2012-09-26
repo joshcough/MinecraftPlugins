@@ -26,8 +26,8 @@ class BlockChanger extends ListenerPlugin with CommandPlugin {
   )
 }
 
-class Thor extends ListeningFor(OnEntityDamageByPlayer { e =>
-  if (e.damager isHoldingA DIAMOND_AXE) e.damagee.shock
+class Thor extends ListeningFor(OnEntityDamageByPlayer { (damagee, thor, _) =>
+  if (thor isHoldingA DIAMOND_AXE) damagee.shock
 })
 
 class Farmer extends ListenersPlugin {
