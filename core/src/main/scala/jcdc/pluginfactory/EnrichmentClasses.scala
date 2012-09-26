@@ -3,7 +3,7 @@ package jcdc.pluginfactory
 import org.bukkit.{ChatColor, Effect, Location, Material, OfflinePlayer, Server, World}
 import org.bukkit.block.Block
 import org.bukkit.event.Cancellable
-import org.bukkit.event.entity.EntityEvent
+import org.bukkit.event.entity.{EntityDamageByEntityEvent, EntityEvent}
 import org.bukkit.event.weather.WeatherChangeEvent
 import org.bukkit.inventory.ItemStack
 import ChatColor._
@@ -101,6 +101,7 @@ trait EnrichmentClasses {
     def whenPlayer(f: Player => Unit) = if(e.isInstanceOf[Player]) f(e.asInstanceOf[Player])
     def isA(et:EntityType)  = e.getType == et
     def isAn(et:EntityType) = e.getType == et
+    def shock = world.shockLightning(loc)
   }
 
   implicit class RichLivingEntity(e: LivingEntity){
@@ -192,11 +193,15 @@ trait EnrichmentClasses {
     def kill(p:Player) = doTo(p, p.setHealth(0), "killed")
     def teleportTo(otherPlayer: Player) = player.teleport(otherPlayer)
     def teleportTo(b: Block)            = player.teleport(b.loc)
-    def strike = world.strikeLightning(loc)
-    def strikeWith(message:String) {
-      strike
+    def shockWith(message:String) {
+      player.shock
       player ! message
     }
+  }
+
+  implicit class RichEntityDamageByEntityEvent(e: EntityDamageByEntityEvent) {
+    def damager = e.getDamager
+    def damagee = e.getEntity
   }
 
   implicit class RichPlayerInteractEvent(e: PlayerInteractEvent) {

@@ -9,38 +9,9 @@ import jcdc.pluginfactory._
 import Listeners._
 import jcdc.pluginfactory.Listeners.ListeningFor
 
-class Thor extends ListeningFor(OnEntityDamageByPlayer { (e, p, _) =>
-  if (p isHoldingA DIAMOND_AXE) p.world.strikeLightning(e.loc)
-})
-
-class Farmer extends ListenersPlugin {
-  def dropSeedsAt(b: Block) = b.loc.dropItem(SEEDS)
-  def hasHoe(p: Player) = p.isHoldingAnyOf(WOOD_HOE, STONE_HOE, IRON_HOE, GOLD_HOE, DIAMOND_HOE)
-  val listeners = List(
-    OnBlockBreak{ (b, e) => if (b is LONG_GRASS) dropSeedsAt(b) },
-    OnRightClickBlock{ (p, e) => if (hasHoe(p) and (e.block is GRASS)) dropSeedsAt(e.block) }
-  )
-}
-
-class ZombieApocalypse extends ListeningFor(OnPlayerDeath { (p, _) => p.loc spawn ZOMBIE })
-
-class TreeDelogger extends ListeningFor(OnBlockBreak { (b, e) =>
-  if (b isA LOG) for (b <- b.andBlocksAbove.takeWhile(_ isA LOG)) b.erase
-})
-
-class TreeDeloggerAlternate extends ListenerPlugin {
-  val listener = OnBlockBreak { (b, e) =>
-    if (b isA LOG) for (b <- b.andBlocksAbove.takeWhile(_ isA LOG)) b.erase
-  }
-}
-
-class BanArrows extends ListeningFor(OnPlayerDamageByEntity { (p, e) =>
-  if (e.getDamager isAn ARROW) p.ban("struck by an arrow!")
-})
-
-class NoRain extends ListenerPlugin {
-  val listener = OnWeatherChange(e => e.cancelIf(e.rain, broadcast("Put up an umbrella.")))
-}
+class BlockChangerGold extends ListeningFor(OnBlockDamage((b, e) =>
+  if (e.getPlayer is "joshcough") b changeTo GOLD_BLOCK
+))
 
 class BlockChanger extends ListenerPlugin with CommandPlugin {
   val users    = collection.mutable.Map[Player, Material]()
@@ -55,9 +26,32 @@ class BlockChanger extends ListenerPlugin with CommandPlugin {
   )
 }
 
-class BlockChangerGold extends ListeningFor(OnBlockDamage((b, e) =>
-  if (e.getPlayer is "joshcough") b changeTo GOLD_BLOCK
-))
+class Thor extends ListeningFor(OnEntityDamageByPlayer { e =>
+  if (e.damager isHoldingA DIAMOND_AXE) e.damagee.shock
+})
+
+class Farmer extends ListenersPlugin {
+  def dropSeedsAt(b: Block) = b.loc.dropItem(SEEDS)
+  def hasHoe(p: Player) = p.isHoldingAnyOf(WOOD_HOE, STONE_HOE, IRON_HOE, GOLD_HOE, DIAMOND_HOE)
+  val listeners = List(
+    OnBlockBreak{ (b, e)      => if (b is LONG_GRASS) dropSeedsAt(b) },
+    OnRightClickBlock{ (p, e) => if (hasHoe(p) and (e.block is GRASS)) dropSeedsAt(e.block) }
+  )
+}
+
+class ZombieApocalypse extends ListeningFor(OnPlayerDeath { (p, _) => p.loc spawn ZOMBIE })
+
+class TreeDelogger extends ListeningFor(OnBlockBreak { (b, e) =>
+  if (b isA LOG) for (b <- b.andBlocksAbove.takeWhile(_ isA LOG)) b.erase
+})
+
+class BanArrows extends ListeningFor(OnPlayerDamageByEntity { (p, e) =>
+  if (e.getDamager isAn ARROW) p.ban("struck by an arrow!")
+})
+
+class NoRain extends ListenerPlugin {
+  val listener = OnWeatherChange(e => e.cancelIf(e.rain, broadcast("Put up an umbrella.")))
+}
 
 class YellowBrickRoad extends ListeningFor(OnPlayerMove((p, e) =>
   if (p.blockOn isNot AIR) p.blockOn changeTo GOLD_BLOCK

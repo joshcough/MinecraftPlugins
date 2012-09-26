@@ -32,7 +32,7 @@ class MultiPlayerCommands extends CommandsPlugin {
       opOnly(p2p((you, them) => you.doTo(them, them.setFoodLevel(0), "starved")))),
 
     Command("shock",    "Shock a player.",
-      opOnly(p2p((you, them) => you.doTo(them, them.strike, "shocked")))),
+      opOnly(p2p((you, them) => you.doTo(them, them.shock, "shocked")))),
 
     Command("gm",       "Set your game mode", args(gamemode){ case p ~ gm => p.setGameMode(gm) }),
 

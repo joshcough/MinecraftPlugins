@@ -33,7 +33,7 @@ trait Listeners extends EnrichmentClasses {
   def OnPlayerDamageByEntity(f: (Player, EntityDamageByEntityEvent) => Unit) = new Listener {
     @EH def on(e:EntityDamageByEntityEvent) = e.whenPlayer(f(_, e))
   }
-  def OnEntityDamageByPlayer(f: (Entity, Player, EntityDamageByEntityEvent) => Unit) = new Listener {
+  def OnEntityDamageByPlayer(f: EntityDamageByEntityEvent => Unit) = new Listener {
     @EH def on(e:EntityDamageByEntityEvent) =
       if(e.getDamager.isInstanceOf[Player]) f(e.getEntity,e.getDamager.asInstanceOf[Player], e)
   }
