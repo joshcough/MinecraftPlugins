@@ -10,7 +10,7 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin {
   trait Corners
   case object NoCorners extends Corners
   case class  OneCorner(loc: Location) extends Corners
-  case class  BothCorners(loc1: Location, loc2: Location) extends Corners
+  case class  BothCorners(cube:Cube)   extends Corners
 
   val corners = collection.mutable.Map[Player, Corners]().withDefaultValue(NoCorners)
 
@@ -59,17 +59,15 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin {
   }
   def setSecondPos(p:Player, loc2: Location): Unit = corners(p) match {
     case OneCorner(loc1) =>
-      corners.update(p, BothCorners(loc1, loc2))
+      corners.update(p, BothCorners(Cube(loc1, loc2)))
       p ! ("second corner set to: " + loc2.xyz)
-    case BothCorners(loc1, _) =>
-      corners.update(p, BothCorners(loc1, loc2))
+    case BothCorners(Cube(loc1, _)) =>
+      corners.update(p, BothCorners(Cube(loc1, loc2)))
       p ! ("second corner set to: " + loc2.xyz)
     case _ =>
       p ! "set corner one first! (with a left click)"
   }
-  def cube(p: Player): Option[Cube] = corners(p) match {
-    case BothCorners(loc1, loc2) => Some(Cube(loc1, loc2))
-    case _ => None
-  }
+  def cube(p: Player): Option[Cube] =
+    corners.get(p).collect{ case b: BothCorners => b }.map(_.cube)
   def run (p: Player)(f: Cube => Unit) = cube(p).fold(p ! "Both corners must be set!")(f)
 }

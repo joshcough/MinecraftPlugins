@@ -19,18 +19,16 @@ object EnrichmentClasses extends EnrichmentClasses
 
 trait EnrichmentClasses {
 
-  implicit def richEntityEvent(e:EntityEvent)   = new RichEntity(e.getEntity)
-  implicit def richPlayerEvent(e:PlayerEvent)   = new RichPlayer(e.getPlayer)
   implicit def blockToItemStack(b: Block)       = new ItemStack(b.getType, 1, b.getData)
   implicit def materialToItemStack(m: Material) = new ItemStack(m, 1)
   implicit def materialToMaterialAndData(m:Material) = MaterialAndData(m, None)
   implicit def materialAndDataToItemStack(m:MaterialAndData) = m.itemStack
-  implicit def itemStackToMaterialAndData(is:ItemStack) = MaterialAndData(is.getType, {
+  implicit def itemStackToMaterialAndData(is:ItemStack) = MaterialAndData(is.getType,
     // i'm not sure if this check is really needed, but i guess it doesnt hurt...
     if(is.getData.getData < (0:Byte)) None else Some(is.getData.getData)
-  })
-  implicit def blockToMaterialAndData(b:Block)    = MaterialAndData(b.getType, Some(b.getData))
-  implicit def blockToLoc(b: Block): Location = b.getLocation
+  )
+  implicit def blockToMaterialAndData(b:Block) = MaterialAndData(b.getType, Some(b.getData))
+  implicit def blockToLoc(b: Block): Location  = b.getLocation
 
   implicit class RichBlock(b:Block) {
     lazy val world = b.getWorld

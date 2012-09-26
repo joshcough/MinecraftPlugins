@@ -9,13 +9,13 @@ import jcdc.pluginfactory._
 import Listeners._
 import jcdc.pluginfactory.Listeners.ListeningFor
 
-class BlockChangerGold extends ListeningFor(OnBlockDamage((b, e) =>
-  if (e.getPlayer is "joshcough") b changeTo GOLD_BLOCK
+class BlockChangerGold extends ListeningFor(OnLeftClickBlock((p, e) =>
+  if (p is "joshcough") e.block changeTo GOLD_BLOCK
 ))
 
 class BlockChanger extends ListenerPlugin with CommandPlugin {
   val users    = collection.mutable.Map[Player, Material]()
-  val listener = OnBlockDamage((b, e) => users.get(e.getPlayer).foreach(b changeTo _))
+  val listener = OnLeftClickBlock((p, e) => users.get(p).foreach(e.block changeTo _))
   val command  = Command(
     name = "bc",
     desc = "Hit blocks to change them to the block with type blockId, or just /bc to turn it off.",
