@@ -48,35 +48,35 @@ class NetLogoPlugin extends CommandsPlugin with
 
   val commands = allCommonCommands ::: allWorldEditingCommands ::: List(
     Command("open", "Open a model", args(existingFile ~ boolOrTrue) {
-      case p ~ (model ~ updatePatches) =>
+      case (p, model ~ updatePatches) =>
         openModel(p, model, updatePatches)
         // call setup on load, because that just makes sense.
         setup(p)
     }),
     Command("open-no-setup", "Open a model without setting up.", args(existingFile ~ boolOrTrue) {
-      case p ~ (model ~ updatePatches) => openModel(p, model, updatePatches)
+      case (p, model ~ updatePatches) => openModel(p, model, updatePatches)
     }),
     Command("setup", "Call the setup proc.",    noArgs { setup(_) }),
     Command("go",    "Call the go proc once.",  noArgs { go(_) }),
     Command("call",  "Call a NetLogo proc.",    args(anyString+) {
-      case p ~ proc => callProc(p, proc.mkString(" "))
+      case (p, proc) => callProc(p, proc.mkString(" "))
     }),
     Command("loop",  "Call go until it is finished.", args(num ~ long.?) {
-      case p ~ (n ~ sleepTime) =>
+      case (p, n ~ sleepTime) =>
         new Thread(new Runnable() { def run() {
           for (_ <- 0 to n) { callProc(p, "go"); sleepTime.foreach(Thread.sleep) }
           p ! ("looped " + n + " times.")
         }}).start()
       }),
     Command("loop-new",  "Call go until it is finished.", args(num ~ long.?) {
-      case p ~ (n ~ sleepTime) => fire(NetLogoEvent(p, n, sleepTime))
+      case (p, n ~ sleepTime) => fire(NetLogoEvent(p, n, sleepTime))
     }),
     Command("dispose", "Start over.", noArgs{ p =>
       // todo: what if we are running the go loop in a new thread here?
       // we probably should shut it down...
       dispose()
     }),
-    Command("report", "Report something...", args(anyString+){ case p ~ reporter =>
+    Command("report", "Report something...", args(anyString+){ case (p, reporter) =>
       usingWorkspace(p)(ws => p ! (ws.report(reporter.mkString(" ")).toString))
     }),
     Command("count-entities", "Show the number of entities", noArgs{ p =>

@@ -42,17 +42,17 @@ trait CommandsPlugin extends ScalaPlugin with BasicMinecraftParsers {
   )
 
   type PlayerToPlayer = (Player, Player) => Unit
-  def p2p(p2pc: PlayerToPlayer): CommandBody = args(player) { case p1 ~ p2 => p2pc(p1, p2) }
+  def p2p(p2pc: PlayerToPlayer): CommandBody = args(player) { case (p1, p2) => p2pc(p1, p2) }
 
   def noArgs(f: Player => Unit): CommandBody =
     CommandBody("", (p: Player, c: BukkitCommand, args: List[String]) => f(p))
 
-  def args[T](argsParser: Parser[T])(f: ~[Player, T] => Unit): CommandBody =
+  def args[T](argsParser: Parser[T])(f: ((Player, T)) => Unit): CommandBody =
     CommandBody(
       argsParser.describe, (p: Player, c: BukkitCommand, args: List[String]) => {
         argsParser(args) match {
           case Failure(msg) => p ! (RED + " " + msg)
-          case Success(t, _)   => f(new ~(p, t))
+          case Success(t, _)   => f(p -> t)
         }
       }
     )

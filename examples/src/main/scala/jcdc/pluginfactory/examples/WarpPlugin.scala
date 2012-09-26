@@ -15,10 +15,10 @@ class WarpPlugin extends CommandsPlugin with SingleClassDBPlugin[Warp] {
     Command("warps", "List all warps.", noArgs(p => warpsFor(p).foreach(w => p ! w.toString))),
 
     Command("warp", "Warp to the given warp location.",
-      args(warpToken){ case p ~ wt => withWarp(p, wt)(w => p.teleport(w.location(p.world))) }),
+      args(warpToken){ case (p, wt) => withWarp(p, wt)(w => p.teleport(w.location(p.world))) }),
 
     Command("delete-warp", "Delete a warp location.",
-      args(warpToken){ case p ~ wt => withWarp(p, wt){w =>
+      args(warpToken){ case (p, wt) => withWarp(p, wt){w =>
         db.delete(w)
         p ! s"deleted warp: ${w.name}"
       }}),
@@ -27,7 +27,7 @@ class WarpPlugin extends CommandsPlugin with SingleClassDBPlugin[Warp] {
       noArgs(p => warpsFor(p).foreach{ w => p ! s"deleting: $w"; db.delete(w); })),
 
     Command("set-warp", "Create a new warp location.",
-      args(warpToken){ case p ~ warpName  =>
+      args(warpToken){ case (p, warpName)  =>
         println(s"creating warp: $warpName")
         // TODO: can i use an update here?
         // making Warp a case class gave lots of unsolved issues...

@@ -16,7 +16,7 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin {
 
   val listeners = List(
     OnLeftClickBlock((p, e)  => if (p isHoldingA WOOD_AXE) { setFirstPos (p, e.loc); e.cancel }),
-    OnRightClickBlock((p, e) => if (p isHoldingA WOOD_AXE) setSecondPos(p, e.loc))
+    OnRightClickBlock((p, e) => if (p isHoldingA WOOD_AXE) { setSecondPos(p, e.loc) })
   )
 
   val commands = List(
@@ -28,27 +28,14 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin {
     Command(
       name = "set",
       desc = "Set all the selected blocks to the given material type.",
-      body = args(material){ case p ~ m  => run(p)(_.blocks.foreach(_ changeTo m))}
+      body = args(material){ case (p, m) => run(p)(_.blocks.foreach(_ changeTo m)) }
     ),
     Command(
       name = "change",
       desc = "Change all the selected blocks of the first material type to the second material type.",
-      body = args(material ~ material){ case p ~ (oldM ~ newM) =>
-        run(p)(_.blocks.filter(_ is oldM).foreach(_ changeTo newM))}
-    ),
-    Command(
-      name = "corner1",
-      desc = "Set the first corner of your cube to your position, or an x, y, z",
-      body = args((num ~ num ~ num).?){ case p ~ loc => setFirstPos(p,
-        loc.fold(p.loc){ case x ~ y ~ z => p.world(x,y,z) }
-      )}
-    ),
-    Command(
-      name = "corner2",
-      desc = "Set the second corner of your cube to your position, or an x, y, z",
-      body = args((num ~ num ~ num).?){ case p ~ loc => setSecondPos(p,
-        loc.fold(p.loc){ case x ~ y ~ z => p.world(x,y,z) }
-      )}
+      body = args(material ~ material){
+        case (p, oldM ~ newM) => run(p)(_.blocks.filter(_ is oldM).foreach(_ changeTo newM))
+      }
     )
   )
 
@@ -67,7 +54,7 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin {
     case _ =>
       p ! "set corner one first! (with a left click)"
   }
-  def cube(p: Player): Option[Cube] =
-    corners.get(p).collect{ case b: BothCorners => b }.map(_.cube)
-  def run (p: Player)(f: Cube => Unit) = cube(p).fold(p ! "Both corners must be set!")(f)
+  def run (p: Player)(f: Cube => Unit) =
+    corners.get(p).collect{ case b: BothCorners => b }.map(_.cube).
+      fold(p ! "Both corners must be set!")(f)
 }

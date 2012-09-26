@@ -20,8 +20,8 @@ class BlockChanger extends ListenerPlugin with CommandPlugin {
     name = "bc",
     desc = "Hit blocks to change them to the block with type blockId, or just /bc to turn it off.",
     body = args(material.?){
-      case p ~ Some(m)  => users += (p -> m); p ! (s"bc using: $m")
-      case p ~ None     => users -= p;        p ! "bc has been disabled"
+      case (p, Some(m))  => users += (p -> m); p ! (s"bc using: $m")
+      case (p, None)     => users -= p;        p ! "bc has been disabled"
     }
   )
 }

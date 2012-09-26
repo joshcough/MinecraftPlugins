@@ -30,7 +30,7 @@ class Arena extends ListenersPlugin with CommandsPlugin with Cubes {
     Command(
       name = "arena",
       desc = "Set all the selected blocks to the given material type.",
-      body = args(material) { case p ~ m => run(p){ cube =>
+      body = args(material) { case (p, m) => run(p){ cube =>
         for(b <- cube.blocks)
           if(cube.onWall(b) or cube.onFloor(b)) b changeTo m else b changeTo AIR
         () // shut up intellij

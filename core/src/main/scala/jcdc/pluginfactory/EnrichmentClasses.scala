@@ -3,7 +3,7 @@ package jcdc.pluginfactory
 import org.bukkit.{ChatColor, Effect, Location, Material, OfflinePlayer, Server, World}
 import org.bukkit.block.Block
 import org.bukkit.event.Cancellable
-import org.bukkit.event.entity.{EntityDamageByEntityEvent, EntityEvent}
+import org.bukkit.event.entity.{EntityDamageByEntityEvent}
 import org.bukkit.event.weather.WeatherChangeEvent
 import org.bukkit.inventory.ItemStack
 import ChatColor._
@@ -12,7 +12,7 @@ import Material._
 import org.bukkit.craftbukkit.CraftWorld
 import net.minecraft.server.WorldServer
 import org.bukkit.entity.{LivingEntity, Entity, EntityType, Player}
-import org.bukkit.event.player.{PlayerInteractEvent, PlayerEvent}
+import org.bukkit.event.player.{PlayerInteractEvent}
 import util.Try
 
 object EnrichmentClasses extends EnrichmentClasses
@@ -31,19 +31,19 @@ trait EnrichmentClasses {
   implicit def blockToLoc(b: Block): Location  = b.getLocation
 
   implicit class RichBlock(b:Block) {
-    lazy val world = b.getWorld
-    lazy val loc   = b.getLocation
-    lazy val (x, y, z) = (b.getX, b.getY, b.getZ)
+    lazy val world        = b.getWorld
+    lazy val loc          = b.getLocation
+    lazy val (x, y, z)    = (b.getX, b.getY, b.getZ)
     lazy val (xd, yd, zd) = (b.getX.toDouble, b.getY.toDouble, b.getZ.toDouble)
-    lazy val chunk = world.getChunkAt(b)
+    lazy val chunk        = world.getChunkAt(b)
     def copy(x: Double = xd, y: Double = yd, z: Double = zd) = world(x, y, z)
-    lazy val blockAbove = world(xd, yd + 1, zd)
-    lazy val blockBelow = world(xd, yd - 1, zd)
+    lazy val blockAbove      = world(xd, yd + 1, zd)
+    lazy val blockBelow      = world(xd, yd - 1, zd)
     def nthBlockAbove(n:Int) = world(xd, yd + n, zd)
     def nthBlockBelow(n:Int) = world(xd, yd - n, zd)
-    def blocksAbove: Stream[Block] = blockAbove #:: blockAbove.blocksAbove
+    def blocksAbove   : Stream[Block] = blockAbove #:: blockAbove.blocksAbove
     def andBlocksAbove: Stream[Block] = b #:: blocksAbove
-    def blocksBelow: Stream[Block] = blockBelow #:: blockBelow.blocksBelow
+    def blocksBelow   : Stream[Block] = blockBelow #:: blockBelow.blocksBelow
     def andBlocksBelow: Stream[Block] = b #:: blocksBelow
     def neighbors4: Stream[Block] =
       world(xd + 1, yd, zd) #::
@@ -51,18 +51,18 @@ trait EnrichmentClasses {
       world(xd, yd, zd + 1) #::
       world(xd, yd, zd - 1) #:: Stream.empty
     def andNeighbors4: Stream[Block] = b #:: neighbors4
-    def neighbors8: Stream[Block] = neighbors4 ++ (
+    def neighbors8   : Stream[Block] = neighbors4 ++ (
       world(xd + 1, yd, zd + 1) #::
       world(xd + 1, yd, zd - 1) #::
       world(xd - 1, yd, zd + 1) #::
       world(xd - 1, yd, zd - 1) #:: Stream.empty
     )
     def andNeighbors8: Stream[Block] = b #:: neighbors8
-    def neighbors: Stream[Block] =
+    def neighbors    : Stream[Block] =
       neighbors8 ++
       (b.blockBelow #:: b.blockBelow.neighbors8) #:::
       (b.blockAbove #:: b.blockAbove.neighbors8)
-    def andNeighbors: Stream[Block] = b #:: neighbors
+    def andNeighbors : Stream[Block] = b #:: neighbors
     def neighborsForPlayer: Stream[Block] =
       neighbors8 ++ // 8 blocks at the feet of the player
       (b.blockAbove.neighbors8) ++ // 8 blocks at the head of the player
