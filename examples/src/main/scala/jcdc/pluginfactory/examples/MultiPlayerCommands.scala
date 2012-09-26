@@ -10,22 +10,30 @@ class MultiPlayerCommands extends CommandsPlugin {
 
   val commands = List(
 
-    Command("goto",     "Teleport to a player.", args(player or (num ~ num ~ opt(num))){
+    Command("goto",     "Teleport to a player.", args(player or (num ~ num ~ num.?)){
       case you ~ Left(them)             => you.teleportTo(them)
       case you ~ Right(x ~ y ~ Some(z)) => you.teleportTo(you.world(x, y, z))
       case you ~ Right(x ~ z ~ None)    => you.teleportTo(you.world.getHighestBlockAt(x, z))
     }),
 
+    Command("up",       "Go up to the surface.", noArgs(_.surface)),
+
     Command("set-time", "Sets the time.", args(num){ case p ~ n => p.world.setTime(n) }),
 
-    Command("day",      "Sets the time to 1.", noArgs(_.world.setTime(1))),
+    Command("day",      "Sets the time to day (1000).", noArgs(_.world.setTime(1000))),
 
-    Command("night",    "Sets the time to 15000.", noArgs(_.world.setTime(15000))),
+    Command("night",    "Sets the time to night (15000).", noArgs(_.world.setTime(15000))),
+
+    Command("gm",       "Set your game mode.", args(gamemode){ case p ~ gm => p.setGameMode(gm) }),
+
+    Command("gms",      "Set your game mode to survival.", noArgs(_.setGameMode(SURVIVAL))),
+
+    Command("gmc",      "Set your game mode to creative.", noArgs(_.setGameMode(CREATIVE))),
 
     Command("entities", "Display all the entities.",
       noArgs(p => p !* (p.world.entities.map(_.toString): _*))),
 
-    Command("feed",     "Fill a players hunger bar",
+    Command("feed",     "Fill a players hunger bar.",
       opOnly(p2p((you, them) => you.doTo(them, them.setFoodLevel(20), "fed")))),
 
     Command("starve",   "Drain a players hunger bar.",
@@ -34,13 +42,7 @@ class MultiPlayerCommands extends CommandsPlugin {
     Command("shock",    "Shock a player.",
       opOnly(p2p((you, them) => you.doTo(them, them.shock, "shocked")))),
 
-    Command("gm",       "Set your game mode", args(gamemode){ case p ~ gm => p.setGameMode(gm) }),
-
-    Command("gms",      "Set your game mode to survival.", noArgs(_.setGameMode(SURVIVAL))),
-
-    Command("gmc",      "Set your game mode to creative.", noArgs(_.setGameMode(CREATIVE))),
-
-    Command("spawn",    "Spawn some mobs.", args(entity ~ opt(num.named("number to spawn"))){
+    Command("spawn",    "Spawn some mobs.", args(entity ~ num.?.named("number to spawn")){
       case p ~ (e ~ n) => p.loc.spawnN(e, n.fold(1)(id))
     }),
 
@@ -54,9 +56,6 @@ class MultiPlayerCommands extends CommandsPlugin {
 
     Command("safe",     "Put yourself in a box made of bedrock.",
       noArgs(_.blocksAround.foreach(_ changeTo BEDROCK))),
-
-    Command("up",       "Go up to the surface.",
-      noArgs(p => p.teleportTo(p.world.getHighestBlockAt(p.loc)))),
 
     Command("drill",    "Drill down to bedrock immediately.", noArgs(p =>
       for (b <- p.blockOn.blocksBelow.takeWhile(_ isNot BEDROCK); if (b isNot AIR)) {

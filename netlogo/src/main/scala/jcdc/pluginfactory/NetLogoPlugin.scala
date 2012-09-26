@@ -61,14 +61,14 @@ class NetLogoPlugin extends CommandsPlugin with
     Command("call",  "Call a NetLogo proc.",    args(anyString+) {
       case p ~ proc => callProc(p, proc.mkString(" "))
     }),
-    Command("loop",  "Call go until it is finished.", args(num ~ opt(long)) {
+    Command("loop",  "Call go until it is finished.", args(num ~ long.?) {
       case p ~ (n ~ sleepTime) =>
         new Thread(new Runnable() { def run() {
           for (_ <- 0 to n) { callProc(p, "go"); sleepTime.foreach(Thread.sleep) }
           p ! ("looped " + n + " times.")
         }}).start()
       }),
-    Command("loop-new",  "Call go until it is finished.", args(num ~ opt(long)) {
+    Command("loop-new",  "Call go until it is finished.", args(num ~ long.?) {
       case p ~ (n ~ sleepTime) => fire(NetLogoEvent(p, n, sleepTime))
     }),
     Command("dispose", "Start over.", noArgs{ p =>

@@ -74,14 +74,14 @@ trait ParserCombinators {
 
     def + : Parser[List[T]] =
       ((this ~ (this *)) ^^ { case t ~ ts => t :: ts}).named(self.describe + "+")
-  }
 
-  def opt[T](parser: Parser[T]) = new Parser[Option[T]] {
-    def apply(args: List[String]): ParseResult[Option[T]] = parser(args) match {
-      case Failure(m) => Success(None: Option[T], args)
-      case Success(t, rest) => Success(Some(t), rest)
+    def ? = new Parser[Option[T]] {
+      def apply(args: List[String]): ParseResult[Option[T]] = self(args) match {
+        case Failure(m) => Success(None: Option[T], args)
+        case Success(t, rest) => Success(Some(t), rest)
+      }
+      def describe = s"optional(${self.describe})"
     }
-    def describe = s"optional(${parser.describe})"
   }
 
   def success[T](t: T) = new Parser[T] {
@@ -121,8 +121,8 @@ trait ParserCombinators {
   def long:    Parser[Long] = token("long") { s => tryOption(s.toLong) }
 
   def bool:        Parser[Boolean] = token("boolean") { s => tryOption(s.toBoolean) }
-  def boolOrTrue:  Parser[Boolean] = opt(bool) ^^ { _.getOrElse(true) }
-  def boolOrFalse: Parser[Boolean] = opt(bool) ^^ { _.getOrElse(false) }
+  def boolOrTrue:  Parser[Boolean] = bool.? ^^ { _.getOrElse(true) }
+  def boolOrFalse: Parser[Boolean] = bool.? ^^ { _.getOrElse(false) }
 
   // file parsers
   def file:    Parser[File] = token("file") { s => Some(new File(s)) }

@@ -39,14 +39,14 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin {
     Command(
       name = "corner1",
       desc = "Set the first corner of your cube to your position, or an x, y, z",
-      body = args(opt(num ~ num ~ num)){ case p ~ loc => setFirstPos(p,
+      body = args((num ~ num ~ num).?){ case p ~ loc => setFirstPos(p,
         loc.fold(p.loc){ case x ~ y ~ z => p.world(x,y,z) }
       )}
     ),
     Command(
       name = "corner2",
       desc = "Set the second corner of your cube to your position, or an x, y, z",
-      body = args(opt(num ~ num ~ num)){ case p ~ loc => setSecondPos(p,
+      body = args((num ~ num ~ num).?){ case p ~ loc => setSecondPos(p,
         loc.fold(p.loc){ case x ~ y ~ z => p.world(x,y,z) }
       )}
     )

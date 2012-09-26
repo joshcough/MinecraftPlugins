@@ -30,7 +30,7 @@ trait EnrichmentClasses {
     if(is.getData.getData < (0:Byte)) None else Some(is.getData.getData)
   })
   implicit def blockToMaterialAndData(b:Block)    = MaterialAndData(b.getType, Some(b.getData))
-  implicit def blockToLoc(b: Block) = b.getLocation
+  implicit def blockToLoc(b: Block): Location = b.getLocation
 
   implicit class RichBlock(b:Block) {
     lazy val world = b.getWorld
@@ -80,7 +80,7 @@ trait EnrichmentClasses {
     }
     def changeTo(m: Material) = {
       if (! chunk.isLoaded) chunk.load
-      b.setType(m)
+      b setType m
     }
   }
 
@@ -101,7 +101,7 @@ trait EnrichmentClasses {
     def whenPlayer(f: Player => Unit) = if(e.isInstanceOf[Player]) f(e.asInstanceOf[Player])
     def isA(et:EntityType)  = e.getType == et
     def isAn(et:EntityType) = e.getType == et
-    def shock = world.strikeLightning(loc)
+    def shock = world strikeLightning loc
   }
 
   implicit class RichLivingEntity(e: LivingEntity){
@@ -197,6 +197,7 @@ trait EnrichmentClasses {
       player.shock
       player ! message
     }
+    def surface = teleportTo(world.getHighestBlockAt(loc))
   }
 
   implicit class RichEntityDamageByEntityEvent(e: EntityDamageByEntityEvent) {
