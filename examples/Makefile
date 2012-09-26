@@ -1,18 +1,18 @@
-all: compile-core compile-examples arena ban-arrows block-changer block-changer-gold curse-ban farmer god lightning-arrows mpc no-rain thor tree-delogger warp-plugin world-edit yellow-brick-road zombie-apocalypse
+all: compile arena ban-arrows block-changer block-changer-gold curse-ban farmer god lightning-arrows mpc no-rain thor tree-delogger warp-plugin world-edit yellow-brick-road zombie-apocalypse
 
-most: compile-core compile-examples
+demo: clean-plugins compile mpc warp-plugin world-edit
 
-compile-core:
-	cd ../core; rm -rf ../target; ./sbt package publish-local
-	cp ../core/target/scala-2.10/jcdc-plugin-factory_2.10-0.1.jar $(BUKKIT)/lib/jcdc-plugin-factory-0.1.jar
+demo-bc-gold: clean-plugins compile block-changer-gold lightning-arrows no-rain yellow-brick-road
 
-compile-examples:
-	rm -rf target
-	./sbt compile "run-main jcdc.pluginfactory.examples.YMLGenerator"
+demo-bc: clean-plugins compile block-changer
 
-compile-fast:
+clean-plugins:
+	cd ../bukkit/plugins; rm *.jar
+
+compile:
 	cd ../core; ./sbt package publish-local
-	./sbt compile 
+	cp ../core/target/scala-2.10/jcdc-plugin-factory_2.10-0.1.jar $(BUKKIT)/lib/jcdc-plugin-factory-0.1.jar
+	./sbt compile "run-main jcdc.pluginfactory.examples.YMLGenerator"
 
 plugin = ./bin/plugin.sh $1 $2
 

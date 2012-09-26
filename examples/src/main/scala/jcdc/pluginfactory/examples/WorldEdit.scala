@@ -7,12 +7,12 @@ import Material._
 
 class WorldEdit extends ListenersPlugin with CommandsPlugin {
 
-  val corners = collection.mutable.Map[Player, Corners]().withDefaultValue(NoCorners)
-
   trait Corners
   case object NoCorners extends Corners
   case class  OneCorner(loc: Location) extends Corners
   case class  BothCorners(loc1: Location, loc2: Location) extends Corners
+
+  val corners = collection.mutable.Map[Player, Corners]().withDefaultValue(NoCorners)
 
   val listeners = List(
     OnLeftClickBlock((p, e)  => if (p isHoldingA WOOD_AXE) { setFirstPos (p, e.loc); e.cancel }),
@@ -26,12 +26,12 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin {
       body = noArgs(_.loc.dropItem(WOOD_AXE))
     ),
     Command(
-      name = "/set",
+      name = "set",
       desc = "Set all the selected blocks to the given material type.",
       body = args(material){ case p ~ m  => run(p)(_.blocks.foreach(_ changeTo m))}
     ),
     Command(
-      name = "/change",
+      name = "change",
       desc = "Change all the selected blocks of the first material type to the second material type.",
       body = args(material ~ material){ case p ~ (oldM ~ newM) =>
         run(p)(_.blocks.filter(_ is oldM).foreach(_ changeTo newM))}

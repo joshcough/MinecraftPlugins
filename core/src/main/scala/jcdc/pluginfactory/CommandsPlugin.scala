@@ -71,6 +71,7 @@ trait CommandsPlugin extends ScalaPlugin with BasicMinecraftParsers {
 
   override def onCommand(sender: CommandSender, cmd: BukkitCommand,
                          commandLabel: String, args: Array[String]) = {
+    println(s"$name handling $commandLabel [${args.mkString(",")}]")
     val p = toPlayer(sender)
     (for (ch <- lowers.get(cmd.getName.toLowerCase)) yield
       try {
@@ -81,7 +82,7 @@ trait CommandsPlugin extends ScalaPlugin with BasicMinecraftParsers {
         p ! (e.getMessage + "\n" + e.getStackTraceString)
         e.printStackTrace
         false
-      }).getOrElse(false)
+      }).getOrElse(true)
   }
 
   override def yml(author:String, version: String) = {

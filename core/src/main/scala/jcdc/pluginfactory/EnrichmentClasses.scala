@@ -140,7 +140,7 @@ trait EnrichmentClasses {
   }
 
   implicit class RichServer(s:Server){
-    def findPlayer(name:String) = Option(s.getPlayer(name))
+    def findPlayer(name:String) = tryO(s.getPlayer(name))
     def findOnlinePlayer = findPlayer _
     def findOfflinePlayer(name:String) = Option(s.getOfflinePlayer(name))
     def findOnlinePlayers(names: List[String]): List[Player] = names.map(findOnlinePlayer).flatten
