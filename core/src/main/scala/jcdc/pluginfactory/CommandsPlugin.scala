@@ -3,9 +3,9 @@ package jcdc.pluginfactory
 import org.bukkit.ChatColor._
 import org.bukkit.command.{CommandSender, Command => BukkitCommand}
 import org.bukkit.GameMode._
-import org.bukkit.entity.Player
+import org.bukkit.entity.{EntityType, Player}
 import EnrichmentClasses._
-import org.bukkit.{Location, World}
+import org.bukkit.{GameMode, Material, Location, World}
 
 case class CommandBody(argDesc: String, f:(Player, BukkitCommand, List[String]) => Unit)
 
@@ -19,12 +19,12 @@ case class Command(name: String, description: Option[String], body: CommandBody)
 object BasicMinecraftParsers extends BasicMinecraftParsers
 
 trait BasicMinecraftParsers extends ScalaPlugin with ParserCombinators {
-  val gamemode =
+  val gamemode: Parser[GameMode] =
     ("c" | "creative" | "1") ^^^ CREATIVE |
     ("s" | "survival" | "0") ^^^ SURVIVAL
-  def entity   = token("entity-type")  (findEntity)
-  def material = token("material-type")(findMaterial)
-  def player   = token("player-name")  (server.findPlayer)
+  def entity: Parser[EntityType] = token("entity-type")  (findEntity)
+  def material: Parser[Material] = token("material-type")(findMaterial)
+  def player: Parser[Player]     = token("player-name")  (server.findPlayer)
   def location: Parser[World => Location] = (int ~ int ~ int.?) ^^ {
     case x ~ y ~ Some(z) => (w:World) => w(x, y, z)
     case x ~ z ~ None    => (w:World) => w.getHighestBlockAt(x, z)
