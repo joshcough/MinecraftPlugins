@@ -30,6 +30,10 @@ trait EnrichmentClasses {
   implicit def blockToMaterialAndData(b:Block) = MaterialAndData(b.getType, Some(b.getData))
   implicit def blockToLoc(b: Block): Location  = b.getLocation
 
+  implicit class RichT[T](t:T){
+    def |> [U](f: Function1[T,U]) = f(t)
+  }
+
   implicit class RichBlock(b:Block) {
     lazy val world        = b.getWorld
     lazy val loc          = b.getLocation

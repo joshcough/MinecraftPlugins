@@ -9,10 +9,9 @@ import scala.collection.JavaConversions._
 trait CommonCommands extends CommandsPlugin {
 
   // some simple useful commands
-  val goto  = Command("goto",     "Teleport to a player.", args(player or (num ~ num ~ num.?)){
-    case (you, Left(them))             => you.teleportTo(them)
-    case (you, Right(x ~ y ~ Some(z))) => you.teleportTo(you.world(x, y, z))
-    case (you, Right(x ~ z ~ None))    => you.teleportTo(you.world.getHighestBlockAt(x, z))
+  val goto  = Command("goto",     "Teleport to a player.", args(player or location){
+    case (you, Left(them)) => you.teleportTo(them)
+    case (you, Right(loc)) => you.teleport(you.world |> loc)
   })
   val time  =  Command("set-time", "Sets the time.", args(num){
     case (p, n) => p.world.setTime(n)

@@ -5,6 +5,7 @@ import org.bukkit.command.{CommandSender, Command => BukkitCommand}
 import org.bukkit.GameMode._
 import org.bukkit.entity.Player
 import EnrichmentClasses._
+import org.bukkit.{Location, World}
 
 case class CommandBody(argDesc: String, f:(Player, BukkitCommand, List[String]) => Unit)
 
@@ -24,6 +25,10 @@ trait BasicMinecraftParsers extends ScalaPlugin with ParserCombinators {
   def entity   = token("entity-type")  (findEntity)
   def material = token("material-type")(findMaterial)
   def player   = token("player-name")  (server.findPlayer)
+  def location: Parser[World => Location] = (num ~ num ~ num.?) ^^ {
+    case x ~ y ~ Some(z) => (w:World) => w(x, y, z)
+    case x ~ z ~ None    => (w:World) => w.getHighestBlockAt(x, z)
+  }
 }
 
 trait CommandPlugin extends CommandsPlugin {

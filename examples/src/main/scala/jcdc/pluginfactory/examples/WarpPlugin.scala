@@ -4,7 +4,6 @@ import jcdc.pluginfactory.{Command, CommandsPlugin, SingleClassDBPlugin}
 import org.bukkit.{Location, World}
 import org.bukkit.entity.Player
 import scala.collection.JavaConversions._
-import com.avaje.ebean.bean.EntityBean
 
 class WarpPlugin extends CommandsPlugin with SingleClassDBPlugin[Warp] {
 

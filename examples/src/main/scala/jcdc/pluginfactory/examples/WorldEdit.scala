@@ -54,7 +54,6 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin {
     case _ =>
       p ! "set corner one first! (with a left click)"
   }
-  def run (p: Player)(f: Cube => Unit) =
-    corners.get(p).collect{ case b: BothCorners => b }.map(_.cube).
-      fold(p ! "Both corners must be set!")(f)
+  def run (p: Player)(f: Cube => Unit) = corners.get(p).collect{ case b: BothCorners => b }.
+    map(_.cube).fold(p ! "Both corners must be set!")(f)
 }
