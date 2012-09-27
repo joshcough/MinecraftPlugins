@@ -7,7 +7,7 @@ object ParserCombinatorTests extends Properties("ParserCombinatorTests") with Pa
 
   property("strings") = forAll { (s:String) => stringToParser(s)(List(s)).get ?= s }
 
-  property("ints") = forAll { (i:Int) => num(List(i.toString)).get ?= i }
+  property("ints") = forAll { (i:Int) => int(List(i.toString)).get ?= i }
 
   property("any") = forAll { (i: Int,  s: String, l:List[String]) =>
     success((i, s))(l) ?= Success((i, s), l)
@@ -30,10 +30,10 @@ object ParserCombinatorTests extends Properties("ParserCombinatorTests") with Pa
   }
 
   property("+ ok") = forAll { (is:List[Int]) => (is.size > 0) ==>
-    (num+(is.map(_.toString)) ?= Success(is, Nil))
+    (int+(is.map(_.toString)) ?= Success(is, Nil))
   }
 
-  property("+ on nil") = { num+(Nil) ?= Failure("expected number, got nothing") }
+  property("+ on nil") = { int+(Nil) ?= Failure("expected number, got nothing") }
 
-  property("*") = forAll { (is:List[Int]) => num*(is.map(_.toString)) ?= Success(is, Nil) }
+  property("*") = forAll { (is:List[Int]) => int*(is.map(_.toString)) ?= Success(is, Nil) }
 }

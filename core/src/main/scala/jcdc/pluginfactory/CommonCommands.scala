@@ -13,7 +13,7 @@ trait CommonCommands extends CommandsPlugin {
     case (you, Left(them)) => you.teleportTo(them)
     case (you, Right(loc)) => you.teleport(you.world |> loc)
   })
-  val time  =  Command("set-time", "Sets the time.", args(num){
+  val time  =  Command("set-time", "Sets the time.", args(int){
     case (p, n) => p.world.setTime(n)
   })
   val day   =  Command("day",   "Sets the time to 1.", noArgs(_.world.setTime(1)))

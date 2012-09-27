@@ -17,7 +17,7 @@ class MultiPlayerCommands extends CommandsPlugin {
 
     Command("up",       "Go up to the surface.", noArgs(_.surface)),
 
-    Command("set-time", "Sets the time.", args(num){ case (p, n) => p.world.setTime(n) }),
+    Command("set-time", "Sets the time.", args(int){ case (p, n) => p.world.setTime(n) }),
 
     Command("day",      "Sets the time to day (1000).", noArgs(_.world.setTime(1000))),
 
@@ -41,7 +41,7 @@ class MultiPlayerCommands extends CommandsPlugin {
     Command("shock",    "Shock a player.",
       opOnly(p2p((you, them) => you.doTo(them, them.shock, "shocked")))),
 
-    Command("spawn",    "Spawn some mobs.", args(entity ~ num.?.named("number to spawn")){
+    Command("spawn",    "Spawn some mobs.", args(entity ~ int.?.named("number to spawn")){
       case (p, e ~ n) => p.loc.spawnN(e, n.fold(1)(id))
     }),
 

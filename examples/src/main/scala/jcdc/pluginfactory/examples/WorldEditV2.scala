@@ -44,7 +44,7 @@ class WorldEditV2 extends ListenersPlugin with CommandsPlugin with Cubes {
     Command(
       name = "/dig",
       desc = "Dig",
-      body = args(oddNum ~ num) { case (p, radius ~ depth) =>
+      body = args(oddNum ~ int) { case (p, radius ~ depth) =>
         val b = radius / 2
         val (x, y, z) = p.loc.xyzd
         Cube(p.world(x + b, y, z + b), p.world(x - b, y - depth, z - b)).eraseAll

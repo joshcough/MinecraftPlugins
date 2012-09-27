@@ -22,11 +22,11 @@ class NPCTest extends CommandsPlugin with NPCPlugin {
       }
       npcs += (id -> npcEntity)
     }),
-    Command("npc:fd", "Move an NPC forward", args(npcTok ~ num) {
+    Command("npc:fd", "Move an NPC forward", args(npcTok ~ int) {
       case (p, npc ~ distance) =>
         npc.teleport(p.world(npc.x + distance, npc.y, npc.z))
     }),
-    Command("npc:tp", "Teleport an NPC", args(npcTok ~ num ~ num) {
+    Command("npc:tp", "Teleport an NPC", args(npcTok ~ int ~ int) {
       case (p, npc ~ x ~ z) =>
         npc.teleport(p.world(x, npc.y, z))
     }),

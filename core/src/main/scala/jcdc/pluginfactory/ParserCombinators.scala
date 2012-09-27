@@ -115,7 +115,7 @@ trait ParserCombinators {
   def even(n: Int) = n % 2 == 0
   def odd (n: Int) = !even(n)
   def tryNum(s: String)     = tryOption(s.toInt)
-  def num:     Parser[Int]  = token("number") (tryNum)
+  def int:     Parser[Int]  = token("number") (tryNum)
   def oddNum:  Parser[Int]  = token("odd-number") { s => tryNum(s).filter(odd) }
   def evenNum: Parser[Int]  = token("even-number") { s => tryNum(s).filter(even) }
   def long:    Parser[Long] = token("long") { s => tryOption(s.toLong) }
