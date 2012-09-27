@@ -18,7 +18,7 @@ class BlockChanger extends ListenerPlugin with CommandPlugin {
   val listener = OnLeftClickBlock((p, e) => users.get(p).foreach(e.block changeTo _))
   val command  = Command(
     name = "bc",
-    desc = "Specify which material to change blocks to when clicking them.",
+    desc = "Specify which material to change blocks to, or just /bc to turn off",
     body = args(material.?){
       case (p, Some(m))  => users += (p -> m); p ! (s"bc using: $m")
       case (p, None)     => users -= p;        p ! "bc has been disabled"

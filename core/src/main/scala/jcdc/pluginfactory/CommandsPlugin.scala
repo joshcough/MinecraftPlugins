@@ -22,9 +22,9 @@ trait BasicMinecraftParsers extends ScalaPlugin with ParserCombinators {
   val gamemode: Parser[GameMode] =
     ("c" | "creative" | "1") ^^^ CREATIVE |
     ("s" | "survival" | "0") ^^^ SURVIVAL
-  def entity: Parser[EntityType] = token("entity-type")  (findEntity)
-  def material: Parser[Material] = token("material-type")(findMaterial)
-  def player: Parser[Player]     = token("player-name")  (server.findPlayer)
+  def entity  : Parser[EntityType] = token("entity-type")  (findEntity)
+  def material: Parser[Material]   = token("material-type")(findMaterial)
+  def player  : Parser[Player]     = token("player-name")  (server.findPlayer)
   def location: Parser[World => Location] = (int ~ int ~ int.?) ^^ {
     case x ~ y ~ Some(z) => (w:World) => w(x, y, z)
     case x ~ z ~ None    => (w:World) => w.getHighestBlockAt(x, z)
@@ -56,8 +56,13 @@ trait CommandsPlugin extends ScalaPlugin with BasicMinecraftParsers {
     CommandBody(
       argsParser.describe, (p: Player, c: BukkitCommand, args: List[String]) => {
         argsParser(args) match {
-          case Failure(msg) => p ! (RED + " " + msg)
-          case Success(t, _)   => f(p -> t)
+          case Success(t, Nil) => f(p -> t)
+          case Success(t, xs)  => p !* (
+            RED + c.getDescription,
+            RED + c.getUsage,
+            RED + s"unprocessed input: ${xs.mkString(" ")}"
+          )
+          case Failure(msg)    => p ! (RED + " " + msg)
         }
       }
     )
@@ -91,11 +96,11 @@ trait CommandsPlugin extends ScalaPlugin with BasicMinecraftParsers {
   }
 
   override def yml(author:String, version: String) = {
-    def commandYml(c: Command) = "  " +
-      c.name + ":\n" +
-      "    description: " + c.description.getOrElse(c.name) + "\n" +
-      "    usage: /<command> " + c.body.argDesc
-    val commandsYml = "commands:\n" + commands.map(commandYml).mkString("\n")
+    def commandYml(c: Command) =
+      s"  ${c.name}:\n" +
+      s"    description: ${c.description.getOrElse(c.name)}\n" +
+      s"    usage: /${c.name} ${c.body.argDesc}"
+    val commandsYml = s"commands:\n${commands.map(commandYml).mkString("\n")}"
     List(super.yml(author, version), commandsYml).mkString("\n")
   }
 

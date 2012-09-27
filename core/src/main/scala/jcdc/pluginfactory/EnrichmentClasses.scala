@@ -258,7 +258,7 @@ trait EnrichmentClasses {
   }
 
   case class MaterialAndData(m: Material, data: Option[Byte]){
-    def update(b: Block) = {
+    def update(b: Block): Unit = {
       b changeTo m
       data.foreach(b.setData)
     }
