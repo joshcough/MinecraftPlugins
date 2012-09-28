@@ -6,16 +6,17 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
+// 1:  Extend JavaPlugin
 public class BlockChangerGold extends JavaPlugin {
-
-  Listener l = new Listener(){
+  // 2:  Create a handler for the event
+  class BlockChangerListener implements Listener {
     @EventHandler
-    public void onBlockDamage(BlockDamageEvent event) {
+    public void onBlockDamage(BlockDamageEvent event){
       event.getBlock().setType(Material.GOLD_BLOCK);
     }
-  };
-
+  }
   public void onEnable() {
-    getServer().getPluginManager().registerEvents(l, this);
+    // 3:  Register the handler for the event
+    getServer().getPluginManager().registerEvents(new TreeDeloggerListener(), this);
   }
 }
