@@ -1,10 +1,12 @@
 package jcdc.pluginfactory.examples
 
-import jcdc.pluginfactory.{Command, CommandsPlugin, Cube, ListenersPlugin}
+import jcdc.pluginfactory._
 import org.bukkit.{Location, Material}
 import org.bukkit.entity.Player
 import Material._
 import org.bukkit.block.Block
+import scalaz.EphemeralStream
+import jcdc.pluginfactory.Cube
 
 class WorldEdit extends ListenersPlugin with CommandsPlugin {
 
@@ -40,6 +42,7 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin {
       }
     ),
     // TODO: early termination example. maybe put in a different file
+    // Actually, early termination can just be done with break...
     Command(
       name = "find",
       desc = "Checks if your cube contains any of the given material, and tells where.",
@@ -48,19 +51,19 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin {
           s"No $m found in your cube!")(b => s"$m found at ${b.loc.xyz}")
         }
       }
-    ),
-    Command(
-      name = "fib-tower",
-      desc = "create a tower from the fib numbers",
-      body = args(int ~ material){ case (p, i ~ m) =>
-        lazy val fibs: Stream[Int] = 0 #:: 1 #:: fibs.zip(fibs.tail).map{case (i,j) => i+j}
-        val xBlocks: Stream[Block] = p.world.fromX(p.loc)
-        for{
-          (startBlock,n) <- xBlocks.zip(fibs take i)
-          towerBlock     <- startBlock.andBlocksAbove take n
-        } towerBlock changeTo m
-      }
     )
+//    ,
+//    Command(
+//      name = "fib-tower",
+//      desc = "create a tower from the fib numbers",
+//      body = args(int ~ material){ case (p, i ~ m) =>
+//        val xBlocks: EphemeralStream[Block] = p.world.fromX(p.loc)
+//        for {
+//          (startBlock,n) <- xBlocks.zip(Fibs.nonMemoizingFibs take i)
+//          towerBlock     <- startBlock.andBlocksAbove take n
+//        } towerBlock changeTo m
+//      }
+//    )
   )
 
   // helper functions

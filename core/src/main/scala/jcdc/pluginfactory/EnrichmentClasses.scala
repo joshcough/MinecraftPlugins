@@ -14,6 +14,7 @@ import net.minecraft.server.WorldServer
 import org.bukkit.entity.{LivingEntity, Entity, EntityType, Player}
 import org.bukkit.event.player.{PlayerInteractEvent}
 import util.Try
+import scalaz.EphemeralStream
 
 object EnrichmentClasses extends EnrichmentClasses
 
@@ -121,13 +122,13 @@ trait EnrichmentClasses {
     def apply(x: Double, y: Double, z: Double): Block = new Location(w, x, y, z).getBlock
     def blockAt(x: Int, y: Int, z: Int): Block = blockAt(x.toDouble, y.toDouble, z.toDouble)
     def blockAt(x: Double, y: Double, z: Double): Block = new Location(w, x, y, z).getBlock
-    def between(loc1:Location, loc2: Location): Stream[Block] = {
+    def between(loc1:Location, loc2: Location): EphemeralStream[Block] = {
       val ((x1, y1, z1), (x2, y2, z2)) = (loc1.xyz, loc2.xyz)
-      def range(i1: Int, i2: Int) = (if(i1 < i2) i1 to i2 else i2 to i1).toStream
+      def range(i1: Int, i2: Int) = EphemeralStream.range(i1, i2)
       for (x <- range(x1,x2); y <- range(y1,y2); z <- range(z1,z2)) yield w(x,y,z)
     }
-    def fromX(loc:Location): Stream[Block] = {
-      lazy val nats:Stream[Int] = 0 #:: 1 #:: nats.tail.map(_+1)
+    def fromX(loc:Location): EphemeralStream[Block] = {
+      val nats = EphemeralStream.range(0, Integer.MAX_VALUE)
       for (x<-nats) yield w(loc.x + x, loc.y, loc.z)
     }
     def mcWorld = w.asInstanceOf[CraftWorld]

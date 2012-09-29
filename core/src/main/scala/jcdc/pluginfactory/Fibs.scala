@@ -1,12 +1,21 @@
 package jcdc.pluginfactory
 
-/**
- * Created with IntelliJ IDEA.
- * User: joshcough
- * Date: 9/29/12
- * Time: 5:58 PM
- * To change this template use File | Settings | File Templates.
- */
-class Fibs {
+import scalaz.EphemeralStream
+
+object Fibs {
+  def log(i:Int): Int = { println("i: " + i); i }
+
+  def fibs: Stream[Int] = {
+    lazy val fibs: Stream[Int] =
+      log(0) #:: log(1) #:: fibs.zip(fibs.tail).map{case (i,j) => log(i+j)}
+    fibs
+  }
+  def nonMemoizingFibs: EphemeralStream[Int] = EphemeralStream.fromStream(fibs)
+
+  def go {
+    val x = nonMemoizingFibs
+    x.take(10).map(println)
+    x.take(10).map(println)
+  }
 
 }
