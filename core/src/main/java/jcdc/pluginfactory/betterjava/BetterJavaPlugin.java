@@ -217,6 +217,7 @@ public class BetterJavaPlugin extends JavaPlugin {
     public boolean isSleepingIgnored() { return false; }
     public void playNote(Location location, byte b, byte b1) {}
     public void playNote(Location location, Instrument instrument, Note note) {}
+    public void playSound(Location location, Sound sound, float v, float v1) {}
     public void playEffect(Location location, Effect effect, int i) {}
     public <T> void playEffect(Location location, Effect effect, T t) {}
     public void sendBlockChange(Location location, Material material, byte b) {}
@@ -269,8 +270,9 @@ public class BetterJavaPlugin extends JavaPlugin {
     public void abandonConversation(Conversation conversation) {}    
     public void abandonConversation(Conversation conversation, ConversationAbandonedEvent conversationAbandonedEvent) {}    
     public String getName() { return null; }    
-    public PlayerInventory getInventory() { return null; }    
-    public boolean setWindowProperty(InventoryView.Property property, int i) { return false; }    
+    public PlayerInventory getInventory() { return null; }
+    public Inventory getEnderChest() { return null; }
+    public boolean setWindowProperty(InventoryView.Property property, int i) { return false; }
     public InventoryView getOpenInventory() { return null; }    
     public InventoryView openInventory(Inventory itemStacks) { return null; }    
     public InventoryView openWorkbench(Location location, boolean b) { return null; }    

@@ -311,6 +311,8 @@ trait CommandsPlugin extends ScalaPlugin with BasicMinecraftParsers {
       def getEyeHeight(p1: Boolean): Double = 0
       def getEyeHeight: Double = 0
       def canSee(p1: Player): Boolean = true
+      def getEnderChest(): org.bukkit.inventory.Inventory = ???
+      def playSound(x$1: org.bukkit.Location,x$2: org.bukkit.Sound,x$3: Float,x$4: Float): Unit = {}
     }
   }
 }

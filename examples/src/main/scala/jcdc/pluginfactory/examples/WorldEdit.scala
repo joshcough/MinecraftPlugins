@@ -54,9 +54,8 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin {
       desc = "create a tower from the fib numbers",
       body = args(int ~ material){ case (p, i ~ m) =>
         lazy val fibs: Stream[Int] = 0 #:: 1 #:: fibs.zip(fibs.tail).map{case (i,j) => i+j}
-        val xBlocks: Stream[Block] = p.world.fromX(p.loc)
         for{
-          (startBlock,n) <- xBlocks.zip(fibs take i)
+          (startBlock,n) <- p.world.fromX(p.loc).zip(fibs take i)
           towerBlock     <- startBlock.andBlocksAbove take n
         } towerBlock changeTo m
       }

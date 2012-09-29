@@ -18,7 +18,8 @@ case class Cube(l1: Location, l2: Location) {
   val maxZ      = math.max(l1.zd, l2.zd)
   val minZ      = math.min(l1.zd, l2.zd)
 
-  val blocks    = world.between(l1, l2)
+  // this must be a def to avoid it memoizing.
+  def blocks    = world.between(l1, l2)
 
   def northWall = world.between(world(minX, minY, maxZ), world(maxX, maxY, maxZ))
   def southWall = world.between(world(minX, minY, minZ), world(maxX, maxY, minZ))
