@@ -63,7 +63,6 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin {
     )
   )
 
-
   // helper functions
   def setFirstPos(p:Player, loc: Location): Unit = {
     corners.update(p, OneCorner(loc))

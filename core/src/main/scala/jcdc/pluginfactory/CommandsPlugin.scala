@@ -25,7 +25,8 @@ trait BasicMinecraftParsers extends ScalaPlugin with ParserCombinators {
   val entity  : Parser[EntityType] = token("entity-type")  (findEntity)
   val material: Parser[Material]   = token("material-type")(findMaterial)
   val player  : Parser[Player]     = token("player-name")  (server.findPlayer)
-  val location: Parser[World => Location] = (int ~ int ~ int.?) ^^ {
+  val coordinates = int ~ int ~ int.?
+  val location: Parser[World => Location] = coordinates ^^ {
     case x ~ y ~ Some(z) => (w:World) => w(x, y, z)
     case x ~ z ~ None    => (w:World) => w.getHighestBlockAt(x, z)
   }
