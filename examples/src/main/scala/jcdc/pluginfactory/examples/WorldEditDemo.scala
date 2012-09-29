@@ -4,9 +4,8 @@ import jcdc.pluginfactory.{Command, CommandsPlugin, Cube, ListenersPlugin}
 import org.bukkit.{Location, Material}
 import org.bukkit.entity.Player
 import Material._
-import org.bukkit.block.Block
 
-class WorldEdit extends ListenersPlugin with CommandsPlugin {
+class WorldEditDemo extends ListenersPlugin with CommandsPlugin {
 
   trait Corners
   case object NoCorners extends Corners
@@ -24,13 +23,12 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin {
     Command(
       name = "wand",
       desc = "Get a WorldEdit wand.",
-      // TODO: maybe show that WOOD_AXE is implicitly converted to an ItemStack here
       body = noArgs(_.loc.dropItem(WOOD_AXE))
     ),
     Command(
       name = "set",
       desc = "Set all the selected blocks to the given material type.",
-      body = args(material){ case (p, m) => run(p)(_.blocks.foreach(_ changeTo m)) }
+      body = args(material){ case (p, m) => run(p)(c => for(b <- c.blocks){ b changeTo m }) }
     ),
     Command(
       name = "change",
@@ -38,31 +36,8 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin {
       body = args(material ~ material){
         case (p, oldM ~ newM) => run(p)(c => for(b <- c.blocks; if(b is oldM)){ b changeTo newM })
       }
-    ),
-    // TODO: early termination example. maybe put in a different file
-    Command(
-      name = "find",
-      desc = "Checks if your cube contains any of the given material, and tells where.",
-      body = args(material){ case (p, m) =>
-        run(p){_.blocks.find(_ is m).fold(
-          s"No $m found in your cube!")(b => s"$m found at ${b.loc.xyz}")
-        }
-      }
-    ),
-    Command(
-      name = "fib-tower",
-      desc = "create a tower from the fib numbers",
-      body = args(int ~ material){ case (p, i ~ m) =>
-        lazy val fibs: Stream[Int] = 0 #:: 1 #:: fibs.zip(fibs.tail).map{case (i,j) => i+j}
-        val xBlocks: Stream[Block] = p.world.fromX(p.loc)
-        for{
-          (startBlock,n) <- xBlocks.zip(fibs take i)
-          towerBlock     <- startBlock.andBlocksAbove take n
-        } towerBlock changeTo m
-      }
     )
   )
-
 
   // helper functions
   def setFirstPos(p:Player, loc: Location): Unit = {
@@ -79,6 +54,6 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin {
     case _ =>
       p ! "set corner one first! (with a left click)"
   }
-  def run (p: Player)(f: Cube => Unit) = corners.get(p).collect{ case b: BothCorners => b }.
+  def run(p: Player)(f: Cube => Unit) = corners.get(p).collect{ case b: BothCorners => b }.
     map(_.cube).fold(p ! "Both corners must be set!")(f)
 }

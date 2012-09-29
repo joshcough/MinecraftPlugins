@@ -17,6 +17,6 @@ public class BlockChangerGold extends JavaPlugin {
   }
   public void onEnable() {
     // 3:  Register the handler for the event
-    getServer().getPluginManager().registerEvents(new TreeDeloggerListener(), this);
+    getServer().getPluginManager().registerEvents(new BlockChangerListener(), this);
   }
 }

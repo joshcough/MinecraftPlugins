@@ -7,8 +7,11 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.conversations.Conversation;
 import org.bukkit.conversations.ConversationAbandonedEvent;
 import org.bukkit.entity.*;
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
@@ -112,6 +115,30 @@ public class BetterJavaPlugin extends JavaPlugin {
     r.run();
     p2.sendMessage(GREEN + "you have been " + actionName + " by " + p1.getName());
     p1.sendMessage(GREEN + "you have " + actionName + " " + p2.getName());
+  }
+
+  static public boolean isHolding(Player p, Material m){
+    return p.getItemInHand().getType() == m;
+  }
+
+  static public ItemStack itemStack(Material m){ return new ItemStack(m, 1); }
+
+  static public abstract class LeftClickBlockHandler implements Listener {
+    @EventHandler
+    public void on_Dont_Call_Me_Directly(PlayerInteractEvent event){
+      if(event.getAction() == Action.LEFT_CLICK_BLOCK)
+        onLeftClickBlock(event.getPlayer(), event);
+    }
+    abstract public void onLeftClickBlock(Player p, PlayerInteractEvent event);
+  }
+
+  static public abstract class RightClickBlockHandler implements Listener {
+    @EventHandler
+    public void on_Dont_Call_Me_Directly(PlayerInteractEvent event){
+      if(event.getAction() == Action.RIGHT_CLICK_BLOCK)
+        onRightClickBlock(event.getPlayer(), event);
+    }
+    abstract public void onRightClickBlock(Player p, PlayerInteractEvent event);
   }
 
   abstract public class CommandBody<T>{

@@ -3,6 +3,8 @@ package jcdc.pluginfactory
 import java.io.File
 import util.Try
 
+object ParserCombinators extends ParserCombinators
+
 trait ParserCombinators {
 
   case class ~[+A, +B](a: A, b: B) {
@@ -30,6 +32,7 @@ trait ParserCombinators {
 
   trait Parser[+T] extends (List[String] => ParseResult[T]) { self =>
     def apply(args: List[String]): ParseResult[T]
+    def apply(args: String): ParseResult[T] = this.apply(args.split(" ").toList)
     def describe: String
 
     def named(name: String) = new Parser[T] {
@@ -89,7 +92,7 @@ trait ParserCombinators {
     def describe = t.toString
   }
 
-  implicit def stringToParser(s: String) = new Parser[String] {
+  implicit def stringToParser(s: String): Parser[String] = new Parser[String] {
     def apply(args: List[String]) = args match {
       case Nil => Failure(s"expected :$s, but got nothing")
       case x :: xs => if (x == s) Success(x, xs) else Failure(s"expected: $s, but got: $x")
@@ -100,10 +103,7 @@ trait ParserCombinators {
   def token[T](name: String)(f: (String) => Option[T]) = new Parser[T] {
     def apply(args: List[String]) = args match {
       case Nil => Failure(s"expected $name, got nothing")
-      case x :: xs => f(x) match {
-        case None => Failure(s"invalid $name: $x")
-        case Some(t) => Success(t, xs)
-      }
+      case x :: xs => f(x).fold[ParseResult[T]](Failure(s"invalid $name: $x"))(t => Success(t, xs))
     }
     def describe = name
   }
@@ -137,4 +137,28 @@ trait ParserCombinators {
     if (f.exists) Some(f) else None
   }
   def existingOrNewFile: Parser[File] = existingFile | newFile
+}
+
+object PCDemo{
+import jcdc.pluginfactory.ParserCombinators._
+def run[T](p: Parser[T], args:String): ParseResult[T] = p(args)
+// demo
+run(int, "5")
+run(int, "ewrer")
+run(int ~ int, "5 6")
+run(int ~ int, "5 qweqwe")
+run(int ~ anyString, "5 qweqwe")
+run(int ~ anyString, "5 qweqwe wfwfwef")
+run(bool or int , "true")
+run(bool or int , "7")
+run(bool or int , "qweqw")
+run("test", "test")
+run(int.*, "5 7 8 9")
+run(bool.+, "true")
+run(bool.+, "true false true")
+run(bool.+, "true false true qwewe")
+run(int ^^ (x => x * x), "7")
+run(int ~ "*" ~ int ^^^ 42, "6 * 9")
+run(int.? ~ "hi", "hi")
+run(int.? ~ "hi", "6 hi")
 }

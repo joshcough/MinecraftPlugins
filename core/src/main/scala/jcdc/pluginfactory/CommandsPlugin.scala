@@ -22,10 +22,10 @@ trait BasicMinecraftParsers extends ScalaPlugin with ParserCombinators {
   val gamemode: Parser[GameMode] =
     ("c" | "creative" | "1") ^^^ CREATIVE |
     ("s" | "survival" | "0") ^^^ SURVIVAL
-  def entity  : Parser[EntityType] = token("entity-type")  (findEntity)
-  def material: Parser[Material]   = token("material-type")(findMaterial)
-  def player  : Parser[Player]     = token("player-name")  (server.findPlayer)
-  def location: Parser[World => Location] = (int ~ int ~ int.?) ^^ {
+  val entity  : Parser[EntityType] = token("entity-type")  (findEntity)
+  val material: Parser[Material]   = token("material-type")(findMaterial)
+  val player  : Parser[Player]     = token("player-name")  (server.findPlayer)
+  val location: Parser[World => Location] = (int ~ int ~ int.?) ^^ {
     case x ~ y ~ Some(z) => (w:World) => w(x, y, z)
     case x ~ z ~ None    => (w:World) => w.getHighestBlockAt(x, z)
   }
