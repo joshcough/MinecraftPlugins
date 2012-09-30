@@ -24,7 +24,6 @@ public class WorldEdit extends BetterJavaPlugin {
         }
       }
     });
-
     listeners.add(new RightClickBlockHandler() {
       public void onRightClickBlock(Player p, PlayerInteractEvent event) {
         if(isHolding(p, Material.WOOD_AXE)){
@@ -33,42 +32,25 @@ public class WorldEdit extends BetterJavaPlugin {
       }
     });
 
+    commands.add(new Command("wand", "Get a WorldEdit wand.", new NoArgCommandBody() {
+      public void run(Player p) {
+        p.getWorld().dropItem(p.getLocation(), itemStack(Material.WOOD_AXE));
+      }
+    }));
     commands.add(new Command(
-        "wand",
-        "Get a WorldEdit wand.",
-        new NoArgCommandBody() {
-          public void run(Player p) {
-            p.getWorld().dropItem(p.getLocation(), itemStack(Material.WOOD_AXE));
-          }
-        }
-    ));
-
-    commands.add(new Command(
-        "set",
-        "Set all the selected blocks to the given material type.",
+        "set", "Set all the selected blocks to the given material type.",
         new CommandBody<Material>(material) {
           public void run(Player p, final Material m) {
-            runCorners(p, new AbstractFunction1<Iterable<Block>, Void>() {
-              public Void apply(Iterable<Block> blocks) {
-                for(Block b: blocks) { b.setType(m); }
-                return null;
-              }
-            });
+            for(Block b: cube(p)) { b.setType(m); }
           }
         }
     ));
-
     commands.add(new Command(
         "change",
         "Change all the selected blocks of the first material type to the second material type.",
         new CommandBody<Tuple2<Material, Material>>(material.and(material)) {
           public void run(Player p, final Tuple2<Material, Material> t) {
-            runCorners(p, new AbstractFunction1<Iterable<Block>, Void>() {
-              public Void apply(Iterable<Block> blocks) {
-                for(Block b: blocks) { if(b.getType() == t._1()) b.setType(t._2()); }
-                return null;
-              }
-            });
+            for(Block b: cube(p)) { if(b.getType() == t._1()) b.setType(t._2()); }
           }
         }
     ));
@@ -81,12 +63,8 @@ public class WorldEdit extends BetterJavaPlugin {
 
   private void setSecondPos(Player p, Location loc2) {
     List<Location> locs = getCorners(p);
-    if(locs.size() == 1) {
-      locs.add(loc2);
-      p.sendMessage("second corner set to: " + loc2);
-    }
-    else if(locs.size() == 2){
-      locs.set(1, loc2);
+    if(locs.size() > 0) {
+      if(locs.size() == 1) locs.add(loc2); else locs.set(1, loc2);
       p.sendMessage("second corner set to: " + loc2);
     }
     else
@@ -125,9 +103,12 @@ public class WorldEdit extends BetterJavaPlugin {
     };
   }
 
-  private void runCorners(Player p, Function1<Iterable<Block>, Void> f){
+  private Iterable<Block> cube(Player p){
     List<Location> cs = getCorners(p);
-    if(cs.size() == 2){ f.apply(iterable(cs.get(0), cs.get(1))); }
-    else p.sendMessage("Both corners must be set!");
+    if(cs.size() == 2) return iterable(cs.get(0), cs.get(1));
+    else {
+      p.sendMessage("Both corners must be set!");
+      return new LinkedList<Block>();
+    }
   }
 }
