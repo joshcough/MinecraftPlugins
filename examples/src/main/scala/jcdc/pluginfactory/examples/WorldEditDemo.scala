@@ -32,14 +32,15 @@ class WorldEditDemo extends ListenersPlugin with CommandsPlugin {
     )
   )
 
-  def blocksBetween(loc1:Location, loc2: Location): Iterator[Block] = {
-    val ((x1, y1, z1), (x2, y2, z2)) = (loc1.xyz, loc2.xyz)
-    def range(i1: Int, i2: Int) = (if(i1 < i2) i1 to i2 else i2 to i1).iterator
-    for (x <- range(x1,x2); y <- range(y1,y2); z <- range(z1,z2)) yield loc1.world(x,y,z)
+  def cube(p:Player):Iterator[Block] = {
+    def blocksBetween(loc1:Location, loc2: Location): Iterator[Block] = {
+      val ((x1, y1, z1), (x2, y2, z2)) = (loc1.xyz, loc2.xyz)
+      def range(i1: Int, i2: Int) = (if(i1 < i2) i1 to i2 else i2 to i1).iterator
+      for (x <- range(x1,x2); y <- range(y1,y2); z <- range(z1,z2)) yield loc1.world(x,y,z)
+    }
+    corners.get(p).filter(_.size == 2).
+      fold({p ! "Both corners must be set!"; Iterator[Block]()})(ls => blocksBetween(ls(0), ls(1)))
   }
-
-  def cube(p:Player):Iterator[Block] = corners.get(p).filter(_.size == 2).
-    fold({p ! "Both corners must be set!"; Iterator[Block]()})(ls => blocksBetween(ls(0), ls(1)))
 
   def setFirstPos(p:Player,loc: Location): Unit = {
     corners.update(p, List(loc))
