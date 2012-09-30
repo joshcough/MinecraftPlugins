@@ -24,19 +24,17 @@ class WorldEditDemo extends ListenersPlugin with CommandsPlugin {
     Command(
       name = "set",
       desc = "Set all the selected blocks to the given material type.",
-      body = args(material){ case (p, m) => run(p)(blocks => for(b <- blocks){ b changeTo m }) }
+      body = args(material){ case (p, m) => for(b <- blocksFor(p)) b changeTo m }
     ),
     Command(
       name = "change",
       desc = "Change all the selected blocks of the first material type to the second material type.",
       body = args(material ~ material){
-        case (p, oldM ~ newM) =>
-          run(p)(blocks => for(b <- blocks; if(b is oldM)){ b changeTo newM })
+        case (p, oldM ~ newM) => for(b <- blocksFor(p); if(b is oldM)) b changeTo newM
       }
     )
   )
 
-  // helper functions
   def setFirstPos(p:Player, loc: Location): Unit = {
     corners.update(p, List(loc))
     p ! (s"first corner set to: ${loc.xyz}")
@@ -58,6 +56,7 @@ class WorldEditDemo extends ListenersPlugin with CommandsPlugin {
     for (x <- range(x1,x2); y <- range(y1,y2); z <- range(z1,z2)) yield loc1.world(x,y,z)
   }
 
-  def run(p: Player)(f: Iterator[Block] => Unit) = corners.get(p).filter(_.size == 2).
-    fold(p ! "Both corners must be set!")(ls => f(blocksBetween(ls(0), ls(1))))
+  def blocksFor(p: Player): Iterator[Block] = corners.get(p).filter(_.size == 2).fold(
+    {p ! "Both corners must be set!"; Iterator[Block]()})(ls => blocksBetween(ls(0), ls(1))
+  )
 }
