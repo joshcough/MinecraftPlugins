@@ -41,14 +41,23 @@ trait CommandsPlugin extends ScalaPlugin with BasicMinecraftParsers {
 
   def commands: List[Command]
 
-  def opOnly(ch: CommandBody): CommandBody = CommandBody(
-    s"${ch.argDesc} [Op Only]", (player: Player, c: BukkitCommand, args: List[String]) =>
-      if (player.isOp) ch.f(player, c, args)
-      else player ! (RED + s"You must be an op to run /${c.getName}")
-  )
+  private def lowers = commands.map(c => (c.name.toLowerCase, c)).toMap
 
-  type PlayerToPlayer = (Player, Player) => Unit
-  def p2p(p2pc: PlayerToPlayer): CommandBody = args(player) { case (p1, p2) => p2pc(p1, p2) }
+  override def onCommand(sender: CommandSender, cmd: BukkitCommand,
+                         commandLabel: String, args: Array[String]) = {
+    println(s"$name handling $commandLabel [${args.mkString(",")}]")
+    val p = toPlayer(sender)
+    (for (ch <- lowers.get(cmd.getName.toLowerCase)) yield
+      try {
+        ch.body.f(p, cmd, args.toList)
+        true
+      }
+      catch { case e: Exception =>
+        p ! (e.getMessage + "\n" + e.getStackTraceString)
+        e.printStackTrace
+        false
+      }).getOrElse(true)
+  }
 
   def noArgs(f: Player => Unit): CommandBody =
     CommandBody("", (p: Player, c: BukkitCommand, args: List[String]) => f(p))
@@ -68,8 +77,6 @@ trait CommandsPlugin extends ScalaPlugin with BasicMinecraftParsers {
       }
     )
 
-  private def lowers = commands.map(c => (c.name.toLowerCase, c)).toMap
-
   override def onEnable() {
     super.onEnable()
     lowers.foreach { case (name, _) => logInfo("command: " + name) }
@@ -80,22 +87,6 @@ trait CommandsPlugin extends ScalaPlugin with BasicMinecraftParsers {
     case _ => ConsolePlayer.player
   }
 
-  override def onCommand(sender: CommandSender, cmd: BukkitCommand,
-                         commandLabel: String, args: Array[String]) = {
-    println(s"$name handling $commandLabel [${args.mkString(",")}]")
-    val p = toPlayer(sender)
-    (for (ch <- lowers.get(cmd.getName.toLowerCase)) yield
-      try {
-        ch.body.f(p, cmd, args.toList)
-        true
-      }
-      catch { case e: Exception =>
-        p ! (e.getMessage + "\n" + e.getStackTraceString)
-        e.printStackTrace
-        false
-      }).getOrElse(true)
-  }
-
   override def yml(author:String, version: String) = {
     def commandYml(c: Command) =
       s"  ${c.name}:\n" +
@@ -104,6 +95,16 @@ trait CommandsPlugin extends ScalaPlugin with BasicMinecraftParsers {
     val commandsYml = s"commands:\n${commands.map(commandYml).mkString("\n")}"
     List(super.yml(author, version), commandsYml).mkString("\n")
   }
+
+  def opOnly(ch: CommandBody): CommandBody = CommandBody(
+    s"${ch.argDesc} [Op Only]", (player: Player, c: BukkitCommand, args: List[String]) =>
+      if (player.isOp) ch.f(player, c, args)
+      else player ! (RED + s"You must be an op to run /${c.getName}")
+  )
+
+  type PlayerToPlayer = (Player, Player) => Unit
+  def p2p(p2pc: PlayerToPlayer): CommandBody = args(player) { case (p1, p2) => p2pc(p1, p2) }
+
 
   object ConsolePlayer {
 

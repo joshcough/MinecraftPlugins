@@ -3,28 +3,17 @@ package jcdc.pluginfactory.betterexamples;
 import jcdc.pluginfactory.betterjava.BetterJavaPlugin;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerInteractEvent;
 import scala.Function1;
 import scala.Tuple2;
 import scala.runtime.AbstractFunction1;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class WorldEdit extends BetterJavaPlugin {
-  public final Map<Player, Corners> corners = new HashMap<Player, Corners>();
-
-  static private interface Corners{}
-  static private Corners NoCorners = new Corners() {};
-  static private class OneCorner implements Corners{
-    private Location loc;
-    OneCorner(Location loc){ this.loc = loc; }
-  }
-  static private class BothCorners implements Corners{
-    private Cube cube;
-    BothCorners(Cube cube){ this.cube = cube; }
-  }
+  public final Map<Player, List<Location>> corners = new HashMap<Player, List<Location>>();
 
   public WorldEdit() {
     listeners.add(new LeftClickBlockHandler() {
@@ -59,8 +48,11 @@ public class WorldEdit extends BetterJavaPlugin {
         "Set all the selected blocks to the given material type.",
         new CommandBody<Material>(material) {
           public void run(Player p, final Material m) {
-            runCorners(p, new AbstractFunction1<Cube, Void>() {
-              public Void apply(Cube cube) { return cube.set(m); }
+            runCorners(p, new AbstractFunction1<Iterable<Block>, Void>() {
+              public Void apply(Iterable<Block> blocks) {
+                for(Block b: blocks) { b.setType(m); }
+                return null;
+              }
             });
           }
         }
@@ -71,40 +63,71 @@ public class WorldEdit extends BetterJavaPlugin {
         "Change all the selected blocks of the first material type to the second material type.",
         new CommandBody<Tuple2<Material, Material>>(material.and(material)) {
           public void run(Player p, final Tuple2<Material, Material> t) {
-            runCorners(p, new AbstractFunction1<Cube, Void>() {
-              public Void apply(Cube cube) { return cube.change(t._1(), t._2()); }
+            runCorners(p, new AbstractFunction1<Iterable<Block>, Void>() {
+              public Void apply(Iterable<Block> blocks) {
+                for(Block b: blocks) { if(b.getType() == t._1()) b.setType(t._2()); }
+                return null;
+              }
             });
           }
         }
     ));
   }
 
-  private void setFirstPos(Player player, Location location) {
-    corners.put(player, new OneCorner(location));
+  private void setFirstPos(Player player, final Location location) {
+    corners.put(player, new LinkedList<Location>(){{add(location);}});
     player.sendMessage("first corner set to: " + location); // icky location toString...
   }
 
   private void setSecondPos(Player p, Location loc2) {
-    Corners c = getCorners(p);
-    if(c instanceof OneCorner) {
-      corners.put(p, new BothCorners(new Cube(((OneCorner)c).loc, loc2)));
+    List<Location> locs = getCorners(p);
+    if(locs.size() == 1) {
+      locs.add(loc2);
       p.sendMessage("second corner set to: " + loc2);
     }
-    else if(c instanceof BothCorners){
-      corners.put(p, new BothCorners(new Cube(((BothCorners)c).cube.loc1, loc2)));
+    else if(locs.size() == 2){
+      locs.set(1, loc2);
       p.sendMessage("second corner set to: " + loc2);
     }
     else
       p.sendMessage("set corner one first! (with a left click)");
   }
 
-  private Corners getCorners(Player p) {
-    return corners.containsKey(p) ? corners.get(p) : NoCorners;
+  private List<Location> getCorners(Player p) {
+    return corners.containsKey(p) ? corners.get(p) : new LinkedList<Location>();
   }
 
-  private void runCorners(Player p, Function1<Cube, Void> f){
-    Corners c = getCorners(p);
-    if(c instanceof BothCorners){ f.apply(((BothCorners)c).cube); }
+  public Iterable<Block> iterable(final Location loc1, final Location loc2){
+    return new Iterable<Block>(){
+      public Iterator<Block> iterator() {
+        return new Iterator<Block>() {
+          final int minX = Math.min((int)loc1.getX(), (int)loc2.getX());
+          final int maxX = Math.max((int)loc1.getX(), (int)loc2.getX());
+          final int minY = Math.min((int)loc1.getY(), (int)loc2.getY());
+          final int maxY = Math.max((int)loc1.getY(), (int)loc2.getY());
+          final int minZ = Math.min((int)loc1.getZ(), (int)loc2.getZ());
+          final int maxZ = Math.max((int)loc1.getZ(), (int)loc2.getZ());
+          private int x = minX;
+          private int y = minY;
+          private int z = minZ;
+          public boolean hasNext() { return x <= maxX && y <= maxY && z <= maxZ; }
+          public Block next() {
+            if(!hasNext()) new IllegalStateException("no more blocks in this cube!");
+            Block b = loc1.getWorld().getBlockAt(x, y, z);
+            if(x < maxX) x++; else if(y < maxY) y++; else if(z < maxZ) z++;
+            return b;
+          }
+          public void remove() {
+            throw new IllegalStateException("cant remove from this iterator!");
+          }
+        };
+      }
+    };
+  }
+
+  private void runCorners(Player p, Function1<Iterable<Block>, Void> f){
+    List<Location> cs = getCorners(p);
+    if(cs.size() == 2){ f.apply(iterable(cs.get(0), cs.get(1))); }
     else p.sendMessage("Both corners must be set!");
   }
 }

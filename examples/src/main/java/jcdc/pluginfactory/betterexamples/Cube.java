@@ -5,6 +5,7 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import scala.Function1;
+import scala.Option;
 import scala.Tuple2;
 import scala.runtime.AbstractFunction1;
 
@@ -25,12 +26,12 @@ public class Cube{
 
   public Cube(Location loc1, Location loc2) {
     this.loc1 = loc1; this.loc2 = loc2; this.world = loc1.getWorld();
-    minX = Math.min((int)loc1.getX(), (int)loc1.getX());
-    maxX = Math.max((int)loc1.getX(), (int)loc1.getX());
-    minY = Math.min((int)loc1.getY(), (int)loc1.getY());
-    maxY = Math.max((int)loc1.getY(), (int)loc1.getY());
-    minZ = Math.min((int)loc1.getZ(), (int)loc1.getZ());
-    maxZ = Math.max((int)loc1.getZ(), (int)loc1.getZ());
+    minX = Math.min((int)loc1.getX(), (int)loc2.getX());
+    maxX = Math.max((int)loc1.getX(), (int)loc2.getX());
+    minY = Math.min((int)loc1.getY(), (int)loc2.getY());
+    maxY = Math.max((int)loc1.getY(), (int)loc2.getY());
+    minZ = Math.min((int)loc1.getZ(), (int)loc2.getZ());
+    maxZ = Math.max((int)loc1.getZ(), (int)loc2.getZ());
   }
 
   // TODO: how can you terminate early?
@@ -93,6 +94,14 @@ public class Cube{
     for(Block b: iterable()){ if(b.getType() == oldM) b.setType(newM); }
     return null;
   }
+
+  public Option<Block> find(final Material m) {
+    for(Block b: iterable()){
+      if(b.getType() == m) return Option.apply(b);
+    }
+    return Option.empty();
+  }
+
 
   // just a test...
   static public <T,U> Iterable<Tuple2<T,U>> zip(final Iterable<T> ts, final Iterable<U> us){
