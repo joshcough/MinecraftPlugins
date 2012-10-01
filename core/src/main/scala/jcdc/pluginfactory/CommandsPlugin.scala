@@ -67,14 +67,12 @@ trait CommandsPlugin extends ScalaPlugin with BasicMinecraftParsers {
   def args[T](argsParser: Parser[T])(f: ((Player, T)) => Unit): CommandBody =
     CommandBody(
       argsParser.describe, (p: Player, c: BukkitCommand, args: List[String]) => {
+        def sendError(msg:String) =
+          p !* (RED + msg, RED + c.getDescription, RED + c.getUsage)
         argsParser(args) match {
           case Success(t, Nil) => f(p -> t)
-          case Success(t, xs)  => p !* (
-            RED + c.getDescription,
-            RED + c.getUsage,
-            RED + s"unprocessed input: ${xs.mkString(" ")}"
-          )
-          case Failure(msg)    => p ! (RED + " " + msg)
+          case Success(t, xs)  => sendError(s"unprocessed input: ${xs.mkString(" ")}")
+          case Failure(msg)    => sendError(msg)
         }
       }
     )
