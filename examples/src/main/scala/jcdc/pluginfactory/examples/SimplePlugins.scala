@@ -7,19 +7,20 @@ import org.bukkit.entity.EntityType.{ARROW, ZOMBIE}
 import org.bukkit.entity.Player
 import jcdc.pluginfactory._
 import Listeners._
-import jcdc.pluginfactory.Listeners.ListeningFor
 
 class BanArrows extends ListeningFor(OnPlayerDamageByEntity { (p, e) =>
   if (e.getDamager isAn ARROW) p.ban("struck by an arrow!")
 })
 
 class BlockChangerGold extends ListeningFor(OnLeftClickBlock((p, e) =>
-  if (p is "joshcough") e.block changeTo GOLD_BLOCK
+  if (p is "joshcough") { e.block changeTo GOLD_BLOCK; e.cancel }
 ))
 
 class BlockChanger extends ListenerPlugin with CommandPlugin {
   val users    = collection.mutable.Map[Player, Material]()
-  val listener = OnLeftClickBlock((p, e) => users.get(p).foreach(e.block changeTo _))
+  val listener = OnLeftClickBlock{ (p, e) =>
+    users.get(p).foreach(e.block changeTo _); e.cancel
+  }
   val command  = Command(
     name = "bc",
     desc = "Specify which material to change blocks to, or just /bc to turn off",

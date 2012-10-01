@@ -37,6 +37,7 @@ public class BlockChangerV2 extends JavaPlugin {
       return true;
     }
     // if we had more commands, we'd check add more cases here
+    // else if("someOtherCommand".equals(commandLabel.toLowerCase())) { ... }
     else return false;
   }
 

@@ -1,8 +1,6 @@
 all: compile arena ban-arrows block-changer block-changer-gold curse-ban farmer god lightning-arrows mpc no-rain thor tree-delogger warp-plugin world-edit yellow-brick-road zombie-apocalypse
 
-demo: clean-plugins compile mpc plugin-commander warp-plugin world-edit
-
-demo-bc: clean-plugins compile block-changer block-changer-gold plugin-commander
+demo: clean-plugins compile block-changer block-changer-gold mpc plugin-commander warp-plugin world-edit
 
 clean-plugins:
 	cd ../bukkit/plugins; rm -f *.jar
