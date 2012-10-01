@@ -44,6 +44,8 @@ abstract class ScalaPlugin extends org.bukkit.plugin.java.JavaPlugin with Enrich
   def logTask[T](message:String)(f: => T): T = {
     logInfo(s"Starting: $message"); val t = f; logInfo(s"Finished: $message"); t
   }
-  def logError(e:Throwable){ log.log(java.util.logging.Level.SEVERE, s"[$name] - ${e.getMessage}", e) }
+  def logError(e:Throwable){
+    log.log(java.util.logging.Level.SEVERE, s"[$name] - ${e.getMessage}", e)
+  }
   def broadcast(message:String) = server.broadcastMessage(s"[$name] - $message")
 }
