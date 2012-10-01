@@ -6,6 +6,7 @@ import org.bukkit.GameMode._
 import org.bukkit.entity.{EntityType, Player}
 import EnrichmentClasses._
 import org.bukkit.{GameMode, Material, Location, World}
+import org.bukkit.plugin.Plugin
 
 case class CommandBody(argDesc: String, f:(Player, BukkitCommand, List[String]) => Unit)
 
@@ -30,6 +31,7 @@ trait BasicMinecraftParsers extends ScalaPlugin with ParserCombinators {
     case x ~ y ~ Some(z) => (w:World) => w(x, y, z)
     case x ~ z ~ None    => (w:World) => w.getHighestBlockAt(x, z)
   }
+  val plugin  : Parser[Plugin] = token("plugin")(s => tryO(pluginManager.getPlugin(s)))
 }
 
 trait CommandPlugin extends CommandsPlugin {

@@ -10,13 +10,11 @@ object ScalaPlugin extends EnrichmentClasses
 
 abstract class ScalaPlugin extends org.bukkit.plugin.java.JavaPlugin with EnrichmentClasses {
 
-  val log = Logger.getLogger("Minecraft")
-
+  val log  = Logger.getLogger("Minecraft")
   def name = Try(this.getDescription.getName).getOrElse(this.getClass.getSimpleName)
-
-  def server = getServer
-  def craftServer = org.bukkit.Bukkit.getServer.asInstanceOf[CraftServer]
-
+  def server        = getServer
+  def craftServer   = org.bukkit.Bukkit.getServer.asInstanceOf[CraftServer]
+  def pluginManager = getServer.getPluginManager
   def fire(e:Event) = server.getPluginManager.callEvent(e)
 
   // setup stuff

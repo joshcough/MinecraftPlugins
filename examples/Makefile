@@ -1,10 +1,8 @@
 all: compile arena ban-arrows block-changer block-changer-gold curse-ban farmer god lightning-arrows mpc no-rain thor tree-delogger warp-plugin world-edit yellow-brick-road zombie-apocalypse
 
-demo: clean-plugins compile mpc warp-plugin world-edit
+demo: clean-plugins compile mpc plugin-commander warp-plugin world-edit
 
-demo-bc-gold: clean-plugins compile block-changer-gold lightning-arrows no-rain yellow-brick-road
-
-demo-bc: clean-plugins compile block-changer
+demo-bc: clean-plugins compile block-changer block-changer-gold plugin-commander
 
 clean-plugins:
 	cd ../bukkit/plugins; rm -f *.jar
@@ -48,6 +46,9 @@ mpc:
 
 no-rain:
 	$(call plugin, "norain.yml", "NoRain.jar")
+
+plugin-commander:
+	$(call plugin, "plugincommander.yml", "PluginCommander.jar")
 
 thor:
 	$(call plugin, "thor.yml", "Thor.jar")
