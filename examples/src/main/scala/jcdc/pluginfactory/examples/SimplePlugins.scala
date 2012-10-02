@@ -64,7 +64,7 @@ class God extends ListenerPlugin with CommandsPlugin {
       desc = "Toggle God mode.",
       body = noArgs { p =>
         gods.update(p, ! p.isAGod)
-        p ! ("god mode is now " + (if (p.isAGod) "on" else "off"))
+        p ! s"god mode is now ${if(p.isAGod) "on" else "off"}"
       }
     )
   )
