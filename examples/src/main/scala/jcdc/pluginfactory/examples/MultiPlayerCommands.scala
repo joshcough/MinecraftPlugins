@@ -10,33 +10,32 @@ class MultiPlayerCommands extends CommandsPlugin {
 
   val commands = List(
 
-    Command("goto",     "Teleport!", args(player or location){
-      case (you, Left(them)) => you.teleportTo(them)
-      case (you, Right(loc)) => you.teleport(you.world |> loc)
+    Command("goto",     "Teleport!", args(player or location){ case (you, e) =>
+      e.fold(them => you teleportTo them, loc => you.teleport(you.world |> loc))
     }),
 
     Command("up",       "Go up to the surface.", noArgs(_.surface)),
 
-    Command("set-time", "Sets the time.", args(int){ case (p, n) => p.world.setTime(n) }),
+    Command("set-time", "Sets the time.", args(time){ case (p, n) => p.world setTime n }),
 
-    Command("day",      "Sets the time to day (1000).", noArgs(_.world.setTime(1000))),
+    Command("day",      "Sets the time to day (1000).", noArgs(_.world setTime 1000)),
 
-    Command("night",    "Sets the time to night (15000).", noArgs(_.world.setTime(15000))),
+    Command("night",    "Sets the time to night (15000).", noArgs(_.world setTime 15000)),
 
-    Command("gm",       "Set your game mode.", args(gamemode){ case (p, gm) => p.setGameMode(gm) }),
+    Command("gm",       "Set your game mode.", args(gamemode){ case (p, gm) => p setGameMode gm }),
 
-    Command("gms",      "Set your game mode to survival.", noArgs(_.setGameMode(SURVIVAL))),
+    Command("gms",      "Set your game mode to survival.", noArgs(_ setGameMode SURVIVAL)),
 
-    Command("gmc",      "Set your game mode to creative.", noArgs(_.setGameMode(CREATIVE))),
+    Command("gmc",      "Set your game mode to creative.", noArgs(_ setGameMode CREATIVE)),
 
     Command("entities", "Display all the entities.",
       noArgs(p => p !* (p.world.entities.map(_.toString): _*))),
 
     Command("feed",     "Fill a players hunger bar.",
-      opOnly(p2p((you, them) => you.doTo(them, them.setFoodLevel(20), "fed")))),
+      opOnly(p2p((you, them) => you.doTo(them, them setFoodLevel 20, "fed")))),
 
     Command("starve",   "Drain a players hunger bar.",
-      opOnly(p2p((you, them) => you.doTo(them, them.setFoodLevel(0), "starved")))),
+      opOnly(p2p((you, them) => you.doTo(them, them setFoodLevel 0, "starved")))),
 
     Command("shock",    "Shock a player.",
       opOnly(p2p((you, them) => you.doTo(them, them.shock, "shocked")))),
@@ -46,8 +45,8 @@ class MultiPlayerCommands extends CommandsPlugin {
     }),
 
     Command("ban",      "Ban some players.", args(anyString+){ case (you, them) =>
-      server.findOnlinePlayers (them).foreach { _.ban(you.name + " doesn't like you.") }
-      server.findOfflinePlayers(them).foreach { _ setBanned true }
+      server.findOnlinePlayers (them) foreach { _ ban s"{you.name} doesn't like you." }
+      server.findOfflinePlayers(them) foreach { _ setBanned true }
     }),
 
     Command("box",      "Put a box around yourself, made of any material.",
@@ -63,13 +62,13 @@ class MultiPlayerCommands extends CommandsPlugin {
       })),
 
     Command("kill",     "Kill entities.", args(("player" ~ player) or entity){
-      case (killer, Left(_ ~ deadMan)) => killer.kill(deadMan)
-      case (killer, Right(e)) => killer.world.entities.filter { _ isAn e }.foreach(_.remove)
+      case (killer, Left(_ ~ deadMan)) => killer kill deadMan
+      case (killer, Right(e)) => killer.world.entities filter { _ isAn e } foreach (_.remove)
     }),
 
     Command("creeper-kill", "Surround a player with creepers", opOnly(p2p((_, them) => {
-      them.setGameMode(SURVIVAL)
-      them.loc.block.neighbors8.foreach(_.loc.spawn(CREEPER))
+      them setGameMode SURVIVAL
+      them.loc.block.neighbors8 foreach (_.loc spawn CREEPER)
     })))
   )
 }

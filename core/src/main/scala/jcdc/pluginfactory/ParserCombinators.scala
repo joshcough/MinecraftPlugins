@@ -15,18 +15,21 @@ trait ParserCombinators {
     def get: T
     def map[U](f: T => U): ParseResult[U]
     def flatMapWithNext[U](f: (T, List[String]) => ParseResult[U]): ParseResult[U]
+    def flatMap[U](f: T => ParseResult[U]): ParseResult[U]
     def mapFailure[U >: T](f: String => ParseResult[U]): ParseResult[U]
   }
   case class Failure(message: String) extends ParseResult[Nothing]{
     def get: Nothing = throw new IllegalStateException("can't get from a failure")
     def map[U](f: Nothing => U) = this
     def flatMapWithNext[U](f: (Nothing, List[String]) => ParseResult[U]) = this
+    def flatMap[U](f: Nothing => ParseResult[U]): ParseResult[U] = this
     def mapFailure[U >: Nothing](f: String => ParseResult[U]) = f(message)
   }
   case class Success[+T](value: T, rest: List[String]) extends ParseResult[T]{
     def get: T = value
     def map[U](f: T => U): ParseResult[U] = Success(f(value), rest)
     def flatMapWithNext[U](f: (T, List[String]) => ParseResult[U]) = f(value, rest)
+    def flatMap[U](f: T => ParseResult[U]): ParseResult[U] = f(value)
     def mapFailure[U >: T](a: String => ParseResult[U]): ParseResult[U] = this
   }
 
@@ -39,6 +42,20 @@ trait ParserCombinators {
       def apply(args: List[String]) = self(args)
       def describe: String = name
     }
+
+    def flatMapWithNext[U](f: (T, List[String]) => ParseResult[U]) = new Parser[U] {
+      def apply(args: List[String]): ParseResult[U] = self(args) flatMapWithNext f
+      def describe = self.describe
+    }
+
+//    def flatMap[U](f: T => Parser[U]) = new Parser[U] {
+//      def apply(args: List[String]): ParseResult[U] = self(args) match {
+//        case Success(t,r) =>
+//          val p = f(t)
+//        case Failure(m) => Failure(m)
+//      }
+//      def describe = self.describe
+//    }
 
     def ^^[U](f: T => U) = new Parser[U] {
       def apply(args: List[String]): ParseResult[U] = self(args) map f
@@ -137,28 +154,4 @@ trait ParserCombinators {
     if (f.exists) Some(f) else None
   }
   def existingOrNewFile: Parser[File] = existingFile | newFile
-}
-
-object PCDemo{
-import jcdc.pluginfactory.ParserCombinators._
-def run[T](p: Parser[T], args:String): ParseResult[T] = p(args)
-// demo
-run(int, "5")
-run(int, "ewrer")
-run(int ~ int, "5 6")
-run(int ~ int, "5 qweqwe")
-run(int ~ anyString, "5 qweqwe")
-run(int ~ anyString, "5 qweqwe wfwfwef")
-run(bool or int , "true")
-run(bool or int , "7")
-run(bool or int , "qweqw")
-run("test", "test")
-run(int.*, "5 7 8 9")
-run(bool.+, "true")
-run(bool.+, "true false true")
-run(bool.+, "true false true qwewe")
-run(int ^^ (x => x * x), "7")
-run(int ~ "*" ~ int ^^^ 42, "6 * 9")
-run(int.? ~ "hi", "hi")
-run(int.? ~ "hi", "6 hi")
 }

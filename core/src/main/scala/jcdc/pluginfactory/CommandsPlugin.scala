@@ -32,6 +32,10 @@ trait BasicMinecraftParsers extends ScalaPlugin with ParserCombinators {
     case x ~ z ~ None    => (w:World) => w.getHighestBlockAt(x, z)
   }
   val plugin  : Parser[Plugin] = token("plugin")(s => tryO(pluginManager.getPlugin(s)))
+  val time    : Parser[Int]    = int.flatMapWithNext((i, rest) =>
+    if (i >= 0 && i <= 24000) Success(i, rest)
+    else Failure("time must be between 0 and 24000")
+  ).named("time (0-24000)")
 }
 
 trait CommandPlugin extends CommandsPlugin {

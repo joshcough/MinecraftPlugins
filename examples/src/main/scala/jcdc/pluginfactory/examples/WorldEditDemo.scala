@@ -44,7 +44,7 @@ class WorldEditDemo extends ListenersPlugin with CommandsPlugin {
 
   def setFirstPos(p:Player,loc: Location): Unit = {
     corners.update(p, List(loc))
-    p ! (s"first corner set to: ${loc.xyz}")
+    p ! s"first corner set to: ${loc.xyz}"
   }
 
   def setSecondPos(p:Player,loc2: Location): Unit = corners(p) match {
