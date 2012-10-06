@@ -48,15 +48,6 @@ trait ParserCombinators {
       def describe = self.describe
     }
 
-//    def flatMap[U](f: T => Parser[U]) = new Parser[U] {
-//      def apply(args: List[String]): ParseResult[U] = self(args) match {
-//        case Success(t,r) =>
-//          val p = f(t)
-//        case Failure(m) => Failure(m)
-//      }
-//      def describe = self.describe
-//    }
-
     def ^^[U](f: T => U) = new Parser[U] {
       def apply(args: List[String]): ParseResult[U] = self(args) map f
       def describe = self.describe

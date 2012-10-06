@@ -20,6 +20,7 @@ object YMLGenerator {
       new Farmer,
       new God,
       new NoRain,
+      new PermissionsTest,
       new PluginCommander,
       new Thor,
       new TreeDelogger,

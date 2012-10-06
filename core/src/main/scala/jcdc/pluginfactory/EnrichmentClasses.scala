@@ -161,6 +161,8 @@ trait EnrichmentClasses {
     def world  = player.getWorld
     def server = player.getServer
 
+    def inventory = player.getInventory
+
     def holding = player.getItemInHand
     def is(pname: String) = name == pname
     def isHolding  (m: Material) = player.getItemInHand.getType == m

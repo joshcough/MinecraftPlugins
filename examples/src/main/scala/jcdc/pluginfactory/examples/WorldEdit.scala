@@ -1,12 +1,11 @@
 package jcdc.pluginfactory.examples
 
-import jcdc.pluginfactory.{Command, CommandsPlugin, ListenersPlugin}
+import jcdc.pluginfactory._
 import org.bukkit.{Location, Material}
 import org.bukkit.entity.Player
 import Material._
-import org.bukkit.block.Block
 
-class WorldEdit extends ListenersPlugin with CommandsPlugin {
+class WorldEdit extends ListenersPlugin with CommandsPlugin { worldEdit =>
 
   val corners = collection.mutable.Map[Player, List[Location]]().withDefaultValue(Nil)
 
@@ -16,9 +15,40 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin {
   )
 
   val commands = List(
+    Command("book", "book", args(anyString.?){ case (p, title) =>
+      p.inventory addItem Book(author = p, title, pages =
+        """
+          change grass diamond_block
+          change dirt  gold_block
+          change stone iron_block
+        """.stripMargin
+      )
+    }),
+
+    Command("run-book", "book", noArgs(p => CodeBookRunner(p, Book.fromHand(p)))),
+
+    Command("goto", "Teleport!", args(location){ case (you, loc) => you teleport loc(you.world) }),
     Command(
-      name = "wand", desc = "Get a WorldEdit wand.", body = noArgs(_.loc.dropItem(WOOD_AXE))
+      name = "wand", "Get a WorldEdit wand.", body = noArgs(_.loc.dropItem(WOOD_AXE))
     ),
+    Command("pos1", "Set the first position",  args(location.?){ case (p, loc) =>
+      setFirstPos(p, loc.fold(p.loc)(_(p.world)))
+    }),
+    Command("pos2", "Set the second position",  args(location.?){ case (p, loc) =>
+      setSecondPos(p, loc.fold(p.loc)(_(p.world)))
+    }),
+    Command("cube-to",  "Set both positions",  args(location ~ location.?){
+      case (p, loc1 ~ loc2) =>
+        setFirstPos (p, loc1(p.world))
+        setSecondPos(p, loc2.fold(p.loc)(_(p.world)))
+    }),
+    Command("between",  "Set both positions",  args(location ~ location){
+      case (p, loc1 ~ loc2) =>
+        setFirstPos (p, loc1(p.world))
+        setSecondPos(p, loc2(p.world))
+        p.teleport(loc1(p.world))
+    }),
+    Command("erase", "Set all the selected blocks to air.", noArgs(cube(_).eraseAll)),
     Command(
       name = "set", desc = "Set all the selected blocks to the given material type.",
       body = args(material){ case (p, m) => for(b <- cube(p)) b changeTo m }
@@ -48,17 +78,36 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin {
           towerBlock     <- startBlock.andBlocksAbove take n
         } towerBlock changeTo m
       }
+    ),
+    Command(
+      name = "walls",
+      desc = "Create walls with the given material type.",
+      body = args(material) { case (p, m) => cube(p).walls.foreach(_ changeTo m) }
+    ),
+    Command(
+      name = "empty-tower",
+      desc = "Create walls and floor with the given material type, and set everything inside to air.",
+      body = args(material) { case (p, m) =>
+        val c = cube(p)
+        for(b <- cube(p)) if (c.onWall(b) or c.onFloor(b)) b changeTo m else b.erase
+      }
+    ),
+    Command(
+      name = "dig",
+      desc = "Dig",
+      body = args(oddNum ~ int) { case (p, radius ~ depth) =>
+        val b = radius / 2
+        val (x, y, z) = p.loc.xyzd
+        Cube(p.world(x + b, y, z + b), p.world(x - b, y - depth, z - b)).eraseAll
+      }
     )
   )
 
-  def cube(p:Player):Iterator[Block] = {
-    def blocksBetween(loc1:Location, loc2: Location): Iterator[Block] = {
-      val ((x1, y1, z1), (x2, y2, z2)) = (loc1.xyz, loc2.xyz)
-      def range(i1: Int, i2: Int) = (if(i1 < i2) i1 to i2 else i2 to i1).iterator
-      for (x <- range(x1,x2); y <- range(y1,y2); z <- range(z1,z2)) yield loc1.world(x,y,z)
-    }
+  def cube(p:Player): Cube = {
     corners.get(p).filter(_.size == 2).
-      fold({p ! "Both corners must be set!"; Iterator[Block]()})(ls => blocksBetween(ls(0), ls(1)))
+      fold({p ! "Both corners must be set!"; Cube(p.world(0,0,0),p.world(0,0,0))})(ls =>
+        Cube(ls(0), ls(1))
+    )
   }
 
   def setFirstPos(p:Player,loc: Location): Unit = {
@@ -72,5 +121,19 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin {
       p ! s"second corner set to: ${loc2.xyz}"
     case Nil =>
       p ! "set corner one first! (with a left click)"
+  }
+
+  object CodeBookRunner{
+    def apply(p:Player, codeBook:Book): Unit = for{
+      page   <- codeBook.pages
+      commandAndArgs <- page.split("\n").map(_.trim).filter(_.nonEmpty)
+      _      = p ! commandAndArgs.mkString
+      x      = commandAndArgs.split(" ").map(_.trim).filter(_.nonEmpty)
+      cmd    = x.head
+      args   = x.tail
+    } {
+      p ! s"$cmd ${args.mkString(" ")}"
+      worldEdit.onCommand(p, worldEdit.getCommand(cmd), cmd, args)
+    }
   }
 }

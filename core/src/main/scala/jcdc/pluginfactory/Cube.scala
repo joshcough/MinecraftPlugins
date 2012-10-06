@@ -6,6 +6,10 @@ import EnrichmentClasses._
 import org.bukkit.{Material, Location}
 import collection.JavaConversions.asScalaIterator
 
+object Cube{
+  implicit def toStream(c:Cube): Stream[Block] = c.blocks
+}
+
 case class Cube(l1: Location, l2: Location) {
 
   override def toString = s"Cube(l1: ${l1.xyz}, l2: ${l2.xyz})"

@@ -1,5 +1,6 @@
 package jcdc.pluginfactory.examples
 
+import org.bukkit.ChatColor._
 import org.bukkit.Material
 import org.bukkit.Material._
 import org.bukkit.block.Block
@@ -67,6 +68,19 @@ class God extends ListenerPlugin with CommandsPlugin {
         p ! s"god mode is now ${if(p.isAGod) "on" else "off"}"
       }
     )
+  )
+}
+
+class PermissionsTest extends CommandsPlugin { self =>
+  val commands = List(
+    Command("give-perm",  "Give a player a permission", args(anyString){
+      case (p, perm) => p.addAttachment(self).setPermission(perm, true)
+    }),
+    Command("test-perm",  "Test", args(anyString){
+      case (p, perm) =>
+        if (p hasPermission perm) p ! s"you have permission: $perm"
+        else p ! s"$RED you don't have permission: $perm"
+    })
   )
 }
 

@@ -2,6 +2,8 @@ all: compile arena ban-arrows block-changer block-changer-gold curse-ban farmer 
 
 demo: clean-plugins compile block-changer block-changer-gold mpc plugin-commander warp-plugin world-edit
 
+perms: clean-plugins compile permissions-test
+
 clean-plugins:
 	cd ../bukkit/plugins; rm -f *.jar
 
@@ -44,6 +46,9 @@ mpc:
 
 no-rain:
 	$(call plugin, "norain.yml", "NoRain.jar")
+
+permissions-test:
+	$(call plugin, "permissionstest.yml", "PermissionsTest.jar")
 
 plugin-commander:
 	$(call plugin, "plugincommander.yml", "PluginCommander.jar")
