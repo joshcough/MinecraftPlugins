@@ -150,7 +150,7 @@ trait CommandsPlugin extends ScalaPlugin with BasicMinecraftParsers {
       def getMaximumNoDamageTicks: Int = 0
       def getTotalExperience: Int = 0
       def getPlayerTimeOffset: Long = 0
-      def sendRawMessage(p1: String) {}
+      def sendRawMessage(p1: String) { println(s"raw message: $p1") }
       def setGameMode(p1: GameMode) {}
       def setBedSpawnLocation(p1: Location) {}
       def getHealth: Int = 0
@@ -283,7 +283,9 @@ trait CommandsPlugin extends ScalaPlugin with BasicMinecraftParsers {
       def isValid: Boolean = true
       def getOpenInventory: InventoryView = ???
       def addPotionEffects(p1: java.util.Collection[PotionEffect]): Boolean = false
-      def sendPluginMessage(p1: Plugin, p2: String, p3: Array[Byte]) {}
+      def sendPluginMessage(p1: Plugin, p2: String, p3: Array[Byte]) {
+        println(s"plugin message: $p1, $p2, ${p3.mkString("")}")
+      }
       def setSleepingIgnored(p1: Boolean) {}
       def isEmpty: Boolean = false
       def isOnline: Boolean = true
@@ -300,8 +302,8 @@ trait CommandsPlugin extends ScalaPlugin with BasicMinecraftParsers {
       def getExp: Float = 0
       def hidePlayer(p1: Player) {}
       def setAllowFlight(p1: Boolean) {}
-      def sendMessage(p1: Array[String]) {}
-      def sendMessage(p1: String) {}
+      def sendMessage(p1: Array[String]) { p1 foreach sendMessage }
+      def sendMessage(p1: String) { println(p1) }
       def isBanned: Boolean = false
       def setSprinting(p1: Boolean) {}
       def getVelocity: Vector = ???

@@ -116,7 +116,9 @@ trait ParserCombinators {
     def describe = name
   }
 
-  def anyString = token("string") { s => Some(s) }
+  def anyString: Parser[String] = token("string") { s => Some(s) }
+  def slurp: Parser[String] = (anyString.* ^^ (ss => ss.mkString(" "))).named("slurp")
+
   def tryOption[T](f: => T): Option[T] = Try(Option(f)).getOrElse(None)
 
   // number parsers

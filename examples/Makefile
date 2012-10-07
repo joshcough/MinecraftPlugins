@@ -1,6 +1,7 @@
 all: compile arena ban-arrows block-changer block-changer-gold curse-ban farmer god lightning-arrows mpc no-rain thor tree-delogger warp-plugin world-edit yellow-brick-road zombie-apocalypse
 
 demo: clean-plugins compile block-changer block-changer-gold mpc plugin-commander warp-plugin world-edit
+we: clean-plugins compile mpc warp-plugin world-edit
 
 perms: clean-plugins compile permissions-test
 

@@ -1,11 +1,15 @@
 package jcdc.pluginfactory.examples
 
+import scala.collection.JavaConversions._
 import jcdc.pluginfactory._
 import org.bukkit.{Location, Material}
 import org.bukkit.entity.Player
 import Material._
 
-class WorldEdit extends ListenersPlugin with CommandsPlugin { worldEdit =>
+class WorldEdit extends ListenersPlugin
+  with CommandsPlugin with SingleClassDBPlugin[Script] { worldEdit =>
+
+  val dbClass = classOf[Script]
 
   val corners = collection.mutable.Map[Player, List[Location]]().withDefaultValue(Nil)
 
@@ -15,22 +19,37 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin { worldEdit =>
   )
 
   val commands = List(
-    Command("book", "book", args(anyString.?){ case (p, title) =>
+    Command("code-book-example", "get a 'code book' example", args(anyString.?){ case (p, title) =>
       p.inventory addItem Book(author = p, title, pages =
         """
-          change grass diamond_block
-          change dirt  gold_block
-          change stone iron_block
+          |change grass diamond_block
+          |change dirt  gold_block
+          |change stone iron_block
         """.stripMargin
       )
     }),
-
-    Command("run-book", "book", noArgs(p => CodeBookRunner(p, Book.fromHand(p)))),
-
-    Command("goto", "Teleport!", args(location){ case (you, loc) => you teleport loc(you.world) }),
-    Command(
-      name = "wand", "Get a WorldEdit wand.", body = noArgs(_.loc.dropItem(WOOD_AXE))
+    Command("run-book", "run the code in a book", noArgs(p =>
+      ScriptRunner.runBook(p, Book.fromHand(p)))
     ),
+    Command("make-script", "build a script", args(anyString ~ slurp){ case (p, title ~ code) =>
+      val script = createScript(p, title, code)
+      p ! s"$script"
+      db.insert(script)
+      db.findAll.foreach(s => p ! s"$s")
+    }),
+    Command("show-script", "show the code in a script", args(anyString){ case (p, title) =>
+      db.firstWhere(Map("player" -> p.name, "title" -> title)).
+        fold(p ! s"unknown script: $title")(s => p ! s"$s")
+    }),
+    Command("show-scripts", "show the code in a script", noArgs(p =>
+      db.findAll.foreach(s => p ! s"$s")
+    )),
+    Command("run-script", "run the code in a script", args(anyString){ case (p, title) =>
+      db.firstWhere(Map("player" -> p.name, "title" -> title)).
+        fold(p ! s"unknown script: $title")(s => ScriptRunner.runScript(p, s))
+    }),
+    Command("goto", "Teleport!", args(location){ case (you, loc) => you teleport loc(you.world) }),
+    Command("wand", "Get a WorldEdit wand.", noArgs(_.loc.dropItem(WOOD_AXE))),
     Command("pos1", "Set the first position",  args(location.?){ case (p, loc) =>
       setFirstPos(p, loc.fold(p.loc)(_(p.world)))
     }),
@@ -42,8 +61,8 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin { worldEdit =>
         setFirstPos (p, loc1(p.world))
         setSecondPos(p, loc2.fold(p.loc)(_(p.world)))
     }),
-    Command("between",  "Set both positions",  args(location ~ location){
-      case (p, loc1 ~ loc2) =>
+    Command("between",  "Set both positions",  args(location ~ "-" ~ location){
+      case (p, loc1 ~ _ ~ loc2) =>
         setFirstPos (p, loc1(p.world))
         setSecondPos(p, loc2(p.world))
         p.teleport(loc1(p.world))
@@ -73,7 +92,7 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin { worldEdit =>
       desc = "create a tower from the fib numbers",
       body = args(int ~ material){ case (p, i ~ m) =>
         lazy val fibs: Stream[Int] = 0 #:: 1 #:: fibs.zip(fibs.tail).map{case (i,j) => i+j}
-        for{
+        for {
           (startBlock,n) <- p.world.fromX(p.loc).zip(fibs take i)
           towerBlock     <- startBlock.andBlocksAbove take n
         } towerBlock changeTo m
@@ -112,7 +131,7 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin { worldEdit =>
 
   def setFirstPos(p:Player,loc: Location): Unit = {
     corners.update(p, List(loc))
-    p ! (s"first corner set to: ${loc.xyz}")
+    p ! s"first corner set to: ${loc.xyz}"
   }
 
   def setSecondPos(p:Player,loc2: Location): Unit = corners(p) match {
@@ -123,10 +142,9 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin { worldEdit =>
       p ! "set corner one first! (with a left click)"
   }
 
-  object CodeBookRunner{
-    def apply(p:Player, codeBook:Book): Unit = for{
-      page   <- codeBook.pages
-      commandAndArgs <- page.split("\n").map(_.trim).filter(_.nonEmpty)
+  object ScriptRunner{
+    def run(p:Player, lines:Seq[String]): Unit = for {
+      commandAndArgs <- lines.map(_.trim).filter(_.nonEmpty)
       _      = p ! commandAndArgs.mkString
       x      = commandAndArgs.split(" ").map(_.trim).filter(_.nonEmpty)
       cmd    = x.head
@@ -135,5 +153,46 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin { worldEdit =>
       p ! s"$cmd ${args.mkString(" ")}"
       worldEdit.onCommand(p, worldEdit.getCommand(cmd), cmd, args)
     }
+    def runScript(p:Player, script:Script): Unit = run(p, script.commands)
+    def runBook(p:Player, b:Book): Unit =
+      run(p, b.pages.flatMap(_.split("\n").map(_.trim).filter(_.nonEmpty)))
+  }
+
+  def createScript(p: Player, title:String, commands:String): Script = {
+    val s = new Script(); s.player = p.name; s.title = title; s.commandsString = commands; s
   }
 }
+
+import javax.persistence._
+import scala.beans.BeanProperty
+
+@Entity
+class Script {
+  @Id @GeneratedValue @BeanProperty var id = 0
+  @BeanProperty var player = ""
+  @BeanProperty var title: String = ""
+  @BeanProperty var commandsString:String = ""
+  def commands = commandsString.split(";").map(_.trim).filter(_.nonEmpty)
+  override def toString = s"$player.$title \n[${commands.mkString("\n")}]"
+}
+
+//"""
+//  |goto 0 0
+//  |between [(0, 0) and (500, 255, 500)] { change grass brick }
+//  |between [here and (here.x + 10, here.y + 10, here.z + 10)] { walls stone }
+//""".stripMargin
+
+
+//  object CodeBookRunner{
+//    def apply(p:Player, codeBook:Book): Unit = for {
+//      page   <- codeBook.pages
+//      commandAndArgs <- page.split("\n").map(_.trim).filter(_.nonEmpty)
+//      _      = p ! commandAndArgs.mkString
+//      x      = commandAndArgs.split(" ").map(_.trim).filter(_.nonEmpty)
+//      cmd    = x.head
+//      args   = x.tail
+//    } {
+//      p ! s"$cmd ${args.mkString(" ")}"
+//      worldEdit.onCommand(p, worldEdit.getCommand(cmd), cmd, args)
+//    }
+//  }

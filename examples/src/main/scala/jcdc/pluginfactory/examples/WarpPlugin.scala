@@ -30,7 +30,7 @@ class WarpPlugin extends CommandsPlugin with SingleClassDBPlugin[Warp] {
         println(s"creating warp: $warpName")
         // TODO: can i use an update here?
         // making Warp a case class gave lots of unsolved issues...
-        warpsFor(p).find(_.name == warpName).foreach{ w =>
+        db.firstWhere(Map("player" -> p.name, "name" -> warpName)).foreach{ w =>
           // warp already exists, so delete it.
           db.delete(w)
           p ! s"deleted warp: $warpName"
