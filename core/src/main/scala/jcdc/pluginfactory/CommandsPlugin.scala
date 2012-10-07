@@ -49,6 +49,11 @@ trait CommandsPlugin extends ScalaPlugin with BasicMinecraftParsers {
 
   private def lowers = commands.map(c => (c.name.toLowerCase, c)).toMap
 
+  def runCommand(p: Player, commandLabel: String, args: Seq[String]) = {
+    p ! s"$name running: $commandLabel ${args.mkString(" ")}"
+    onCommand(p, getCommand(commandLabel), commandLabel, args.toArray)
+  }
+
   override def onCommand(sender: CommandSender, cmd: BukkitCommand,
                          commandLabel: String, args: Array[String]) = {
     println(s"$name handling $commandLabel [${args.mkString(",")}]")

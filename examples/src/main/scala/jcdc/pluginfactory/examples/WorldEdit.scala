@@ -7,7 +7,7 @@ import org.bukkit.entity.Player
 import Material._
 
 class WorldEdit extends ListenersPlugin
-  with CommandsPlugin with SingleClassDBPlugin[Script] { worldEdit =>
+  with CommandsPlugin with SingleClassDBPlugin[Script] {
 
   val dbClass = classOf[Script]
 
@@ -35,7 +35,6 @@ class WorldEdit extends ListenersPlugin
       val script = createScript(p, title, code)
       p ! s"$script"
       db.insert(script)
-      db.findAll.foreach(s => p ! s"$s")
     }),
     Command("show-script", "show the code in a script", args(anyString){ case (p, title) =>
       db.firstWhere(Map("player" -> p.name, "title" -> title)).
@@ -145,14 +144,10 @@ class WorldEdit extends ListenersPlugin
   object ScriptRunner{
     def run(p:Player, lines:Seq[String]): Unit = for {
       commandAndArgs <- lines.map(_.trim).filter(_.nonEmpty)
-      _      = p ! commandAndArgs.mkString
       x      = commandAndArgs.split(" ").map(_.trim).filter(_.nonEmpty)
       cmd    = x.head
       args   = x.tail
-    } {
-      p ! s"$cmd ${args.mkString(" ")}"
-      worldEdit.onCommand(p, worldEdit.getCommand(cmd), cmd, args)
-    }
+    } runCommand(p, cmd, args)
     def runScript(p:Player, script:Script): Unit = run(p, script.commands)
     def runBook(p:Player, b:Book): Unit =
       run(p, b.pages.flatMap(_.split("\n").map(_.trim).filter(_.nonEmpty)))
@@ -181,18 +176,3 @@ class Script {
 //  |between [(0, 0) and (500, 255, 500)] { change grass brick }
 //  |between [here and (here.x + 10, here.y + 10, here.z + 10)] { walls stone }
 //""".stripMargin
-
-
-//  object CodeBookRunner{
-//    def apply(p:Player, codeBook:Book): Unit = for {
-//      page   <- codeBook.pages
-//      commandAndArgs <- page.split("\n").map(_.trim).filter(_.nonEmpty)
-//      _      = p ! commandAndArgs.mkString
-//      x      = commandAndArgs.split(" ").map(_.trim).filter(_.nonEmpty)
-//      cmd    = x.head
-//      args   = x.tail
-//    } {
-//      p ! s"$cmd ${args.mkString(" ")}"
-//      worldEdit.onCommand(p, worldEdit.getCommand(cmd), cmd, args)
-//    }
-//  }
