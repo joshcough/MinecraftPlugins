@@ -26,10 +26,10 @@ class WorldEdit extends ListenersPlugin
     Command("code-book-example", "get a 'code book' example", args(anyString.?){ case (p, title) =>
       p.inventory addItem Book(author = p, title, pages =
         """
-          |change grass diamond_block
-          |change dirt  gold_block
-          |change stone iron_block
-        """.stripMargin
+         ((change grass diamond_block)
+          (change dirt  gold_block)
+          (change stone iron_block))
+        """.trim
       )
     }),
     Command("run-book", "run the code in a book", noArgs(p =>
@@ -169,11 +169,11 @@ class WorldEdit extends ListenersPlugin
     def parseExpr(a:Any): WENode = a match {
       case List('goto, loc)       => Goto(parseLoc(loc))
       case List('set, m)          => SetMaterial(parseMaterial(m))
-      case List('change, m1, m2)  => ChangeMaterial(parseMaterial(m1), parseMaterial(m2))
+      case List('change, m1, m2)  => Change(parseMaterial(m1), parseMaterial(m2))
       case List('pos1, loc)       => Pos1(parseLoc(loc))
       case List('pos2, loc)       => Pos2(parseLoc(loc))
       case List('corners, l1, l2) => Corners(Cube(parseLoc(l1), parseLoc(l2)))
-      case List('walls, m)        => Walls(parseMaterial(m))
+      case List('walls, m)        => SetWalls(parseMaterial(m))
       case _      => sys error s"bad expression: $a"
     }
     def parseLoc(a:Any): Location = a match {
@@ -202,8 +202,9 @@ class WorldEdit extends ListenersPlugin
   case class Pos1(l:Location) extends WENode
   case class Pos2(l:Location) extends WENode
   case class SetMaterial(m:Material) extends WENode
-  case class ChangeMaterial(m1:Material, m2:Material) extends WENode
-  case class Walls(m:Material) extends WENode
+  case class Change(m1:Material, m2:Material) extends WENode
+  case class SetWalls(m:Material) extends WENode
+  case class SetFloor(m:Material) extends WENode
 
   object WorldEditInterp{
     def apply(p:Player, w:WENode): Unit = w match {
@@ -212,8 +213,9 @@ class WorldEdit extends ListenersPlugin
       case Pos2(l) => setSecondPos(p, l)
       case Corners(Cube(l1, l2)) => { setFirstPos (p, l1); setSecondPos(p, l2) }
       case SetMaterial(m) => cube(p).foreach(_ changeTo m)
-      case ChangeMaterial(oldM, newM) => for(b <- cube(p); if(b is oldM)) b changeTo newM
-      case Walls(m) => cube(p).walls.foreach(_ changeTo m)
+      case Change(oldM, newM) => for(b <- cube(p); if(b is oldM)) b changeTo newM
+      case SetWalls(m) => cube(p).walls.foreach(_ changeTo m)
+      case SetFloor(m) => cube(p).floor.foreach(_ changeTo m)
     }
     def apply(p:Player, nodes:List[WENode]): Unit = nodes.foreach(apply(p, _))
     def apply(p:Player, code:String): Unit = attempt(p, { println(code); apply(p, p.parse(code)) })
@@ -224,9 +226,8 @@ class WorldEdit extends ListenersPlugin
   val testScript =
     """
      ((goto origin)
-      (corners ((+ X 20) Y (+ Z 20)) ((- X 20) Y (- Z 20)))
-      (set stone)
       (corners ((+ X 20) (+ Y 50) (+ Z 20)) ((- X 20) Y (- Z 20)))
+      (floor stone)
       (walls brick)
      )
     """.stripMargin.trim
