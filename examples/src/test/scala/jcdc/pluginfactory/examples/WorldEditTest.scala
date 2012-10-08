@@ -2,21 +2,20 @@ package jcdc.pluginfactory.examples
 
 import org.scalacheck.Properties
 import org.scalacheck.Prop._
-import jcdc.pluginfactory.TestPlayer
+import jcdc.pluginfactory.TestServer
 import jcdc.pluginfactory.io.Reader
 
 object WorldEditTest extends Properties("MinecraftParserTests") {
 
   val we = new WorldEdit
   import we._
-  val p = TestPlayer.player
+  val p = TestServer.player
 
   val testScriptFull =
     """
      ((goto origin)
-      (corners ((+ X 20) Y (+ Z 20)) ((+ X 20) Y (+ Z 20)))
-      (set stone)
       (corners ((+ X 20) (+ Y 50) (+ Z 20)) ((- X 20) Y (- Z 20)))
+      (floor stone)
       (walls brick)
      )
     """.stripMargin.trim

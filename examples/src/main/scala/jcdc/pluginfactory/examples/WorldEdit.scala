@@ -174,12 +174,13 @@ class WorldEdit extends ListenersPlugin
       case List('pos2, loc)       => Pos2(parseLoc(loc))
       case List('corners, l1, l2) => Corners(Cube(parseLoc(l1), parseLoc(l2)))
       case List('walls, m)        => SetWalls(parseMaterial(m))
+      case List('floor, m)        => SetFloor(parseMaterial(m))
       case _      => sys error s"bad expression: $a"
     }
     def parseLoc(a:Any): Location = a match {
-      case 'origin     => p.world.getHighestBlockAt(p.world(0,0,0))
+      case 'origin     => p.world.getHighestBlockAt(p.world(0,4,0))
       case 'XYZ        => p.loc
-      case List(x,y,z) => p.world(parseSingleCoor(x),parseSingleCoor(y),parseSingleCoor(z))
+      case List(x,y,z) => new Location(p.world, parseSingleCoor(x),parseSingleCoor(y),parseSingleCoor(z))
       case _           => sys error  s"bad location: $a"
     }
     def parseSingleCoor(a:Any):Int = a match {
