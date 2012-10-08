@@ -1,7 +1,8 @@
 all: compile arena ban-arrows block-changer block-changer-gold curse-ban farmer god lightning-arrows mpc no-rain thor tree-delogger warp-plugin world-edit yellow-brick-road zombie-apocalypse
 
 demo: clean-plugins compile block-changer block-changer-gold mpc plugin-commander warp-plugin world-edit
-we: clean-plugins compile mpc warp-plugin world-edit
+we: clean-plugins compile world-edit
+test: compile run-tests
 
 perms: clean-plugins compile permissions-test
 
@@ -12,6 +13,9 @@ compile:
 	cd ../core; ./sbt package publish-local
 	cp ../core/target/scala-2.10/jcdc-plugin-factory_2.10-0.1.jar $(BUKKIT)/lib/jcdc-plugin-factory-0.1.jar
 	./sbt compile "run-main jcdc.pluginfactory.examples.YMLGenerator"
+
+run-tests:
+	./sbt test
 
 plugin = ./bin/plugin.sh $1 $2
 

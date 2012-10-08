@@ -5,6 +5,8 @@ import javax.persistence.PersistenceException
 import org.bukkit.craftbukkit.CraftServer
 import org.bukkit.event.{Event, Listener}
 import util.Try
+import org.bukkit.entity.Player
+import org.bukkit.ChatColor._
 
 object ScalaPlugin extends EnrichmentClasses
 
@@ -46,6 +48,15 @@ abstract class ScalaPlugin extends org.bukkit.plugin.java.JavaPlugin with Enrich
   }
   def logError(e:Throwable){
     log.log(java.util.logging.Level.SEVERE, s"[$name] - ${e.getMessage}", e)
+  }
+  // TODO: move these to RichPlayer
+  def attempt(p:Player, f: => Unit): Unit = try f catch {
+    case e: Exception => p ! s"$RED $e ${e.getMessage}\n${e.getStackTraceString}"
+  }
+  def attemptT[T](p:Player, f: => T): T = try f catch {
+    case e: Exception =>
+      p ! s"$RED $e ${e.getMessage}\n${e.getStackTraceString}"
+      throw e
   }
   def broadcast(message:String) = server.broadcastMessage(s"[$name] - $message")
 }

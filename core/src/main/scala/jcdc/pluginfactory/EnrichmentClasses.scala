@@ -191,6 +191,10 @@ trait EnrichmentClasses {
     def !  (s:String)    = if(s != null) player.sendMessage(s)
     def !* (ss: String*) = ss.foreach(s => player ! s)
     def sendError(message:String) = player.sendMessage(RED + message)
+    def bomb(message:String) = {
+      player.sendMessage(RED + message)
+      throw new Exception(message)
+    }
     def findPlayer(name:String)(f: Player => Unit) = server.findPlayer(name) match {
       case Some(p) => f(p)
       case None => sendError("kill could not find player: " + name)

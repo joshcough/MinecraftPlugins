@@ -93,6 +93,33 @@ trait ParserCombinators {
       }
       def describe = s"optional(${self.describe})"
     }
+
+    def ~>[U](p2:Parser[U]): Parser[U] = new Parser[U] {
+      def apply(args: List[String]) = self(args) flatMapWithNext { (t, rest) => p2(rest) }
+      def describe = self.describe + " ~> " + p2.describe
+    }
+
+    def <~[U](p2:Parser[U]): Parser[T] = new Parser[T] {
+      def apply(args: List[String]) = self(args) flatMapWithNext {
+        (t,rest) => p2(rest).map(_ => t)
+      }
+      def describe = self.describe + " ~> " + p2.describe
+    }
+
+    def repSep[U](p2: Parser[U]): Parser[List[T]] = {
+      val more: Parser[List[T]] = (p2 ~> self).*
+      (self ~ more) ^^ { case (t ~ ts) => t :: ts }
+    }
+
+    def debug: Parser[T] = new Parser[T] {
+      def apply(args: List[String]) = {
+        println(s"applying ${self.describe} to $args")
+        val res = self(args)
+        println(s"got: $res")
+        res
+      }
+      def describe = self.describe
+    }
   }
 
   def success[T](t: T) = new Parser[T] {
@@ -117,7 +144,29 @@ trait ParserCombinators {
   }
 
   def anyString: Parser[String] = token("string") { s => Some(s) }
-  def slurp: Parser[String] = (anyString.* ^^ (ss => ss.mkString(" "))).named("slurp")
+// TODO: review these and maybe fix up later
+//  val slurp: Parser[String] = (anyString.* ^^ (ss => ss.mkString(" "))).named("slurp")
+//  def slurpUntil(delim:Char): Parser[String] = new Parser[String] {
+//    def apply(args: List[String]) = {
+//      val all = args.mkString(" ")
+//      val (l,r) = all.partition(_ != delim)
+//      if(l.isEmpty) Failure(s"didn't find: $delim in: $all")
+//      else Success(l, r.drop(1).split(" ").toList)
+//    }
+//    def describe = s"slurp until: $delim"
+//  }
+//
+//  implicit def charToParser(c:Char): Parser[Char] = matchChar(c)
+//
+//  def matchChar(c:Char): Parser[Char] = new Parser[Char] {
+//    def apply(args: List[String]) = args match {
+//      case Nil => Failure(s"didn't find: $c")
+//      case x :: xs =>
+//        if(x.startsWith(c.toString)) Success(c, x.drop(1) :: xs)
+//        else Failure(s"expected: $c, but got: ${x.take(1)}")
+//    }
+//    def describe = s"slurp until: $c"
+//  }
 
   def tryOption[T](f: => T): Option[T] = Try(Option(f)).getOrElse(None)
 
@@ -125,26 +174,26 @@ trait ParserCombinators {
   def even(n: Int) = n % 2 == 0
   def odd (n: Int) = !even(n)
   def tryNum(s: String)     = tryOption(s.toInt)
-  def int:     Parser[Int]  = token("number") (tryNum)
-  def oddNum:  Parser[Int]  = token("odd-number") { s => tryNum(s).filter(odd) }
-  def evenNum: Parser[Int]  = token("even-number") { s => tryNum(s).filter(even) }
-  def long:    Parser[Long] = token("long") { s => tryOption(s.toLong) }
+  val int:     Parser[Int]  = token("int") (tryNum)
+  val oddNum:  Parser[Int]  = token("odd-number") { s => tryNum(s).filter(odd) }
+  val evenNum: Parser[Int]  = token("even-number") { s => tryNum(s).filter(even) }
+  val long:    Parser[Long] = token("long") { s => tryOption(s.toLong) }
 
-  def bool:        Parser[Boolean] = token("boolean") { s => tryOption(s.toBoolean) }
-  def boolOrTrue:  Parser[Boolean] = bool.? ^^ { _.getOrElse(true) }
-  def boolOrFalse: Parser[Boolean] = bool.? ^^ { _.getOrElse(false) }
+  val bool:        Parser[Boolean] = token("boolean") { s => tryOption(s.toBoolean) }
+  val boolOrTrue:  Parser[Boolean] = bool.? ^^ { _.getOrElse(true) }
+  val boolOrFalse: Parser[Boolean] = bool.? ^^ { _.getOrElse(false) }
 
   // file parsers
-  def file:    Parser[File] = token("file") { s => Some(new File(s)) }
-  def newFile: Parser[File] = token("new-file"){ s => tryOption {
+  val file:    Parser[File] = token("file") { s => Some(new File(s)) }
+  val newFile: Parser[File] = token("new-file"){ s => tryOption {
     val f = new File(s)
     f.createNewFile()
     f
   }}
   // todo, maybe deal with exception handling here...
-  def existingFile: Parser[File] = token("existing-file"){ s =>
+  val existingFile: Parser[File] = token("existing-file"){ s =>
     val f = new File(s)
     if (f.exists) Some(f) else None
   }
-  def existingOrNewFile: Parser[File] = existingFile | newFile
+  val existingOrNewFile: Parser[File] = existingFile | newFile
 }
