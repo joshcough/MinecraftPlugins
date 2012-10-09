@@ -20,15 +20,15 @@ import java.util
 import java.net.InetSocketAddress
 
 // TODO: rename this
-object TestPlayer {
+object TestServer {
 
-  val originBlock: Block = new Block {
+  def originBlock(x:Int, y:Int, z:Int): Block = new Block {
     def getType: Material = Material.STONE
     def setTypeIdAndData(p1: Int, p2: Byte, p3: Boolean): Boolean = true
     def getLightFromSky: Byte = 0:Byte
     def setTypeId(p1: Int, p2: Boolean): Boolean = true
     def setTypeId(p1: Int): Boolean = true
-    def getY: Int = 3
+    def getY: Int = y
     def getData: Byte = 0:Byte
     def getPistonMoveReaction: PistonMoveReaction = ???
     def isBlockFacePowered(p1: BlockFace): Boolean = false
@@ -44,7 +44,7 @@ object TestPlayer {
     def getBiome: Biome = ???
     def setType(p1: Material) {}
     def isLiquid: Boolean = false
-    def getX: Int = 0
+    def getX: Int = x
     def setData(p1: Byte, p2: Boolean) {}
     def setData(p1: Byte) {}
     def getHumidity: Double = 0
@@ -55,7 +55,7 @@ object TestPlayer {
     def getState: BlockState = ???
     def getWorld: World = world
     def removeMetadata(p1: String, p2: Plugin) {}
-    def getZ: Int = 0
+    def getZ: Int = z
     def isEmpty: Boolean = true
     def getDrops(p1: ItemStack): util.Collection[ItemStack] = new util.LinkedList[ItemStack]()
     def getDrops: util.Collection[ItemStack] = new util.LinkedList[ItemStack]()
@@ -91,8 +91,8 @@ object TestPlayer {
     def getAllowMonsters(): Boolean = ???
     def getAnimalSpawnLimit(): Int = ???
     def getBiome(x$1: Int,x$2: Int): org.bukkit.block.Biome = ???
-    def getBlockAt(x$1: org.bukkit.Location): org.bukkit.block.Block = originBlock
-    def getBlockAt(x$1: Int,x$2: Int,x$3: Int): org.bukkit.block.Block = originBlock
+    def getBlockAt(loc: org.bukkit.Location): org.bukkit.block.Block = originBlock(loc.x, loc.y, loc.z)
+    def getBlockAt(x: Int,y: Int,z: Int): org.bukkit.block.Block = originBlock(x, y, z)
     def getBlockTypeIdAt(x$1: org.bukkit.Location): Int = ???
     def getBlockTypeIdAt(x$1: Int,x$2: Int,x$3: Int): Int = ???
     def getChunkAt(x$1: org.bukkit.block.Block): org.bukkit.Chunk = ???
@@ -105,8 +105,8 @@ object TestPlayer {
     def getEnvironment(): org.bukkit.World.Environment = ???
     def getFullTime(): Long = ???
     def getGenerator(): org.bukkit.generator.ChunkGenerator = ???
-    def getHighestBlockAt(x$1: org.bukkit.Location): org.bukkit.block.Block = originBlock
-    def getHighestBlockAt(x$1: Int,x$2: Int): org.bukkit.block.Block = originBlock
+    def getHighestBlockAt(loc: org.bukkit.Location): org.bukkit.block.Block = originBlock(loc.x, 4, loc.z)
+    def getHighestBlockAt(x: Int,z: Int): org.bukkit.block.Block = originBlock(x,4,z)
     def getHighestBlockYAt(x$1: org.bukkit.Location): Int = 4
     def getHighestBlockYAt(x$1: Int,x$2: Int): Int = 4
     def getHumidity(x$1: Int,x$2: Int): Double = ???

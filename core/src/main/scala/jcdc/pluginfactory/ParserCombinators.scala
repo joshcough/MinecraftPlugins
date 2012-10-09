@@ -145,7 +145,7 @@ trait ParserCombinators {
 
   def anyString: Parser[String] = token("string") { s => Some(s) }
 // TODO: review these and maybe fix up later
-//  val slurp: Parser[String] = (anyString.* ^^ (ss => ss.mkString(" "))).named("slurp")
+  val slurp: Parser[String] = (anyString.* ^^ (ss => ss.mkString(" "))).named("slurp")
 //  def slurpUntil(delim:Char): Parser[String] = new Parser[String] {
 //    def apply(args: List[String]) = {
 //      val all = args.mkString(" ")
