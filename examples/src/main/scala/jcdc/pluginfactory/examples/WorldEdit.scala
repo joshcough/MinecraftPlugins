@@ -322,7 +322,10 @@ class WorldEdit extends ListenersPlugin
       def parseMaterial(a:Any) = BasicMinecraftParsers.material(a.toString.drop(1)).get
       a match {
         case List('lam, args, body) => parseLambda(args, body)
-        case 'let :: args :: body => sys error "todo: parse let"
+        case List('let, List(arg, expr), body) => arg match {
+          case s:Symbol => Let(s, parseExpr(expr), parseExpr(body))
+          case _ => sys error s"bad let argument: $a"
+        }
         case List('if,pred,tru,fals) => IfStatement(parseExpr(pred),parseExpr(tru),parseExpr(fals))
         case 'seq :: body => Seqential(body map parseExpr)
         // location based prims

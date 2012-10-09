@@ -33,7 +33,7 @@ object WorldEditTest extends Properties("MinecraftParserTests") {
     (
       (def d (a1 a2) (seq (corners (loc a1 a1 a1) (loc a2 a2 a2)) (set stone) (+ a1 a2)))
       (val x 7)
-      (d 6 7)
+      (let (g 9) (d g 7))
     )
   """
 
