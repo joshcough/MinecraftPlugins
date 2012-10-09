@@ -22,35 +22,35 @@ class WorldEdit extends ListenersPlugin
   )
 
   val commands = List(
-    Command("test-script", "run the test script", noArgs(WorldEditInterp.apply(_, testScript))),
-    Command("code-book-example", "get a 'code book' example", args(anyString.?){ case (p, title) =>
-      p.inventory addItem Book(author = p, title, pages =
-        """
-         ((change grass diamond_block)
-          (change dirt  gold_block)
-          (change stone iron_block))
-        """.trim
-      )
-    }),
-    Command("run-book", "run the code in a book", noArgs(p =>
-      ScriptRunner.runBook(p, Book.fromHand(p)))
-    ),
-    Command("make-script", "build a script", args(anyString ~ slurp){ case (p, title ~ code) =>
-      val script = createScript(p, title, code)
-      p ! s"$script"
-      db.insert(script)
-    }),
-    Command("show-script", "show the code in a script", args(anyString){ case (p, title) =>
-      db.firstWhere(Map("player" -> p.name, "title" -> title)).
-        fold(p ! s"unknown script: $title")(s => p ! s"$s")
-    }),
-    Command("show-scripts", "show the code in a script", noArgs(p =>
-      db.findAll.foreach(s => p ! s"$s")
-    )),
-    Command("run-script", "run the code in a script", args(anyString){ case (p, title) =>
-      db.firstWhere(Map("player" -> p.name, "title" -> title)).
-        fold(p ! s"unknown script: $title")(s => ScriptRunner.runScript(p, s))
-    }),
+//    Command("test-script", "run the test script", noArgs(WorldEditInterp.apply(_, testScript))),
+//    Command("code-book-example", "get a 'code book' example", args(anyString.?){ case (p, title) =>
+//      p.inventory addItem Book(author = p, title, pages =
+//        """
+//         ((change grass diamond_block)
+//          (change dirt  gold_block)
+//          (change stone iron_block))
+//        """.trim
+//      )
+//    }),
+//    Command("run-book", "run the code in a book", noArgs(p =>
+//      ScriptRunner.runBook(p, Book.fromHand(p)))
+//    ),
+//    Command("make-script", "build a script", args(anyString ~ slurp){ case (p, title ~ code) =>
+//      val script = createScript(p, title, code)
+//      p ! s"$script"
+//      db.insert(script)
+//    }),
+//    Command("show-script", "show the code in a script", args(anyString){ case (p, title) =>
+//      db.firstWhere(Map("player" -> p.name, "title" -> title)).
+//        fold(p ! s"unknown script: $title")(s => p ! s"$s")
+//    }),
+//    Command("show-scripts", "show the code in a script", noArgs(p =>
+//      db.findAll.foreach(s => p ! s"$s")
+//    )),
+//    Command("run-script", "run the code in a script", args(anyString){ case (p, title) =>
+//      db.firstWhere(Map("player" -> p.name, "title" -> title)).
+//        fold(p ! s"unknown script: $title")(s => ScriptRunner.runScript(p, s))
+//    }),
     Command("goto", "Teleport!", args(location){ case (you, loc) => you teleport loc(you.world) }),
     Command("wand", "Get a WorldEdit wand.", noArgs(_.loc.dropItem(WOOD_AXE))),
     Command("pos1", "Set the first position",  args(location.?){ case (p, loc) =>
@@ -145,92 +145,236 @@ class WorldEdit extends ListenersPlugin
       p ! "set corner one first! (with a left click)"
   }
 
-  object ScriptRunner{
-    def run(p:Player, lines:Seq[String]): Unit = for {
-      commandAndArgs <- lines.map(_.trim).filter(_.nonEmpty)
-      x      = commandAndArgs.split(" ").map(_.trim).filter(_.nonEmpty)
-      cmd    = x.head
-      args   = x.tail
-    } runCommand(p, cmd, args)
-    def runScript(p:Player, script:Script): Unit = run(p, script.commands)
-    def runBook(p:Player, b:Book): Unit =
-      run(p, b.pages.flatMap(_.split("\n").map(_.trim).filter(_.nonEmpty)))
+//  object ScriptRunner{
+//    def run(p:Player, lines:Seq[String]): Unit = for {
+//      commandAndArgs <- lines.map(_.trim).filter(_.nonEmpty)
+//      x      = commandAndArgs.split(" ").map(_.trim).filter(_.nonEmpty)
+//      cmd    = x.head
+//      args   = x.tail
+//    } runCommand(p, cmd, args)
+//    def runScript(p:Player, script:Script): Unit = run(p, script.commands)
+//    def runBook(p:Player, b:Book): Unit =
+//      run(p, b.pages.flatMap(_.split("\n").map(_.trim).filter(_.nonEmpty)))
+//  }
+//
+//  def createScript(p: Player, title:String, commands:String): Script = {
+//    val s = new Script(); s.player = p.name; s.title = title; s.commandsString = commands; s
+//  }
+//
+//  val testScript =
+//    """
+//     ((goto origin)
+//      (corners ((+ X 20) (+ Y 50) (+ Z 20)) ((- X 20) Y (- Z 20)))
+//      (floor stone)
+//      (walls brick)
+//     )
+//    """.stripMargin.trim
+
+
+  object WorldEditLang {
+
+    case class Program(defs:List[Def], body:Expr)
+
+    sealed trait Def
+    case class Defn(name:Symbol, lam:Lambda) extends Def
+    case class Val (name:Symbol, expr:Expr) extends Def
+
+    sealed trait Expr
+    case class Lambda(args:List[Symbol], body: Seqential) extends Expr
+    case class Let(x:Symbol, e:Expr, body:Expr) extends Expr
+    case class IfStatement(e:Expr, truePath:Expr, falsePath:Expr) extends Expr
+    case class App(f:Expr, args:List[Expr]) extends Expr
+    case class Seqential(exps:List[Expr]) extends Expr
+    case class Corners(l1:Expr,l2:Expr)extends Expr
+    case class Goto(l:Expr)extends Expr
+    case class Pos1(l:Expr)extends Expr
+    case class Pos2(l:Expr)extends Expr
+    case class SetMaterial(m:Material)extends Expr
+    case class Change(m1:Material, m2:Material)extends Expr
+    case class SetWalls(m:Material)extends Expr
+    case class SetFloor(m:Material)extends Expr
+    case class Loc(x:Expr, y:Expr, z:Expr) extends Expr
+    case object Origin extends Expr
+    case object XYZ extends Expr
+    case object X extends Expr
+    case object Y extends Expr
+    case object Z extends Expr
+    case object MaxY extends Expr
+    case object MinY extends Expr
+    case class Num(i:Int) extends Expr
+    case class Bool(b:Boolean) extends Expr
+    case class Variable(s:Symbol) extends Expr
+    case class Add(args:List[Expr]) extends Expr
+    case class Subtract(a:Expr, b:Expr) extends Expr
+
+    sealed trait Value
+    case class MaterialValue(m:Material) extends Value
+    case class LocationValue(l:Location) extends Value
+    case class FunValue(l:Lambda)        extends Value
+    case class NumValue(n:Int)           extends Value
+    case class BoolValue(b:Boolean)      extends Value
+    case class EffectValue(u: () => Unit)  extends Value{
+      def andThen(u2:EffectValue) = EffectValue(() => {u; u2;})
+    }
+
+    def parse(code:String): Program = parseProgram(io.Reader read code)
+
+    def parseProgram(a:Any): Program = a match {
+      case Nil => sys error s"bad program: $a"
+      case List(x) => Program(Nil,parseExpr(x))
+      case l@(x :: xs) => Program(l.init map parseDef, parseExpr(l.last))
+      case _ => sys error s"bad program: $a"
+    }
+
+    def parseDef(a:Any): Def = {
+      def parseName(name:Any): Symbol = name match {
+        case s:Symbol => s // TODO: check s against builtin things like X,Y,Z,etc
+        case _ => sys error s"bad def name: $a"
+      }
+      a match {
+        case 'defn :: name :: args :: body => Defn(parseName(name), parseLambda(args :: body))
+        case 'val  :: name :: body => Val(parseName(name), parseExpr(body))
+      }
+    }
+
+    def parseLambda(a:List[Any]): Lambda = {
+      def parseLamArgList(a:Any): List[Symbol] = {
+        def parseLamArg(a:Any) = a match {
+          case s:Symbol => s // TODO: check s against builtin things like X,Y,Z,etc
+          case _ => sys error s"bad lambda arg: $a"
+        }
+        a match {
+          case x :: xs => (x :: xs).map(parseLamArg)
+          case _ => sys error s"bad lambda arg list: $a"
+        }
+      }
+      a match {
+        case args :: body => Lambda(parseLamArgList(args), Seqential(body map parseExpr))
+        case _ => sys error s"bad lambda: $a"
+      }
+    }
+
+    def parseExpr(a:Any): Expr = {
+      def parseMaterial(a:Any) = BasicMinecraftParsers.material(a.toString.drop(1)).get
+      a match {
+        case 'lam :: args :: body => parseLambda(args :: body)
+        case 'let :: args :: body => sys error "todo: parse let"
+        case List('if,pred,tru,fals) => IfStatement(parseExpr(pred),parseExpr(tru),parseExpr(fals))
+        case 'seq :: body => Seqential(body map parseExpr)
+        // location based prims
+        case List('goto, loc)       => Goto(parseExpr(loc))
+        case List('pos1, loc)       => Pos1(parseExpr(loc))
+        case List('pos2, loc)       => Pos2(parseExpr(loc))
+        case List('corners, l1, l2) => Corners(parseExpr(l1), parseExpr(l2))
+        case 'origin => Origin
+        case 'XYZ    => XYZ
+        case 'X      => X
+        case 'Y      => Y
+        case 'Z      => Z
+        case 'loc :: x :: y :: z    => Loc(parseExpr(x),parseExpr(y),parseExpr(z))
+        // material based prims
+        case List('set, m)          => SetMaterial(parseMaterial(m))
+        case List('change, m1, m2)  => Change(parseMaterial(m1), parseMaterial(m2))
+        case List('walls, m)        => SetWalls(parseMaterial(m))
+        case List('floor, m)        => SetFloor(parseMaterial(m))
+        // other prims
+        case i: Int => Num(i)
+        case 'true  => Bool(true)
+        case 'false => Bool(false)
+        case s:Symbol => Variable(s)
+        // math operations
+        case '+ :: e :: es => Add((e::es) map parseExpr)
+        case '- :: a :: b :: Nil => Subtract(parseExpr(a), parseExpr(b))
+        // finally, function application
+        case f :: args => App(parseExpr(f), args map parseExpr)
+        case _      => sys error s"bad expression: $a"
+      }
+    }
+
+    def run(prog:Program, p:Player) = new WorldEditInterp(p).evalProg(prog)
+
+    case class WorldEditInterp(p:Player) extends EnrichmentClasses {
+      val x: Int = p.x
+      val y: Int = p.y
+      val z: Int = p.z
+
+      type Env = Map[Symbol,Value]
+      val emptyEnv: Env = Map()
+
+      def evalProg(prog:Program): Value = eval(prog.body, prog.defs.foldLeft(emptyEnv)(evalDef))
+      // just extends the env
+      def evalDef(env: Env, d:Def): Env = d match {
+        case Defn(name:Symbol, lam:Lambda) => env + (name -> FunValue(lam))
+        case Val (name:Symbol, expr:Expr)  => env + (name -> eval(expr, env))
+      }
+      def eval(e:Expr, env:Map[Symbol,Value]): Value = e match {
+        case l@Lambda(_, _) => FunValue(l)
+        case Let(x:Symbol, e:Expr, body:Expr) => eval(body, env + (x -> eval(e,env)))
+        case IfStatement(e:Expr, truePath:Expr, falsePath:Expr) => eval(e,env) match {
+          case BoolValue(true)  => eval(truePath,  env)
+          case BoolValue(false) => eval(falsePath, env)
+          case ev => sys error s"bad if predicate: $ev"
+        }
+        case Variable(s) => env.get(s).getOrElse(sys error s"not found: ${s.toString.drop(1)}")
+        case App(f:Expr, args:List[Expr]) => eval(f,env) match {
+          case FunValue(Lambda(formals, body)) =>
+            eval(body, env ++ formals.zip(args.map(eval(_, env))))
+          case blah => sys error s"app expected a function, but got: $blah"
+        }
+        case Add(exps) => NumValue(exps.map(eval(_, env)).foldLeft(0){(acc,v) => v match {
+          case NumValue(i) => acc + i
+          case blah => sys error s"add expected a number, but got: $blah"
+        }})
+        case Subtract(a, b) => (eval(a,env), eval(b,env)) match {
+          case (NumValue(av), NumValue(bv)) => NumValue(av - bv)
+          case (av,bv) => sys error s"subtract expected two numbers, but got: $av, $bv"
+        }
+        // todo: this it totally broken
+        case Seqential(exps:List[Expr]) =>
+          exps.map(eval(_, env)).foldLeft(EffectValue(() => {})){ (acc, v) => v match {
+            case u@EffectValue(_) => acc andThen u
+            case _ => acc
+          }}
+        case Corners(e1:Expr,e2:Expr) => EffectValue(() => {
+          setFirstPos (p, evalToLoc(e1,env))
+          setSecondPos(p, evalToLoc(e2,env))
+        })
+        case Goto(l:Expr) => EffectValue(() => p.teleport(evalToLoc(e,env)))
+        case Pos1(e:Expr) => EffectValue(() => setFirstPos (p, evalToLoc(e,env)))
+        case Pos2(e:Expr) => EffectValue(() => setSecondPos(p, evalToLoc(e,env)))
+        case SetMaterial(m) => EffectValue(() => for(b <- cube(p)) b changeTo m)
+        case Change(oldM, newM) =>
+          EffectValue(() => for(b <- cube(p); if(b is oldM)) b changeTo newM)
+        case SetWalls(m) => EffectValue(() => cube(p).walls.foreach(_ changeTo m))
+        case SetFloor(m) => EffectValue(() => cube(p).floor.foreach(_ changeTo m))
+        case Loc(x:Expr, y:Expr, z:Expr) =>
+          val (xe,ye,ze) = (eval(x,env),eval(y,env),eval(z,env))
+          (xe,ye,ze) match {
+            case (NumValue(xv), NumValue(yv), NumValue(zv)) => LocationValue(p.world(xv,yv,zv))
+            case _ => sys error s"bad location data: ${(xe,ye,ze)}"
+          }
+        case Origin  => LocationValue(p.world.getHighestBlockAt(0,0))
+        case XYZ     => LocationValue(p.world(x,y,z))
+        case X       => NumValue(x)
+        case Y       => NumValue(y)
+        case Z       => NumValue(z)
+        case MaxY    => NumValue(255)
+        case MinY    => NumValue(0)
+        case Num(i)  => NumValue(i)
+        case Bool(b) => BoolValue(b)
+      }
+      def evalToLoc(e:Expr, env:Env): Location = eval(e,env) match {
+        case LocationValue(l) => l
+        case ev => sys error s"not a location: $ev"
+      }
+      //    def apply(p:Player, nodes:List[BuiltIn]): Unit = nodes.foreach(apply(p, _))
+      //    def apply(p:Player, code:String): Unit = attempt(p, { println(code); apply(p, p.parse(code)) })
+      //    def apply(p:Player, commands:TraversableOnce[String]): Unit = apply(p, commands.mkString(" "))
+      //    def apply(p:Player, f:File): Unit = attempt(p, apply(p, Source.fromFile(f).getLines))
+    }
   }
 
-  def createScript(p: Player, title:String, commands:String): Script = {
-    val s = new Script(); s.player = p.name; s.title = title; s.commandsString = commands; s
-  }
 
-  implicit class RichPlayerParser(p:Player){
-    def parse(code:String): List[WENode] = io.Reader.read(code) match {
-      case x :: xs => (x :: xs) map parseExpr
-      case _ => sys error s"bad code: $code"
-    }
-    def parseExpr(a:Any): WENode = a match {
-      case List('goto, loc)       => Goto(parseLoc(loc))
-      case List('set, m)          => SetMaterial(parseMaterial(m))
-      case List('change, m1, m2)  => Change(parseMaterial(m1), parseMaterial(m2))
-      case List('pos1, loc)       => Pos1(parseLoc(loc))
-      case List('pos2, loc)       => Pos2(parseLoc(loc))
-      case List('corners, l1, l2) => Corners(Cube(parseLoc(l1), parseLoc(l2)))
-      case List('walls, m)        => SetWalls(parseMaterial(m))
-      case _      => sys error s"bad expression: $a"
-    }
-    def parseLoc(a:Any): Location = a match {
-      case 'origin     => p.world.getHighestBlockAt(p.world(0,0,0))
-      case 'XYZ        => p.loc
-      case List(x,y,z) => p.world(parseSingleCoor(x),parseSingleCoor(y),parseSingleCoor(z))
-      case _           => sys error  s"bad location: $a"
-    }
-    def parseSingleCoor(a:Any):Int = a match {
-      case i: Int => i
-      case 'X     => p.x
-      case 'Y     => p.y
-      case 'Z     => p.z
-      case 'MAXY  => 255
-      case 'MINY  => 0
-      case List('+, x, y) => parseSingleCoor(x) + parseSingleCoor(y)
-      case List('-, x, y) => parseSingleCoor(x) - parseSingleCoor(y)
-      case _      => sys error s"bad coordinate: $a"
-    }
-    def parseMaterial(a:Any) = material(a.toString.drop(1)).get
-  }
-
-  trait WENode
-  case class Corners(c:Cube)  extends WENode
-  case class Goto(l:Location) extends WENode
-  case class Pos1(l:Location) extends WENode
-  case class Pos2(l:Location) extends WENode
-  case class SetMaterial(m:Material) extends WENode
-  case class Change(m1:Material, m2:Material) extends WENode
-  case class SetWalls(m:Material) extends WENode
-  case class SetFloor(m:Material) extends WENode
-
-  object WorldEditInterp{
-    def apply(p:Player, w:WENode): Unit = w match {
-      case Goto(l) => p teleport l
-      case Pos1(l) => setFirstPos(p, l)
-      case Pos2(l) => setSecondPos(p, l)
-      case Corners(Cube(l1, l2)) => { setFirstPos (p, l1); setSecondPos(p, l2) }
-      case SetMaterial(m) => cube(p).foreach(_ changeTo m)
-      case Change(oldM, newM) => for(b <- cube(p); if(b is oldM)) b changeTo newM
-      case SetWalls(m) => cube(p).walls.foreach(_ changeTo m)
-      case SetFloor(m) => cube(p).floor.foreach(_ changeTo m)
-    }
-    def apply(p:Player, nodes:List[WENode]): Unit = nodes.foreach(apply(p, _))
-    def apply(p:Player, code:String): Unit = attempt(p, { println(code); apply(p, p.parse(code)) })
-    def apply(p:Player, commands:TraversableOnce[String]): Unit = apply(p, commands.mkString(" "))
-    def apply(p:Player, f:File): Unit = attempt(p, apply(p, Source.fromFile(f).getLines))
-  }
-
-  val testScript =
-    """
-     ((goto origin)
-      (corners ((+ X 20) (+ Y 50) (+ Z 20)) ((- X 20) Y (- Z 20)))
-      (floor stone)
-      (walls brick)
-     )
-    """.stripMargin.trim
 }
 
 import javax.persistence._

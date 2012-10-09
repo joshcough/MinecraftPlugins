@@ -13,36 +13,41 @@ object WorldEditTest extends Properties("MinecraftParserTests") {
 
   val testScriptFull =
     """
-     ((goto origin)
-      (corners ((+ X 20) Y (+ Z 20)) ((+ X 20) Y (+ Z 20)))
-      (set stone)
-      (corners ((+ X 20) (+ Y 50) (+ Z 20)) ((- X 20) Y (- Z 20)))
+     ((seq
+      (goto origin)
+      (corners (loc (+ X 20) (+ Y 50) (+ Z 20)) (loc (- X 20) Y (- Z 20)))
+      (floor stone)
       (walls brick)
-     )
+     ))
     """.stripMargin.trim
 
-  property("origin")  = secure { parseLoc("origin") }
-  property("XYZ")     = secure { parseLoc("XYZ") }
-  property("(5 6 7)") = secure { parseLoc("(5 6 7)") }
-  property("(5 Y 7)") = secure { parseLoc("(5 Y 7)") }
-  property("((+ 5 10) Y 7)")        = secure { parseLoc("((+ 5 10) Y 7)") }
-  property("((+ X 20) Y (+ Z 20))") = secure { parseLoc("((+ X 20) Y (+ Z 20))") }
-  property("((- X 20) Y (- Z 20))") = secure { parseLoc("((- X 20) Y (- Z 20))") }
-  property("((- 5 10) (+ Y 20) Z)") = secure { parseLoc("((- 5 10) (+ Y 20) Z)") }
+  property("origin")  = secure { parseExpr("origin") }
+  property("XYZ")     = secure { parseExpr("XYZ") }
+  property("(5 6 7)") = secure { parseExpr("(loc 5 6 7)") }
+  property("(5 Y 7)") = secure { parseExpr("(loc 5 Y 7)") }
+  property("((+ 5 10) Y 7)")        = secure { parseExpr("(loc (+ 5 10) Y 7)") }
+  property("((+ X 20) Y (+ Z 20))") = secure { parseExpr("(loc (+ X 20) Y (+ Z 20))") }
+  property("((- X 20) Y (- Z 20))") = secure { parseExpr("(loc (- X 20) Y (- Z 20))") }
+  property("((- 5 10) (+ Y 20) Z)") = secure { parseExpr("(loc (- 5 10) (+ Y 20) Z)") }
 
-  property("(goto origin)") = secure { run("((goto origin))") }
-  property("(corners XYZ origin)") = secure { run("((corners XYZ origin))") }
-  property("(corners XYZ (5 6 7))") = secure { run("((corners XYZ (5 6 7)))") }
-  property("(corners ((+ X 20) Y (+ Z 20)) ((+ X 20) Y (+ Z 20)))") =
-    secure { run("((corners ((+ X 20) Y (+ Z 20)) ((+ X 20) Y (+ Z 20))))") }
-  property("(set stone)")   = secure { run("((set stone))") }
-  property("(walls brick)") = secure { run("((walls brick))") }
+  property("origin")  = secure { parseExpr("(set stone)") }
+
+
+  property("((goto origin))") = secure { run("((goto origin))") }
+
+//  property("(corners XYZ origin)") = secure { run("((corners XYZ origin))") }
+//  property("(corners XYZ (5 6 7))") = secure { run("((corners XYZ (5 6 7)))") }
+//  property("(corners ((+ X 20) Y (+ Z 20)) ((+ X 20) Y (+ Z 20)))") =
+//    secure { run("((corners ((+ X 20) Y (+ Z 20)) ((+ X 20) Y (+ Z 20))))") }
+//  property("(set stone)")   = secure { run("((set stone))") }
+//  property("(walls brick)") = secure { run("((walls brick))") }
   property("testScriptFull") = secure { run(testScriptFull) }
 
-  def parseLoc(code:String): Boolean =
-    attemptT(p, truthfully(println(p.parseLoc(Reader.read(code)))))
+  def parseExpr(code:String): Boolean =
+    attemptT(p, truthfully(println(WorldEditLang.parseExpr(Reader.read(code)))))
+
   def run(code:String): Boolean =
-    attemptT(p, truthfully(println(p.parse(code))))
+    attemptT(p, truthfully(println(WorldEditLang.run(WorldEditLang parse code, p))))
 
   def truthfully(f: => Unit) = {f; true}
 }
