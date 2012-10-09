@@ -171,7 +171,7 @@ class WorldEdit extends ListenersPlugin
 //    """.stripMargin.trim
 
 
-  object WorldEditLang {
+  object WorldEditLang extends EnrichmentClasses {
 
     case class Program(defs:List[Def], body:Expr)
 
@@ -185,7 +185,7 @@ class WorldEdit extends ListenersPlugin
     case class IfStatement(e:Expr, truePath:Expr, falsePath:Expr) extends Expr
     case class App(f:Expr, args:List[Expr]) extends Expr
     case class Seqential(exps:List[Expr]) extends Expr
-    case class Corners(l1:Expr,l2:Expr)extends Expr
+    case class SetCorners(l1:Expr,l2:Expr)extends Expr
     case class Goto(l:Expr)extends Expr
     case class Pos1(l:Expr)extends Expr
     case class Pos2(l:Expr)extends Expr
@@ -213,17 +213,83 @@ class WorldEdit extends ListenersPlugin
     case class FunValue(l:Lambda)        extends Value
     case class NumValue(n:Int)           extends Value
     case class BoolValue(b:Boolean)      extends Value
-    case class EffectValue(u: () => Unit)  extends Value{
-      def andThen(u2:EffectValue) = EffectValue(() => {u; u2;})
+    case object Unit extends Value
+
+    trait Effect { self => 
+      def run(p:Player): Unit
+      def andThen(e2:Effect) = new Effect{ def run(p:Player){ self.run(p); e2.run(p) }}
+    }
+
+    case class SetCornersEffect(l1:Location,l2:Location) extends Effect {
+      override def toString = s"SetCornersEffect(l1: ${l1.xyz}, l2: ${l2.xyz})"
+      def run(p:Player) = { setFirstPos (p, l1); setSecondPos (p, l2) }
+    }
+    case class GotoEffect(loc:Location) extends Effect {
+      override def toString = s"GotoEffect(loc: ${loc.xyz})"
+      def run(p:Player) = p.teleport(loc)
+    }
+    case class SetFirstPosEffect(loc:Location) extends Effect {
+      override def toString = s"SetFirstPosEffect(loc: ${loc.xyz})"
+      def run(p:Player) = setFirstPos(p,loc)
+    }
+    case class SetSecondPosEffect(loc:Location) extends Effect {
+      override def toString = s"SetSecondPosEffect(loc: ${loc.xyz})"
+      def run(p:Player) = setSecondPos(p, loc)
+    }
+    case class SetMaterialEffect(m:Material) extends Effect { def run(p:Player) = for(b <- cube(p)) b changeTo m }
+    case class ChangeEffect(oldM:Material,newM:Material) extends Effect {
+      def run(p:Player) = for(b <- cube(p); if(b is oldM)) b changeTo newM
+    }
+    case class SetWallsEffect(m:Material) extends Effect { def run(p:Player) = cube(p).walls.foreach(_ changeTo m) }
+    case class SetFloorEffect(m:Material) extends Effect { def run(p:Player) = cube(p).floor.foreach(_ changeTo m) }
+
+    type Effects = List[Effect]
+    type V = State[Effects, Value]
+
+    case class State[S,A](f: S => (A, S)) {
+      def apply(s:S) = f(s)
+      def flatMap[B](f1: A => State[S, B]): State[S, B] = State(s => {
+        val (a,s1) = f(s)
+        f1(a).f(s1)
+      })
+      def map[B](f: A => B): State[S,B] = flatMap(a => State(s => (f(a), s)))
+    }
+
+    class StateMonad[S] extends Monad[({type f[x] = State[S,x]})#f] {
+      def unit[A](a: => A): State[S,A] = State(s => (a, s))
+      def bind[A,B](fa: State[S,A])(f: A => State[S,B]): State[S,B] = fa.flatMap(f)
+    }
+    object WEStateMonad extends StateMonad[Effects]
+
+    trait Monad[F[_]] {
+      def unit[A](a: => A): F[A]
+      def bind[A,B](fa: F[A])(f: A => F[B]): F[B]
+      def map[A,B](fa: F[A])(f: A => B): F[B] = bind(fa)(a => unit(f(a)))
+      def join[A](f: F[F[A]]): F[A] = bind(f)(identity)
+      def kleisli[A,B](f: A => B): A => F[B] = a => unit(f(a))
+      def bind2[A,B](fa: F[A])(f: A => F[B]): F[B] = join(map(fa)(f))
+      def ap[A,B](f: F[A => B])(fa: F[A]): F[B] = bind(f)(fab => map(fa)(fab))
+      def map2[A,B,C](fa: F[A], fb: F[B])(f: (A,B) => C): F[C] = bind(fa)(a => map(fb)(b => f(a,b)))
+      def map3[A,B,C,D](fa: F[A], fb: F[B], fc: F[C])(f: (A,B,C) => D): F[D] =
+        bind(fa)(a => bind(fb)(b => map(fc)(c => f(a,b,c))))
+      def lift2[A,B,C](f: (A,B) => C): (F[A],F[B]) => F[C] = (fa,fb) => map2(fa,fb)(f)
+      def lift2Cons[A] = lift2[A, List[A], List[A]](_ :: _)
+      def sequence[A](fas: List[F[A]]): F[List[A]] = fas.foldRight(unit(List[A]())){
+        (fa:F[A], acc:F[List[A]]) => lift2Cons(fa, acc)
+      }
+      def traverse[A,B](fas: List[A])(f: A => F[B]): F[List[B]] = sequence(fas.map(f))
     }
 
     def parse(code:String): Program = parseProgram(io.Reader read code)
 
-    def parseProgram(a:Any): Program = a match {
-      case Nil => sys error s"bad program: $a"
-      case List(x) => Program(Nil,parseExpr(x))
-      case l@(x :: xs) => Program(l.init map parseDef, parseExpr(l.last))
-      case _ => sys error s"bad program: $a"
+    def parseProgram(a:Any): Program = {
+      println(a)
+      a match {
+        case Nil => sys error s"bad program: $a"
+        case List(x) => Program(Nil,parseExpr(x))
+        case l@(x :: xs) => Program(l.init map parseDef, parseExpr(l.last))
+        case _ => sys error s"bad program: $a"
+      }
     }
 
     def parseDef(a:Any): Def = {
@@ -265,13 +331,13 @@ class WorldEdit extends ListenersPlugin
         case List('goto, loc)       => Goto(parseExpr(loc))
         case List('pos1, loc)       => Pos1(parseExpr(loc))
         case List('pos2, loc)       => Pos2(parseExpr(loc))
-        case List('corners, l1, l2) => Corners(parseExpr(l1), parseExpr(l2))
+        case List('corners, l1, l2) => SetCorners(parseExpr(l1), parseExpr(l2))
         case 'origin => Origin
         case 'XYZ    => XYZ
         case 'X      => X
         case 'Y      => Y
         case 'Z      => Z
-        case 'loc :: x :: y :: z    => Loc(parseExpr(x),parseExpr(y),parseExpr(z))
+        case List('loc, x, y, z)    => Loc(parseExpr(x),parseExpr(y),parseExpr(z))
         // material based prims
         case List('set, m)          => SetMaterial(parseMaterial(m))
         case List('change, m1, m2)  => Change(parseMaterial(m1), parseMaterial(m2))
@@ -293,7 +359,7 @@ class WorldEdit extends ListenersPlugin
 
     def run(prog:Program, p:Player) = new WorldEditInterp(p).evalProg(prog)
 
-    case class WorldEditInterp(p:Player) extends EnrichmentClasses {
+    case class WorldEditInterp(p:Player) {
       val x: Int = p.x
       val y: Int = p.y
       val z: Int = p.z
@@ -301,72 +367,101 @@ class WorldEdit extends ListenersPlugin
       type Env = Map[Symbol,Value]
       val emptyEnv: Env = Map()
 
-      def evalProg(prog:Program): Value = eval(prog.body, prog.defs.foldLeft(emptyEnv)(evalDef))
-      // just extends the env
-      def evalDef(env: Env, d:Def): Env = d match {
-        case Defn(name:Symbol, lam:Lambda) => env + (name -> FunValue(lam))
-        case Val (name:Symbol, expr:Expr)  => env + (name -> eval(expr, env))
+      // evaluates the defs in order (no forward references allowed)
+      // then evaluates the body with the resulting environment
+      def evalProg(prog:Program): (Value, Effects) =
+        (for{
+          env <- prog.defs.foldLeft(WEStateMonad.unit(emptyEnv)){ (accS, d) =>
+            for{ acc <- accS; more <- evalDef(acc, d) } yield more
+          }
+          res <- eval(prog.body, env)
+        } yield res)(List())
+
+      // extends the env, and collects side effects for vals
+      def evalDef(env: Env, d:Def): State[Effects,Env] = d match {
+        case Defn(name:Symbol, lam:Lambda) => WEStateMonad.unit(env + (name -> FunValue(lam)))
+        case Val (name:Symbol, expr:Expr)  => for(ev <- eval(expr, env)) yield env + (name -> ev)
       }
-      def eval(e:Expr, env:Map[Symbol,Value]): Value = e match {
-        case l@Lambda(_, _) => FunValue(l)
-        case Let(x:Symbol, e:Expr, body:Expr) => eval(body, env + (x -> eval(e,env)))
-        case IfStatement(e:Expr, truePath:Expr, falsePath:Expr) => eval(e,env) match {
-          case BoolValue(true)  => eval(truePath,  env)
-          case BoolValue(false) => eval(falsePath, env)
-          case ev => sys error s"bad if predicate: $ev"
-        }
-        case Variable(s) => env.get(s).getOrElse(sys error s"not found: ${s.toString.drop(1)}")
-        case App(f:Expr, args:List[Expr]) => eval(f,env) match {
-          case FunValue(Lambda(formals, body)) =>
-            eval(body, env ++ formals.zip(args.map(eval(_, env))))
-          case blah => sys error s"app expected a function, but got: $blah"
-        }
-        case Add(exps) => NumValue(exps.map(eval(_, env)).foldLeft(0){(acc,v) => v match {
-          case NumValue(i) => acc + i
-          case blah => sys error s"add expected a number, but got: $blah"
-        }})
-        case Subtract(a, b) => (eval(a,env), eval(b,env)) match {
+
+      def pure(v:Value): V = WEStateMonad.unit(v)
+      def addSideEffect(f: Effect): V = State(s => (Unit, s ::: List(f)))
+      def sideEffect(e: Effect): V = for(_ <- addSideEffect(e)) yield Unit
+
+      def eval(e:Expr, env:Map[Symbol,Value]): V = e match {
+        case l@Lambda(_, _) => pure(FunValue(l))
+        case Let(x:Symbol, e:Expr, body:Expr) =>
+          for{
+            ev <- eval(e,env)
+            bv <- eval(body, env + (x -> ev))
+          } yield bv
+        case IfStatement(e:Expr, truePath:Expr, falsePath:Expr) =>
+          for {
+            ev <- eval(e, env)
+            resv <- ev match {
+              case BoolValue(true)  => eval(truePath,  env)
+              case BoolValue(false) => eval(falsePath, env)
+              case ev => sys error s"bad if predicate: $ev"
+            }
+          } yield resv
+        case Variable(s) => pure(env.get(s).getOrElse(sys error s"not found: ${s.toString.drop(1)}"))
+        case App(f:Expr, args:List[Expr]) =>
+          println((f,args))
+          for{
+            fv    <- eval(f, env)
+            argvs <- WEStateMonad.sequence(args map (eval(_, env)))
+            res   <- fv match {
+              // todo: make sure formals.size == args.size...
+              case FunValue(Lambda(formals, body)) => eval(body, env ++ formals.zip(argvs))
+              case blah => sys error s"app expected a function, but got: $blah"
+            }
+          } yield res
+        case Add(exps) =>
+          for(argvs <- WEStateMonad.sequence(exps map (eval(_, env)))) yield
+            NumValue(argvs.foldLeft(0){(acc,v) => v match {
+              case NumValue(i) => acc + i
+              case blah => sys error s"add expected a number, but got: $blah"
+            }})
+        case Subtract(a, b) => for{ av <- eval(a, env); bv <- eval(b, env) } yield (av, bv) match {
           case (NumValue(av), NumValue(bv)) => NumValue(av - bv)
           case (av,bv) => sys error s"subtract expected two numbers, but got: $av, $bv"
         }
-        // todo: this it totally broken
         case Seqential(exps:List[Expr]) =>
-          exps.map(eval(_, env)).foldLeft(EffectValue(() => {})){ (acc, v) => v match {
-            case u@EffectValue(_) => acc andThen u
-            case _ => acc
-          }}
-        case Corners(e1:Expr,e2:Expr) => EffectValue(() => {
-          setFirstPos (p, evalToLoc(e1,env))
-          setSecondPos(p, evalToLoc(e2,env))
-        })
-        case Goto(l:Expr) => EffectValue(() => p.teleport(evalToLoc(e,env)))
-        case Pos1(e:Expr) => EffectValue(() => setFirstPos (p, evalToLoc(e,env)))
-        case Pos2(e:Expr) => EffectValue(() => setSecondPos(p, evalToLoc(e,env)))
-        case SetMaterial(m) => EffectValue(() => for(b <- cube(p)) b changeTo m)
-        case Change(oldM, newM) =>
-          EffectValue(() => for(b <- cube(p); if(b is oldM)) b changeTo newM)
-        case SetWalls(m) => EffectValue(() => cube(p).walls.foreach(_ changeTo m))
-        case SetFloor(m) => EffectValue(() => cube(p).floor.foreach(_ changeTo m))
-        case Loc(x:Expr, y:Expr, z:Expr) =>
-          val (xe,ye,ze) = (eval(x,env),eval(y,env),eval(z,env))
+          for(argvs <- WEStateMonad.sequence(exps map (eval(_, env)))) yield argvs.last
+        case SetCorners(e1:Expr,e2:Expr) => for {
+          l1 <- evalToLoc(e1,env)
+          l2 <- evalToLoc(e2,env)
+          _ <- addSideEffect(SetCornersEffect(l1,l2))
+        } yield Unit
+        case Goto(l:Expr) => locationSideEffect(l, env, GotoEffect(_))
+        case Pos1(l:Expr) => locationSideEffect(l, env, SetFirstPosEffect(_))
+        case Pos2(l:Expr) => locationSideEffect(l, env, SetSecondPosEffect(_))
+        case SetMaterial(m) => sideEffect(SetMaterialEffect(m))
+        case Change(oldM, newM) => sideEffect(ChangeEffect(oldM, newM))
+        case SetWalls(m) => sideEffect(SetWallsEffect(m))
+        case SetFloor(m) => sideEffect(SetFloorEffect(m))
+        case Loc(x:Expr, y:Expr, z:Expr) => for(xe <- eval(x,env); ye <- eval(y,env); ze <- eval(z,env)) yield
           (xe,ye,ze) match {
             case (NumValue(xv), NumValue(yv), NumValue(zv)) => LocationValue(p.world(xv,yv,zv))
             case _ => sys error s"bad location data: ${(xe,ye,ze)}"
           }
-        case Origin  => LocationValue(p.world.getHighestBlockAt(0,0))
-        case XYZ     => LocationValue(p.world(x,y,z))
-        case X       => NumValue(x)
-        case Y       => NumValue(y)
-        case Z       => NumValue(z)
-        case MaxY    => NumValue(255)
-        case MinY    => NumValue(0)
-        case Num(i)  => NumValue(i)
-        case Bool(b) => BoolValue(b)
+        case Origin  => pure(LocationValue(p.world.getHighestBlockAt(0,0)))
+        case XYZ     => pure(LocationValue(p.world(x,y,z)))
+        case X       => pure(NumValue(x))
+        case Y       => pure(NumValue(y))
+        case Z       => pure(NumValue(z))
+        case MaxY    => pure(NumValue(255))
+        case MinY    => pure(NumValue(0))
+        case Num(i)  => pure(NumValue(i))
+        case Bool(b) => pure(BoolValue(b))
       }
-      def evalToLoc(e:Expr, env:Env): Location = eval(e,env) match {
-        case LocationValue(l) => l
-        case ev => sys error s"not a location: $ev"
-      }
+      def evalToLoc(e:Expr, env:Env): State[List[Effect],Location] =
+        for(ev <- eval(e,env)) yield ev match {
+          case LocationValue(l) => l
+          case ev => sys error s"not a location: $ev"
+        }
+      def locationSideEffect(e:Expr, env:Env, f: Location => Effect): V =
+        for(l <- evalToLoc(e,env); _ <- addSideEffect(f(l))) yield Unit
+
       //    def apply(p:Player, nodes:List[BuiltIn]): Unit = nodes.foreach(apply(p, _))
       //    def apply(p:Player, code:String): Unit = attempt(p, { println(code); apply(p, p.parse(code)) })
       //    def apply(p:Player, commands:TraversableOnce[String]): Unit = apply(p, commands.mkString(" "))
