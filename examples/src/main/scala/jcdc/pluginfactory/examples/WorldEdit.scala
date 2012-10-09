@@ -180,7 +180,7 @@ class WorldEdit extends ListenersPlugin
     case class Val (name:Symbol, expr:Expr) extends Def
 
     sealed trait Expr
-    case class Lambda(args:List[Symbol], body: Seqential) extends Expr
+    case class Lambda(args:List[Symbol], body: Expr) extends Expr
     case class Let(x:Symbol, e:Expr, body:Expr) extends Expr
     case class IfStatement(e:Expr, truePath:Expr, falsePath:Expr) extends Expr
     case class App(f:Expr, args:List[Expr]) extends Expr
@@ -283,7 +283,7 @@ class WorldEdit extends ListenersPlugin
     def parse(code:String): Program = parseProgram(io.Reader read code)
 
     def parseProgram(a:Any): Program = {
-      println(a)
+      //println(a)
       a match {
         case Nil => sys error s"bad program: $a"
         case List(x) => Program(Nil,parseExpr(x))
@@ -293,17 +293,18 @@ class WorldEdit extends ListenersPlugin
     }
 
     def parseDef(a:Any): Def = {
+      //println(s"parse def: $a")
       def parseName(name:Any): Symbol = name match {
         case s:Symbol => s // TODO: check s against builtin things like X,Y,Z,etc
         case _ => sys error s"bad def name: $a"
       }
       a match {
-        case 'defn :: name :: args :: body => Defn(parseName(name), parseLambda(args :: body))
-        case 'val  :: name :: body => Val(parseName(name), parseExpr(body))
+        case List('def, name, args, body) => Defn(parseName(name), parseLambda(args, body))
+        case List('val, name, body) => Val(parseName(name), parseExpr(body))
       }
     }
 
-    def parseLambda(a:List[Any]): Lambda = {
+    def parseLambda(args:Any, body:Any): Lambda = {
       def parseLamArgList(a:Any): List[Symbol] = {
         def parseLamArg(a:Any) = a match {
           case s:Symbol => s // TODO: check s against builtin things like X,Y,Z,etc
@@ -314,16 +315,13 @@ class WorldEdit extends ListenersPlugin
           case _ => sys error s"bad lambda arg list: $a"
         }
       }
-      a match {
-        case args :: body => Lambda(parseLamArgList(args), Seqential(body map parseExpr))
-        case _ => sys error s"bad lambda: $a"
-      }
+      Lambda(parseLamArgList(args), parseExpr(body))
     }
 
     def parseExpr(a:Any): Expr = {
       def parseMaterial(a:Any) = BasicMinecraftParsers.material(a.toString.drop(1)).get
       a match {
-        case 'lam :: args :: body => parseLambda(args :: body)
+        case List('lam, args, body) => parseLambda(args, body)
         case 'let :: args :: body => sys error "todo: parse let"
         case List('if,pred,tru,fals) => IfStatement(parseExpr(pred),parseExpr(tru),parseExpr(fals))
         case 'seq :: body => Seqential(body map parseExpr)
@@ -405,7 +403,6 @@ class WorldEdit extends ListenersPlugin
           } yield resv
         case Variable(s) => pure(env.get(s).getOrElse(sys error s"not found: ${s.toString.drop(1)}"))
         case App(f:Expr, args:List[Expr]) =>
-          println((f,args))
           for{
             fv    <- eval(f, env)
             argvs <- WEStateMonad.sequence(args map (eval(_, env)))
@@ -441,7 +438,7 @@ class WorldEdit extends ListenersPlugin
         case SetFloor(m) => sideEffect(SetFloorEffect(m))
         case Loc(x:Expr, y:Expr, z:Expr) => for(xe <- eval(x,env); ye <- eval(y,env); ze <- eval(z,env)) yield
           (xe,ye,ze) match {
-            case (NumValue(xv), NumValue(yv), NumValue(zv)) => LocationValue(p.world(xv,yv,zv))
+            case (NumValue(xv), NumValue(yv), NumValue(zv)) => LocationValue(new Location(p.world,xv,yv,zv))
             case _ => sys error s"bad location data: ${(xe,ye,ze)}"
           }
         case Origin  => pure(LocationValue(p.world.getHighestBlockAt(0,0)))
