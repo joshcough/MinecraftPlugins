@@ -2,14 +2,14 @@ package jcdc.pluginfactory.examples
 
 import org.scalacheck.Properties
 import org.scalacheck.Prop._
-import jcdc.pluginfactory.TestPlayer
+import jcdc.pluginfactory.TestServer
 import jcdc.pluginfactory.io.Reader
 
 object WorldEditTest extends Properties("MinecraftParserTests") {
 
   val we = new WorldEdit
   import we._
-  val p = TestPlayer.player
+  val p = TestServer.player
 
   val testScriptFull =
     """
