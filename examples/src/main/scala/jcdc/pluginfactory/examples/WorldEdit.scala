@@ -24,7 +24,46 @@ class WorldEdit extends ListenersPlugin
     OnRightClickBlock((p, e) => if(p isHoldingA WOOD_AXE) { setSecondPos(p, e.loc) })
   )
 
+
+  val house = """
+    (
+      (def house (w h d)
+        (seq
+          ; build walls and floor
+          (goto origin)
+          (corners (loc w (+ Y h) d) (loc (- 0 w) Y (- 0 d)))
+          (walls brick)
+          (floor stone)
+          ; build roof
+                          ; 6, 13, 6                        ; -6, 13, -6
+          (corners   (loc (+ 1 w) (+ Y h 1) (+ 1 d))   (loc (- -1 w) (+ Y h 1) (- -1 d)))
+          (set wood)
+                          ; 5, 14, 5                        ; -5, 14, -5
+          (corners   (loc w (+ Y h 2) d)               (loc (- 0 w) (+ Y h 2) (- 0 d)))
+          (set wood)
+                          ; 4, 15, 4                        ; -4, 15, -4
+          (corners   (loc (- w 1) (+ Y h 3) (- d 1))   (loc (- 1 w) (+ Y h 3) (- 1 d)))
+                          ; 3, 16, 3                        ; -3, 16, -3
+          (corners   (loc (- w 2) (+ Y h 4) (- d 2))   (loc (- 2 w) (+ Y h 4) (- 2 d)))
+          (set wood)
+                          ; 2, 17, 2                        ; -2, 17, -2
+          (corners   (loc (- w 3) (+ Y h 5) (- d 3))   (loc (- 3 w) (+ Y h 5) (- 3 d)))
+                          ; 1, 18, 1                        ; -1, 18, -1
+          (set wood)
+          (corners   (loc (- w 4) (+ Y h 6) (- d 4))   (loc (- 4 w) (+ Y h 6) (- 4 d)))
+                          ; 1, 18, 1                        ; -1, 18, -1
+          (set wood)
+                          ; 0, 19, 0                        ; 0, 19, 0
+          (corners   (loc (- w 5) (+ Y h 7) (- d 5))   (loc (- 5 w) (+ Y h 7) (- 5 d)))
+          (set wood)
+        )
+      )
+      (house 5 8 5)
+    )
+    """
+
   val commands = List(
+    Command("house", "build a house", noArgs(WorldEditLang.runCompletely(house, _))),
 //    Command("test-script", "run the test script", noArgs(WorldEditInterp.apply(_, testScript))),
 //    Command("code-book-example", "get a 'code book' example", args(anyString.?){ case (p, title) =>
 //      p.inventory addItem Book(author = p, title, pages =
@@ -198,14 +237,11 @@ class WorldEdit extends ListenersPlugin
     case class SetFloor(m:Material)extends Expr
     case class Loc(x:Expr, y:Expr, z:Expr) extends Expr
     case object Origin extends Expr
-    case object XYZ extends Expr
-    case object X extends Expr
-    case object Y extends Expr
-    case object Z extends Expr
     case object MaxY extends Expr
     case object MinY extends Expr
     case class Num(i:Int) extends Expr
     case class Bool(b:Boolean) extends Expr
+    case class Eq(e1:Expr, e2:Expr) extends Expr
     case class Variable(s:Symbol) extends Expr
     case class Add(args:List[Expr]) extends Expr
     case class Subtract(a:Expr, b:Expr) extends Expr
@@ -216,6 +252,7 @@ class WorldEdit extends ListenersPlugin
     case class   FunValue(l:Lambda)        extends Value
     case class   NumValue(n:Int)           extends Value
     case class   BoolValue(b:Boolean)      extends Value
+    case class   DynamicValue(n: () => Value)    extends Value
     case object  Unit extends Value
 
     trait Effect { self => 
@@ -308,10 +345,6 @@ class WorldEdit extends ListenersPlugin
         case List('pos2, loc)       => Pos2(parseExpr(loc))
         case List('corners, l1, l2) => SetCorners(parseExpr(l1), parseExpr(l2))
         case 'origin => Origin
-        case 'XYZ    => XYZ
-        case 'X      => X
-        case 'Y      => Y
-        case 'Z      => Z
         case List('loc, x, y, z)    => Loc(parseExpr(x),parseExpr(y),parseExpr(z))
         // material based prims
         case List('set, m)          => SetMaterial(parseMaterial(m))
@@ -322,6 +355,7 @@ class WorldEdit extends ListenersPlugin
         case i: Int => Num(i)
         case 'true  => Bool(true)
         case 'false => Bool(false)
+        case List('eq, e1, e2) => Eq(parseExpr(e1),parseExpr(e2))
         case s:Symbol => Variable(s)
         // math operations
         case '+ :: e :: es => Add((e::es) map parseExpr)
@@ -332,21 +366,26 @@ class WorldEdit extends ListenersPlugin
       }
     }
 
-    def run(prog:Program, p:Player) = new WorldEditInterp(p).evalProg(prog)
+    def run(code:String, p:Player) = runProgram(parse(code), p)
+    def runProgram(prog:Program, p:Player) = new WorldEditInterp(p).evalProg(prog)
+    def runCompletely(code:String, p:Player): Unit = run(code, p)._2.foreach(_.run(p))
 
     case class WorldEditInterp(p:Player) {
-      val x: Int = p.x
-      val y: Int = p.y
-      val z: Int = p.z
-
       type Env = Map[Symbol,Value]
       val emptyEnv: Env = Map()
+
+      def defaultEnv: Env = Map(
+        'X -> DynamicValue(() => NumValue(p.x)),
+        'Y -> DynamicValue(() => NumValue(p.y)),
+        'Z -> DynamicValue(() => NumValue(p.z)),
+        'XYZ -> DynamicValue(() => LocationValue(p.loc))
+      )
 
       // evaluates the defs in order (no forward references allowed)
       // then evaluates the body with the resulting environment
       def evalProg(prog:Program): (Value,Effects) = {
         val s: State[Effects,Value] = for {
-          env <- prog.defs.foldLeft(pure(emptyEnv)){ (accS, d) =>
+          env <- prog.defs.foldLeft(pure(defaultEnv)){ (accS, d) =>
             for{ acc <- accS; more <- evalDef(acc, d) } yield more
           }
           res <- eval(prog.body, env)
@@ -364,6 +403,11 @@ class WorldEdit extends ListenersPlugin
       def addSideEffect(f: Effect): State[Effects, Value] = State(s => (s ::: List(f), Unit))
       def sideEffect(e: Effect): State[Effects, Value] = for(_ <- addSideEffect(e)) yield Unit
 
+      def reduce(v:Value) = v match {
+        case DynamicValue(f) => f()
+        case _ => v
+      }
+
       def eval(e:Expr, env:Map[Symbol,Value]): State[Effects, Value] = e match {
         case l@Lambda(_, _) => pure(FunValue(l))
         case Let(x:Symbol, e:Expr, body:Expr) =>
@@ -374,7 +418,7 @@ class WorldEdit extends ListenersPlugin
         case IfStatement(e:Expr, truePath:Expr, falsePath:Expr) =>
           for {
             ev <- eval(e, env)
-            resv <- ev match {
+            resv <- reduce(ev) match {
               case BoolValue(true)  => eval(truePath,  env)
               case BoolValue(false) => eval(falsePath, env)
               case ev => sys error s"bad if predicate: $ev"
@@ -385,7 +429,7 @@ class WorldEdit extends ListenersPlugin
           for{
             fv    <- eval(f, env)
             argvs <- (args map (eval(_, env))).sequence[X,Value]
-            res   <- fv match {
+            res   <- reduce(fv) match {
               // todo: make sure formals.size == args.size...
               case FunValue(Lambda(formals, body)) => eval(body, env ++ formals.zip(argvs))
               case blah => sys error s"app expected a function, but got: $blah"
@@ -393,14 +437,15 @@ class WorldEdit extends ListenersPlugin
           } yield res
         case Add(exps) =>
           for(argvs <- (exps map (eval(_, env))).sequence[X,Value]) yield
-            NumValue(argvs.foldLeft(0){(acc,v) => v match {
+            NumValue(argvs.foldLeft(0){(acc,v) => reduce(v) match {
               case NumValue(i) => acc + i
               case blah => sys error s"add expected a number, but got: $blah"
             }})
-        case Subtract(a, b) => for{ av <- eval(a, env); bv <- eval(b, env) } yield (av, bv) match {
-          case (NumValue(av), NumValue(bv)) => NumValue(av - bv)
-          case (av,bv) => sys error s"subtract expected two numbers, but got: $av, $bv"
-        }
+        case Subtract(a, b) => for{ av <- eval(a, env); bv <- eval(b, env) } yield
+          (reduce(av), reduce(bv)) match {
+            case (NumValue(av), NumValue(bv)) => NumValue(av - bv)
+            case (av,bv) => sys error s"subtract expected two numbers, but got: $av, $bv"
+          }
         case Seqential(exps:List[Expr]) =>
           for(argvs <- (exps map (eval(_, env))).sequence[X,Value]) yield argvs.last
         case SetCorners(e1:Expr,e2:Expr) => for {
@@ -417,23 +462,25 @@ class WorldEdit extends ListenersPlugin
         case SetFloor(m) => sideEffect(SetFloorEffect(m))
         case Loc(x:Expr, y:Expr, z:Expr) =>
           for(xe <- eval(x,env); ye <- eval(y,env); ze <- eval(z,env)) yield
-            (xe,ye,ze) match {
+            (reduce(xe),reduce(ye),reduce(ze)) match {
               case (NumValue(xv), NumValue(yv), NumValue(zv)) =>
                 LocationValue(new Location(p.world,xv,yv,zv))
               case _ => sys error s"bad location data: ${(xe,ye,ze)}"
             }
         case Origin  => pure(LocationValue(p.world.getHighestBlockAt(0,0)))
-        case XYZ     => pure(LocationValue(p.world(x,y,z)))
-        case X       => pure(NumValue(x))
-        case Y       => pure(NumValue(y))
-        case Z       => pure(NumValue(z))
         case MaxY    => pure(NumValue(255))
         case MinY    => pure(NumValue(0))
         case Num(i)  => pure(NumValue(i))
         case Bool(b) => pure(BoolValue(b))
+        case Eq(a, b) => for{ av <- eval(a, env); bv <- eval(b, env) } yield
+          (reduce(av), reduce(bv)) match {
+            case (NumValue(av),  NumValue(bv))  => BoolValue(av == bv)
+            case (BoolValue(av), BoolValue(bv)) => BoolValue(av == bv)
+            case _ => BoolValue(false)
+          }
       }
       def evalToLoc(e:Expr, env:Env): State[List[Effect],Location] =
-        for(ev <- eval(e,env)) yield ev match {
+        for(ev <- eval(e,env)) yield reduce(ev) match {
           case LocationValue(l) => l
           case ev => sys error s"not a location: $ev"
         }

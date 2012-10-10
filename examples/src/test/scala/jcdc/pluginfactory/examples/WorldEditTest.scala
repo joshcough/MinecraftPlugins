@@ -55,6 +55,10 @@ object WorldEditTest extends Properties("MinecraftParserTests") {
   property("defTest") = secure { parse(defTest) }
   property("defTest") = secure { run  (defTest) }
 
+  property("houseTest") = secure { parse(house) }
+  property("houseTest") = secure { run  (house) }
+
+
   def parseExpr(code:String): Boolean =
     attemptT(p, truthfully(println(s"Parse Tree: ${WorldEditLang.parseExpr(Reader.read(code))}")))
 
@@ -62,7 +66,7 @@ object WorldEditTest extends Properties("MinecraftParserTests") {
     attemptT(p, truthfully(println(s"Parse Tree: ${WorldEditLang.parse(code)}")))
 
   def run(code:String): Boolean =
-    attemptT(p, truthfully(println(s"Result/Effects: ${WorldEditLang.run(WorldEditLang parse code, p)}")))
+    attemptT(p, truthfully(println(s"Result/Effects: ${WorldEditLang.run(code, p)}")))
 
   def truthfully(f: => Unit) = {f; true}
 }
