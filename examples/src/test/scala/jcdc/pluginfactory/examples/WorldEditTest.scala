@@ -22,12 +22,7 @@ object WorldEditTest extends Properties("MinecraftParserTests") {
      ))
     """.stripMargin.trim
 
-  val valTest = """
-    (
-      (val x 7)
-      x
-    )
-  """
+  val valTest = "((val x 7) x)"
 
   val defTest = """
     (
@@ -56,9 +51,9 @@ object WorldEditTest extends Properties("MinecraftParserTests") {
   property("testScriptFull") = secure { parseExpr(testScriptFull) }
   property("testScriptFull") = secure { run(testScriptFull) }
   property("valTest") = secure { parse(valTest) }
-  property("valTest") = secure { run(valTest) }
+  property("valTest") = secure { run  (valTest) }
   property("defTest") = secure { parse(defTest) }
-  property("defTest") = secure { run(defTest) }
+  property("defTest") = secure { run  (defTest) }
 
   def parseExpr(code:String): Boolean =
     attemptT(p, truthfully(println(s"Parse Tree: ${WorldEditLang.parseExpr(Reader.read(code))}")))

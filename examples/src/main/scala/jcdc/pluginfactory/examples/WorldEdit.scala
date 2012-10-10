@@ -8,6 +8,9 @@ import org.bukkit.entity.Player
 import Material._
 import java.io.File
 import scala.io.Source
+import scalaz._
+import std.list._
+import scalaz.syntax.traverse._
 
 class WorldEdit extends ListenersPlugin
   with CommandsPlugin with SingleClassDBPlugin[Script] {
@@ -208,18 +211,17 @@ class WorldEdit extends ListenersPlugin
     case class Subtract(a:Expr, b:Expr) extends Expr
 
     sealed trait Value
-    case class MaterialValue(m:Material) extends Value
-    case class LocationValue(l:Location) extends Value
-    case class FunValue(l:Lambda)        extends Value
-    case class NumValue(n:Int)           extends Value
-    case class BoolValue(b:Boolean)      extends Value
-    case object Unit extends Value
+    case class   MaterialValue(m:Material) extends Value
+    case class   LocationValue(l:Location) extends Value
+    case class   FunValue(l:Lambda)        extends Value
+    case class   NumValue(n:Int)           extends Value
+    case class   BoolValue(b:Boolean)      extends Value
+    case object  Unit extends Value
 
     trait Effect { self => 
       def run(p:Player): Unit
       def andThen(e2:Effect) = new Effect{ def run(p:Player){ self.run(p); e2.run(p) }}
     }
-
     case class SetCornersEffect(l1:Location,l2:Location) extends Effect {
       override def toString = s"SetCornersEffect(l1: ${l1.xyz}, l2: ${l2.xyz})"
       def run(p:Player) = { setFirstPos (p, l1); setSecondPos (p, l2) }
@@ -236,49 +238,21 @@ class WorldEdit extends ListenersPlugin
       override def toString = s"SetSecondPosEffect(loc: ${loc.xyz})"
       def run(p:Player) = setSecondPos(p, loc)
     }
-    case class SetMaterialEffect(m:Material) extends Effect { def run(p:Player) = for(b <- cube(p)) b changeTo m }
+    case class SetMaterialEffect(m:Material) extends Effect {
+      def run(p:Player) = for(b <- cube(p)) b changeTo m
+    }
     case class ChangeEffect(oldM:Material,newM:Material) extends Effect {
       def run(p:Player) = for(b <- cube(p); if(b is oldM)) b changeTo newM
     }
-    case class SetWallsEffect(m:Material) extends Effect { def run(p:Player) = cube(p).walls.foreach(_ changeTo m) }
-    case class SetFloorEffect(m:Material) extends Effect { def run(p:Player) = cube(p).floor.foreach(_ changeTo m) }
+    case class SetWallsEffect(m:Material) extends Effect {
+      def run(p:Player) = cube(p).walls.foreach(_ changeTo m)
+    }
+    case class SetFloorEffect(m:Material) extends Effect {
+      def run(p:Player) = cube(p).floor.foreach(_ changeTo m)
+    }
 
     type Effects = List[Effect]
-    type V = State[Effects, Value]
-
-    case class State[S,A](f: S => (A, S)) {
-      def apply(s:S) = f(s)
-      def flatMap[B](f1: A => State[S, B]): State[S, B] = State(s => {
-        val (a,s1) = f(s)
-        f1(a).f(s1)
-      })
-      def map[B](f: A => B): State[S,B] = flatMap(a => State(s => (f(a), s)))
-    }
-
-    class StateMonad[S] extends Monad[({type f[x] = State[S,x]})#f] {
-      def unit[A](a: => A): State[S,A] = State(s => (a, s))
-      def bind[A,B](fa: State[S,A])(f: A => State[S,B]): State[S,B] = fa.flatMap(f)
-    }
-    object WEStateMonad extends StateMonad[Effects]
-
-    trait Monad[F[_]] {
-      def unit[A](a: => A): F[A]
-      def bind[A,B](fa: F[A])(f: A => F[B]): F[B]
-      def map[A,B](fa: F[A])(f: A => B): F[B] = bind(fa)(a => unit(f(a)))
-      def join[A](f: F[F[A]]): F[A] = bind(f)(identity)
-      def kleisli[A,B](f: A => B): A => F[B] = a => unit(f(a))
-      def bind2[A,B](fa: F[A])(f: A => F[B]): F[B] = join(map(fa)(f))
-      def ap[A,B](f: F[A => B])(fa: F[A]): F[B] = bind(f)(fab => map(fa)(fab))
-      def map2[A,B,C](fa: F[A], fb: F[B])(f: (A,B) => C): F[C] = bind(fa)(a => map(fb)(b => f(a,b)))
-      def map3[A,B,C,D](fa: F[A], fb: F[B], fc: F[C])(f: (A,B,C) => D): F[D] =
-        bind(fa)(a => bind(fb)(b => map(fc)(c => f(a,b,c))))
-      def lift2[A,B,C](f: (A,B) => C): (F[A],F[B]) => F[C] = (fa,fb) => map2(fa,fb)(f)
-      def lift2Cons[A] = lift2[A, List[A], List[A]](_ :: _)
-      def sequence[A](fas: List[F[A]]): F[List[A]] = fas.foldRight(unit(List[A]())){
-        (fa:F[A], acc:F[List[A]]) => lift2Cons(fa, acc)
-      }
-      def traverse[A,B](fas: List[A])(f: A => F[B]): F[List[B]] = sequence(fas.map(f))
-    }
+    type X[T] = State[Effects, T]
 
     def parse(code:String): Program = parseProgram(io.Reader read code)
 
@@ -370,25 +344,27 @@ class WorldEdit extends ListenersPlugin
 
       // evaluates the defs in order (no forward references allowed)
       // then evaluates the body with the resulting environment
-      def evalProg(prog:Program): (Value, Effects) =
-        (for{
-          env <- prog.defs.foldLeft(WEStateMonad.unit(emptyEnv)){ (accS, d) =>
+      def evalProg(prog:Program): (Value,Effects) = {
+        val s: State[Effects,Value] = for {
+          env <- prog.defs.foldLeft(pure(emptyEnv)){ (accS, d) =>
             for{ acc <- accS; more <- evalDef(acc, d) } yield more
           }
           res <- eval(prog.body, env)
-        } yield res)(List())
+        } yield res
+        s(List[Effect]()).swap
+      }
 
       // extends the env, and collects side effects for vals
       def evalDef(env: Env, d:Def): State[Effects,Env] = d match {
-        case Defn(name:Symbol, lam:Lambda) => WEStateMonad.unit(env + (name -> FunValue(lam)))
+        case Defn(name:Symbol, lam:Lambda) => pure(env + (name -> FunValue(lam)))
         case Val (name:Symbol, expr:Expr)  => for(ev <- eval(expr, env)) yield env + (name -> ev)
       }
 
-      def pure(v:Value): V = WEStateMonad.unit(v)
-      def addSideEffect(f: Effect): V = State(s => (Unit, s ::: List(f)))
-      def sideEffect(e: Effect): V = for(_ <- addSideEffect(e)) yield Unit
+      def pure[A](a:A): State[Effects,A] = State(s => (s,a))
+      def addSideEffect(f: Effect): State[Effects, Value] = State(s => (s ::: List(f), Unit))
+      def sideEffect(e: Effect): State[Effects, Value] = for(_ <- addSideEffect(e)) yield Unit
 
-      def eval(e:Expr, env:Map[Symbol,Value]): V = e match {
+      def eval(e:Expr, env:Map[Symbol,Value]): State[Effects, Value] = e match {
         case l@Lambda(_, _) => pure(FunValue(l))
         case Let(x:Symbol, e:Expr, body:Expr) =>
           for{
@@ -408,7 +384,7 @@ class WorldEdit extends ListenersPlugin
         case App(f:Expr, args:List[Expr]) =>
           for{
             fv    <- eval(f, env)
-            argvs <- WEStateMonad.sequence(args map (eval(_, env)))
+            argvs <- (args map (eval(_, env))).sequence[X,Value]
             res   <- fv match {
               // todo: make sure formals.size == args.size...
               case FunValue(Lambda(formals, body)) => eval(body, env ++ formals.zip(argvs))
@@ -416,7 +392,7 @@ class WorldEdit extends ListenersPlugin
             }
           } yield res
         case Add(exps) =>
-          for(argvs <- WEStateMonad.sequence(exps map (eval(_, env)))) yield
+          for(argvs <- (exps map (eval(_, env))).sequence[X,Value]) yield
             NumValue(argvs.foldLeft(0){(acc,v) => v match {
               case NumValue(i) => acc + i
               case blah => sys error s"add expected a number, but got: $blah"
@@ -426,7 +402,7 @@ class WorldEdit extends ListenersPlugin
           case (av,bv) => sys error s"subtract expected two numbers, but got: $av, $bv"
         }
         case Seqential(exps:List[Expr]) =>
-          for(argvs <- WEStateMonad.sequence(exps map (eval(_, env)))) yield argvs.last
+          for(argvs <- (exps map (eval(_, env))).sequence[X,Value]) yield argvs.last
         case SetCorners(e1:Expr,e2:Expr) => for {
           l1 <- evalToLoc(e1,env)
           l2 <- evalToLoc(e2,env)
@@ -439,11 +415,13 @@ class WorldEdit extends ListenersPlugin
         case Change(oldM, newM) => sideEffect(ChangeEffect(oldM, newM))
         case SetWalls(m) => sideEffect(SetWallsEffect(m))
         case SetFloor(m) => sideEffect(SetFloorEffect(m))
-        case Loc(x:Expr, y:Expr, z:Expr) => for(xe <- eval(x,env); ye <- eval(y,env); ze <- eval(z,env)) yield
-          (xe,ye,ze) match {
-            case (NumValue(xv), NumValue(yv), NumValue(zv)) => LocationValue(new Location(p.world,xv,yv,zv))
-            case _ => sys error s"bad location data: ${(xe,ye,ze)}"
-          }
+        case Loc(x:Expr, y:Expr, z:Expr) =>
+          for(xe <- eval(x,env); ye <- eval(y,env); ze <- eval(z,env)) yield
+            (xe,ye,ze) match {
+              case (NumValue(xv), NumValue(yv), NumValue(zv)) =>
+                LocationValue(new Location(p.world,xv,yv,zv))
+              case _ => sys error s"bad location data: ${(xe,ye,ze)}"
+            }
         case Origin  => pure(LocationValue(p.world.getHighestBlockAt(0,0)))
         case XYZ     => pure(LocationValue(p.world(x,y,z)))
         case X       => pure(NumValue(x))
@@ -459,7 +437,7 @@ class WorldEdit extends ListenersPlugin
           case LocationValue(l) => l
           case ev => sys error s"not a location: $ev"
         }
-      def locationSideEffect(e:Expr, env:Env, f: Location => Effect): V =
+      def locationSideEffect(e:Expr, env:Env, f: Location => Effect): State[Effects, Value] =
         for(l <- evalToLoc(e,env); _ <- addSideEffect(f(l))) yield Unit
 
       //    def apply(p:Player, nodes:List[BuiltIn]): Unit = nodes.foreach(apply(p, _))
