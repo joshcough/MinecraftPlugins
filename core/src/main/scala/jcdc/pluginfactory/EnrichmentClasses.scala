@@ -81,7 +81,8 @@ trait EnrichmentClasses {
       changeTo(AIR)
     }
     def changeTo(m: Material) = {
-      if (! chunk.isLoaded) chunk.load
+      try { if (! chunk.isLoaded) chunk.load }
+      catch { case e: Exception => println("unable to load chunk.") }
       b setType m
     }
   }
@@ -193,7 +194,7 @@ trait EnrichmentClasses {
     def sendError(message:String) = player.sendMessage(RED + message)
     def bomb(message:String) = {
       player.sendMessage(RED + message)
-      throw new Exception(message)
+      throw new RuntimeException(message)
     }
     def findPlayer(name:String)(f: Player => Unit) = server.findPlayer(name) match {
       case Some(p) => f(p)

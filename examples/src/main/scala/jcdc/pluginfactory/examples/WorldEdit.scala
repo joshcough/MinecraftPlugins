@@ -63,7 +63,7 @@ class WorldEdit extends ListenersPlugin
     """
 
   val commands = List(
-    Command("house", "build a house", noArgs(WorldEditLang.runCompletely(house, _))),
+    Command("house", "build a house", noArgs(WorldEditLang.run(house, _))),
 //    Command("test-script", "run the test script", noArgs(WorldEditInterp.apply(_, testScript))),
 //    Command("code-book-example", "get a 'code book' example", args(anyString.?){ case (p, title) =>
 //      p.inventory addItem Book(author = p, title, pages =
@@ -168,10 +168,10 @@ class WorldEdit extends ListenersPlugin
   )
 
   def cube(p:Player): Cube = {
-    corners.get(p).filter(_.size == 2).
-      fold({p ! "Both corners must be set!"; Cube(p.world(0,0,0),p.world(0,0,0))})(ls =>
-        Cube(ls(0), ls(1))
-    )
+    corners.get(p).filter(_.size == 2) match {
+      case None => p bomb "Both corners must be set!"
+      case Some(ls) => Cube(ls(0), ls(1))
+    }
   }
 
   def setFirstPos(p:Player,loc: Location): Unit = {
@@ -253,19 +253,16 @@ class WorldEdit extends ListenersPlugin
     case class   NumValue(n:Int)           extends Value
     case class   BoolValue(b:Boolean)      extends Value
     case class   DynamicValue(n: () => Value)    extends Value
-    case object  Unit extends Value
+    case object  UnitValue extends Value
 
-    trait Effect { self => 
-      def run(p:Player): Unit
-      def andThen(e2:Effect) = new Effect{ def run(p:Player){ self.run(p); e2.run(p) }}
-    }
+    trait Effect { def run(p:Player): Unit }
     case class SetCornersEffect(l1:Location,l2:Location) extends Effect {
       override def toString = s"SetCornersEffect(l1: ${l1.xyz}, l2: ${l2.xyz})"
       def run(p:Player) = { setFirstPos (p, l1); setSecondPos (p, l2) }
     }
     case class GotoEffect(loc:Location) extends Effect {
       override def toString = s"GotoEffect(loc: ${loc.xyz})"
-      def run(p:Player) = p.teleport(loc)
+      def run(p:Player) = { p ! s"teleported to: ${loc.xyz}"; p.teleport(loc) }
     }
     case class SetFirstPosEffect(loc:Location) extends Effect {
       override def toString = s"SetFirstPosEffect(loc: ${loc.xyz})"
@@ -276,16 +273,23 @@ class WorldEdit extends ListenersPlugin
       def run(p:Player) = setSecondPos(p, loc)
     }
     case class SetMaterialEffect(m:Material) extends Effect {
-      def run(p:Player) = for(b <- cube(p)) b changeTo m
+      def run(p:Player) = { p ! s"setting all to: $m"; for(b <- cube(p)) b changeTo m }
     }
     case class ChangeEffect(oldM:Material,newM:Material) extends Effect {
-      def run(p:Player) = for(b <- cube(p); if(b is oldM)) b changeTo newM
+      def run(p:Player) = {
+        p ! s"changing material from $oldM to $newM"
+        for(b <- cube(p); if(b is oldM)) b changeTo newM
+      }
     }
     case class SetWallsEffect(m:Material) extends Effect {
-      def run(p:Player) = cube(p).walls.foreach(_ changeTo m)
+      def run(p:Player) = {
+        p ! s"setting walls to: $m"
+        cube(p).walls.foreach(_ changeTo m)
+        p ! s"set walls to: $m"
+      }
     }
     case class SetFloorEffect(m:Material) extends Effect {
-      def run(p:Player) = cube(p).floor.foreach(_ changeTo m)
+      def run(p:Player) = { p ! s"setting walls to: $m"; cube(p).floor.foreach(_ changeTo m) }
     }
 
     type Effects = List[Effect]
@@ -304,7 +308,6 @@ class WorldEdit extends ListenersPlugin
     }
 
     def parseDef(a:Any): Def = {
-      //println(s"parse def: $a")
       def parseName(name:Any): Symbol = name match {
         case s:Symbol => s // TODO: check s against builtin things like X,Y,Z,etc
         case _ => sys error s"bad def name: $a"
@@ -366,135 +369,115 @@ class WorldEdit extends ListenersPlugin
       }
     }
 
-    def run(code:String, p:Player) = runProgram(parse(code), p)
+    def run(code:String, p:Player) = try {
+      val ast = parse(code)
+      println(ast)
+      runProgram(ast, p)
+    } catch {
+      case e: Exception =>
+        e.printStackTrace()
+        throw e
+    }
     def runProgram(prog:Program, p:Player) = new WorldEditInterp(p).evalProg(prog)
-    def runCompletely(code:String, p:Player): Unit = run(code, p)._2.foreach(_.run(p))
 
     case class WorldEditInterp(p:Player) {
       type Env = Map[Symbol,Value]
-      val emptyEnv: Env = Map()
-
       def defaultEnv: Env = Map(
-        'X -> DynamicValue(() => NumValue(p.x)),
-        'Y -> DynamicValue(() => NumValue(p.y)),
-        'Z -> DynamicValue(() => NumValue(p.z)),
+        'X   -> DynamicValue(() => NumValue(p.x)),
+        'Y   -> DynamicValue(() => NumValue(p.y)),
+        'Z   -> DynamicValue(() => NumValue(p.z)),
         'XYZ -> DynamicValue(() => LocationValue(p.loc))
       )
 
       // evaluates the defs in order (no forward references allowed)
       // then evaluates the body with the resulting environment
-      def evalProg(prog:Program): (Value,Effects) = {
-        val s: State[Effects,Value] = for {
-          env <- prog.defs.foldLeft(pure(defaultEnv)){ (accS, d) =>
-            for{ acc <- accS; more <- evalDef(acc, d) } yield more
-          }
-          res <- eval(prog.body, env)
-        } yield res
-        s(List[Effect]()).swap
-      }
+      def evalProg(prog:Program): Value =
+        eval(prog.body, prog.defs.foldLeft(defaultEnv)(evalDef))
 
       // extends the env, and collects side effects for vals
-      def evalDef(env: Env, d:Def): State[Effects,Env] = d match {
-        case Defn(name:Symbol, lam:Lambda) => pure(env + (name -> FunValue(lam)))
-        case Val (name:Symbol, expr:Expr)  => for(ev <- eval(expr, env)) yield env + (name -> ev)
-      }
-
-      def pure[A](a:A): State[Effects,A] = State(s => (s,a))
-      def addSideEffect(f: Effect): State[Effects, Value] = State(s => (s ::: List(f), Unit))
-      def sideEffect(e: Effect): State[Effects, Value] = for(_ <- addSideEffect(e)) yield Unit
+      def evalDef(env: Env, d:Def): Env = env + (d match {
+        case Defn(name, lam)  => name -> FunValue(lam)
+        case Val (name, expr) => name -> eval(expr, env)
+      })
 
       def reduce(v:Value) = v match {
         case DynamicValue(f) => f()
         case _ => v
       }
 
-      def eval(e:Expr, env:Map[Symbol,Value]): State[Effects, Value] = e match {
-        case l@Lambda(_, _) => pure(FunValue(l))
-        case Let(x:Symbol, e:Expr, body:Expr) =>
-          for{
-            ev <- eval(e,env)
-            bv <- eval(body, env + (x -> ev))
-          } yield bv
-        case IfStatement(e:Expr, truePath:Expr, falsePath:Expr) =>
-          for {
-            ev <- eval(e, env)
-            resv <- reduce(ev) match {
+      def eval(e:Expr, env:Map[Symbol,Value]): Value = {
+        //println(e)
+        e match {
+          case l@Lambda(_, _) => FunValue(l)
+          case Let(x:Symbol, e:Expr, body:Expr) =>
+            eval(body, env + (x -> eval(e,env)))
+          case IfStatement(e:Expr, truePath:Expr, falsePath:Expr) =>
+            reduce(eval(e, env)) match {
               case BoolValue(true)  => eval(truePath,  env)
               case BoolValue(false) => eval(falsePath, env)
               case ev => sys error s"bad if predicate: $ev"
             }
-          } yield resv
-        case Variable(s) => pure(env.get(s).getOrElse(sys error s"not found: ${s.toString.drop(1)}"))
-        case App(f:Expr, args:List[Expr]) =>
-          for{
-            fv    <- eval(f, env)
-            argvs <- (args map (eval(_, env))).sequence[X,Value]
-            res   <- reduce(fv) match {
+          case Variable(s) => env.get(s).getOrElse(sys error s"not found: ${s.toString.drop(1)}")
+          case App(f:Expr, args:List[Expr]) =>
+            reduce(eval(f, env)) match {
               // todo: make sure formals.size == args.size...
-              case FunValue(Lambda(formals, body)) => eval(body, env ++ formals.zip(argvs))
+              // or partially apply?
+              case FunValue(Lambda(formals, body)) =>
+                eval(body, env ++ formals.zip(args map (eval(_, env))))
               case blah => sys error s"app expected a function, but got: $blah"
             }
-          } yield res
-        case Add(exps) =>
-          for(argvs <- (exps map (eval(_, env))).sequence[X,Value]) yield
-            NumValue(argvs.foldLeft(0){(acc,v) => reduce(v) match {
+          case Add(exps) =>
+            NumValue(exps.map(eval(_, env)).foldLeft(0){(acc,v) => reduce(v) match {
               case NumValue(i) => acc + i
               case blah => sys error s"add expected a number, but got: $blah"
             }})
-        case Subtract(a, b) => for{ av <- eval(a, env); bv <- eval(b, env) } yield
-          (reduce(av), reduce(bv)) match {
-            case (NumValue(av), NumValue(bv)) => NumValue(av - bv)
-            case (av,bv) => sys error s"subtract expected two numbers, but got: $av, $bv"
-          }
-        case Seqential(exps:List[Expr]) =>
-          for(argvs <- (exps map (eval(_, env))).sequence[X,Value]) yield argvs.last
-        case SetCorners(e1:Expr,e2:Expr) => for {
-          l1 <- evalToLoc(e1,env)
-          l2 <- evalToLoc(e2,env)
-          _ <- addSideEffect(SetCornersEffect(l1,l2))
-        } yield Unit
-        case Goto(l:Expr) => locationSideEffect(l, env, GotoEffect(_))
-        case Pos1(l:Expr) => locationSideEffect(l, env, SetFirstPosEffect(_))
-        case Pos2(l:Expr) => locationSideEffect(l, env, SetSecondPosEffect(_))
-        case SetMaterial(m) => sideEffect(SetMaterialEffect(m))
-        case Change(oldM, newM) => sideEffect(ChangeEffect(oldM, newM))
-        case SetWalls(m) => sideEffect(SetWallsEffect(m))
-        case SetFloor(m) => sideEffect(SetFloorEffect(m))
-        case Loc(x:Expr, y:Expr, z:Expr) =>
-          for(xe <- eval(x,env); ye <- eval(y,env); ze <- eval(z,env)) yield
-            (reduce(xe),reduce(ye),reduce(ze)) match {
+          case Subtract(a, b) =>
+            (reduce(eval(a, env)), reduce(eval(b, env))) match {
+              case (NumValue(av), NumValue(bv)) => NumValue(av - bv)
+              case (av,bv) => sys error s"subtract expected two numbers, but got: $av, $bv"
+            }
+          case Seqential(exps:List[Expr]) => exps.map(eval(_, env)).last
+          case SetCorners(e1:Expr,e2:Expr) =>
+            sideEffect(SetCornersEffect(evalToLoc(e1,env),evalToLoc(e2,env)))
+          case Goto(l:Expr)       => sideEffect(GotoEffect(evalToLoc(l,env)))
+          case Pos1(l:Expr)       => sideEffect(SetFirstPosEffect(evalToLoc(l,env)))
+          case Pos2(l:Expr)       => sideEffect(SetSecondPosEffect(evalToLoc(l,env)))
+          case SetMaterial(m)     => sideEffect(SetMaterialEffect(m))
+          case Change(oldM, newM) => sideEffect(ChangeEffect(oldM, newM))
+          case SetWalls(m)        => sideEffect(SetWallsEffect(m))
+          case SetFloor(m)        => sideEffect(SetFloorEffect(m))
+          case Loc(x:Expr, y:Expr, z:Expr) =>
+            val (xe,ye,ze) = (reduce(eval(x,env)),reduce(eval(y,env)),reduce(eval(z,env)))
+            (xe,ye,ze) match {
               case (NumValue(xv), NumValue(yv), NumValue(zv)) =>
                 LocationValue(new Location(p.world,xv,yv,zv))
               case _ => sys error s"bad location data: ${(xe,ye,ze)}"
             }
-        case Origin  => pure(LocationValue(p.world.getHighestBlockAt(0,0)))
-        case MaxY    => pure(NumValue(255))
-        case MinY    => pure(NumValue(0))
-        case Num(i)  => pure(NumValue(i))
-        case Bool(b) => pure(BoolValue(b))
-        case Eq(a, b) => for{ av <- eval(a, env); bv <- eval(b, env) } yield
-          (reduce(av), reduce(bv)) match {
-            case (NumValue(av),  NumValue(bv))  => BoolValue(av == bv)
-            case (BoolValue(av), BoolValue(bv)) => BoolValue(av == bv)
-            case _ => BoolValue(false)
-          }
+          case Origin  => LocationValue(p.world.getHighestBlockAt(0,0))
+          case MaxY    => NumValue(255)
+          case MinY    => NumValue(0)
+          case Num(i)  => NumValue(i)
+          case Bool(b) => BoolValue(b)
+          case Eq(a,b) =>
+            (reduce(eval(a, env)), reduce(eval(b, env))) match {
+              case (NumValue(av),  NumValue(bv))  => BoolValue(av == bv)
+              case (BoolValue(av), BoolValue(bv)) => BoolValue(av == bv)
+              case _                              => BoolValue(false)
+            }
+        }
       }
-      def evalToLoc(e:Expr, env:Env): State[List[Effect],Location] =
-        for(ev <- eval(e,env)) yield reduce(ev) match {
+      def evalToLoc(e:Expr, env:Env): Location =
+        reduce(eval(e,env)) match {
           case LocationValue(l) => l
           case ev => sys error s"not a location: $ev"
         }
-      def locationSideEffect(e:Expr, env:Env, f: Location => Effect): State[Effects, Value] =
-        for(l <- evalToLoc(e,env); _ <- addSideEffect(f(l))) yield Unit
-
+      def sideEffect(e:Effect): Value = { e.run(p); UnitValue }
       //    def apply(p:Player, nodes:List[BuiltIn]): Unit = nodes.foreach(apply(p, _))
       //    def apply(p:Player, code:String): Unit = attempt(p, { println(code); apply(p, p.parse(code)) })
       //    def apply(p:Player, commands:TraversableOnce[String]): Unit = apply(p, commands.mkString(" "))
       //    def apply(p:Player, f:File): Unit = attempt(p, apply(p, Source.fromFile(f).getLines))
     }
   }
-
-
 }
 
 import javax.persistence._
