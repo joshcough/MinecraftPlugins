@@ -8,9 +8,9 @@ import org.bukkit.entity.Player
 import Material._
 import java.io.File
 import scala.io.Source
-import scalaz._
-import std.list._
-import scalaz.syntax.traverse._
+//import scalaz._
+//import std.list._
+//import scalaz.syntax.traverse._
 
 class WorldEdit extends ListenersPlugin
   with CommandsPlugin with SingleClassDBPlugin[Script] {
@@ -24,38 +24,26 @@ class WorldEdit extends ListenersPlugin
     OnRightClickBlock((p, e) => if(p isHoldingA WOOD_AXE) { setSecondPos(p, e.loc) })
   )
 
-
   val house = """
     (
+      (def roof (bigx bigz smallx smallz y m)
+        (if (eq bigx smallx) unit
+          (begin
+            (corners (loc bigx y bigz) (loc smallx y smallz))
+            (setall m)
+            (roof (- bigx 1) (- bigz 1) (+ smallx 1) (+ smallz 1) (+ 1 y) m)
+          )
+        )
+      )
       (def house (w h d)
-        (seq
-          ; build walls and floor
-          (goto origin)
+        (begin
           (corners (loc w (+ Y h) d) (loc (- 0 w) Y (- 0 d)))
-          (walls brick)
-          (floor stone)
+          (setall (material "air"))
+          ; build walls and floor
+          (floor (material "stone"))
+          (walls (material "brick"))
           ; build roof
-                          ; 6, 13, 6                        ; -6, 13, -6
-          (corners   (loc (+ 1 w) (+ Y h 1) (+ 1 d))   (loc (- -1 w) (+ Y h 1) (- -1 d)))
-          (set wood)
-                          ; 5, 14, 5                        ; -5, 14, -5
-          (corners   (loc w (+ Y h 2) d)               (loc (- 0 w) (+ Y h 2) (- 0 d)))
-          (set wood)
-                          ; 4, 15, 4                        ; -4, 15, -4
-          (corners   (loc (- w 1) (+ Y h 3) (- d 1))   (loc (- 1 w) (+ Y h 3) (- 1 d)))
-                          ; 3, 16, 3                        ; -3, 16, -3
-          (corners   (loc (- w 2) (+ Y h 4) (- d 2))   (loc (- 2 w) (+ Y h 4) (- 2 d)))
-          (set wood)
-                          ; 2, 17, 2                        ; -2, 17, -2
-          (corners   (loc (- w 3) (+ Y h 5) (- d 3))   (loc (- 3 w) (+ Y h 5) (- 3 d)))
-                          ; 1, 18, 1                        ; -1, 18, -1
-          (set wood)
-          (corners   (loc (- w 4) (+ Y h 6) (- d 4))   (loc (- 4 w) (+ Y h 6) (- 4 d)))
-                          ; 1, 18, 1                        ; -1, 18, -1
-          (set wood)
-                          ; 0, 19, 0                        ; 0, 19, 0
-          (corners   (loc (- w 5) (+ Y h 7) (- d 5))   (loc (- 5 w) (+ Y h 7) (- 5 d)))
-          (set wood)
+          (roof (+ 1 w) (+ 1 d) (- -1 w) (- -1 d) (+ Y h 1) (material "wood"))
         )
       )
       (house 5 8 5)
@@ -231,27 +219,29 @@ class WorldEdit extends ListenersPlugin
     case class Goto(l:Expr)extends Expr
     case class Pos1(l:Expr)extends Expr
     case class Pos2(l:Expr)extends Expr
-    case class SetMaterial(m:Material)extends Expr
-    case class Change(m1:Material, m2:Material)extends Expr
-    case class SetWalls(m:Material)extends Expr
-    case class SetFloor(m:Material)extends Expr
+    case class GetMaterial(m:Expr)extends Expr
+    case class SetMaterial(m:Expr)extends Expr
+    case class Change(m1:Expr, m2:Expr)extends Expr
+    case class SetWalls(m:Expr)extends Expr
+    case class SetFloor(m:Expr)extends Expr
     case class Loc(x:Expr, y:Expr, z:Expr) extends Expr
     case object Origin extends Expr
-    case object MaxY extends Expr
-    case object MinY extends Expr
-    case class Num(i:Int) extends Expr
     case class Bool(b:Boolean) extends Expr
+    case class Num(i:Int) extends Expr
+    case class StringExpr(s:String) extends Expr
     case class Eq(e1:Expr, e2:Expr) extends Expr
     case class Variable(s:Symbol) extends Expr
     case class Add(args:List[Expr]) extends Expr
     case class Subtract(a:Expr, b:Expr) extends Expr
+    case object UnitExpr extends Expr
 
     sealed trait Value
+    case class   FunValue(l:Lambda)        extends Value
     case class   MaterialValue(m:Material) extends Value
     case class   LocationValue(l:Location) extends Value
-    case class   FunValue(l:Lambda)        extends Value
-    case class   NumValue(n:Int)           extends Value
     case class   BoolValue(b:Boolean)      extends Value
+    case class   NumValue(n:Int)           extends Value
+    case class   StringValue(s:String)     extends Value
     case class   DynamicValue(n: () => Value)    extends Value
     case object  UnitValue extends Value
 
@@ -292,9 +282,6 @@ class WorldEdit extends ListenersPlugin
       def run(p:Player) = { p ! s"setting walls to: $m"; cube(p).floor.foreach(_ changeTo m) }
     }
 
-    type Effects = List[Effect]
-    type X[T] = State[Effects, T]
-
     def parse(code:String): Program = parseProgram(io.Reader read code)
 
     def parseProgram(a:Any): Program = {
@@ -333,7 +320,6 @@ class WorldEdit extends ListenersPlugin
     }
 
     def parseExpr(a:Any): Expr = {
-      def parseMaterial(a:Any) = BasicMinecraftParsers.material(a.toString.drop(1)).get
       a match {
         case List('lam, args, body) => parseLambda(args, body)
         case List('let, List(arg, expr), body) => arg match {
@@ -341,7 +327,7 @@ class WorldEdit extends ListenersPlugin
           case _ => sys error s"bad let argument: $a"
         }
         case List('if,pred,tru,fals) => IfStatement(parseExpr(pred),parseExpr(tru),parseExpr(fals))
-        case 'seq :: body => Seqential(body map parseExpr)
+        case 'begin :: body => Seqential(body map parseExpr)
         // location based prims
         case List('goto, loc)       => Goto(parseExpr(loc))
         case List('pos1, loc)       => Pos1(parseExpr(loc))
@@ -350,22 +336,22 @@ class WorldEdit extends ListenersPlugin
         case 'origin => Origin
         case List('loc, x, y, z)    => Loc(parseExpr(x),parseExpr(y),parseExpr(z))
         // material based prims
-        case List('set, m)          => SetMaterial(parseMaterial(m))
-        case List('change, m1, m2)  => Change(parseMaterial(m1), parseMaterial(m2))
-        case List('walls, m)        => SetWalls(parseMaterial(m))
-        case List('floor, m)        => SetFloor(parseMaterial(m))
+        case List('material, m)     => GetMaterial(parseExpr(m))
+        case List('setall, m)       => SetMaterial(parseExpr(m))
+        case List('change, m1, m2)  => Change(parseExpr(m1), parseExpr(m2))
+        case List('walls, m)        => SetWalls(parseExpr(m))
+        case List('floor, m)        => SetFloor(parseExpr(m))
         // other prims
-        case i: Int => Num(i)
-        case 'true  => Bool(true)
-        case 'false => Bool(false)
-        case List('eq, e1, e2) => Eq(parseExpr(e1),parseExpr(e2))
-        case s:Symbol => Variable(s)
+        case i: Int                 => Num(i)
+        case List('eq, e1, e2)      => Eq(parseExpr(e1),parseExpr(e2))
+        case s:Symbol               => Variable(s)
+        case s:String               => StringExpr(s)
         // math operations
-        case '+ :: e :: es => Add((e::es) map parseExpr)
-        case '- :: a :: b :: Nil => Subtract(parseExpr(a), parseExpr(b))
+        case '+ :: e :: es          => Add((e::es) map parseExpr)
+        case '- :: a :: b :: Nil    => Subtract(parseExpr(a), parseExpr(b))
         // finally, function application
-        case f :: args => App(parseExpr(f), args map parseExpr)
-        case _      => sys error s"bad expression: $a"
+        case f :: args              => App(parseExpr(f), args map parseExpr)
+        case _                      => sys error s"bad expression: $a"
       }
     }
 
@@ -383,10 +369,16 @@ class WorldEdit extends ListenersPlugin
     case class WorldEditInterp(p:Player) {
       type Env = Map[Symbol,Value]
       def defaultEnv: Env = Map(
-        'X   -> DynamicValue(() => NumValue(p.x)),
-        'Y   -> DynamicValue(() => NumValue(p.y)),
-        'Z   -> DynamicValue(() => NumValue(p.z)),
-        'XYZ -> DynamicValue(() => LocationValue(p.loc))
+        'MAXY  -> NumValue(255),
+        'MINY  -> NumValue(0),
+        'X     -> DynamicValue(() => NumValue(p.x)),
+        'X     -> DynamicValue(() => NumValue(p.x)),
+        'Y     -> DynamicValue(() => NumValue(p.blockOn.y)),
+        'Z     -> DynamicValue(() => NumValue(p.z)),
+        'XYZ   -> DynamicValue(() => LocationValue(p.loc)),
+        'true  -> BoolValue(true),
+        'false -> BoolValue(false),
+        'unit  -> UnitValue
       )
 
       // evaluates the defs in order (no forward references allowed)
@@ -442,10 +434,14 @@ class WorldEdit extends ListenersPlugin
           case Goto(l:Expr)       => sideEffect(GotoEffect(evalToLoc(l,env)))
           case Pos1(l:Expr)       => sideEffect(SetFirstPosEffect(evalToLoc(l,env)))
           case Pos2(l:Expr)       => sideEffect(SetSecondPosEffect(evalToLoc(l,env)))
-          case SetMaterial(m)     => sideEffect(SetMaterialEffect(m))
-          case Change(oldM, newM) => sideEffect(ChangeEffect(oldM, newM))
-          case SetWalls(m)        => sideEffect(SetWallsEffect(m))
-          case SetFloor(m)        => sideEffect(SetFloorEffect(m))
+          case GetMaterial(m)     => reduce(eval(m,env)) match {
+            case StringValue(s) => MaterialValue(BasicMinecraftParsers.material(s).get)
+            case ev             => sys error s"not a location: $ev"
+          }
+          case SetMaterial(m)     => sideEffect(SetMaterialEffect(evalToMaterial(m,env)))
+          case Change(oldM, newM) => sideEffect(ChangeEffect(evalToMaterial(oldM,env), evalToMaterial(newM,env)))
+          case SetWalls(m)        => sideEffect(SetWallsEffect(evalToMaterial(m,env)))
+          case SetFloor(m)        => sideEffect(SetFloorEffect(evalToMaterial(m,env)))
           case Loc(x:Expr, y:Expr, z:Expr) =>
             val (xe,ye,ze) = (reduce(eval(x,env)),reduce(eval(y,env)),reduce(eval(z,env)))
             (xe,ye,ze) match {
@@ -454,24 +450,33 @@ class WorldEdit extends ListenersPlugin
               case _ => sys error s"bad location data: ${(xe,ye,ze)}"
             }
           case Origin  => LocationValue(p.world.getHighestBlockAt(0,0))
-          case MaxY    => NumValue(255)
-          case MinY    => NumValue(0)
-          case Num(i)  => NumValue(i)
           case Bool(b) => BoolValue(b)
+          case Num(i)  => NumValue(i)
+          case StringExpr(i)  => StringValue(i)
           case Eq(a,b) =>
             (reduce(eval(a, env)), reduce(eval(b, env))) match {
-              case (NumValue(av),  NumValue(bv))  => BoolValue(av == bv)
-              case (BoolValue(av), BoolValue(bv)) => BoolValue(av == bv)
+              case (NumValue(av),      NumValue(bv))      => BoolValue(av == bv)
+              case (BoolValue(av),     BoolValue(bv))     => BoolValue(av == bv)
+              case (StringValue(av),   StringValue(bv))   => BoolValue(av == bv)
+              case (MaterialValue(av), MaterialValue(bv)) => BoolValue(av == bv)
+              case (LocationValue(av), LocationValue(bv)) => BoolValue(av == bv)
               case _                              => BoolValue(false)
             }
+          case UnitExpr => UnitValue
         }
       }
       def evalToLoc(e:Expr, env:Env): Location =
         reduce(eval(e,env)) match {
           case LocationValue(l) => l
-          case ev => sys error s"not a location: $ev"
+          case ev => sys error s"not a location: $e"
+        }
+      def evalToMaterial(e:Expr, env:Env): Material =
+        reduce(eval(e,env)) match {
+          case MaterialValue(l) => l
+          case ev => sys error s"not a material: $e"
         }
       def sideEffect(e:Effect): Value = { e.run(p); UnitValue }
+
       //    def apply(p:Player, nodes:List[BuiltIn]): Unit = nodes.foreach(apply(p, _))
       //    def apply(p:Player, code:String): Unit = attempt(p, { println(code); apply(p, p.parse(code)) })
       //    def apply(p:Player, commands:TraversableOnce[String]): Unit = apply(p, commands.mkString(" "))

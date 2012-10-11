@@ -36,7 +36,7 @@ trait Reader {
     }
 
     def readStringLit(stream: List[Char], acc: String): (String, List[Char]) = stream match {
-      case '"' :: tail => (acc + '"', tail)
+      case '"' :: tail => (acc, tail)
       case c   :: tail => readStringLit(tail, acc + c)
       case List()      => error("unclosed string literal")
     }
@@ -51,7 +51,7 @@ trait Reader {
       case '['  ::  tail => readList(stream=tail, acc=Nil, terminator=']')
       case ' '  ::  tail => readWithRest(tail)
       case '\n' ::  tail => readWithRest(tail)
-      case '"'  ::  tail => readStringLit(tail, "\"")
+      case '"'  ::  tail => readStringLit(tail, "")
       case '\'' ::  tail => readCharLit(tail)
       case ')'  ::  _    => error("unexpected list terminator")
       case ']'  ::  _    => error("unexpected list terminator")
