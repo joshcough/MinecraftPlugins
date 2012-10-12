@@ -8,9 +8,6 @@ import org.bukkit.entity.Player
 import Material._
 import java.io.File
 import scala.io.Source
-//import scalaz._
-//import std.list._
-//import scalaz.syntax.traverse._
 
 class WorldEdit extends ListenersPlugin
   with CommandsPlugin with SingleClassDBPlugin[Script] {
@@ -27,7 +24,7 @@ class WorldEdit extends ListenersPlugin
   val house = """
     (
       (def roof (bigx bigz smallx smallz y m)
-        (if (eq bigx smallx) unit
+        (if (or (eq bigx smallx) (eq bigz smallz)) unit
           (begin
             (corners (loc bigx y bigz) (loc smallx y smallz))
             (setall m)
@@ -190,16 +187,6 @@ class WorldEdit extends ListenersPlugin
 //  def createScript(p: Player, title:String, commands:String): Script = {
 //    val s = new Script(); s.player = p.name; s.title = title; s.commandsString = commands; s
 //  }
-//
-//  val testScript =
-//    """
-//     ((goto origin)
-//      (corners ((+ X 20) (+ Y 50) (+ Z 20)) ((- X 20) Y (- Z 20)))
-//      (floor stone)
-//      (walls brick)
-//     )
-//    """.stripMargin.trim
-
 
   object WorldEditLang extends EnrichmentClasses {
 
@@ -214,7 +201,7 @@ class WorldEdit extends ListenersPlugin
     case class Let(x:Symbol, e:Expr, body:Expr) extends Expr
     case class IfStatement(e:Expr, truePath:Expr, falsePath:Expr) extends Expr
     case class App(f:Expr, args:List[Expr]) extends Expr
-    case class Seqential(exps:List[Expr]) extends Expr
+    case class Sequential(exps:List[Expr]) extends Expr
     case class SetCorners(l1:Expr,l2:Expr)extends Expr
     case class Goto(l:Expr)extends Expr
     case class Pos1(l:Expr)extends Expr
@@ -282,7 +269,9 @@ class WorldEdit extends ListenersPlugin
       def run(p:Player) = { p ! s"setting walls to: $m"; cube(p).floor.foreach(_ changeTo m) }
     }
 
-    def parse(code:String): Program = parseProgram(io.Reader read code)
+    def read(code:String): Any = io.Reader read code
+
+    def parse(code:String): Program = parseProgram(read(code))
 
     def parseProgram(a:Any): Program = {
       //println(a)
@@ -327,7 +316,7 @@ class WorldEdit extends ListenersPlugin
           case _ => sys error s"bad let argument: $a"
         }
         case List('if,pred,tru,fals) => IfStatement(parseExpr(pred),parseExpr(tru),parseExpr(fals))
-        case 'begin :: body => Seqential(body map parseExpr)
+        case 'begin :: body => Sequential(body map parseExpr)
         // location based prims
         case List('goto, loc)       => Goto(parseExpr(loc))
         case List('pos1, loc)       => Pos1(parseExpr(loc))
@@ -368,7 +357,8 @@ class WorldEdit extends ListenersPlugin
 
     case class WorldEditInterp(p:Player) {
       type Env = Map[Symbol,Value]
-      def defaultEnv: Env = Map(
+
+      val defaultEnv: Env = Map(
         'MAXY  -> NumValue(255),
         'MINY  -> NumValue(0),
         'X     -> DynamicValue(() => NumValue(p.x)),
@@ -381,10 +371,19 @@ class WorldEdit extends ListenersPlugin
         'unit  -> UnitValue
       )
 
+      val boolLib = List(
+        "(def and (a b) (if a b false))",
+        "(def or  (a b) (if a true b))",
+        "(def zero? (x) (if (eq x 0) true false))",
+        "(def not (x) (if x 1 0))"
+      ).map(s => parseDef(read(s)))
+
+      def debug[T](t: => T): T = { println(t); t }
+
       // evaluates the defs in order (no forward references allowed)
       // then evaluates the body with the resulting environment
       def evalProg(prog:Program): Value =
-        eval(prog.body, prog.defs.foldLeft(defaultEnv)(evalDef))
+        eval(prog.body, (boolLib ::: prog.defs).foldLeft(defaultEnv)(evalDef))
 
       // extends the env, and collects side effects for vals
       def evalDef(env: Env, d:Def): Env = env + (d match {
@@ -428,7 +427,7 @@ class WorldEdit extends ListenersPlugin
               case (NumValue(av), NumValue(bv)) => NumValue(av - bv)
               case (av,bv) => sys error s"subtract expected two numbers, but got: $av, $bv"
             }
-          case Seqential(exps:List[Expr]) => exps.map(eval(_, env)).last
+          case Sequential(exps:List[Expr]) => exps.map(eval(_, env)).last
           case SetCorners(e1:Expr,e2:Expr) =>
             sideEffect(SetCornersEffect(evalToLoc(e1,env),evalToLoc(e2,env)))
           case Goto(l:Expr)       => sideEffect(GotoEffect(evalToLoc(l,env)))
