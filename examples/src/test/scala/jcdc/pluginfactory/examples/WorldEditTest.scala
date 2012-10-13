@@ -31,32 +31,42 @@ object WorldEditTest extends Properties("MinecraftParserTests") {
       (let (g 9) (d g 7))
     )
   """
-//
-//  property("origin")  = secure { parseExpr("origin") }
-//  property("XYZ")     = secure { parseExpr("XYZ") }
-//  property("(5 6 7)") = secure { parseExpr("(loc 5 6 7)") }
-//  property("(5 Y 7)") = secure { parseExpr("(loc 5 Y 7)") }
-//  property("((+ 5 10) Y 7)")        = secure { parseExpr("(loc (+ 5 10) Y 7)") }
-//  property("((+ X 20) Y (+ Z 20))") = secure { parseExpr("(loc (+ X 20) Y (+ Z 20))") }
-//  property("((- X 20) Y (- Z 20))") = secure { parseExpr("(loc (- X 20) Y (- Z 20))") }
-//  property("((- 5 10) (+ Y 20) Z)") = secure { parseExpr("(loc (- 5 10) (+ Y 20) Z)") }
-//  property("origin")  = secure { parseExpr("(set stone)") }
-//  property("((goto origin))") = secure { run("((goto origin))") }
-//  property("(corners XYZ origin)") = secure { run("((corners XYZ origin))") }
-//  property("(corners XYZ (5 6 7))") = secure { run("((corners XYZ (loc 5 6 7)))") }
-//  property("(corners (loc (+ X 20) Y (+ Z 20)) (loc (+ X 20) Y (+ Z 20)))") =
-//    secure { run("((corners (loc (+ X 20) Y (+ Z 20)) (loc (+ X 20) Y (+ Z 20))))") }
-//  property("(set stone)")   = secure { run("((set stone))") }
-//  property("(walls brick)") = secure { run("((walls brick))") }
-//  property("testScriptFull") = secure { parseExpr(testScriptFull) }
-//  property("testScriptFull") = secure { run(testScriptFull) }
-//  property("valTest") = secure { parse(valTest) }
-//  property("valTest") = secure { run  (valTest) }
-//  property("defTest") = secure { parse(defTest) }
-//  property("defTest") = secure { run  (defTest) }
-//
-//  property("houseTest") = secure { parse(house) }
+
+  val fact = """
+    ((defrec fact (n) (begin
+       (print n)
+       (if (eq n 0) 1 (* n (fact (- n 1))))
+     ))
+     (fact 5)
+    )
+    """
+
+  property("origin")  = secure { parseExpr("origin") }
+  property("XYZ")     = secure { parseExpr("XYZ") }
+  property("(5 6 7)") = secure { parseExpr("(loc 5 6 7)") }
+  property("(5 Y 7)") = secure { parseExpr("(loc 5 Y 7)") }
+  property("((+ 5 10) Y 7)")        = secure { parseExpr("(loc (+ 5 10) Y 7)") }
+  property("((+ X 20) Y (+ Z 20))") = secure { parseExpr("(loc (+ X 20) Y (+ Z 20))") }
+  property("((- X 20) Y (- Z 20))") = secure { parseExpr("(loc (- X 20) Y (- Z 20))") }
+  property("((- 5 10) (+ Y 20) Z)") = secure { parseExpr("(loc (- 5 10) (+ Y 20) Z)") }
+  property("origin")  = secure { parseExpr("(set stone)") }
+  property("((goto origin))") = secure { run("((goto origin))") }
+  property("(corners XYZ origin)") = secure { run("((corners XYZ origin))") }
+  property("(corners XYZ (5 6 7))") = secure { run("((corners XYZ (loc 5 6 7)))") }
+  property("(corners (loc (+ X 20) Y (+ Z 20)) (loc (+ X 20) Y (+ Z 20)))") =
+    secure { run("((corners (loc (+ X 20) Y (+ Z 20)) (loc (+ X 20) Y (+ Z 20))))") }
+  property("(set stone)")   = secure { run("((set stone))") }
+  property("(walls brick)") = secure { run("((walls brick))") }
+  property("testScriptFull") = secure { parseExpr(testScriptFull) }
+  property("testScriptFull") = secure { run(testScriptFull) }
+  property("valTest") = secure { parse(valTest) }
+  property("valTest") = secure { run  (valTest) }
+  property("defTest") = secure { parse(defTest) }
+  property("defTest") = secure { run  (defTest) }
+
+  property("houseTest") = secure { parse(house) }
   property("houseTest") = secure { run  (house) }
+  property("fact") = secure { run(fact) }
 
 
   def parseExpr(code:String): Boolean =
