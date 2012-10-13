@@ -203,54 +203,54 @@ object MineLang extends EnrichmentClasses {
     def cubeOp(name:String)(f: Cube => Cube) = builtIn(Symbol(name), (exps, env) => {
       CubeValue(f(evalToCube(exps(0), env)))
     })
-    val cubeMaxX = cubeIntGetter("cube-max-x", _.maxX)
-    val cubeMaxY = cubeIntGetter("cube-max-y", _.maxY)
-    val cubeMaxZ = cubeIntGetter("cube-max-z", _.maxZ)
-    val cubeMinX = cubeIntGetter("cube-min-x", _.minX)
-    val cubeMinY = cubeIntGetter("cube-min-y", _.minY)
-    val cubeMinZ = cubeIntGetter("cube-min-z", _.minZ)
+    val cubeMaxX = cubeIntGetter("cube:max-x", _.maxX)
+    val cubeMaxY = cubeIntGetter("cube:max-y", _.maxY)
+    val cubeMaxZ = cubeIntGetter("cube:max-z", _.maxZ)
+    val cubeMinX = cubeIntGetter("cube:min-x", _.minX)
+    val cubeMinY = cubeIntGetter("cube:min-y", _.minY)
+    val cubeMinZ = cubeIntGetter("cube:min-z", _.minZ)
 
-    val shrinkMinX = cubeIntOp("cube-shrink-min-x")(_ growMinXBy _)
-    val shrinkMinY = cubeIntOp("cube-shrink-min-y")(_ growMinYBy _)
-    val shrinkMinZ = cubeIntOp("cube-shrink-min-z")(_ growMinZBy _)
-    val growMaxX   = cubeIntOp("cube-grow-max-x")  (_ growMaxXBy _)
-    val growMaxY   = cubeIntOp("cube-grow-max-y")  (_ growMaxYBy _)
-    val growUp     = cubeIntOp("cube-grow-up")     (_ growMaxYBy _) // grow up is the same as growMaxY
-    val growMaxZ   = cubeIntOp("cube-grow-max-z")  (_ growMaxZBy _)
-    val expandX    = cubeIntOp("cube-expand-x")    (_ expandX _)
-    val expandZ    = cubeIntOp("cube-expand-z")    (_ expandZ _)
-    val expand     = cubeIntOp("cube-expand")      (_ expand _)
-    val expandOut  = cubeIntOp("cube-expand-out")  (_ expandOut _)
-    val shrinkIn   = cubeIntOp("cube-shrink-in")   (_ shrinkIn _)
-    val shiftX     = cubeIntOp("cube-shift-x")     (_ shiftX _)
-    val shiftY     = cubeIntOp("cube-shift-y")     (_ shiftY _)
-    val shiftZ     = cubeIntOp("cube-shift-z")     (_ shiftZ _)
+    val shrinkMinX = cubeIntOp("cube:shrink-min-x")(_ growMinXBy _)
+    val shrinkMinY = cubeIntOp("cube:shrink-min-y")(_ growMinYBy _)
+    val shrinkMinZ = cubeIntOp("cube:shrink-min-z")(_ growMinZBy _)
+    val growMaxX   = cubeIntOp("cube:grow-max-x")  (_ growMaxXBy _)
+    val growMaxY   = cubeIntOp("cube:grow-max-y")  (_ growMaxYBy _)
+    val growUp     = cubeIntOp("cube:grow-up")     (_ growMaxYBy _) // grow up is the same as growMaxY
+    val growMaxZ   = cubeIntOp("cube:grow-max-z")  (_ growMaxZBy _)
+    val expandX    = cubeIntOp("cube:expand-x")    (_ expandX _)
+    val expandZ    = cubeIntOp("cube:expand-z")    (_ expandZ _)
+    val expand     = cubeIntOp("cube:expand")      (_ expand _)
+    val expandOut  = cubeIntOp("cube:expand-out")  (_ expandOut _)
+    val shrinkIn   = cubeIntOp("cube:shrink-in")   (_ shrinkIn _)
+    val shiftX     = cubeIntOp("cube:shift-x")     (_ shiftX _)
+    val shiftY     = cubeIntOp("cube:shift-y")     (_ shiftY _)
+    val shiftZ     = cubeIntOp("cube:shift-z")     (_ shiftZ _)
 
-    val floor     = cubeOp("cube-floor")   (_.floor)
-    val ceiling   = cubeOp("cube-ceiling") (_.ceiling)
+    val floor     = cubeOp("cube:floor")   (_.floor)
+    val ceiling   = cubeOp("cube:ceiling") (_.ceiling)
 
 
     // here are all the cube block mutation functions.
-    val setAll = builtInUnit(Symbol("cube-set-all"), (exps, env) => {
+    val setAll = builtInUnit(Symbol("cube:set-all"), (exps, env) => {
       val c = evalToCube(exps(0), env)
       val m = evalToMaterial(exps(1), env)
       for(b <- c) b changeTo m
       p ! s"setting all in $c to $m"
     })
-    val changeSome = builtInUnit(Symbol("cube-change"), ((exps, env) => {
+    val changeSome = builtInUnit(Symbol("cube:change"), ((exps, env) => {
       val c    = evalToCube(exps(0), env)
       val oldM = evalToMaterial(exps(1),env)
       val newM = evalToMaterial(exps(2),env)
       for(b <- c; if(b is oldM)) b changeTo newM
       p ! s"changed $oldM in $c to $newM"
     }))
-    val setWalls = builtInUnit(Symbol("cube-set-walls"), ((exps, env) => {
+    val setWalls = builtInUnit(Symbol("cube:set-walls"), ((exps, env) => {
       val c = evalToCube(exps(0), env)
       val m = evalToMaterial(exps(1),env)
       c.walls.foreach(_ changeTo m)
       p ! s"set walls in $c to: $m"
     }))
-    val setFloor = builtInUnit(Symbol("cube-set-floor"), ((exps, env) => {
+    val setFloor = builtInUnit(Symbol("cube:set-floor"), ((exps, env) => {
       val c = evalToCube(exps(0), env)
       val m = evalToMaterial(exps(1),env)
       c.floor.foreach(_ changeTo m)
