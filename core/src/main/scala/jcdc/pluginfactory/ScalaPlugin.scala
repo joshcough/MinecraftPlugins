@@ -53,10 +53,5 @@ abstract class ScalaPlugin extends org.bukkit.plugin.java.JavaPlugin with Enrich
   def attempt(p:Player, f: => Unit): Unit = try f catch {
     case e: Exception => p ! s"$RED $e ${e.getMessage}\n${e.getStackTraceString}"
   }
-  def attemptT[T](p:Player, f: => T): T = try f catch {
-    case e: Exception =>
-      p ! s"$RED $e ${e.getMessage}\n${e.getStackTraceString}"
-      throw e
-  }
   def broadcast(message:String) = server.broadcastMessage(s"[$name] - $message")
 }

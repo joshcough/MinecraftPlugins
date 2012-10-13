@@ -59,7 +59,7 @@ object TestServer { ts =>
     def isEmpty: Boolean = true
     def getDrops(p1: ItemStack): util.Collection[ItemStack] = new util.LinkedList[ItemStack]()
     def getDrops: util.Collection[ItemStack] = new util.LinkedList[ItemStack]()
-    def getLocation: Location = origin
+    def getLocation: Location = new Location(world, x, y, z)
     def isBlockFaceIndirectlyPowered(p1: BlockFace): Boolean = false
     def getChunk: Chunk = chunk
     def breakNaturally(p1: ItemStack): Boolean = false
@@ -289,6 +289,9 @@ object TestServer { ts =>
   val origin: Location = new Location(world, 0, 4, 0)
 
   val player = new Player {
+    var x = 0d
+    var y = 4d
+    var z = 0d
     def setWhitelisted(p1: Boolean) {}
     def setPassenger(p1: Entity): Boolean = true
     def getType: EntityType = EntityType.UNKNOWN
@@ -425,10 +428,10 @@ object TestServer { ts =>
     def setDisplayName(p1: String) {}
     def resetPlayerTime {}
     def getActivePotionEffects: java.util.Collection[PotionEffect] = new java.util.LinkedList()
-    def teleport(p1: Entity, p2: TeleportCause): Boolean = false
-    def teleport(p1: Entity): Boolean = false
-    def teleport(p1: Location, p2: TeleportCause): Boolean = false
-    def teleport(p1: Location): Boolean = false
+    def teleport(p1: Entity, p2: TeleportCause): Boolean = teleport(p1.loc)
+    def teleport(p1: Entity): Boolean = teleport(p1.loc)
+    def teleport(l: Location, c: TeleportCause): Boolean = teleport(l)
+    def teleport(l: Location): Boolean = { x = l.xd; y = l.yd; z = l.zd; true }
     def getFirstPlayed: Long = 0
     def setTotalExperience(p1: Int) {}
     def saveData {}
@@ -452,7 +455,7 @@ object TestServer { ts =>
     def removeAttachment(p1: PermissionAttachment) {}
     def getAddress: InetSocketAddress = sys error "todo"
     def getExhaustion: Float = 0
-    def getLocation: Location = origin
+    def getLocation: Location = new Location(world, x, y, z)
     def getItemOnCursor: ItemStack = new ItemStack(Material.AIR)
     def getEyeLocation: Location = origin
     def isSprinting: Boolean = false
