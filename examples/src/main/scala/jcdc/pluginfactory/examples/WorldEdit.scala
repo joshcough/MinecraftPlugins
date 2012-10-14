@@ -23,10 +23,16 @@ class WorldEdit extends ListenersPlugin
 
   import MineLang._
 
-  val defs: List[Def] = parseDefs(read(MineLangExamples.houseDefs))
+  var defs: List[Def] = parseDefs(read(MineLangExamples.houseDefs))
+
+  def readFile(f:File) = Source.fromFile(f).getLines().mkString("\n")
 
   val commands = List(
     Command("house", "build a house", noArgs(MineLang.run(MineLangExamples.house, _))),
+
+    Command("import", "import some defs", args(existingFile){ case (_, codeFile) =>
+      defs = defs ::: parseDefs(read(readFile(codeFile)))
+    }),
 
     Command("interp", "run a program", args(slurp){ case (p, code) =>
       runProgram(Program(defs, parseExpr(read(code))), p)
