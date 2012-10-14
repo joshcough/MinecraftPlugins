@@ -2,9 +2,6 @@ package jcdc.pluginfactory
 
 import org.scalacheck.Properties
 import org.scalacheck.Prop._
-import jcdc.pluginfactory.{Cube, TestServer}
-import org.bukkit.entity.Player
-import org.bukkit.ChatColor._
 import MineLang._
 import MineLangExamples._
 
