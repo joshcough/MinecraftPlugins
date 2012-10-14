@@ -19,8 +19,8 @@ object MineLangTests extends Properties("MinecraftParserTests") {
      (fact 5)
     )
     """
-  val newTest = "((new jcdc.pluginfactory.examples.Point 5 6))"
-  val methodTest = "((.toString (new jcdc.pluginfactory.examples.Point 5 6)))"
+  val newTest     = "((new jcdc.pluginfactory.examples.Point 5 6))"
+  val methodTest  = "((.toString (new jcdc.pluginfactory.examples.Point 5 6)))"
   val methodTest2 = """((.indexOf (new jcdc.pluginfactory.examples.Point 5 6) "5" 0))"""
 
   evalTest("houseTest", house, UnitValue)
