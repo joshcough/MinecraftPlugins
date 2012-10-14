@@ -3,7 +3,6 @@ package jcdc.pluginfactory.examples
 import org.scalacheck.Properties
 import org.scalacheck.Prop._
 import jcdc.pluginfactory.{Cube, TestServer}
-import jcdc.pluginfactory.io.Reader
 import org.bukkit.entity.Player
 import org.bukkit.ChatColor._
 import MineLang._
@@ -14,9 +13,7 @@ object MineLangTests extends Properties("MinecraftParserTests") {
   val p = TestServer.player
 
   val fact = """
-    ((defrec fact (n)
-       (if (eq n 0) 1 (* n (fact (- n 1))))
-     )
+    ((defrec fact (n) (if (eq n 0) 1 (* n (fact (- n 1)))))
      (fact 5)
     )
     """

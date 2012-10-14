@@ -53,6 +53,15 @@ object MineLang extends EnrichmentClasses {
     }
   }
 
+  def parseDefs(a:Any): List[Def] = {
+    //println(a)
+    a match {
+      case Nil => sys error s"bad defs: $a"
+      case l@(x :: xs) => l map parseDef
+      case _ => sys error s"bad defs: $a"
+    }
+  }
+
   def parseDef(a:Any): Def = {
     def parseName(name:Any): Symbol = name match {
       case s:Symbol => s // TODO: check s against builtin things like X,Y,Z,etc

@@ -21,9 +21,17 @@ class WorldEdit extends ListenersPlugin
     OnRightClickBlock((p, e) => if(p isHoldingA WOOD_AXE) { setSecondPos(p, e.loc) })
   )
 
+  import MineLang._
+
+  val defs: List[Def] = parseDefs(read(MineLangExamples.houseDefs))
+
   val commands = List(
     Command("house", "build a house", noArgs(MineLang.run(MineLangExamples.house, _))),
-//    Command("test-script", "run the test script", noArgs(WorldEditInterp.apply(_, testScript))),
+
+    Command("interp", "run a program", args(slurp){ case (p, code) =>
+      runProgram(Program(defs, parseExpr(read(code))), p)
+    }),
+
 //    Command("code-book-example", "get a 'code book' example", args(anyString.?){ case (p, title) =>
 //      p.inventory addItem Book(author = p, title, pages =
 //        """
