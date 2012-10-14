@@ -8,39 +8,37 @@ import org.bukkit.ChatColor._
 import MineLang._
 import MineLangExamples._
 
-object MineLangTests extends Properties("MinecraftParserTests") {
+case class Point(x:Int, y:Int){
+  override def toString = s"($x,$y)"
+}
 
-  val p = TestServer.player
+object MineLangTests extends Properties("MinecraftParserTests") {
 
   val fact = """
     ((defrec fact (n) (if (eq n 0) 1 (* n (fact (- n 1)))))
      (fact 5)
     )
     """
+  val newTest = "((new jcdc.pluginfactory.examples.Point 5 6))"
+  val methodTest = "((.toString (new jcdc.pluginfactory.examples.Point 5 6)))"
+  val methodTest2 = """((.indexOf (new jcdc.pluginfactory.examples.Point 5 6) "5" 0))"""
 
-  property("houseTest") = secure { run  (house, UnitValue) }
-  property("fact") = secure { run(fact, NumValue(120)) }
-  property("expansionTest") = secure {
-    run(expansionTest, CubeValue(Cube(TestServer.world(12,3,12), TestServer.world(-2,3,-2))))
-  }
+  evalTest("houseTest", house, UnitValue)
+  evalTest("fact", fact, IntValue(120))
+  evalTest("expansionTest", expansionTest, CubeValue(Cube(TestServer.world(12,3,12), TestServer.world(-2,3,-2))))
+  evalTest("newTest", newTest, ObjectValue(Point(5,6)))
+  evalTest("methodTest", methodTest, StringValue("(5,6)"))
+  evalTest("methodTest2", methodTest2, IntValue(1))
+
+  def evalTest(name:String, code:String, expected:Value) =
+    property(name) = secure { run(code, expected) }
 
   def run(code:String, expected:AnyRef): Boolean = {
-    attemptT(p, {
-      println("running")
-      val actual = MineLang.run(code, p)
-      println(s"Result: $actual")
-      actual == expected
-    })
-  }
-
-  def attemptT[T](p:Player, f: => T): T = try f catch {
-    case e: Exception =>
-      println(s"$RED $e ${e.getMessage}\n${e.getStackTraceString}")
-      e.printStackTrace
-      throw e
+    val actual = MineLang.run(code, TestServer.player)
+    println(s"Result: $actual")
+    actual == expected
   }
 }
-
 
 //  val testScriptFull =
 //    """

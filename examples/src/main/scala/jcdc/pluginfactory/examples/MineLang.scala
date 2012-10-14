@@ -3,6 +3,7 @@ package jcdc.pluginfactory.examples
 import jcdc.pluginfactory.{BasicMinecraftParsers, io, Cube, EnrichmentClasses}
 import org.bukkit.{Location, Material}
 import org.bukkit.entity.Player
+import java.lang.reflect.{Constructor, Method}
 
 object MineLang extends EnrichmentClasses {
 
@@ -16,6 +17,8 @@ object MineLang extends EnrichmentClasses {
   case class Lambda(args:List[Symbol], body: Expr, recursive:Option[Symbol]) extends Expr
   case class Let(x:Symbol, e:Expr, body:Expr) extends Expr
   case class App(f:Expr, args:List[Expr]) extends Expr
+  case class New(className:Symbol, args:List[Expr]) extends Expr
+  case class MethodCall(obj:Expr, func:Symbol, args:List[Expr]) extends Expr
   case class Sequential(exps:List[Expr]) extends Expr
   case class Bool(b:Boolean) extends Expr
   case class Num(i:Int) extends Expr
@@ -32,8 +35,9 @@ object MineLang extends EnrichmentClasses {
   case class LocationValue(value:Location)    extends Value
   case class CubeValue(value:Cube)            extends Value
   case class BoolValue(value:Boolean)         extends Value
-  case class NumValue(value:Int)              extends Value
+  case class IntValue(value:Int)              extends Value
   case class StringValue(value:String)        extends Value
+  case class ObjectValue(value:Any)           extends Value
   case class DynamicValue(value: () => Value) extends Value
   case class BuiltinFunction(name: Symbol, eval: (List[Expr], Env) => Value) extends Value{
     val value = this
@@ -100,12 +104,22 @@ object MineLang extends EnrichmentClasses {
         case _ => sys error s"bad let argument: $a"
       }
       case 'begin :: body => Sequential(body map parseExpr)
+      case 'new :: Symbol(className) :: args => New(Symbol(className), args map parseExpr)
       // other prims
       case i: Int                 => Num(i)
       case s:Symbol               => Variable(s)
       case s:String               => StringExpr(s)
       // finally, function application
-      case f :: args              => App(parseExpr(f), args map parseExpr)
+      case f :: args              => {
+        parseExpr(f) match {
+          case v@Variable(s) if symbolToString(s).startsWith(".") =>
+            args match {
+              case a :: as => MethodCall(parseExpr(a), s, as map parseExpr)
+              case _ => sys error "reflective call with no object!"
+            }
+          case func =>  App(func, args map parseExpr)
+        }
+      }
       case _                      => sys error s"bad expression: $a"
     }
   }
@@ -132,7 +146,7 @@ object MineLang extends EnrichmentClasses {
     })
     val eqBuiltIn = builtIn('eq, (exps, env) =>
       (reduce(eval(exps(0), env)), reduce(eval(exps(1), env))) match {
-        case (NumValue(av),      NumValue(bv))      => BoolValue(av == bv)
+        case (IntValue(av),      IntValue(bv))      => BoolValue(av == bv)
         case (BoolValue(av),     BoolValue(bv))     => BoolValue(av == bv)
         case (StringValue(av),   StringValue(bv))   => BoolValue(av == bv)
         case (MaterialValue(av), MaterialValue(bv)) => BoolValue(av == bv)
@@ -144,9 +158,9 @@ object MineLang extends EnrichmentClasses {
     )
     val add = builtIn('+, (exps, env) => {
       val vals = exps.map(e => reduce(eval(e, env)))
-      if (vals.forall(_.isInstanceOf[NumValue])) // all numbers
-        NumValue(vals.foldLeft(0){(acc,v) => v match {
-          case NumValue(i) => acc + i
+      if (vals.forall(_.isInstanceOf[IntValue])) // all numbers
+        IntValue(vals.foldLeft(0){(acc,v) => v match {
+          case IntValue(i) => acc + i
           case _ => acc // impossible, but shuts the compiler up
         }})
       else if (vals.forall(_.isInstanceOf[StringValue])) // all strings
@@ -156,15 +170,15 @@ object MineLang extends EnrichmentClasses {
         }})
       else sys error s"+ expected all numbers or all strings, but got $vals"
     })
-    val abs = builtIn('abs, (exps, env) => NumValue(Math.abs(evalToInt(exps(0), env))))
+    val abs = builtIn('abs, (exps, env) => IntValue(Math.abs(evalToInt(exps(0), env))))
     def twoNumOp(name:Symbol)(f: (Int,Int) => Value) = builtIn(name, (exps, env) =>
       (reduce(eval(exps(0), env)), reduce(eval(exps(1), env))) match {
-        case (NumValue(av), NumValue(bv)) => f(av, bv)
-        case (av,bv) => sys error s"${name.toString.drop(1)} expected two numbers, but got: $av, $bv"
+        case (IntValue(av), IntValue(bv)) => f(av, bv)
+        case (av,bv) => sys error s"${symbolToString(name)} expected two numbers, but got: $av, $bv"
       }
     )
-    val sub  = twoNumOp('-) ((i,j) => NumValue(i - j))
-    val mult = twoNumOp('*) ((i,j) => NumValue(i * j))
+    val sub  = twoNumOp('-) ((i,j) => IntValue(i - j))
+    val mult = twoNumOp('*) ((i,j) => IntValue(i * j))
     val lt   = twoNumOp('<) ((i,j) => BoolValue(i < j))
     val gt   = twoNumOp('>) ((i,j) => BoolValue(i > j))
     val lteq = twoNumOp('<=)((i,j) => BoolValue(i <= j))
@@ -190,7 +204,7 @@ object MineLang extends EnrichmentClasses {
     val loc = builtIn('loc, (exps, env) => {
       val (xe,ye,ze) = (reduce(eval(exps(0),env)),reduce(eval(exps(1),env)),reduce(eval(exps(2),env)))
       (xe,ye,ze) match {
-        case (NumValue(xv), NumValue(yv), NumValue(zv)) =>
+        case (IntValue(xv), IntValue(yv), IntValue(zv)) =>
           LocationValue(new Location(p.world,xv,yv,zv))
         case _ => sys error s"bad location data: ${(xe,ye,ze)}"
       }
@@ -205,7 +219,7 @@ object MineLang extends EnrichmentClasses {
     })
 
     def cubeIntGetter(name:String, f: Cube => Int) =
-      builtIn(Symbol(name), (exps, env) => { NumValue(f(evalToCube(exps(0), env)))})
+      builtIn(Symbol(name), (exps, env) => { IntValue(f(evalToCube(exps(0), env)))})
     def cubeIntOp(name:String)(f: (Cube,Int) => Cube) = builtIn(Symbol(name), (exps, env) => {
       CubeValue(f(evalToCube(exps(0), env), evalToInt(exps(1), env)))
     })
@@ -237,7 +251,6 @@ object MineLang extends EnrichmentClasses {
 
     val floor     = cubeOp("cube:floor")   (_.floor)
     val ceiling   = cubeOp("cube:ceiling") (_.ceiling)
-
 
     // here are all the cube block mutation functions.
     val setAll = builtInUnit(Symbol("cube:set-all"), (exps, env) => {
@@ -276,12 +289,12 @@ object MineLang extends EnrichmentClasses {
       add, sub, mult, lt, lteq, gt, gteq, abs,
       // location functions
       loc, goto,
-      'MAXY   -> NumValue(255),
-      'MINY   -> NumValue(0),
-      'X      -> DynamicValue(() => NumValue(p.x)),
-      'X      -> DynamicValue(() => NumValue(p.x)),
-      'Y      -> DynamicValue(() => NumValue(p.blockOn.y)),
-      'Z      -> DynamicValue(() => NumValue(p.z)),
+      'MAXY   -> IntValue(255),
+      'MINY   -> IntValue(0),
+      'X      -> DynamicValue(() => IntValue(p.x)),
+      'X      -> DynamicValue(() => IntValue(p.x)),
+      'Y      -> DynamicValue(() => IntValue(p.blockOn.y)),
+      'Z      -> DynamicValue(() => IntValue(p.z)),
       'XYZ    -> DynamicValue(() => LocationValue(p.blockOn.loc)),
       'origin -> DynamicValue(() => LocationValue(p.world.getHighestBlockAt(0,0))),
       // material functions
@@ -325,13 +338,19 @@ object MineLang extends EnrichmentClasses {
       case _ => v
     }
 
-    def eval(e:Expr, env:Env): Value = try {
+    def eval(e:Expr, env:Env): Value = {
       //println(e)
       e match {
+        case Sequential(exps:List[Expr]) => exps.map(eval(_, env)).last
+        case Bool(b)       => BoolValue(b)
+        case Num(i)        => IntValue(i)
+        case StringExpr(i) => StringValue(i)
+        case EvaledExpr(v) => v
+        case UnitExpr      => UnitValue
+        case Variable(s) => env.get(s).getOrElse(sys error s"not found: $s in: ${env.keys}")
         case l@Lambda(_, _, _) => Closure(l, env)
         case Let(x:Symbol, e:Expr, body:Expr) =>
           eval(body, env + (x -> eval(e,env)))
-        case Variable(s) => env.get(s).getOrElse(sys error s"not found: $s in: ${env.keys}")
         case App(f:Expr, args:List[Expr]) =>
           reduce(eval(f, env)) match {
             // todo: make sure formals.size == args.size...
@@ -344,17 +363,35 @@ object MineLang extends EnrichmentClasses {
             case BuiltinFunction(name, f) => f(args, env)
             case blah => sys error s"app expected a function, but got: $blah"
           }
-        case Sequential(exps:List[Expr]) => exps.map(eval(_, env)).last
-        case Bool(b)       => BoolValue(b)
-        case Num(i)        => NumValue(i)
-        case StringExpr(i) => StringValue(i)
-        case EvaledExpr(v) => v
-        case UnitExpr      => UnitValue
+        // TODO: better error handling in almost all cases
+        case New(c, args) => {
+          // first, go look up the class by name
+          val clas: Class[_] = Class.forName(symbolToString(c))
+          // then eval all the arguments
+          val evaledArgs = args map (eval(_, env)) map (_.value)
+          // then look for the right constructor
+          val con = clas.getConstructor(getClasses(evaledArgs):_*)
+          // then call the constructor with the value (.value) of each of the args
+          // todo: this is somehow messed up...i cant call getValue here like i want to.
+          con.newInstance(evaledArgs.map(_.asInstanceOf[AnyRef]):_*) match {
+            // TODO: can i collapse all these Value classes into just ObjectValue?
+            case s:String                => StringValue(s)
+            case i:java.lang.Integer     => IntValue(i.intValue)
+            case b:java.lang.Boolean     => BoolValue(b.booleanValue)
+            case res                     => ObjectValue(res)
+          }
+        }
+        // TODO: better error handling in almost all cases
+        case MethodCall(ob, func, args) => {
+          // first, eval this dood to an object.
+          val o = evalToObject(ob, env)
+          // then eval all the arguments
+          val evaledArgs = args map (eval(_, env)) map (_.value)
+          // then lookup the function name via reflection
+          val method = o.getClass.getMethod(symbolToString(func).drop(1), getClasses(evaledArgs):_*)
+          getValue(method.invoke(o, evaledArgs.map(_.asInstanceOf[AnyRef]):_*))
+        }
       }
-    } catch{
-      case ex: Exception =>
-        //println(s"error evaluating: $e ${env.mkString("\n\t")}")
-        throw ex
     }
 
     def evalTo[T](e:Expr, env:Env, argType:String)(f: PartialFunction[Value, T]): T = {
@@ -363,17 +400,35 @@ object MineLang extends EnrichmentClasses {
       else sys error s"not a valid $argType: $v"
     }
     def evalToInt(e:Expr, env:Env): Int =
-      evalTo(e,env,"int"){ case NumValue(v) => v }
+      evalTo(e,env,"int"){ case IntValue(v) => v }
     def evalToLocation(e:Expr, env:Env): Location =
       evalTo(e,env,"location"){ case LocationValue(l) => l }
     def evalToMaterial(e:Expr, env:Env): Material =
       evalTo(e,env,"material"){ case MaterialValue(m) => m }
     def evalToCube(e:Expr, env:Env): Cube =
       evalTo(e,env,"cube"){ case CubeValue(c) => c }
+    def evalToObject(e:Expr, env:Env): Any =
+      evalTo(e,env,"object"){ case ObjectValue(o) => o }
+
+    def getValue(o:Object) = o match {
+      // TODO: can i collapse all these Value classes into just ObjectValue?
+      case s:String                => StringValue(s)
+      case i:java.lang.Integer     => IntValue(i.intValue)
+      case b:java.lang.Boolean     => BoolValue(b.booleanValue)
+      case res                     => ObjectValue(res)
+    }
+
+    def getClasses(as:List[Any]): List[Class[_]] = as map (_ match {
+      case i:Int     => classOf[Int]
+      case b:Boolean => classOf[Boolean]
+      case a         => a.getClass
+    })
 
     //    def apply(p:Player, nodes:List[BuiltIn]): Unit = nodes.foreach(apply(p, _))
     //    def apply(p:Player, code:String): Unit = attempt(p, { println(code); apply(p, p.parse(code)) })
     //    def apply(p:Player, commands:TraversableOnce[String]): Unit = apply(p, commands.mkString(" "))
     //    def apply(p:Player, f:File): Unit = attempt(p, apply(p, Source.fromFile(f).getLines))
   }
+
+  def symbolToString(s:Symbol) = s.toString.drop(1)
 }
