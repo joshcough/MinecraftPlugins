@@ -1,4 +1,4 @@
-package jcdc.pluginfactory.examples
+package jcdc.pluginfactory
 
 import org.scalacheck.Properties
 import org.scalacheck.Prop._

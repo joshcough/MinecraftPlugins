@@ -1,4 +1,4 @@
-package jcdc.pluginfactory.examples
+package jcdc.pluginfactory
 
 object MineLangExamples {
   val house =

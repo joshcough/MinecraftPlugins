@@ -1,4 +1,4 @@
-package jcdc.pluginfactory.examples
+package jcdc.pluginfactory
 
 import jcdc.pluginfactory.{BasicMinecraftParsers, io, Cube, EnrichmentClasses}
 import org.bukkit.{Location, Material}
@@ -396,8 +396,7 @@ object MineLang extends EnrichmentClasses {
 
     def evalTo[T](e:Expr, env:Env, argType:String)(f: PartialFunction[Value, T]): T = {
       val v = reduce(eval(e,env))
-      if(f.isDefinedAt(v)) f(v)
-      else sys error s"not a valid $argType: $v"
+      if(f isDefinedAt v) f(v) else sys error s"not a valid $argType: $v"
     }
     def evalToInt(e:Expr, env:Env): Int =
       evalTo(e,env,"int"){ case IntValue(v) => v }
