@@ -1,6 +1,5 @@
 package jcdc.pluginfactory
 
-import jcdc.pluginfactory.{BasicMinecraftParsers, io, Cube, EnrichmentClasses}
 import org.bukkit.{Location, Material}
 import org.bukkit.entity.Player
 import java.lang.reflect.{Constructor, Method}
@@ -368,9 +367,13 @@ object MineLang extends EnrichmentClasses {
           // first, go look up the class by name
           val clas: Class[_] = Class.forName(symbolToString(c))
           // then eval all the arguments
-          val evaledArgs = args map (eval(_, env)) map (_.value)
+          val evaledArgs = args map (e => reduce(eval(e, env))) map (_.value)
           // then look for the right constructor
-          val con = clas.getConstructor(getClasses(evaledArgs):_*)
+          val constructors = clas.getConstructors
+          val matches = constructors.filter(c => matchesAll(c.getParameterTypes, evaledArgs))
+          // todo: obviously do something better if there is no match here...
+          val con = matches(0)
+//          val con = clas.getConstructor(getClasses(evaledArgs):_*)
           // then call the constructor with the value (.value) of each of the args
           // todo: this is somehow messed up...i cant call getValue here like i want to.
           con.newInstance(evaledArgs.map(_.asInstanceOf[AnyRef]):_*) match {
@@ -388,7 +391,11 @@ object MineLang extends EnrichmentClasses {
           // then eval all the arguments
           val evaledArgs = args map (eval(_, env)) map (_.value)
           // then lookup the function name via reflection
-          val method = o.getClass.getMethod(symbolToString(func).drop(1), getClasses(evaledArgs):_*)
+          val methodName = symbolToString(func).drop(1)
+          val methods    = o.getClass.getMethods.filter(_.getName == methodName)
+          val matches    = methods.filter(m => matchesAll(m.getParameterTypes, evaledArgs))
+          // todo: obviously do something better if there is no match here...
+          val method     = matches(0)
           getValue(method.invoke(o, evaledArgs.map(_.asInstanceOf[AnyRef]):_*))
         }
       }
@@ -427,6 +434,20 @@ object MineLang extends EnrichmentClasses {
     //    def apply(p:Player, code:String): Unit = attempt(p, { println(code); apply(p, p.parse(code)) })
     //    def apply(p:Player, commands:TraversableOnce[String]): Unit = apply(p, commands.mkString(" "))
     //    def apply(p:Player, f:File): Unit = attempt(p, apply(p, Source.fromFile(f).getLines))
+  }
+
+  // TODO: repeat this for all AnyVal types.
+  def matchesAll(cs:Seq[Class[_]], as:Seq[Any]) = {
+//    println(s"matching $cs with $as")
+    def isInt(a:Any)  = a.isInstanceOf[Int] || a.isInstanceOf[Integer]
+    def isUnit(a:Any) = a.isInstanceOf[Unit] || a.isInstanceOf[scala.runtime.BoxedUnit]
+    def matches(c:Class[_], a:Any): Boolean =
+      if      (c == classOf[Int]     && isInt(a))  true
+      else if (c == classOf[Integer] && isInt(a))  true
+      else if (c == classOf[Unit]    && isUnit(a)) true
+      else if (c == classOf[scala.runtime.BoxedUnit] && isUnit(a)) true
+    else false
+    cs.size == as.size && cs.zip(as).forall((matches _).tupled)
   }
 
   def symbolToString(s:Symbol) = s.toString.drop(1)

@@ -33,7 +33,7 @@ object ParserCombinatorTests extends Properties("ParserCombinatorTests") with Pa
     (int+(is.map(_.toString)) ?= Success(is, Nil))
   }
 
-  property("+ on nil") = { int+(Nil) ?= Failure("expected number, got nothing") }
+  property("+ on nil") = { int+(Nil) ?= Failure("expected int, got nothing") }
 
   property("*") = forAll { (is:List[Int]) => int*(is.map(_.toString)) ?= Success(is, Nil) }
 }

@@ -1,12 +1,17 @@
 package jcdc.pluginfactory
 
 import org.scalacheck.Properties
-import org.scalacheck.Prop._
+import org.scalacheck.Prop.secure
 import MineLang._
 import MineLangExamples._
 
 case class Point(x:Int, y:Int){
+  def this(x:java.lang.Integer, y:java.lang.Integer, z:Unit) = this(x, y)
   override def toString = s"($x,$y)"
+  def invoke1(i:java.lang.Integer) = "6"
+  def invoke2(i:Int) = "6"
+  def invoke3(i:Int, i2:java.lang.Integer) = "6"
+  def invoke4(i:Int, i2:java.lang.Integer*) = "6"
 }
 
 object MineLangTests extends Properties("MinecraftParserTests") {
@@ -16,24 +21,34 @@ object MineLangTests extends Properties("MinecraftParserTests") {
      (fact 5)
     )
     """
-  val newTest     = "((new jcdc.pluginfactory.examples.Point 5 6))"
-  val methodTest  = "((.toString (new jcdc.pluginfactory.examples.Point 5 6)))"
-  val methodTest2 = """((.indexOf (new jcdc.pluginfactory.examples.Point 5 6) "5" 0))"""
+  val newTest1    = "((new jcdc.pluginfactory.Point 5 6))"
+  val newTest2    = "((new jcdc.pluginfactory.Point 5 6 unit))"
+  val methodTest0 = "((.toString (new jcdc.pluginfactory.Point 5 6)))"
+  val methodTest1 = """((.invoke1 (new jcdc.pluginfactory.Point 5 6) 0))"""
+  val methodTest2 = """((.invoke2 (new jcdc.pluginfactory.Point 5 6) 0))"""
+  val methodTest3 = """((.invoke3 (new jcdc.pluginfactory.Point 5 6) 0 0))"""
 
-  evalTest("houseTest", house, UnitValue)
-  evalTest("fact", fact, IntValue(120))
+  evalTest("houseTest",     house, UnitValue)
+  evalTest("fact",          fact,  IntValue(120))
   evalTest("expansionTest", expansionTest, CubeValue(Cube(TestServer.world(12,3,12), TestServer.world(-2,3,-2))))
-  evalTest("newTest", newTest, ObjectValue(Point(5,6)))
-  evalTest("methodTest", methodTest, StringValue("(5,6)"))
-  evalTest("methodTest2", methodTest2, IntValue(1))
+  evalTest("newTest1",    newTest1,    ObjectValue(Point(5,6)))
+  evalTest("newTest2",    newTest2,    ObjectValue(Point(5,6)))
+  evalTest("methodTest0", methodTest0, StringValue("(5,6)"))
+  evalTest("methodTest1", methodTest1, StringValue("6"))
+  evalTest("methodTest2", methodTest2, StringValue("6"))
+  evalTest("methodTest3", methodTest3, StringValue("6"))
 
   def evalTest(name:String, code:String, expected:Value) =
     property(name) = secure { run(code, expected) }
 
-  def run(code:String, expected:AnyRef): Boolean = {
+  def run(code:String, expected:AnyRef): Boolean = try {
     val actual = MineLang.run(code, TestServer.player)
     println(s"Result: $actual")
     actual == expected
+  } catch {
+    case e =>
+      e.printStackTrace
+      throw e
   }
 }
 
