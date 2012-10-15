@@ -6,8 +6,8 @@ object MineLangExamples {
     (
       (def closed (c)
         (or
-          (<= (- (cube:max-x c) (cube:min-x c)) 1)
-          (<= (- (cube:max-z c) (cube:min-z c)) 1)
+          (<= (- (.maxX c) (.minX c)) 1)
+          (<= (- (.maxZ c) (.minZ c)) 1)
         )
       )
       (defrec pyramid (c m)
@@ -15,17 +15,17 @@ object MineLangExamples {
           (cube:set-walls c m)
           (if (closed c)
             unit
-            (pyramid (cube:shift-y (cube:shrink-in c 1) 1) m)
+            (pyramid (.shiftY (.shrinkIn c 1) 1) m)
           )
         )
       )
       (def house (start-point h w d floor-m walls-m roof-m)
-        (let (c (cube:grow-up (cube:expand-z (cube:expand-x (cube start-point start-point) w) d) h))
+        (let (c (.growUp (.expandZ (.expandX (new jcdc.pluginfactory.Cube start-point start-point) w) d) h))
           (begin
             (cube:set-all   c (material "air"))
             (cube:set-floor c floor-m)
             (cube:set-walls c walls-m)
-            (pyramid (cube:expand-out (cube:ceiling c) 1) roof-m)
+            (pyramid (.expandOut (.ceiling c) 1) roof-m)
           )
         )
       )
@@ -38,8 +38,8 @@ object MineLangExamples {
     (
       (def closed (c)
         (or
-          (<= (- (cube:max-x c) (cube:min-x c)) 1)
-          (<= (- (cube:max-z c) (cube:min-z c)) 1)
+          (<= (- (.maxX c) (.minX c)) 1)
+          (<= (- (.maxZ c) (.minZ c)) 1)
         )
       )
       (defrec pyramid (c m)
@@ -47,17 +47,17 @@ object MineLangExamples {
           (cube:set-walls c m)
           (if (closed c)
             unit
-            (pyramid (cube:shift-y (cube:shrink-in c 1) 1) m)
+            (pyramid (.shiftY (.shrinkIn c 1) 1) m)
           )
         )
       )
       (def house (start-point h w d floor-m walls-m roof-m)
-        (let (c (cube:grow-up (cube:expand-z (cube:expand-x (cube start-point start-point) w) d) h))
+        (let (c (.growUp (.expandZ (.expandX (new jcdc.pluginfactory.Cube start-point start-point) w) d) h))
           (begin
             (cube:set-all   c (material "air"))
             (cube:set-floor c floor-m)
             (cube:set-walls c walls-m)
-            (pyramid (cube:expand-out (cube:ceiling c) 1) roof-m)
+            (pyramid (.expandOut (.ceiling c) 1) roof-m)
           )
         )
       )
@@ -67,12 +67,12 @@ object MineLangExamples {
   val expansionTest =
     """
     (
-      (let (c (cube XYZ (loc (+ X 10) Y (+ Z 10))))
+      (let (c (new jcdc.pluginfactory.Cube XYZ (loc (+ X 10) Y (+ Z 10))))
         (begin
           (cube:set-walls c (material "stone"))
-          (cube:set-walls (cube:expand-out c 1) (material "brick"))
-          (cube:set-walls (cube:expand-out (cube:expand-out c 1) 1) (material "gold_block"))
-          (cube:expand-out (cube:expand-out c 1) 1)
+          (cube:set-walls (.expandOut c 1) (material "brick"))
+          (cube:set-walls (.expandOut (.expandOut c 1) 1) (material "gold_block"))
+          (.expandOut (.expandOut c 1) 1)
         )
       )
     )

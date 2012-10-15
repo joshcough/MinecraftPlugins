@@ -88,6 +88,7 @@ case class Cube(l1: Location, l2: Location) {
   def growMinZBy(extra:Int)  = copy(minZ=minZ+extra)
   def growMaxXBy(extra:Int)  = copy(maxX=maxX+extra)
   def growMaxYBy(extra:Int)  = copy(maxY=maxY+extra)
+  def growUp(extra:Int) = growMaxYBy(extra)
   def growMaxZBy(extra:Int)  = copy(maxZ=maxZ+extra)
   def shrinkMinXBy(less:Int) = copy(minX=minX-less)
   def shrinkMinYBy(less:Int) = copy(minY=minY-less)

@@ -30,7 +30,8 @@ object MineLangTests extends Properties("MinecraftParserTests") {
 
   evalTest("houseTest",     house, UnitValue)
   evalTest("fact",          fact,  IntValue(120))
-  evalTest("expansionTest", expansionTest, CubeValue(Cube(TestServer.world(12,3,12), TestServer.world(-2,3,-2))))
+  evalTest("expansionTest", expansionTest,
+    ObjectValue(Cube(TestServer.world(12,3,12), TestServer.world(-2,3,-2))))
   evalTest("newTest1",    newTest1,    ObjectValue(Point(5,6)))
   evalTest("newTest2",    newTest2,    ObjectValue(Point(5,6)))
   evalTest("methodTest0", methodTest0, StringValue("(5,6)"))
@@ -46,7 +47,7 @@ object MineLangTests extends Properties("MinecraftParserTests") {
     println(s"Result: $actual")
     actual == expected
   } catch {
-    case e =>
+    case e: Throwable =>
       e.printStackTrace
       throw e
   }

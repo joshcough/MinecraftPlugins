@@ -2,7 +2,6 @@ package jcdc.pluginfactory
 
 import org.bukkit.{Location, Material}
 import org.bukkit.entity.Player
-import java.lang.reflect.{Constructor, Method}
 
 object MineLang extends EnrichmentClasses {
 
@@ -30,9 +29,6 @@ object MineLang extends EnrichmentClasses {
 
   sealed trait Value{ val value: Any }
   case class Closure[V](l:Lambda, env:Env)    extends Value{ val value = this }
-  case class MaterialValue(value:Material)    extends Value
-  case class LocationValue(value:Location)    extends Value
-  case class CubeValue(value:Cube)            extends Value
   case class BoolValue(value:Boolean)         extends Value
   case class IntValue(value:Int)              extends Value
   case class StringValue(value:String)        extends Value
@@ -148,8 +144,7 @@ object MineLang extends EnrichmentClasses {
         case (IntValue(av),      IntValue(bv))      => BoolValue(av == bv)
         case (BoolValue(av),     BoolValue(bv))     => BoolValue(av == bv)
         case (StringValue(av),   StringValue(bv))   => BoolValue(av == bv)
-        case (MaterialValue(av), MaterialValue(bv)) => BoolValue(av == bv)
-        case (LocationValue(av), LocationValue(bv)) => BoolValue(av == bv)
+        case (ObjectValue(av),   ObjectValue(bv))   => BoolValue(av == bv)
         case _                                      => BoolValue(false)
       })
     val toStringPrim = builtIn(Symbol("to-string"), (exps, env) =>
@@ -191,7 +186,7 @@ object MineLang extends EnrichmentClasses {
 
     val getMaterial = builtIn('material, (exps, env) => {
       reduce(eval(exps(0),env)) match {
-        case StringValue(s) => MaterialValue(BasicMinecraftParsers.material(s).get)
+        case StringValue(s) => ObjectValue(BasicMinecraftParsers.material(s).get)
         case ev             => sys error s"not a material: $ev"
       }
     })
@@ -204,52 +199,10 @@ object MineLang extends EnrichmentClasses {
       val (xe,ye,ze) = (reduce(eval(exps(0),env)),reduce(eval(exps(1),env)),reduce(eval(exps(2),env)))
       (xe,ye,ze) match {
         case (IntValue(xv), IntValue(yv), IntValue(zv)) =>
-          LocationValue(new Location(p.world,xv,yv,zv))
+          ObjectValue(new Location(p.world,xv,yv,zv))
         case _ => sys error s"bad location data: ${(xe,ye,ze)}"
       }
     })
-
-    // lots of cube related functions
-    val cube = builtIn('cube, (exps, env) => {
-      // evaluate new cube
-      val l1 = evalToLocation(exps(0),env)
-      val l2 = evalToLocation(exps(1),env)
-      CubeValue(Cube(l1, l2))
-    })
-
-    def cubeIntGetter(name:String, f: Cube => Int) =
-      builtIn(Symbol(name), (exps, env) => { IntValue(f(evalToCube(exps(0), env)))})
-    def cubeIntOp(name:String)(f: (Cube,Int) => Cube) = builtIn(Symbol(name), (exps, env) => {
-      CubeValue(f(evalToCube(exps(0), env), evalToInt(exps(1), env)))
-    })
-    def cubeOp(name:String)(f: Cube => Cube) = builtIn(Symbol(name), (exps, env) => {
-      CubeValue(f(evalToCube(exps(0), env)))
-    })
-    val cubeMaxX = cubeIntGetter("cube:max-x", _.maxX)
-    val cubeMaxY = cubeIntGetter("cube:max-y", _.maxY)
-    val cubeMaxZ = cubeIntGetter("cube:max-z", _.maxZ)
-    val cubeMinX = cubeIntGetter("cube:min-x", _.minX)
-    val cubeMinY = cubeIntGetter("cube:min-y", _.minY)
-    val cubeMinZ = cubeIntGetter("cube:min-z", _.minZ)
-
-    val shrinkMinX = cubeIntOp("cube:shrink-min-x")(_ growMinXBy _)
-    val shrinkMinY = cubeIntOp("cube:shrink-min-y")(_ growMinYBy _)
-    val shrinkMinZ = cubeIntOp("cube:shrink-min-z")(_ growMinZBy _)
-    val growMaxX   = cubeIntOp("cube:grow-max-x")  (_ growMaxXBy _)
-    val growMaxY   = cubeIntOp("cube:grow-max-y")  (_ growMaxYBy _)
-    val growUp     = cubeIntOp("cube:grow-up")     (_ growMaxYBy _) // grow up is the same as growMaxY
-    val growMaxZ   = cubeIntOp("cube:grow-max-z")  (_ growMaxZBy _)
-    val expandX    = cubeIntOp("cube:expand-x")    (_ expandX _)
-    val expandZ    = cubeIntOp("cube:expand-z")    (_ expandZ _)
-    val expand     = cubeIntOp("cube:expand")      (_ expand _)
-    val expandOut  = cubeIntOp("cube:expand-out")  (_ expandOut _)
-    val shrinkIn   = cubeIntOp("cube:shrink-in")   (_ shrinkIn _)
-    val shiftX     = cubeIntOp("cube:shift-x")     (_ shiftX _)
-    val shiftY     = cubeIntOp("cube:shift-y")     (_ shiftY _)
-    val shiftZ     = cubeIntOp("cube:shift-z")     (_ shiftZ _)
-
-    val floor     = cubeOp("cube:floor")   (_.floor)
-    val ceiling   = cubeOp("cube:ceiling") (_.ceiling)
 
     // here are all the cube block mutation functions.
     val setAll = builtInUnit(Symbol("cube:set-all"), (exps, env) => {
@@ -294,18 +247,10 @@ object MineLang extends EnrichmentClasses {
       'X      -> DynamicValue(() => IntValue(p.x)),
       'Y      -> DynamicValue(() => IntValue(p.blockOn.y)),
       'Z      -> DynamicValue(() => IntValue(p.z)),
-      'XYZ    -> DynamicValue(() => LocationValue(p.blockOn.loc)),
-      'origin -> DynamicValue(() => LocationValue(p.world.getHighestBlockAt(0,0))),
+      'XYZ    -> DynamicValue(() => ObjectValue(p.blockOn.loc)),
+      'origin -> DynamicValue(() => ObjectValue(p.world.getHighestBlockAt(0,0))),
       // material functions
       getMaterial,
-      // cube functions
-      cube,
-      cubeMaxX, cubeMaxY, cubeMaxZ, cubeMinX, cubeMinY, cubeMinZ,
-      shrinkMinX, shrinkMinY, shrinkMinZ,
-      growMaxX, growMaxY, growUp, growMaxZ,
-      expandX, expandZ, expand, expandOut, shrinkIn,
-      shiftX, shiftY, shiftZ,
-      floor, ceiling,
       // mutable world edit functions
       setAll, changeSome, setWalls, setFloor
     )
@@ -371,18 +316,14 @@ object MineLang extends EnrichmentClasses {
           // then look for the right constructor
           val constructors = clas.getConstructors
           val matches = constructors.filter(c => matchesAll(c.getParameterTypes, evaledArgs))
-          // todo: obviously do something better if there is no match here...
-          val con = matches(0)
-//          val con = clas.getConstructor(getClasses(evaledArgs):_*)
-          // then call the constructor with the value (.value) of each of the args
-          // todo: this is somehow messed up...i cant call getValue here like i want to.
-          con.newInstance(evaledArgs.map(_.asInstanceOf[AnyRef]):_*) match {
-            // TODO: can i collapse all these Value classes into just ObjectValue?
-            case s:String                => StringValue(s)
-            case i:java.lang.Integer     => IntValue(i.intValue)
-            case b:java.lang.Boolean     => BoolValue(b.booleanValue)
-            case res                     => ObjectValue(res)
-          }
+          //val con = clas.getConstructor(getClasses(evaledArgs):_*)
+          // todo: obviously do something better if there are more than one matches.
+          matches.headOption.fold(
+            sys error s"could not find constructor on class $c with args $evaledArgs"
+          )(con =>
+            // then call the constructor with the value (.value) of each of the args
+            getValue(con.newInstance(evaledArgs.map(_.asInstanceOf[AnyRef]):_*).asInstanceOf[AnyRef])
+          )
         }
         // TODO: better error handling in almost all cases
         case MethodCall(ob, func, args) => {
@@ -394,9 +335,12 @@ object MineLang extends EnrichmentClasses {
           val methodName = symbolToString(func).drop(1)
           val methods    = o.getClass.getMethods.filter(_.getName == methodName)
           val matches    = methods.filter(m => matchesAll(m.getParameterTypes, evaledArgs))
-          // todo: obviously do something better if there is no match here...
-          val method     = matches(0)
-          getValue(method.invoke(o, evaledArgs.map(_.asInstanceOf[AnyRef]):_*))
+          // todo: obviously do something better if there are more than one matches.
+          matches.headOption.fold(
+            sys error s"could not find method $func on $o with args $evaledArgs"
+          )(method =>
+            getValue(method.invoke(o, evaledArgs.map(_.asInstanceOf[AnyRef]):_*))
+          )
         }
       }
     }
@@ -408,11 +352,11 @@ object MineLang extends EnrichmentClasses {
     def evalToInt(e:Expr, env:Env): Int =
       evalTo(e,env,"int"){ case IntValue(v) => v }
     def evalToLocation(e:Expr, env:Env): Location =
-      evalTo(e,env,"location"){ case LocationValue(l) => l }
+      evalTo(e,env,"location"){ case ObjectValue(l:Location) => l }
     def evalToMaterial(e:Expr, env:Env): Material =
-      evalTo(e,env,"material"){ case MaterialValue(m) => m }
+      evalTo(e,env,"material"){ case ObjectValue(m:Material) => m }
     def evalToCube(e:Expr, env:Env): Cube =
-      evalTo(e,env,"cube"){ case CubeValue(c) => c }
+      evalTo(e,env,"cube"){ case ObjectValue(c@Cube(_,_)) => c }
     def evalToObject(e:Expr, env:Env): Any =
       evalTo(e,env,"object"){ case ObjectValue(o) => o }
 
@@ -429,11 +373,6 @@ object MineLang extends EnrichmentClasses {
       case b:Boolean => classOf[Boolean]
       case a         => a.getClass
     })
-
-    //    def apply(p:Player, nodes:List[BuiltIn]): Unit = nodes.foreach(apply(p, _))
-    //    def apply(p:Player, code:String): Unit = attempt(p, { println(code); apply(p, p.parse(code)) })
-    //    def apply(p:Player, commands:TraversableOnce[String]): Unit = apply(p, commands.mkString(" "))
-    //    def apply(p:Player, f:File): Unit = attempt(p, apply(p, Source.fromFile(f).getLines))
   }
 
   // TODO: repeat this for all AnyVal types.
@@ -446,7 +385,7 @@ object MineLang extends EnrichmentClasses {
       else if (c == classOf[Integer] && isInt(a))  true
       else if (c == classOf[Unit]    && isUnit(a)) true
       else if (c == classOf[scala.runtime.BoxedUnit] && isUnit(a)) true
-    else false
+      else a.getClass.isInstance(a)
     cs.size == as.size && cs.zip(as).forall((matches _).tupled)
   }
 
