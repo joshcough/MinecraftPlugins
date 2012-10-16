@@ -2,6 +2,7 @@ package jcdc.pluginfactory
 
 import org.bukkit.{Location, Material}
 import org.bukkit.entity.Player
+import jcdc.pluginfactory.ParserCombinators.{Failure, Success}
 
 object MineLang extends EnrichmentClasses {
 
@@ -15,8 +16,10 @@ object MineLang extends EnrichmentClasses {
   case class Lambda(args:List[Symbol], body: Expr, recursive:Option[Symbol]) extends Expr
   case class Let(x:Symbol, e:Expr, body:Expr) extends Expr
   case class App(f:Expr, args:List[Expr]) extends Expr
-  case class New(className:Symbol, args:List[Expr]) extends Expr
-  case class MethodCall(obj:Expr, func:Symbol, args:List[Expr]) extends Expr
+  case class New(className:String, args:List[Expr]) extends Expr
+  case class StaticMethodCall(className:String, func:String, args:List[Expr]) extends Expr
+  case class StaticReference(className:String, field:String) extends Expr
+  case class InstanceMethodCall(obj:Expr, func:String, args:List[Expr]) extends Expr
   case class Sequential(exps:List[Expr]) extends Expr
   case class Bool(b:Boolean) extends Expr
   case class Num(i:Int) extends Expr
@@ -31,7 +34,6 @@ object MineLang extends EnrichmentClasses {
   case class Closure[V](l:Lambda, env:Env)    extends Value{ val value = this }
   case class BoolValue(value:Boolean)         extends Value
   case class IntValue(value:Int)              extends Value
-  case class StringValue(value:String)        extends Value
   case class ObjectValue(value:Any)           extends Value
   case class DynamicValue(value: () => Value) extends Value
   case class BuiltinFunction(name: Symbol, eval: (List[Expr], Env) => Value) extends Value{
@@ -93,29 +95,32 @@ object MineLang extends EnrichmentClasses {
   def parseExpr(a:Any): Expr = {
     //println(a)
     a match {
-      case List('lam, args, body) => parseLambda(args, body, None)
+      // some prims
+      case i: Int                  => Num(i)
+      case Symbol(s) if s.contains("/") => StaticReference(s.split('/')(0), s.split('/')(1))
+      case s:Symbol                => Variable(s)
+      case s:String                => StringExpr(s)
+      // new, lam, let, begin
+      case 'new :: Symbol(className) :: args => New(className, args map parseExpr)
+      case List('lam, args, body)  => parseLambda(args, body, None)
       case List('let, List(arg, expr), body) => arg match {
         case s:Symbol => Let(s, parseExpr(expr), parseExpr(body))
         case _ => sys error s"bad let argument: $a"
       }
-      case 'begin :: body => Sequential(body map parseExpr)
-      case 'new :: Symbol(className) :: args => New(Symbol(className), args map parseExpr)
-      // other prims
-      case i: Int                 => Num(i)
-      case s:Symbol               => Variable(s)
-      case s:String               => StringExpr(s)
+      case 'begin :: body          => Sequential(body map parseExpr)
       // finally, function application
-      case f :: args              => {
+      case f :: args               => {
         parseExpr(f) match {
-          case v@Variable(s) if symbolToString(s).startsWith(".") =>
-            args match {
-              case a :: as => MethodCall(parseExpr(a), s, as map parseExpr)
-              case _ => sys error "reflective call with no object!"
-            }
+          case Variable(Symbol(s)) if s.startsWith(".") => args match {
+            case a :: as => InstanceMethodCall(parseExpr(a), s.drop(1), as map parseExpr)
+            case _ => sys error "reflective call with no object!"
+          }
+          // turn static references into static function calls here.
+          case StaticReference(clazz, func) => StaticMethodCall(clazz, func, args map parseExpr)
           case func =>  App(func, args map parseExpr)
         }
       }
-      case _                      => sys error s"bad expression: $a"
+      case _                       => sys error s"bad expression: $a"
     }
   }
 
@@ -143,12 +148,11 @@ object MineLang extends EnrichmentClasses {
       (reduce(eval(exps(0), env)), reduce(eval(exps(1), env))) match {
         case (IntValue(av),      IntValue(bv))      => BoolValue(av == bv)
         case (BoolValue(av),     BoolValue(bv))     => BoolValue(av == bv)
-        case (StringValue(av),   StringValue(bv))   => BoolValue(av == bv)
         case (ObjectValue(av),   ObjectValue(bv))   => BoolValue(av == bv)
         case _                                      => BoolValue(false)
       })
     val toStringPrim = builtIn(Symbol("to-string"), (exps, env) =>
-      StringValue(reduce(eval(exps(0), env)).value.toString)
+      ObjectValue(reduce(eval(exps(0), env)).value.toString)
     )
     val add = builtIn('+, (exps, env) => {
       val vals = exps.map(e => reduce(eval(e, env)))
@@ -157,11 +161,8 @@ object MineLang extends EnrichmentClasses {
           case IntValue(i) => acc + i
           case _ => acc // impossible, but shuts the compiler up
         }})
-      else if (vals.forall(_.isInstanceOf[StringValue])) // all strings
-        StringValue(vals.foldLeft(""){(acc,v) => v match {
-          case StringValue(s) => acc + s
-          case _ => acc // impossible, but shuts the compiler up
-        }})
+      else if (vals.map(_.value).forall(_.isInstanceOf[String])) // all strings
+        ObjectValue(vals.map(_.value).foldLeft(""){(acc,s) => acc + s })
       else sys error s"+ expected all numbers or all strings, but got $vals"
     })
     val abs = builtIn('abs, (exps, env) => IntValue(Math.abs(evalToInt(exps(0), env))))
@@ -186,8 +187,10 @@ object MineLang extends EnrichmentClasses {
 
     val getMaterial = builtIn('material, (exps, env) => {
       reduce(eval(exps(0),env)) match {
-        case StringValue(s) => ObjectValue(BasicMinecraftParsers.material(s).get)
-        case ev             => sys error s"not a material: $ev"
+        case ObjectValue(s:String) => ObjectValue(
+          BasicMinecraftParsers.material(s).fold(sys error _)((m, _) => m)
+        )
+        case ev                    => sys error s"not a material: $ev"
       }
     })
 
@@ -288,7 +291,7 @@ object MineLang extends EnrichmentClasses {
         case Sequential(exps:List[Expr]) => exps.map(eval(_, env)).last
         case Bool(b)       => BoolValue(b)
         case Num(i)        => IntValue(i)
-        case StringExpr(i) => StringValue(i)
+        case StringExpr(s) => ObjectValue(s)
         case EvaledExpr(v) => v
         case UnitExpr      => UnitValue
         case Variable(s) => env.get(s).getOrElse(sys error s"not found: $s in: ${env.keys}")
@@ -310,7 +313,7 @@ object MineLang extends EnrichmentClasses {
         // TODO: better error handling in almost all cases
         case New(c, args) => {
           // first, go look up the class by name
-          val clas: Class[_] = Class.forName(symbolToString(c))
+          val clas: Class[_] = Class.forName(c)
           // then eval all the arguments
           val evaledArgs = args map (e => reduce(eval(e, env))) map (_.value)
           // then look for the right constructor
@@ -326,22 +329,15 @@ object MineLang extends EnrichmentClasses {
           )
         }
         // TODO: better error handling in almost all cases
-        case MethodCall(ob, func, args) => {
+        case InstanceMethodCall(ob, func, args) => {
           // first, eval this dood to an object.
           val o = evalToObject(ob, env)
-          // then eval all the arguments
-          val evaledArgs = args map (eval(_, env)) map (_.value)
-          // then lookup the function name via reflection
-          val methodName = symbolToString(func).drop(1)
-          val methods    = o.getClass.getMethods.filter(_.getName == methodName)
-          val matches    = methods.filter(m => matchesAll(m.getParameterTypes, evaledArgs))
-          // todo: obviously do something better if there are more than one matches.
-          matches.headOption.fold(
-            sys error s"could not find method $func on $o with args $evaledArgs"
-          )(method =>
-            getValue(method.invoke(o, evaledArgs.map(_.asInstanceOf[AnyRef]):_*))
-          )
+          invoke(o.getClass, func, o, args map (eval(_, env)) map (_.value))
         }
+        case StaticMethodCall(className, func, args) =>
+          invoke(Class.forName(className), func, null, args map (eval(_, env)) map (_.value))
+        case StaticReference(className, field) =>
+          ObjectValue(Class.forName(className).getField(field).get(null))
       }
     }
 
@@ -362,7 +358,6 @@ object MineLang extends EnrichmentClasses {
 
     def getValue(o:Object) = o match {
       // TODO: can i collapse all these Value classes into just ObjectValue?
-      case s:String                => StringValue(s)
       case i:java.lang.Integer     => IntValue(i.intValue)
       case b:java.lang.Boolean     => BoolValue(b.booleanValue)
       case res                     => ObjectValue(res)
@@ -373,6 +368,18 @@ object MineLang extends EnrichmentClasses {
       case b:Boolean => classOf[Boolean]
       case a         => a.getClass
     })
+
+    def invoke(c:Class[_], methodName:String, invokedOn: Any, args:List[Any]) = {
+      val methods    = c.getMethods.filter(_.getName == methodName)
+      val matches    = methods.filter(m => matchesAll(m.getParameterTypes, args))
+      // todo: obviously do something better if there are more than one matches.
+      matches.headOption.fold(
+        sys error s"could not find method $c.$methodName with args ${args.map(_.getClass).mkString(",")}"
+      )(method => {
+        //println(args)
+        getValue(method.invoke(invokedOn, args.map(_.asInstanceOf[AnyRef]):_*))
+      })
+    }
   }
 
   // TODO: repeat this for all AnyVal types.

@@ -17,6 +17,7 @@ trait ParserCombinators {
     def flatMapWithNext[U](f: (T, List[String]) => ParseResult[U]): ParseResult[U]
     def flatMap[U](f: T => ParseResult[U]): ParseResult[U]
     def mapFailure[U >: T](f: String => ParseResult[U]): ParseResult[U]
+    def fold[A](failF: String => A)(sucF: (T,List[String]) => A): A
   }
   case class Failure(message: String) extends ParseResult[Nothing]{
     def get: Nothing = throw new IllegalStateException("can't get from a failure")
@@ -24,6 +25,7 @@ trait ParserCombinators {
     def flatMapWithNext[U](f: (Nothing, List[String]) => ParseResult[U]) = this
     def flatMap[U](f: Nothing => ParseResult[U]): ParseResult[U] = this
     def mapFailure[U >: Nothing](f: String => ParseResult[U]) = f(message)
+    def fold[A](failF: String => A)(sucF: (Nothing,List[String]) => A): A = failF(message)
   }
   case class Success[+T](value: T, rest: List[String]) extends ParseResult[T]{
     def get: T = value
@@ -31,6 +33,7 @@ trait ParserCombinators {
     def flatMapWithNext[U](f: (T, List[String]) => ParseResult[U]) = f(value, rest)
     def flatMap[U](f: T => ParseResult[U]): ParseResult[U] = f(value)
     def mapFailure[U >: T](a: String => ParseResult[U]): ParseResult[U] = this
+    def fold[A](failF: String => A)(sucF: (T,List[String]) => A): A = sucF(value, rest)
   }
 
   trait Parser[+T] extends (List[String] => ParseResult[T]) { self =>

@@ -12,32 +12,42 @@ case class Point(x:Int, y:Int){
   def invoke2(i:Int) = "6"
   def invoke3(i:Int, i2:java.lang.Integer) = "6"
   def invoke4(i:Int, i2:java.lang.Integer*) = "6"
+  def invokeHof(f: Int => Int) = f(7)
 }
 
 object MineLangTests extends Properties("MinecraftParserTests") {
 
-  val fact = """
-    ((defrec fact (n) (if (eq n 0) 1 (* n (fact (- n 1)))))
-     (fact 5)
-    )
-    """
-  val newTest1    = "((new jcdc.pluginfactory.Point 5 6))"
-  val newTest2    = "((new jcdc.pluginfactory.Point 5 6 unit))"
-  val methodTest0 = "((.toString (new jcdc.pluginfactory.Point 5 6)))"
-  val methodTest1 = """((.invoke1 (new jcdc.pluginfactory.Point 5 6) 0))"""
-  val methodTest2 = """((.invoke2 (new jcdc.pluginfactory.Point 5 6) 0))"""
-  val methodTest3 = """((.invoke3 (new jcdc.pluginfactory.Point 5 6) 0 0))"""
+  val constructorCall1    = "((new jcdc.pluginfactory.Point 5 6))"
+  val constructorCall2    = "((new jcdc.pluginfactory.Point 5 6 unit))"
+  val instanceCall0 = "((.toString (new jcdc.pluginfactory.Point 5 6)))"
+  val instanceCall1 = """((.invoke1 (new jcdc.pluginfactory.Point 5 6) 0))"""
+  val instanceCall2 = """((.invoke2 (new jcdc.pluginfactory.Point 5 6) 0))"""
+  val instanceCall3 = """((.invoke3 (new jcdc.pluginfactory.Point 5 6) 0 0))"""
+  val staticCall1   = """((java.lang.String/valueOf 5))"""
+  val staticField1  = """(java.lang.Math/PI)"""
 
+  val lamTest = "(((lam (x) x) 7))"
+  val invokeWithHof = """((.invokeHof (new jcdc.pluginfactory.Point 5 6) (lam (x) x)))"""
+
+
+  // simple java interop tests
+  evalTest("constructorCall1", constructorCall1, ObjectValue(Point(5,6)))
+  evalTest("constructorCall2", constructorCall2, ObjectValue(Point(5,6)))
+  evalTest("instanceCall0",    instanceCall0,    ObjectValue("(5,6)"))
+  evalTest("instanceCall1",    instanceCall1,    ObjectValue("6"))
+  evalTest("instanceCall2",    instanceCall2,    ObjectValue("6"))
+  evalTest("instanceCall3",    instanceCall3,    ObjectValue("6"))
+  evalTest("staticCall1",      staticCall1,      ObjectValue("5"))
+  evalTest("staticField1",     staticField1,     ObjectValue(Math.PI))
+  evalTest("lamTest",       lamTest, IntValue(7))
+//  evalTest("invokeWithHof", invokeWithHof, IntValue(7))
+
+  // more full tests
+  val fact = "((defrec fact (n) (if (eq n 0) 1 (* n (fact (- n 1))))) (fact 5))"
   evalTest("houseTest",     house, UnitValue)
   evalTest("fact",          fact,  IntValue(120))
   evalTest("expansionTest", expansionTest,
     ObjectValue(Cube(TestServer.world(12,3,12), TestServer.world(-2,3,-2))))
-  evalTest("newTest1",    newTest1,    ObjectValue(Point(5,6)))
-  evalTest("newTest2",    newTest2,    ObjectValue(Point(5,6)))
-  evalTest("methodTest0", methodTest0, StringValue("(5,6)"))
-  evalTest("methodTest1", methodTest1, StringValue("6"))
-  evalTest("methodTest2", methodTest2, StringValue("6"))
-  evalTest("methodTest3", methodTest3, StringValue("6"))
 
   def evalTest(name:String, code:String, expected:Value) =
     property(name) = secure { run(code, expected) }
