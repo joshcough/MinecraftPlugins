@@ -39,13 +39,13 @@ object MineLangTests extends Properties("MinecraftParserTests") {
   evalTest("instanceCall3",    instanceCall3,    ObjectValue("6"))
   evalTest("staticCall1",      staticCall1,      ObjectValue("5"))
   evalTest("staticField1",     staticField1,     ObjectValue(Math.PI))
-  evalTest("lamTest",       lamTest, IntValue(7))
-//  evalTest("invokeWithHof", invokeWithHof, IntValue(7))
+  evalTest("lamTest",       lamTest, ObjectValue(7))
+//  evalTest("invokeWithHof", invokeWithHof, ObjectValue(7))
 
   // more full tests
   val fact = "((defrec fact (n) (if (eq n 0) 1 (* n (fact (- n 1))))) (fact 5))"
   evalTest("houseTest",     house, UnitValue)
-  evalTest("fact",          fact,  IntValue(120))
+  evalTest("fact",          fact,  ObjectValue(120))
   evalTest("expansionTest", expansionTest,
     ObjectValue(Cube(TestServer.world(12,3,12), TestServer.world(-2,3,-2))))
 

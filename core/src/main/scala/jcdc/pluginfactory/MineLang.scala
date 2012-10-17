@@ -32,8 +32,6 @@ object MineLang extends EnrichmentClasses {
 
   sealed trait Value{ val value: Any }
   case class Closure[V](l:Lambda, env:Env)    extends Value{ val value = this }
-  case class BoolValue(value:Boolean)         extends Value
-  case class IntValue(value:Int)              extends Value
   case class ObjectValue(value:Any)           extends Value
   case class DynamicValue(value: () => Value) extends Value
   case class BuiltinFunction(name: Symbol, eval: (List[Expr], Env) => Value) extends Value{
@@ -140,44 +138,43 @@ object MineLang extends EnrichmentClasses {
 
     // TODO on all these builtins, check the number of arguments.
     val ifStat = builtIn('if, (exps, env) => reduce(eval(exps(0), env)) match {
-      case BoolValue(true)  => eval(exps(1), env)
-      case BoolValue(false) => eval(exps(2), env)
+      case ObjectValue(true)  => eval(exps(1), env)
+      case ObjectValue(false) => eval(exps(2), env)
       case ev => sys error s"bad if predicate: $ev"
     })
     val eqBuiltIn = builtIn('eq, (exps, env) =>
       (reduce(eval(exps(0), env)), reduce(eval(exps(1), env))) match {
-        case (IntValue(av),      IntValue(bv))      => BoolValue(av == bv)
-        case (BoolValue(av),     BoolValue(bv))     => BoolValue(av == bv)
-        case (ObjectValue(av),   ObjectValue(bv))   => BoolValue(av == bv)
-        case _                                      => BoolValue(false)
+        case (ObjectValue(av),   ObjectValue(bv))   => ObjectValue(av == bv)
+        // todo: is this what we really want here?
+        case (UnitValue, UnitValue)                 => ObjectValue(true)
+        // todo: could we handle lambdas somehow? does anyone ever do that? is it insane?
+        // todo: and what about BuiltinFunctions?
+        case _                                      => ObjectValue(false)
       })
     val toStringPrim = builtIn(Symbol("to-string"), (exps, env) =>
       ObjectValue(reduce(eval(exps(0), env)).value.toString)
     )
     val add = builtIn('+, (exps, env) => {
-      val vals = exps.map(e => reduce(eval(e, env)))
-      if (vals.forall(_.isInstanceOf[IntValue])) // all numbers
-        IntValue(vals.foldLeft(0){(acc,v) => v match {
-          case IntValue(i) => acc + i
-          case _ => acc // impossible, but shuts the compiler up
-        }})
-      else if (vals.map(_.value).forall(_.isInstanceOf[String])) // all strings
-        ObjectValue(vals.map(_.value).foldLeft(""){(acc,s) => acc + s })
+      val vals = exps.map(e => reduce(eval(e, env)).value)
+      if (vals.forall(_.isInstanceOf[Int])) // all numbers
+        ObjectValue(vals.map(_.asInstanceOf[Int]).foldLeft(0){(acc,i) => acc + i})
+      else if (vals.forall(_.isInstanceOf[String])) // all strings
+        ObjectValue(vals.foldLeft(""){(acc,s) => acc + s })
       else sys error s"+ expected all numbers or all strings, but got $vals"
     })
-    val abs = builtIn('abs, (exps, env) => IntValue(Math.abs(evalToInt(exps(0), env))))
+    val abs = builtIn('abs, (exps, env) => ObjectValue(Math.abs(evalToInt(exps(0), env))))
     def twoNumOp(name:Symbol)(f: (Int,Int) => Value) = builtIn(name, (exps, env) =>
       (reduce(eval(exps(0), env)), reduce(eval(exps(1), env))) match {
-        case (IntValue(av), IntValue(bv)) => f(av, bv)
+        case (ObjectValue(av:Int), ObjectValue(bv:Int)) => f(av, bv)
         case (av,bv) => sys error s"${symbolToString(name)} expected two numbers, but got: $av, $bv"
       }
     )
-    val sub  = twoNumOp('-) ((i,j) => IntValue(i - j))
-    val mult = twoNumOp('*) ((i,j) => IntValue(i * j))
-    val lt   = twoNumOp('<) ((i,j) => BoolValue(i < j))
-    val gt   = twoNumOp('>) ((i,j) => BoolValue(i > j))
-    val lteq = twoNumOp('<=)((i,j) => BoolValue(i <= j))
-    val gteq = twoNumOp('>=)((i,j) => BoolValue(i >= j))
+    val sub  = twoNumOp('-) ((i,j) => ObjectValue(i - j))
+    val mult = twoNumOp('*) ((i,j) => ObjectValue(i * j))
+    val lt   = twoNumOp('<) ((i,j) => ObjectValue(i < j))
+    val gt   = twoNumOp('>) ((i,j) => ObjectValue(i > j))
+    val lteq = twoNumOp('<=)((i,j) => ObjectValue(i <= j))
+    val gteq = twoNumOp('>=)((i,j) => ObjectValue(i >= j))
 
     val printOnSameLine = builtInUnit('print, (exps, env) =>
       print(exps.map(e => reduce(eval(e, env)).value.toString).mkString(" ")))
@@ -201,7 +198,7 @@ object MineLang extends EnrichmentClasses {
     val loc = builtIn('loc, (exps, env) => {
       val (xe,ye,ze) = (reduce(eval(exps(0),env)),reduce(eval(exps(1),env)),reduce(eval(exps(2),env)))
       (xe,ye,ze) match {
-        case (IntValue(xv), IntValue(yv), IntValue(zv)) =>
+        case (ObjectValue(xv:Int), ObjectValue(yv:Int), ObjectValue(zv:Int)) =>
           ObjectValue(new Location(p.world,xv,yv,zv))
         case _ => sys error s"bad location data: ${(xe,ye,ze)}"
       }
@@ -236,20 +233,20 @@ object MineLang extends EnrichmentClasses {
 
     val defaultEnv: Env = Map(
       // primitives
-      'true   -> BoolValue(true),
-      'false  -> BoolValue(false),
+      'true   -> ObjectValue(true),
+      'false  -> ObjectValue(false),
       'unit   -> UnitValue,
       // simple builtins
       eqBuiltIn, ifStat, toStringPrim, printOnSameLine, printLine,
       add, sub, mult, lt, lteq, gt, gteq, abs,
       // location functions
       loc, goto,
-      'MAXY   -> IntValue(255),
-      'MINY   -> IntValue(0),
-      'X      -> DynamicValue(() => IntValue(p.x)),
-      'X      -> DynamicValue(() => IntValue(p.x)),
-      'Y      -> DynamicValue(() => IntValue(p.blockOn.y)),
-      'Z      -> DynamicValue(() => IntValue(p.z)),
+      'MAXY   -> ObjectValue(255),
+      'MINY   -> ObjectValue(0),
+      'X      -> DynamicValue(() => ObjectValue(p.x)),
+      'X      -> DynamicValue(() => ObjectValue(p.x)),
+      'Y      -> DynamicValue(() => ObjectValue(p.blockOn.y)),
+      'Z      -> DynamicValue(() => ObjectValue(p.z)),
       'XYZ    -> DynamicValue(() => ObjectValue(p.blockOn.loc)),
       'origin -> DynamicValue(() => ObjectValue(p.world.getHighestBlockAt(0,0))),
       // material functions
@@ -289,8 +286,8 @@ object MineLang extends EnrichmentClasses {
       //println(e)
       e match {
         case Sequential(exps:List[Expr]) => exps.map(eval(_, env)).last
-        case Bool(b)       => BoolValue(b)
-        case Num(i)        => IntValue(i)
+        case Bool(b)       => ObjectValue(b)
+        case Num(i)        => ObjectValue(i)
         case StringExpr(s) => ObjectValue(s)
         case EvaledExpr(v) => v
         case UnitExpr      => UnitValue
@@ -325,7 +322,7 @@ object MineLang extends EnrichmentClasses {
             sys error s"could not find constructor on class $c with args $evaledArgs"
           )(con =>
             // then call the constructor with the value (.value) of each of the args
-            getValue(con.newInstance(evaledArgs.map(_.asInstanceOf[AnyRef]):_*).asInstanceOf[AnyRef])
+            ObjectValue(con.newInstance(evaledArgs.map(_.asInstanceOf[AnyRef]):_*).asInstanceOf[AnyRef])
           )
         }
         // TODO: better error handling in almost all cases
@@ -346,7 +343,7 @@ object MineLang extends EnrichmentClasses {
       if(f isDefinedAt v) f(v) else sys error s"not a valid $argType: $v"
     }
     def evalToInt(e:Expr, env:Env): Int =
-      evalTo(e,env,"int"){ case IntValue(v) => v }
+      evalTo(e,env,"int"){ case ObjectValue(v:Int) => v }
     def evalToLocation(e:Expr, env:Env): Location =
       evalTo(e,env,"location"){ case ObjectValue(l:Location) => l }
     def evalToMaterial(e:Expr, env:Env): Material =
@@ -355,13 +352,6 @@ object MineLang extends EnrichmentClasses {
       evalTo(e,env,"cube"){ case ObjectValue(c@Cube(_,_)) => c }
     def evalToObject(e:Expr, env:Env): Any =
       evalTo(e,env,"object"){ case ObjectValue(o) => o }
-
-    def getValue(o:Object) = o match {
-      // TODO: can i collapse all these Value classes into just ObjectValue?
-      case i:java.lang.Integer     => IntValue(i.intValue)
-      case b:java.lang.Boolean     => BoolValue(b.booleanValue)
-      case res                     => ObjectValue(res)
-    }
 
     def getClasses(as:List[Any]): List[Class[_]] = as map (_ match {
       case i:Int     => classOf[Int]
@@ -377,7 +367,7 @@ object MineLang extends EnrichmentClasses {
         sys error s"could not find method $c.$methodName with args ${args.map(_.getClass).mkString(",")}"
       )(method => {
         //println(args)
-        getValue(method.invoke(invokedOn, args.map(_.asInstanceOf[AnyRef]):_*))
+        ObjectValue(method.invoke(invokedOn, args.map(_.asInstanceOf[AnyRef]):_*))
       })
     }
   }
