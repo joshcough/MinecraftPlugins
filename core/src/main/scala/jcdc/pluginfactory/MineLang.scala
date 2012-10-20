@@ -23,7 +23,7 @@ trait MineLangAST {
   case class Num(i:Int) extends Expr
   case class StringExpr(s:String) extends Expr
   case class Variable(s:Symbol) extends Expr
-  case class EvaledExpr[V](v:Value) extends Expr
+  case class EvaledExpr(v:Value) extends Expr
   case object UnitExpr extends Expr
 
   type Env = Map[Symbol,Value]
@@ -136,14 +136,20 @@ trait MineLangInterpreter extends MineLangAST {
 
   def evalred   (e:Expr, env:Env): Value = reduce(eval(e, env))
   def evalredval(e:Expr, env:Env): Any = evalred(e, env) match {
-    case Closure(l:Lambda, env:Env)  => ???
+    case c@Closure(l, env)  => l args match {
+      case Nil      => () => ()
+      case a1 :: Nil => (a2: Any) =>
+        evalredval(App(EvaledExpr(c), List(EvaledExpr(ObjectValue(a2)))), env)
+      case a1 :: b1 :: Nil => (a2: Any, b2: Any) =>
+        evalredval(App(EvaledExpr(c), List(a2,b2).map(x => EvaledExpr(ObjectValue(x)))), env)
+    }
     case ObjectValue(a)              => a
     case DynamicValue(getter)        => sys error "shouldnt be possible, we already reduced"
     case BuiltinFunction(name, eval) => ???
   }
 
   def eval(e:Expr, env:Env): Value = {
-    //println(e)
+    //println(e -> env)
     e match {
       case Sequential(exps:List[Expr]) => exps.map(eval(_, env)).last
       case Bool(b)       => ObjectValue(b)
@@ -167,7 +173,7 @@ trait MineLangInterpreter extends MineLangAST {
           case blah => sys error s"app expected a function, but got: $blah"
         }
       // TODO: better error handling in almost all cases
-      case New(c, args) => {
+      case New(c, args) =>
         // first, go look up the class by name
         val clas: Class[_] = Class.forName(c)
         // then eval all the arguments
@@ -183,13 +189,11 @@ trait MineLangInterpreter extends MineLangAST {
         // then call the constructor with the value (.value) of each of the args
           ObjectValue(con.newInstance(evaledArgs.map(_.asInstanceOf[AnyRef]):_*).asInstanceOf[AnyRef])
         )
-      }
       // TODO: better error handling in almost all cases
-      case InstanceMethodCall(ob, func, args) => {
+      case InstanceMethodCall(ob, func, args) =>
         // first, eval this dood to an object.
         val o = evalToObject(ob, env)
         invoke(o.getClass, func, o, args map (evalredval(_, env)))
-      }
       case StaticMethodCall(className, func, args) =>
         invoke(Class.forName(className), func, null, args map (evalredval(_, env)))
       case StaticReference(className, field) =>
@@ -203,12 +207,6 @@ trait MineLangInterpreter extends MineLangAST {
   }
   def evalToInt(e:Expr, env:Env): Int =
     evalTo(e,env,"int"){ case ObjectValue(v:Int) => v }
-  def evalToLocation(e:Expr, env:Env): Location =
-    evalTo(e,env,"location"){ case ObjectValue(l:Location) => l }
-  def evalToMaterial(e:Expr, env:Env): Material =
-    evalTo(e,env,"material"){ case ObjectValue(m:Material) => m }
-  def evalToCube(e:Expr, env:Env): Cube =
-    evalTo(e,env,"cube"){ case ObjectValue(c@Cube(_,_)) => c }
   def evalToObject(e:Expr, env:Env): Any =
     evalTo(e,env,"object"){ case ObjectValue(o) => o }
 
@@ -225,8 +223,11 @@ trait MineLangInterpreter extends MineLangAST {
     matches.headOption.fold(
       sys error s"could not find method $c.$methodName with args ${args.map(_.getClass).mkString(",")}"
     )(method => {
-      //println(args)
-      ObjectValue(method.invoke(invokedOn, args.map(_.asInstanceOf[AnyRef]):_*))
+      val finalArgs = args.map(_.asInstanceOf[AnyRef])
+      //println(s"invoking: $invokedOn.$method with $finalArgs")
+      val res = method.invoke(invokedOn, finalArgs:_*)
+      //println(s"res: $res")
+      ObjectValue(res)
     })
   }
   // TODO: repeat this for all AnyVal types.
@@ -239,17 +240,14 @@ trait MineLangInterpreter extends MineLangAST {
       else if (c == classOf[Integer] && isInt(a))  true
       else if (c == classOf[Unit]    && isUnit(a)) true
       else if (c == classOf[scala.runtime.BoxedUnit] && isUnit(a)) true
-      else if (c.isAssignableFrom(classOf[Function1[_,_]])) {
-        println("yo dog, found a function 1!")
-        false
-      }
+      else if (classOf[Function1[_,_]].isAssignableFrom(c) &&
+               classOf[Function1[_,_]].isAssignableFrom(a.getClass)) true
       else a.getClass.isInstance(a)
     cs.size == as.size && cs.zip(as).forall((matches _).tupled)
   }
 
   def builtIn[V](name:Symbol, eval: (List[Expr], Env) => Value) =
     (name -> BuiltinFunction(name, eval))
-
   def builtInUnit(name:Symbol, eval: (List[Expr], Env) => Unit) =
     (name -> BuiltinFunction(name, (es, env) => { ObjectValue(eval(es,env)) }))
 }
@@ -311,6 +309,12 @@ trait MineLangCore extends MineLangInterpreter with MineLangParser {
     "(def not (x) (if x 1 0))"
   ).map(s => parseDef(read(s)))
 
+  //http://stackoverflow.com/questions/6578615/how-to-use-scala-collection-immutable-list-in-a-java-code
+  val listLib = List(
+    "(val nil scala.collection.immutable.Nil$/MODULE$)",
+    "(def cons (h t) (.apply scala.collection.immutable.$colon$colon$/MODULE$ h t))"
+  ).map(s => parseDef(read(s)))
+
   private val initialLib: Env = Map(
     // primitives
     'true   -> ObjectValue(true),
@@ -321,17 +325,20 @@ trait MineLangCore extends MineLangInterpreter with MineLangParser {
     add, sub, mult, lt, lteq, gt, gteq, abs
   )
 
-  val lib = boolLib.foldLeft(initialLib)(evalDef)
+  val lib = (boolLib ::: listLib).foldLeft(initialLib)(evalDef)
 }
 
-object MineLang extends EnrichmentClasses with MineLangParser with MineLangInterpreter with MineLangCore {
+object MineLang extends EnrichmentClasses with MineLangCore {
 
-  def run(code:String, p:Player) = {
-    val ast = parse(code)
-    //println(ast)
-    runProgram(ast, p)
-  }
+  def run(code:String, p:Player) = runProgram(parse(code), p)
   def runProgram(prog:Program, p:Player) = evalProg(prog, lib ++ new WorldEditExtension(p).lib)
+
+  def evalToLocation(e:Expr, env:Env): Location =
+    evalTo(e,env,"location"){ case ObjectValue(l:Location) => l }
+  def evalToMaterial(e:Expr, env:Env): Material =
+    evalTo(e,env,"material"){ case ObjectValue(m:Material) => m }
+  def evalToCube(e:Expr, env:Env): Cube =
+    evalTo(e,env,"cube"){ case ObjectValue(c@Cube(_,_)) => c }
 
   case class WorldEditExtension(p:Player) {
     val getMaterial = builtIn('material, (exps, env) => {

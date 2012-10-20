@@ -10,9 +10,11 @@ case class Point(x:Int, y:Int){
   override def toString = s"($x,$y)"
   def invoke1(i:java.lang.Integer) = "6"
   def invoke2(i:Int) = "6"
-  def invoke3(i:Int, i2:java.lang.Integer) = "6"
+  def invoke3(i:Int, i2:java.lang.Integer)  = "6"
   def invoke4(i:Int, i2:java.lang.Integer*) = "6"
-  def invokeHof(f: Int => Int) = f(7)
+  def invokeFun1a(f: Any => Int) = f(7)
+  def invokeFun1b(f: Int => Int) = f(8)
+  def invokeFun2a(f: (Int, Int) => Int) = f(8, 9)
 }
 
 object MineLangTests extends Properties("MinecraftParserTests") {
@@ -27,8 +29,10 @@ object MineLangTests extends Properties("MinecraftParserTests") {
   val staticField1  = """(java.lang.Math/PI)"""
 
   val lamTest = "(((lam (x) x) 7))"
-  val invokeWithHof = """((.invokeHof (new jcdc.pluginfactory.Point 5 6) (lam (x) x)))"""
-
+  val invokeWithFun1a = """((.invokeFun1a (new jcdc.pluginfactory.Point 5 6) (lam (x) x)))"""
+  val invokeWithFun1b = """((.invokeFun1b (new jcdc.pluginfactory.Point 5 6) (lam (x) (+ x x))))"""
+  val invokeWithFun2a = """((.invokeFun2a (new jcdc.pluginfactory.Point 5 6) (lam (x y) (* 9 8))))"""
+  val listMap = """((.map (cons 1 (cons 2 (cons 3 nil))) (lam (x) (* x x))))"""
 
   // simple java interop tests
   evalTest("constructorCall1", constructorCall1, ObjectValue(Point(5,6)))
@@ -39,8 +43,14 @@ object MineLangTests extends Properties("MinecraftParserTests") {
   evalTest("instanceCall3",    instanceCall3,    ObjectValue("6"))
   evalTest("staticCall1",      staticCall1,      ObjectValue("5"))
   evalTest("staticField1",     staticField1,     ObjectValue(Math.PI))
-  evalTest("lamTest",       lamTest, ObjectValue(7))
-//  evalTest("invokeWithHof", invokeWithHof, ObjectValue(7))
+  evalTest("lamTest",          lamTest,          ObjectValue(7))
+  evalTest("invokeWithFun1a",  invokeWithFun1a,  ObjectValue(7))
+  evalTest("invokeWithFun1b",  invokeWithFun1b,  ObjectValue(16))
+  evalTest("invokeWithFun2a",  invokeWithFun2a,  ObjectValue(72))
+
+  evalTest("access nil",  s"(nil)",  ObjectValue(Nil))
+  evalTest("apply cons",  s"((cons 1 nil))",  ObjectValue(List(1)))
+  evalTest("list map"  ,  listMap,  ObjectValue(List(1, 4, 9)))
 
   // more full tests
   val fact = "((defrec fact (n) (if (eq n 0) 1 (* n (fact (- n 1))))) (fact 5))"
