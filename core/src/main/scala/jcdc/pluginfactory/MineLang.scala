@@ -217,11 +217,15 @@ trait MineLangInterpreter extends MineLangAST {
   })
 
   def invoke(c:Class[_], methodName:String, invokedOn: Any, args:List[Any]) = {
+    //println(s"trying to invoke: $c.$methodName (on object $invokedOn) w/ args: $args")
+    //println(c.getMethods.filter(_.getName == "map").mkString(","))
     val methods    = c.getMethods.filter(_.getName == methodName)
     val matches    = methods.filter(m => matchesAll(m.getParameterTypes, args))
     // todo: obviously do something better if there are more than one matches.
     matches.headOption.fold(
-      sys error s"could not find method $c.$methodName with args ${args.map(_.getClass).mkString(",")}"
+      sys error s"could not find method $c.$methodName (on object $invokedOn) with args ${
+        args.map(_.getClass).mkString(",")
+      }"
     )(method => {
       val finalArgs = args.map(_.asInstanceOf[AnyRef])
       //println(s"invoking: $invokedOn.$method with $finalArgs")
@@ -232,8 +236,8 @@ trait MineLangInterpreter extends MineLangAST {
   }
   // TODO: repeat this for all AnyVal types.
   def matchesAll(cs:Seq[Class[_]], as:Seq[Any]) = {
-    //    println(s"matching $cs with $as")
-    def isInt(a:Any)  = a.isInstanceOf[Int] || a.isInstanceOf[Integer]
+    //println(s"matching $cs with $as")
+    def isInt(a:Any)  = a.isInstanceOf[Int]  || a.isInstanceOf[Integer]
     def isUnit(a:Any) = a.isInstanceOf[Unit] || a.isInstanceOf[scala.runtime.BoxedUnit]
     def matches(c:Class[_], a:Any): Boolean =
       if      (c == classOf[Int]     && isInt(a))  true
@@ -246,7 +250,7 @@ trait MineLangInterpreter extends MineLangAST {
     cs.size == as.size && cs.zip(as).forall((matches _).tupled)
   }
 
-  def builtIn[V](name:Symbol, eval: (List[Expr], Env) => Value) =
+  def builtIn(name:Symbol, eval: (List[Expr], Env) => Value) =
     (name -> BuiltinFunction(name, eval))
   def builtInUnit(name:Symbol, eval: (List[Expr], Env) => Unit) =
     (name -> BuiltinFunction(name, (es, env) => { ObjectValue(eval(es,env)) }))

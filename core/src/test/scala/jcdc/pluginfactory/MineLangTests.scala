@@ -19,20 +19,19 @@ case class Point(x:Int, y:Int){
 
 object MineLangTests extends Properties("MinecraftParserTests") {
 
-  val constructorCall1    = "((new jcdc.pluginfactory.Point 5 6))"
-  val constructorCall2    = "((new jcdc.pluginfactory.Point 5 6 unit))"
-  val instanceCall0 = "((.toString (new jcdc.pluginfactory.Point 5 6)))"
-  val instanceCall1 = """((.invoke1 (new jcdc.pluginfactory.Point 5 6) 0))"""
-  val instanceCall2 = """((.invoke2 (new jcdc.pluginfactory.Point 5 6) 0))"""
-  val instanceCall3 = """((.invoke3 (new jcdc.pluginfactory.Point 5 6) 0 0))"""
-  val staticCall1   = """((java.lang.String/valueOf 5))"""
-  val staticField1  = """(java.lang.Math/PI)"""
-
-  val lamTest = "(((lam (x) x) 7))"
-  val invokeWithFun1a = """((.invokeFun1a (new jcdc.pluginfactory.Point 5 6) (lam (x) x)))"""
-  val invokeWithFun1b = """((.invokeFun1b (new jcdc.pluginfactory.Point 5 6) (lam (x) (+ x x))))"""
-  val invokeWithFun2a = """((.invokeFun2a (new jcdc.pluginfactory.Point 5 6) (lam (x y) (* 9 8))))"""
-  val listMap = """((.map (cons 1 (cons 2 (cons 3 nil))) (lam (x) (* x x))))"""
+  val constructorCall1 = """((new jcdc.pluginfactory.Point 5 6))"""
+  val constructorCall2 = """((new jcdc.pluginfactory.Point 5 6 unit))"""
+  val instanceCall0    = """((.toString (new jcdc.pluginfactory.Point 5 6)))"""
+  val instanceCall1    = """((.invoke1 (new jcdc.pluginfactory.Point 5 6) 0))"""
+  val instanceCall2    = """((.invoke2 (new jcdc.pluginfactory.Point 5 6) 0))"""
+  val instanceCall3    = """((.invoke3 (new jcdc.pluginfactory.Point 5 6) 0 0))"""
+  val staticCall1      = """((java.lang.String/valueOf 5))"""
+  val staticField1     = """(java.lang.Math/PI)"""
+  val lamTest          = """(((lam (x) x) 7))"""
+  val invokeWithFun1a  = """((.invokeFun1a (new jcdc.pluginfactory.Point 5 6) (lam (x) x)))"""
+  val invokeWithFun1b  = """((.invokeFun1b (new jcdc.pluginfactory.Point 5 6) (lam (x) (+ x x))))"""
+  val invokeWithFun2a  = """((.invokeFun2a (new jcdc.pluginfactory.Point 5 6) (lam (x y) (* 9 8))))"""
+  val listMap          = """((.map (cons 1 (cons 2 (cons 3 nil))) (lam (x) (* x x))))"""
 
   // simple java interop tests
   evalTest("constructorCall1", constructorCall1, ObjectValue(Point(5,6)))
@@ -47,10 +46,9 @@ object MineLangTests extends Properties("MinecraftParserTests") {
   evalTest("invokeWithFun1a",  invokeWithFun1a,  ObjectValue(7))
   evalTest("invokeWithFun1b",  invokeWithFun1b,  ObjectValue(16))
   evalTest("invokeWithFun2a",  invokeWithFun2a,  ObjectValue(72))
-
   evalTest("access nil",  s"(nil)",  ObjectValue(Nil))
   evalTest("apply cons",  s"((cons 1 nil))",  ObjectValue(List(1)))
-  evalTest("list map"  ,  listMap,  ObjectValue(List(1, 4, 9)))
+//  evalTest("list map"  ,  listMap,  ObjectValue(List(1, 4, 9)))
 
   // more full tests
   val fact = "((defrec fact (n) (if (eq n 0) 1 (* n (fact (- n 1))))) (fact 5))"
