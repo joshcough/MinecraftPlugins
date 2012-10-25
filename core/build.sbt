@@ -24,3 +24,5 @@ resolvers ++= Seq(
 libraryDependencies += "org.scalacheck" % "scalacheck_2.10.0-M7" % "1.10.0" % "test"
 
 libraryDependencies += "org.scalaz" % "scalaz-core_2.10.0-M7" % "7.0.0-M3"
+
+libraryDependencies += "org.clojure" % "clojure" % "1.4.0"
