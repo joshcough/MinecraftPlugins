@@ -51,14 +51,17 @@ object MineLangTests extends Properties("MinecraftParserTests") {
 // TODO: failing
 //  evalTest("list map"  ,  listMap,  ObjectValue(List(1, 4, 9)))
 
-  // more full tests
-  val fact = "((defrec fact (n) (if (eq n 0) 1 (* n (fact (- n 1))))) (fact 5))"
-  val houseDefs = new java.io.File("../minelang/house.mc")
-  parseDefsTest("house defs parse", houseDefs, 12)
-  evalWithDefsTest("house defs eval", "(city)", UnitValue, houseDefs)
-  evalTest("fact",          fact,  ObjectValue(120))
   evalTest("expansionTest", expansionTest,
     ObjectValue(Cube(TestServer.world(12,3,12), TestServer.world(-2,3,-2))))
+
+  val factorialDefs = new java.io.File("../minelang/factorial.mc")
+  parseDefsTest("factorial defs parse", factorialDefs, 2)
+  evalWithDefsTest("factorial defs eval", "(test)", ObjectValue(120), factorialDefs)
+
+  val houseDefs = new java.io.File("../minelang/house.mc")
+  parseDefsTest("house defs parse", houseDefs, 11)
+  evalWithDefsTest("house defs eval", "(city)", UnitValue, houseDefs)
+
 
   def evalTest(name:String, code:String, expected:Value) =
     property(name) = secure { run(code, expected) }
@@ -68,21 +71,16 @@ object MineLangTests extends Properties("MinecraftParserTests") {
 
   def parseDefsTest(name:String, code:java.io.File, expected:Int) =
     property(name) = secure {
-      attemptThrowable {
-        val defs: List[Def] = MineLang.parseDefs(io.Reader.read(code))
-        println(defs.mkString("\n"))
-        defs.size == expected
-      }
+      attemptThrowable { MineLang.parseDefs(io.Reader.read(code)).size == expected }
     }
 
   def run(code:String, expected:AnyRef): Boolean = attemptThrowable {
     val actual = MineLang.run(code, TestServer.player)
-//    println(s"Result: $actual")
+    println(s"Result: $actual")
     actual == expected
   }
 
   def runWithDefs(code:String, expected:AnyRef, defs:List[Def]): Boolean = attemptThrowable {
-    println(defs.map(_.name))
     val actual = runProgram(Program(defs, parseExpr(read(code))), TestServer.player)
     println(s"Result: $actual")
     actual == expected

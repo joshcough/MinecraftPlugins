@@ -2,18 +2,19 @@
   (val do-nothing unit)
   (def even (n) (eq (% n 2) 0))
 
-  (def closed (c)
-    (or
-      (<= (- (.maxX c) (.minX c)) 1)
-      (<= (- (.maxZ c) (.minZ c)) 1)
-    )
-  )
   (defrec pyramid (c m)
     (begin
       (cube:set-walls c m)
-      (if (closed c)
-        do-nothing
-        (pyramid (.shiftY (.shrinkIn c 1) 1) m)
+      (let (closed (lam (c)
+                      (or
+                        (<= (- (.maxX c) (.minX c)) 1)
+                        (<= (- (.maxZ c) (.minZ c)) 1)
+                      )
+                    ))
+        (if (closed c)
+          do-nothing
+          (pyramid (.shiftY (.shrinkIn c 1) 1) m)
+        )
       )
     )
   )
@@ -35,7 +36,7 @@
       (begin
         ;(message nr-houses)
         (house-builder-f at)
-        (house-row (loc (+ 20 (.getX at)) (.getY at) (.getZ at)) (- nr-houses 1) house-builder-f)
+        (build-house-row (loc (+ 20 (.getX at)) (.getY at) (.getZ at)) (- nr-houses 1) house-builder-f)
       )
     )
   )

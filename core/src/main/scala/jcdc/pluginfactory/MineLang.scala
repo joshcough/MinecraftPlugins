@@ -8,32 +8,33 @@ trait MineLangAST {
   case class Program(defs:List[Def], body:Expr)
 
   sealed trait Def{ val name:Symbol }
-  case class Defn(name:Symbol, lam:Lambda) extends Def
-  case class Val (name:Symbol, expr:Expr)  extends Def
+    case class Defn(name:Symbol, lam:Lambda) extends Def
+    case class Val (name:Symbol, expr:Expr)  extends Def
 
   sealed trait Expr
-  case class Lambda(args:List[Symbol], body: Expr, recursive:Option[Symbol]) extends Expr
-  case class Let(x:Symbol, e:Expr, body:Expr) extends Expr
-  case class App(f:Expr, args:List[Expr]) extends Expr
-  case class New(className:String, args:List[Expr]) extends Expr
-  case class StaticMethodCall(className:String, func:String, args:List[Expr]) extends Expr
-  case class StaticReference(className:String, field:String) extends Expr
-  case class InstanceMethodCall(obj:Expr, func:String, args:List[Expr]) extends Expr
-  case class Sequential(exps:List[Expr]) extends Expr
-  case class Bool(b:Boolean)      extends Expr
-  case class Num(i:Int)           extends Expr
-  case class StringExpr(s:String) extends Expr
-  case class Variable(s:Symbol)   extends Expr
-  case class EvaledExpr(v:Value)  extends Expr
-  case object UnitExpr            extends Expr
+    case class Lambda(args:List[Symbol], body: Expr, recursive:Option[Symbol]) extends Expr
+    case class Let(x:Symbol, e:Expr, body:Expr) extends Expr
+    case class LetRec(x:Symbol, e:Expr, body:Expr) extends Expr
+    case class App(f:Expr, args:List[Expr]) extends Expr
+    case class New(className:String, args:List[Expr]) extends Expr
+    case class StaticMethodCall(className:String, func:String, args:List[Expr]) extends Expr
+    case class StaticReference(className:String, field:String) extends Expr
+    case class InstanceMethodCall(obj:Expr, func:String, args:List[Expr]) extends Expr
+    case class Sequential(exps:List[Expr]) extends Expr
+    case class Bool(b:Boolean)      extends Expr
+    case class Num(i:Int)           extends Expr
+    case class StringExpr(s:String) extends Expr
+    case class Variable(s:Symbol)   extends Expr
+    case class EvaledExpr(v:Value)  extends Expr
+    case object UnitExpr            extends Expr
 
   type Env = Map[Symbol,Value]
 
   sealed trait Value
-  case class Closure(l:Lambda, env:Env) extends Value
-  case class ObjectValue(value:Any)           extends Value
-  case class DynamicValue(value: () => Value) extends Value
-  case class BuiltinFunction(name: Symbol, eval: (List[Expr], Env) => Value) extends Value
+    case class Closure(l:Lambda, env:Env) extends Value
+    case class ObjectValue(value:Any)           extends Value
+    case class DynamicValue(value: () => Value) extends Value
+    case class BuiltinFunction(name: Symbol, eval: (List[Expr], Env) => Value) extends Value
 }
 
 trait MineLangParser extends MineLangAST {
@@ -41,11 +42,13 @@ trait MineLangParser extends MineLangAST {
   def read(code:File)  : Any = io.Reader read code
   def parse(code:String): Program = parseProgram(read(code))
 
-  def parseProgram(a:Any): Program = a match {
-    case Nil         => sys error s"bad program: $a"
-    case List(x)     => Program(Nil,parseExpr(x))
-    case l@(x :: xs) => Program(l.init map parseDef, parseExpr(l.last))
-    case _           => sys error s"bad program: $a"
+  def parseProgram(a:Any): Program = {
+    a match {
+      case Nil         => sys error s"bad program: $a"
+      case List(x)     => Program(Nil,parseExpr(x))
+      case l@(x :: xs) => Program(l.init map parseDef, parseExpr(l.last))
+      case _           => sys error s"bad program: $a"
+    }
   }
 
   def parseDefs(a:Any): List[Def] ={
@@ -99,6 +102,10 @@ trait MineLangParser extends MineLangAST {
       case List('let, List(arg, expr), body) => arg match {
         case s:Symbol => Let(s, parseExpr(expr), parseExpr(body))
         case _ => sys error s"bad let argument: $a"
+      }
+      case List('letrec, List(arg, List('lam, args, expr)), body) => arg match {
+        case s:Symbol => LetRec(s, parseLambda(args, expr, Some(s)), parseExpr(body))
+        case _ => sys error s"bad letrec argument: $a"
       }
       case 'begin :: body          => Sequential(body map parseExpr)
       // finally, function application
@@ -155,7 +162,8 @@ trait MineLangInterpreter extends MineLangAST {
   }
 
   def eval(e:Expr, env:Env): Value = {
-    e match {
+    //println(s"eval: $e")
+    val res = e match {
       case Sequential(exps:List[Expr]) => exps.map(eval(_, env)).last
       case Bool(b)       => ObjectValue(b)
       case Num(i)        => ObjectValue(i)
@@ -164,7 +172,10 @@ trait MineLangInterpreter extends MineLangAST {
       case UnitExpr      => ObjectValue(())
       case Variable(s)   => env.get(s).getOrElse(sys error s"not found: $s in: ${env.keys}")
       case l@Lambda(_, _, _) => Closure(l, env)
-      case Let(x:Symbol, e:Expr, body:Expr) => eval(body, env + (x -> eval(e,env)))
+      case Let(x:Symbol, e:Expr, body:Expr) =>
+        eval(body, env + (x -> eval(e,env)))
+      case LetRec(x:Symbol, e:Lambda, body:Expr) =>
+        eval(body, env + (x -> eval(e, env + (x -> Closure(e,env)))))
       case App(f:Expr, args:List[Expr]) =>
         evalred(f, env) match {
           // todo: make sure formals.size == args.size...
@@ -204,6 +215,8 @@ trait MineLangInterpreter extends MineLangAST {
       case StaticReference(className, field) =>
         ObjectValue(Class.forName(className).getField(field).get(null))
     }
+    //println(s"eval res: $res")
+    res
   }
 
   def evalTo[T](e:Expr, env:Env, argType:String)(f: PartialFunction[Value, T]): T = {
