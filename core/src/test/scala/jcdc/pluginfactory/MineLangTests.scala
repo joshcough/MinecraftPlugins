@@ -3,7 +3,7 @@ package jcdc.pluginfactory
 import org.scalacheck.Properties
 import org.scalacheck.Prop.secure
 import MineLang._
-import MineLangExamples._
+import java.io.File
 
 case class Point(x:Int, y:Int){
   def this(x:java.lang.Integer, y:java.lang.Integer, z:Unit) = this(x, y)
@@ -51,14 +51,17 @@ object MineLangTests extends Properties("MinecraftParserTests") {
 // TODO: failing
 //  evalTest("list map"  ,  listMap,  ObjectValue(List(1, 4, 9)))
 
-  evalTest("expansionTest", expansionTest,
-    ObjectValue(Cube(TestServer.world(12,3,12), TestServer.world(-2,3,-2))))
+  evalTest(
+    "expand",
+    fileToString(new File("../minelang/expand.mc")),
+    ObjectValue(Cube(TestServer.world(12,3,12), TestServer.world(-2,3,-2)))
+  )
 
-  val factorialDefs = new java.io.File("../minelang/factorial.mc")
+  val factorialDefs = new File("../minelang/factorial.mc")
   parseDefsTest("factorial defs parse", factorialDefs, 2)
   evalWithDefsTest("factorial defs eval", "(test)", ObjectValue(120), factorialDefs)
 
-  val houseDefs = new java.io.File("../minelang/house.mc")
+  val houseDefs = new File("../minelang/house.mc")
   parseDefsTest("house defs parse", houseDefs, 11)
   evalWithDefsTest("house defs eval", "(city)", UnitValue, houseDefs)
 
@@ -66,12 +69,12 @@ object MineLangTests extends Properties("MinecraftParserTests") {
   def evalTest(name:String, code:String, expected:Value) =
     property(name) = secure { run(code, expected) }
 
-  def evalWithDefsTest(name:String, code:String, expected:Value, defs:java.io.File) =
+  def evalWithDefsTest(name:String, code:String, expected:Value, defs:File) =
     property(name) = secure { runWithDefs(code, expected, parseDefs(read(defs))) }
 
-  def parseDefsTest(name:String, code:java.io.File, expected:Int) =
+  def parseDefsTest(name:String, code:File, expected:Int) =
     property(name) = secure {
-      attemptThrowable { MineLang.parseDefs(io.Reader.read(code)).size == expected }
+      attemptThrowable { MineLang.parseDefs(read(code)).size == expected }
     }
 
   def run(code:String, expected:AnyRef): Boolean = attemptThrowable {

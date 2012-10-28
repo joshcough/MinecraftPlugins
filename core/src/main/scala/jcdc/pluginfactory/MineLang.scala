@@ -37,9 +37,7 @@ trait MineLangAST {
     case class BuiltinFunction(name: Symbol, eval: (List[Expr], Env) => Value) extends Value
 }
 
-trait MineLangParser extends MineLangAST {
-  def read(code:String): Any = io.Reader read code
-  def read(code:File)  : Any = io.Reader read code
+trait MineLangParser extends MineLangAST with io.Reader {
   def parse(code:String): Program = parseProgram(read(code))
 
   def parseProgram(a:Any): Program = {

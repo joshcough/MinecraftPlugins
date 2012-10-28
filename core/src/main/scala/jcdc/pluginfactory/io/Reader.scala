@@ -8,8 +8,8 @@ object Reader extends Reader
 trait Reader {
 
   def read(s:String)  : Any = read(stripComments(s).toList)
-  def read(f:File)    : Any = read(readFile(f))
-  def readFile(f:File): String = Source.fromFile(f).getLines().mkString("\n")
+  def read(f:File)    : Any = read(fileToString(f))
+  def fileToString(f:File): String = Source.fromFile(f).getLines().mkString("\n")
 
   def stripComments(code:String) = code.split("\n").map(s => s.takeWhile(_!=';').trim).mkString(" ")
   def read(data:List[Char]): Any = readWithRest(data)._1
