@@ -8,7 +8,7 @@ trait MineLangAST {
 
   sealed trait Def
   case class Defn(name:Symbol, lam:Lambda) extends Def
-  case class Val (name:Symbol, expr:Expr) extends Def
+  case class Val (name:Symbol, expr:Expr)  extends Def
 
   sealed trait Expr
   case class Lambda(args:List[Symbol], body: Expr, recursive:Option[Symbol]) extends Expr
@@ -19,12 +19,12 @@ trait MineLangAST {
   case class StaticReference(className:String, field:String) extends Expr
   case class InstanceMethodCall(obj:Expr, func:String, args:List[Expr]) extends Expr
   case class Sequential(exps:List[Expr]) extends Expr
-  case class Bool(b:Boolean) extends Expr
-  case class Num(i:Int) extends Expr
+  case class Bool(b:Boolean)      extends Expr
+  case class Num(i:Int)           extends Expr
   case class StringExpr(s:String) extends Expr
-  case class Variable(s:Symbol) extends Expr
-  case class EvaledExpr(v:Value) extends Expr
-  case object UnitExpr extends Expr
+  case class Variable(s:Symbol)   extends Expr
+  case class EvaledExpr(v:Value)  extends Expr
+  case object UnitExpr            extends Expr
 
   type Env = Map[Symbol,Value]
 
