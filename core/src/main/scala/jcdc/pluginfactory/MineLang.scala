@@ -299,16 +299,10 @@ trait MineLangCore extends MineLangInterpreter with MineLangParser {
     (evalred(exps(0), env),evalred(exps(1), env),evalred(exps(2), env)) match {
       case (ObjectValue(n:Int), ObjectValue(waitTime:Int), c@Closure(lam, env))  =>
         new Thread(new Runnable() {
-          def run(){
-            (1 to n).foreach(n => {
-              call(c, List(n), env)
-              Thread.sleep(waitTime * 1000)
-            }
-          )}
+          def run(){ (1 to n).foreach(n => {call(c, List(n), env); Thread.sleep(waitTime * 1000)})}
         }).start
         UnitValue
-      case (i,w,f) =>
-        sys error s"bad args to spawn. expected <int> <int> <function>, but got: $i, $w $f"
+      case (i,w,f) => sys error s"spawn expected <int> <int> <function>, but got: $i, $w $f"
     }
   )
   val add = builtIn('+, (exps, env) => {
