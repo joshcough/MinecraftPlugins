@@ -17,19 +17,19 @@
       )
     )
   )
-  (def ceiling (c m) (begin (pyramid (.expandOut (.ceiling c) 1) m) c))
-  (def house (start-point h w d floor-m walls-m roof-m)
+  (def build-ceiling (c m) (begin (pyramid (.expandOut (.ceiling c) 1) m) c))
+  (def build-house (start-point h w d floor-m walls-m roof-m)
     (let (c (.growUp (.expandZ (.expandX (new jcdc.pluginfactory.Cube start-point start-point) w) d) h))
       (begin
         (cube:set-all   c "air")
         (cube:set-floor c floor-m)
         (cube:set-walls c walls-m)
-        (ceiling c roof-m)
+        (build-ceiling c roof-m)
         c
       )
     )
   )
-  (defrec house-row (at nr-houses house-builder-f)
+  (defrec build-house-row (at nr-houses house-builder-f)
     (if (eq nr-houses 0)
       do-nothing
       (begin
@@ -40,12 +40,12 @@
     )
   )
   ; builds a skyscraper
-  (def skyscraper (l)   (house l 50 8 10 "stone" "obsidian" "diamond_block"))
+  (def build-skyscraper (l)   (build-house l 50 8 10 "stone" "obsidian" "diamond_block"))
   ; builds a house - 5 = wood plank, 17 = wood, 20 = glass
-  (def normal-house (l) (house l 4 3 3 "5" "17" "20"))
+  (def build-normal-house (l) (build-house l 4 3 3 "5" "17" "20"))
 
-  (def city    () (house-row XYZ 10 skyscraper))
-  (def village () (house-row XYZ  6 normal-house))
+  (def city    () (build-house-row XYZ 10 build-skyscraper))
+  (def village () (build-house-row XYZ  6 build-normal-house))
 
   (def living-house ()
     (let (c (normal-house XYZ))
