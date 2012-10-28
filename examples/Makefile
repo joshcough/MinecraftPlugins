@@ -1,8 +1,8 @@
 all: compile arena ban-arrows block-changer block-changer-gold curse-ban farmer god lightning-arrows mpc no-rain thor tree-delogger warp-plugin world-edit yellow-brick-road zombie-apocalypse
 
 demo: clean-plugins compile block-changer block-changer-gold mpc plugin-commander warp-plugin world-edit
-#we: clean-plugins compile mpc world-edit
-we: world-edit
+we: clean-plugins compile mpc world-edit
+#we: world-edit
 test: compile run-tests
 
 perms: clean-plugins compile permissions-test
@@ -70,8 +70,7 @@ warp-plugin:
 	$(call plugin, "warpplugin.yml", "WarpPlugin.jar")
 
 world-edit:
-	#$(call plugin, "worldedit.yml", "WorldEdit.jar")
-	$(call package, "worldedit.yml", "WorldEdit.jar")
+	$(call plugin, "worldedit.yml", "WorldEdit.jar")
 
 yellow-brick-road:
 	$(call plugin, "yellowbrickroad.yml", "YellowBrickRoad.jar")

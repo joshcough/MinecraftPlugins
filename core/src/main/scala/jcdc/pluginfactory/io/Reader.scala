@@ -1,10 +1,16 @@
 package jcdc.pluginfactory.io
 
+import java.io.File
+import io.Source
+
 object Reader extends Reader
 
 trait Reader {
 
-  def read(s:String): Any = read(stripComments(s).toList)
+  def read(s:String)  : Any = read(stripComments(s).toList)
+  def read(f:File)    : Any = read(readFile(f))
+  def readFile(f:File): String = Source.fromFile(f).getLines().mkString("\n")
+
   def stripComments(code:String) = code.split("\n").map(s => s.takeWhile(_!=';').trim).mkString(" ")
   def read(stream:List[Char]): Any = readWithRest(stream)._1
   def readWithRest(s:String): (Any, String) = {

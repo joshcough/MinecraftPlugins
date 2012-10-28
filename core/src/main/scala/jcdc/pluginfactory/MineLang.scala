@@ -2,6 +2,7 @@ package jcdc.pluginfactory
 
 import org.bukkit.{Location, Material}
 import org.bukkit.entity.Player
+import java.io.File
 
 trait MineLangAST {
   case class Program(defs:List[Def], body:Expr)
@@ -37,7 +38,7 @@ trait MineLangAST {
 
 trait MineLangParser extends MineLangAST {
   def read(code:String): Any = io.Reader read code
-
+  def read(code:File)  : Any = io.Reader read code
   def parse(code:String): Program = parseProgram(read(code))
 
   def parseProgram(a:Any): Program = a match {
@@ -47,10 +48,13 @@ trait MineLangParser extends MineLangAST {
     case _           => sys error s"bad program: $a"
   }
 
-  def parseDefs(a:Any): List[Def] = a match {
-    case Nil         => sys error s"bad defs: $a"
-    case l@(x :: xs) => l map parseDef
-    case _           => sys error s"bad defs: $a"
+  def parseDefs(a:Any): List[Def] ={
+    //println(a)
+    a match {
+      case Nil         => sys error s"bad defs: $a"
+      case l@(x :: xs) => l map parseDef
+      case _           => sys error s"bad defs: $a"
+    }
   }
 
   def parseDef(a:Any): Def = {
@@ -76,6 +80,7 @@ trait MineLangParser extends MineLangAST {
       }
       a match {
         case x :: xs => (x :: xs).map(parseLamArg)
+        case Nil => Nil
         case _ => sys error s"bad lambda arg list: $a"
       }
     }
@@ -168,6 +173,7 @@ trait MineLangInterpreter extends MineLangAST {
             val envWithoutRecursion = closedOverEnv ++ formals.zip(args map (eval(_, env)))
             val finalEnv =
               rec.fold(envWithoutRecursion)(name => envWithoutRecursion + (name -> c))
+            //println("making call with finalEnv: "  + finalEnv.keys.mkString(", "))
             eval(body, finalEnv)
           case BuiltinFunction(name, f) => f(args, env)
           case blah => sys error s"app expected a function, but got: $blah"
@@ -204,6 +210,13 @@ trait MineLangInterpreter extends MineLangAST {
   def evalTo[T](e:Expr, env:Env, argType:String)(f: PartialFunction[Value, T]): T = {
     val v = evalred(e,env)
     if(f isDefinedAt v) f(v) else sys error s"not a valid $argType: $v"
+  }
+  protected def allNumbers(as: List[Any]) =
+    as.forall(x => x.isInstanceOf[Int] || x.isInstanceOf[Double])
+  protected def toInt(a:Any): Int = a match {
+    case i:Int => i
+    case d:Double => d.toInt
+    case  _ => sys error s"not a number: $a"
   }
   def evalToInt(e:Expr, env:Env): Int =
     evalTo(e,env,"int"){ case ObjectValue(v:Int) => v }
@@ -280,8 +293,9 @@ trait MineLangCore extends MineLangInterpreter with MineLangParser {
   )
   val add = builtIn('+, (exps, env) => {
     val vals = exps.map(e => evalredval(e, env))
-    if (vals.forall(_.isInstanceOf[Int])) // all numbers
-      ObjectValue(vals.map(_.asInstanceOf[Int]).foldLeft(0){(acc,i) => acc + i})
+    if (allNumbers(vals)){ // all numbers
+      ObjectValue(vals.map(toInt).foldLeft(0){(acc,i) => acc + i})
+    }
     else if (vals.forall(_.isInstanceOf[String])) // all strings
       ObjectValue(vals.foldLeft(""){(acc,s) => acc + s })
     else sys error s"+ expected all numbers or all strings, but got $vals"
@@ -359,12 +373,10 @@ object MineLang extends EnrichmentClasses with MineLangCore {
       p ! s"teleported to: ${loc.xyz}"; p.teleport(loc)
     })
     val loc = builtIn('loc, (exps, env) => {
-      val (xe,ye,ze) = (evalred(exps(0),env),evalred(exps(1),env),evalred(exps(2),env))
-      (xe,ye,ze) match {
-        case (ObjectValue(xv:Int), ObjectValue(yv:Int), ObjectValue(zv:Int)) =>
-          ObjectValue(new Location(p.world,xv,yv,zv))
-        case _ => sys error s"bad location data: ${(xe,ye,ze)}"
-      }
+      val (xe,ye,ze) = (evalredval(exps(0),env),evalredval(exps(1),env),evalredval(exps(2),env))
+      if (allNumbers(List(xe,ye,ze)))
+        ObjectValue(new Location(p.world,toInt(xe),toInt(ye),toInt(ze)))
+      else sys error s"bad location data: ${(xe,ye,ze)}"
     })
 
     // here are all the cube block mutation functions.

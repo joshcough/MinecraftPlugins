@@ -8,7 +8,7 @@ scalaVersion := "2.10.0-M7"
 
 libraryDependencies += "javax.servlet" % "servlet-api" % "2.5" % "provided->default"
 
-libraryDependencies += "bukkit" % "craft-bukkit" % "1.3.2-R2.0" from "http://dl.bukkit.org/downloads/craftbukkit/get/01460_1.3.2-R2.0/craftbukkit.jar"
+libraryDependencies += "bukkit" % "craft-bukkit" % "1.4.2-R0.1" from "http://dl.bukkit.org/downloads/craftbukkit/get/01489_1.4.2-R0.1/craftbukkit-dev.jar"
 
 libraryDependencies += "jcdc.pluginfactory" % "jcdc-plugin-factory_2.10" % "0.1"
 

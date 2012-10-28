@@ -10,7 +10,7 @@ resolvers += Resolver.sonatypeRepo("snapshots")
 
 libraryDependencies += "javax.servlet" % "servlet-api" % "2.5" % "provided->default"
 
-libraryDependencies += "bukkit" % "craft-bukkit" % "1.3.2-R2.0" from "http://dl.bukkit.org/downloads/craftbukkit/get/01460_1.3.2-R2.0/craftbukkit.jar"
+libraryDependencies += "bukkit" % "craft-bukkit" % "1.4.2-R0.1" from "http://dl.bukkit.org/downloads/craftbukkit/get/01489_1.4.2-R0.1/craftbukkit-dev.jar"
 
 libraryDependencies += "ch.spacebase" % "NPCCreatures" % "1.4" from "http://dev.bukkit.org/media/files/584/232/NPCCreatures.jar"
 
