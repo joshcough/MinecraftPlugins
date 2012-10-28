@@ -14,7 +14,7 @@ trait MineLangAST {
   sealed trait Expr
     case class Lambda(args:List[Symbol], body: Expr, recursive:Option[Symbol]) extends Expr
     case class Let(x:Symbol, e:Expr, body:Expr) extends Expr
-    case class LetRec(x:Symbol, e:Expr, body:Expr) extends Expr
+    case class LetRec(x:Symbol, e:Lambda, body:Expr) extends Expr
     case class App(f:Expr, args:List[Expr]) extends Expr
     case class New(className:String, args:List[Expr]) extends Expr
     case class StaticMethodCall(className:String, func:String, args:List[Expr]) extends Expr
@@ -164,27 +164,24 @@ trait MineLangInterpreter extends MineLangAST {
   def eval(e:Expr, env:Env): Value = {
     //println(s"eval: $e")
     val res = e match {
-      case Sequential(exps:List[Expr]) => exps.map(eval(_, env)).last
-      case Bool(b)       => ObjectValue(b)
-      case Num(i)        => ObjectValue(i)
-      case StringExpr(s) => ObjectValue(s)
-      case EvaledExpr(v) => v
-      case UnitExpr      => ObjectValue(())
-      case Variable(s)   => env.get(s).getOrElse(sys error s"not found: $s in: ${env.keys}")
-      case l@Lambda(_, _, _) => Closure(l, env)
-      case Let(x:Symbol, e:Expr, body:Expr) =>
-        eval(body, env + (x -> eval(e,env)))
-      case LetRec(x:Symbol, e:Lambda, body:Expr) =>
-        eval(body, env + (x -> eval(e, env + (x -> Closure(e,env)))))
-      case App(f:Expr, args:List[Expr]) =>
+      case Sequential(exps) => exps.map(eval(_, env)).last
+      case Bool(b)            => ObjectValue(b)
+      case Num(i)             => ObjectValue(i)
+      case StringExpr(s)      => ObjectValue(s)
+      case EvaledExpr(v)      => v
+      case UnitExpr           => ObjectValue(())
+      case Variable(s)        => env.get(s).getOrElse(sys error s"not found: $s in: ${env.keys}")
+      case l@Lambda(_, _, _)  => Closure(l, env)
+      case Let(x, e, body)    => eval(body, env + (x -> eval(e,env)))
+      case LetRec(x, e, body) => eval(body, env + (x -> eval(e, env + (x -> Closure(e,env)))))
+      case App(f, args)       =>
         evalred(f, env) match {
           // todo: make sure formals.size == args.size...
           // or partially apply?
           case c@Closure(Lambda(formals, body, rec), closedOverEnv) =>
-            val envWithoutRecursion = closedOverEnv ++ formals.zip(args map (eval(_, env)))
-            val finalEnv =
-              rec.fold(envWithoutRecursion)(name => envWithoutRecursion + (name -> c))
-            eval(body, finalEnv)
+            val envWORecursion   = closedOverEnv ++ formals.zip(args map (eval(_, env)))
+            val envWithRecursion = rec.fold(envWORecursion)(name => envWORecursion + (name -> c))
+            eval(body, envWithRecursion)
           case BuiltinFunction(name, f) => f(args, env)
           case blah => sys error s"app expected a function, but got: $blah"
         }
