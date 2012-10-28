@@ -34,31 +34,31 @@ object MineLangTests extends Properties("MinecraftParserTests") {
   val listMap          = """((.map (cons 1 (cons 2 (cons 3 nil))) (lam (x) (* x x))))"""
 
   // simple java interop tests
-//  evalTest("constructorCall1", constructorCall1, ObjectValue(Point(5,6)))
-//  evalTest("constructorCall2", constructorCall2, ObjectValue(Point(5,6)))
-//  evalTest("instanceCall0",    instanceCall0,    ObjectValue("(5,6)"))
-//  evalTest("instanceCall1",    instanceCall1,    ObjectValue("6"))
-//  evalTest("instanceCall2",    instanceCall2,    ObjectValue("6"))
-//  evalTest("instanceCall3",    instanceCall3,    ObjectValue("6"))
-//  evalTest("staticCall1",      staticCall1,      ObjectValue("5"))
-//  evalTest("staticField1",     staticField1,     ObjectValue(Math.PI))
-//  evalTest("lamTest",          lamTest,          ObjectValue(7))
-//  evalTest("invokeWithFun1a",  invokeWithFun1a,  ObjectValue(7))
-//  evalTest("invokeWithFun1b",  invokeWithFun1b,  ObjectValue(16))
-//  evalTest("invokeWithFun2a",  invokeWithFun2a,  ObjectValue(72))
-//  evalTest("access nil",  s"(nil)",  ObjectValue(Nil))
-//  evalTest("apply cons",  s"((cons 1 nil))",  ObjectValue(List(1)))
+  evalTest("constructorCall1", constructorCall1, ObjectValue(Point(5,6)))
+  evalTest("constructorCall2", constructorCall2, ObjectValue(Point(5,6)))
+  evalTest("instanceCall0",    instanceCall0,    ObjectValue("(5,6)"))
+  evalTest("instanceCall1",    instanceCall1,    ObjectValue("6"))
+  evalTest("instanceCall2",    instanceCall2,    ObjectValue("6"))
+  evalTest("instanceCall3",    instanceCall3,    ObjectValue("6"))
+  evalTest("staticCall1",      staticCall1,      ObjectValue("5"))
+  evalTest("staticField1",     staticField1,     ObjectValue(Math.PI))
+  evalTest("lamTest",          lamTest,          ObjectValue(7))
+  evalTest("invokeWithFun1a",  invokeWithFun1a,  ObjectValue(7))
+  evalTest("invokeWithFun1b",  invokeWithFun1b,  ObjectValue(16))
+  evalTest("invokeWithFun2a",  invokeWithFun2a,  ObjectValue(72))
+  evalTest("access nil",  s"(nil)",  ObjectValue(Nil))
+  evalTest("apply cons",  s"((cons 1 nil))",  ObjectValue(List(1)))
 // TODO: failing
 //  evalTest("list map"  ,  listMap,  ObjectValue(List(1, 4, 9)))
 
   // more full tests
-//  val fact = "((defrec fact (n) (if (eq n 0) 1 (* n (fact (- n 1))))) (fact 5))"
+  val fact = "((defrec fact (n) (if (eq n 0) 1 (* n (fact (- n 1))))) (fact 5))"
   val houseDefs = new java.io.File("../minelang/house.mc")
-  parseDefsTest("house parse", houseDefs)
+  parseDefsTest("house parse", houseDefs, 9)
   evalWithDefsTest("house eval", "(tower-city)", UnitValue, houseDefs)
-//  evalTest("fact",          fact,  ObjectValue(120))
-//  evalTest("expansionTest", expansionTest,
-//    ObjectValue(Cube(TestServer.world(12,3,12), TestServer.world(-2,3,-2))))
+  evalTest("fact",          fact,  ObjectValue(120))
+  evalTest("expansionTest", expansionTest,
+    ObjectValue(Cube(TestServer.world(12,3,12), TestServer.world(-2,3,-2))))
 
   def evalTest(name:String, code:String, expected:Value) =
     property(name) = secure { run(code, expected) }
@@ -66,12 +66,12 @@ object MineLangTests extends Properties("MinecraftParserTests") {
   def evalWithDefsTest(name:String, code:String, expected:Value, defs:java.io.File) =
     property(name) = secure { runWithDefs(code, expected, parseDefs(read(defs))) }
 
-  def parseDefsTest(name:String, code:java.io.File) =
+  def parseDefsTest(name:String, code:java.io.File, expected:Int) =
     property(name) = secure {
       attemptThrowable {
         val defs: List[Def] = MineLang.parseDefs(io.Reader.read(code))
-        println(defs)
-        true
+        println(defs.mkString("\n"))
+        defs.size == expected
       }
     }
 
@@ -82,6 +82,7 @@ object MineLangTests extends Properties("MinecraftParserTests") {
   }
 
   def runWithDefs(code:String, expected:AnyRef, defs:List[Def]): Boolean = attemptThrowable {
+    println(defs.map(_.name))
     val actual = runProgram(Program(defs, parseExpr(read(code))), TestServer.player)
     println(s"Result: $actual")
     actual == expected

@@ -7,7 +7,7 @@ import java.io.File
 trait MineLangAST {
   case class Program(defs:List[Def], body:Expr)
 
-  sealed trait Def
+  sealed trait Def{ val name:Symbol }
   case class Defn(name:Symbol, lam:Lambda) extends Def
   case class Val (name:Symbol, expr:Expr)  extends Def
 
@@ -49,7 +49,6 @@ trait MineLangParser extends MineLangAST {
   }
 
   def parseDefs(a:Any): List[Def] ={
-    //println(a)
     a match {
       case Nil         => sys error s"bad defs: $a"
       case l@(x :: xs) => l map parseDef
@@ -88,7 +87,6 @@ trait MineLangParser extends MineLangAST {
   }
 
   def parseExpr(a:Any): Expr = {
-    //println(a)
     a match {
       // some prims
       case i: Int                  => Num(i)
@@ -154,7 +152,6 @@ trait MineLangInterpreter extends MineLangAST {
   }
 
   def eval(e:Expr, env:Env): Value = {
-    //println(e -> env)
     e match {
       case Sequential(exps:List[Expr]) => exps.map(eval(_, env)).last
       case Bool(b)       => ObjectValue(b)
@@ -173,7 +170,6 @@ trait MineLangInterpreter extends MineLangAST {
             val envWithoutRecursion = closedOverEnv ++ formals.zip(args map (eval(_, env)))
             val finalEnv =
               rec.fold(envWithoutRecursion)(name => envWithoutRecursion + (name -> c))
-            //println("making call with finalEnv: "  + finalEnv.keys.mkString(", "))
             eval(body, finalEnv)
           case BuiltinFunction(name, f) => f(args, env)
           case blah => sys error s"app expected a function, but got: $blah"
@@ -241,15 +237,12 @@ trait MineLangInterpreter extends MineLangAST {
       }"
     )(method => {
       val finalArgs = args.map(_.asInstanceOf[AnyRef])
-      //println(s"invoking: $invokedOn.$method with $finalArgs")
       val res = method.invoke(invokedOn, finalArgs:_*)
-      //println(s"res: $res")
       ObjectValue(res)
     })
   }
   // TODO: repeat this for all AnyVal types.
   def matchesAll(cs:Seq[Class[_]], as:Seq[Any]) = {
-    //println(s"matching $cs with $as")
     def isInt(a:Any)  = a.isInstanceOf[Int]  || a.isInstanceOf[Integer]
     def isUnit(a:Any) = a.isInstanceOf[Unit] || a.isInstanceOf[scala.runtime.BoxedUnit]
     def matches(c:Class[_], a:Any): Boolean =
@@ -351,14 +344,18 @@ object MineLang extends EnrichmentClasses with MineLangCore {
   def run(code:String, p:Player) = runProgram(parse(code), p)
   def runProgram(prog:Program, p:Player) = evalProg(prog, lib ++ new WorldEditExtension(p).lib)
 
-  def evalToLocation(e:Expr, env:Env): Location =
-    evalTo(e,env,"location"){ case ObjectValue(l:Location) => l }
-  def evalToMaterial(e:Expr, env:Env): Material =
-    evalTo(e,env,"material"){ case ObjectValue(m:Material) => m }
-  def evalToCube(e:Expr, env:Env): Cube =
-    evalTo(e,env,"cube"){ case ObjectValue(c@Cube(_,_)) => c }
-
   case class WorldEditExtension(p:Player) {
+
+    def evalToLocation(e:Expr, env:Env): Location =
+      evalTo(e,env,"location"){ case ObjectValue(l:Location) => l }
+    def evalToMaterial(e:Expr, env:Env): Material =
+      evalTo(e,env,"material"){
+        case ObjectValue(m:Material) => m
+        case ObjectValue(s:String) => BasicMinecraftParsers.material(s).fold(sys error _)((m, _) => m)
+      }
+    def evalToCube(e:Expr, env:Env): Cube =
+      evalTo(e,env,"cube"){ case ObjectValue(c@Cube(_,_)) => c }
+
     val getMaterial = builtIn('material, (exps, env) => {
       evalred(exps(0),env) match {
         case ObjectValue(s:String) => ObjectValue(
