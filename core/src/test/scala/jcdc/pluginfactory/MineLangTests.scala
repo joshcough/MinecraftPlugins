@@ -54,8 +54,8 @@ object MineLangTests extends Properties("MinecraftParserTests") {
   // more full tests
   val fact = "((defrec fact (n) (if (eq n 0) 1 (* n (fact (- n 1))))) (fact 5))"
   val houseDefs = new java.io.File("../minelang/house.mc")
-  parseDefsTest("house parse", houseDefs, 9)
-  evalWithDefsTest("house eval", "(tower-city)", UnitValue, houseDefs)
+  parseDefsTest("house defs parse", houseDefs, 12)
+  evalWithDefsTest("house defs eval", "(city)", UnitValue, houseDefs)
   evalTest("fact",          fact,  ObjectValue(120))
   evalTest("expansionTest", expansionTest,
     ObjectValue(Cube(TestServer.world(12,3,12), TestServer.world(-2,3,-2))))

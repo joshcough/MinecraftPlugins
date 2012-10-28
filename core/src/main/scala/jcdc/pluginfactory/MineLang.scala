@@ -137,14 +137,17 @@ trait MineLangInterpreter extends MineLangAST {
     case _ => v
   }
 
+  def call(c:Closure, args:List[Any], env:Env): Value = {
+    evalred(App(EvaledExpr(c), args.map(a => EvaledExpr(ObjectValue(a)))), env)
+  }
+
   def evalred   (e:Expr, env:Env): Value = reduce(eval(e, env))
-  def evalredval(e:Expr, env:Env): Any = evalred(e, env) match {
+  def evalredval(e:Expr, env:Env): Any = getRawValue(evalred(e, env))
+  def getRawValue(v:Value): Any = v match {
     case c@Closure(l, env)  => l args match {
       case Nil      => () => ()
-      case a1 :: Nil => (a2: Any) =>
-        evalredval(App(EvaledExpr(c), List(EvaledExpr(ObjectValue(a2)))), env)
-      case a1 :: b1 :: Nil => (a2: Any, b2: Any) =>
-        evalredval(App(EvaledExpr(c), List(a2,b2).map(x => EvaledExpr(ObjectValue(x)))), env)
+      case a1 :: Nil => (a2: Any) => getRawValue(call(c, List(a2), env))
+      case a1 :: b1 :: Nil => (a2: Any, b2: Any) => getRawValue(call(c, List(a2,b2), env))
     }
     case ObjectValue(a)              => a
     case DynamicValue(getter)        => sys error "shouldnt be possible, we already reduced"
@@ -284,6 +287,22 @@ trait MineLangCore extends MineLangInterpreter with MineLangParser {
   val toStringPrim = builtIn(Symbol("to-string"), (exps, env) =>
     ObjectValue(evalredval(exps(0), env).toString)
   )
+  val spawn = builtIn('spawn, (exps, env) =>
+    (evalred(exps(0), env),evalred(exps(1), env),evalred(exps(2), env)) match {
+      case (ObjectValue(n:Int), ObjectValue(waitTime:Int), c@Closure(lam, env))  =>
+        new Thread(new Runnable() {
+          def run(){
+            (1 to n).foreach(n => {
+              call(c, List(n), env)
+              Thread.sleep(waitTime * 1000)
+            }
+          )}
+        }).start
+        UnitValue
+      case (i,w,f) =>
+        sys error s"bad args to spawn. expected <int> <int> <function>, but got: $i, $w $f"
+    }
+  )
   val add = builtIn('+, (exps, env) => {
     val vals = exps.map(e => evalredval(e, env))
     if (allNumbers(vals)){ // all numbers
@@ -302,6 +321,7 @@ trait MineLangCore extends MineLangInterpreter with MineLangParser {
   )
   val sub  = twoNumOp('-) ((i,j) => ObjectValue(i - j))
   val mult = twoNumOp('*) ((i,j) => ObjectValue(i * j))
+  val mod  = twoNumOp('%) ((i,j) => ObjectValue(i % j))
   val lt   = twoNumOp('<) ((i,j) => ObjectValue(i < j))
   val gt   = twoNumOp('>) ((i,j) => ObjectValue(i > j))
   val lteq = twoNumOp('<=)((i,j) => ObjectValue(i <= j))
@@ -333,7 +353,9 @@ trait MineLangCore extends MineLangInterpreter with MineLangParser {
     'unit   -> ObjectValue(()),
     // simple builtins
     eqBuiltIn, ifStat, toStringPrim, printOnSameLine, printLine,
-    add, sub, mult, lt, lteq, gt, gteq, abs
+    add, sub, mult, mod, lt, lteq, gt, gteq, abs,
+    'random -> DynamicValue(() => ObjectValue(math.random)),
+    spawn
   )
 
   val lib = (boolLib ::: listLib).foldLeft(initialLib)(evalDef)
@@ -342,7 +364,7 @@ trait MineLangCore extends MineLangInterpreter with MineLangParser {
 object MineLang extends EnrichmentClasses with MineLangCore {
 
   def run(code:String, p:Player) = runProgram(parse(code), p)
-  def runProgram(prog:Program, p:Player) = evalProg(prog, lib ++ new WorldEditExtension(p).lib)
+  def runProgram(prog:Program, p:Player) = evalProg(prog, new WorldEditExtension(p).lib ++ lib)
 
   case class WorldEditExtension(p:Player) {
 
@@ -402,6 +424,9 @@ object MineLang extends EnrichmentClasses with MineLangCore {
       c.floor.foreach(_ changeTo m)
       p ! s"set floor in $c to: $m"
     }))
+    val message = builtInUnit('message, (exps, env) =>
+      p ! (exps.map(e => evalredval(e, env).toString).mkString("\n"))
+    )
 
     val lib: Env = Map(
       loc, goto,
@@ -416,7 +441,9 @@ object MineLang extends EnrichmentClasses with MineLangCore {
       // material functions
       getMaterial,
       // mutable world edit functions
-      setAll, changeSome, setWalls, setFloor
+      setAll, changeSome, setWalls, setFloor,
+      // send a message to the player
+      message
     )
   }
 }
