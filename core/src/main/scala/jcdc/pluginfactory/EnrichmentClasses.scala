@@ -14,6 +14,8 @@ import net.minecraft.server.WorldServer
 import org.bukkit.entity.{LivingEntity, Entity, EntityType, Player}
 import org.bukkit.event.player.{PlayerInteractEvent}
 import util.Try
+import java.io.File
+import scala.io.Source
 
 object EnrichmentClasses extends EnrichmentClasses
 
@@ -274,5 +276,10 @@ trait EnrichmentClasses {
       data.foreach(b.setData)
     }
     def itemStack = data.fold(new ItemStack(m))(new ItemStack(m, 1, 0:Short, _))
+  }
+
+  implicit class RichFile(f:File){
+    def child(name:String) = new File(f, name)
+    def slurp: String      = Source.fromFile(f).getLines().mkString("\n")
   }
 }

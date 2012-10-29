@@ -17,7 +17,9 @@ case class Point(x:Int, y:Int){
   def invokeFun2a(f: (Int, Int) => Int) = f(8, 9)
 }
 
-object MineLangTests extends Properties("MinecraftParserTests") {
+object MineLangTests extends Properties("MinecraftParserTests") with EnrichmentClasses {
+
+  val mineLangDir = new File("../minelang/")
 
   val constructorCall1 = """((new jcdc.pluginfactory.Point 5 6))"""
   val constructorCall2 = """((new jcdc.pluginfactory.Point 5 6 unit))"""
@@ -51,20 +53,20 @@ object MineLangTests extends Properties("MinecraftParserTests") {
 // TODO: failing
 //  evalTest("list map"  ,  listMap,  ObjectValue(List(1, 4, 9)))
 
-  evalTest(
-    "expand",
-    fileToString(new File("../minelang/expand.mc")),
+
+  val expandMc = mineLangDir.child("expand.mc")
+  parseDefsTest("expand defs parse", expandMc, 0)
+  evalTest("expand", expandMc.slurp,
     ObjectValue(Cube(TestServer.world(12,3,12), TestServer.world(-2,3,-2)))
   )
 
-  val factorialDefs = new File("../minelang/factorial.mc")
+  val factorialDefs = mineLangDir.child("factorial.mc")
   parseDefsTest("factorial defs parse", factorialDefs, 2)
   evalWithDefsTest("factorial defs eval", "(test)", ObjectValue(120), factorialDefs)
 
-  val houseDefs = new File("../minelang/house.mc")
+  val houseDefs = mineLangDir.child("house.mc")
   parseDefsTest("house defs parse", houseDefs, 11)
   evalWithDefsTest("house defs eval", "(city)", UnitValue, houseDefs)
-
 
   def evalTest(name:String, code:String, expected:Value) =
     property(name) = secure { run(code, expected) }
@@ -74,7 +76,12 @@ object MineLangTests extends Properties("MinecraftParserTests") {
 
   def parseDefsTest(name:String, code:File, expected:Int) =
     property(name) = secure {
-      attemptThrowable { MineLang.parseDefs(read(code)).size == expected }
+      attemptThrowable {
+        val res = MineLang.parseDefs(read(code))
+        //println(s"Parse Result:")
+        //res.foreach(println)
+        res.size == expected
+      }
     }
 
   def run(code:String, expected:AnyRef): Boolean = attemptThrowable {

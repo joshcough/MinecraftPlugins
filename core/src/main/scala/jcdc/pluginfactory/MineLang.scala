@@ -52,7 +52,9 @@ trait MineLangParser extends MineLangAST with io.Reader {
   def parseDefs(a:Any): List[Def] ={
     a match {
       case Nil         => sys error s"bad defs: $a"
-      case l@(x :: xs) => l map parseDef
+      // first, try to parse the code as just a list of defs
+      // if that fails, try to parse it as a whole program
+      case l@(x :: xs) => try l map parseDef catch { case e:Exception => parseProgram(a).defs }
       case _           => sys error s"bad defs: $a"
     }
   }

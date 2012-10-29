@@ -7,7 +7,6 @@ import org.bukkit.ChatColor._
 import org.bukkit.entity.Player
 import Material._
 import java.io.File
-import scala.io.Source
 
 class WorldEdit extends ListenersPlugin
   with CommandsPlugin with SingleClassDBPlugin[Script] {
