@@ -403,30 +403,36 @@ object MineLang extends EnrichmentClasses with MineLangCore {
     })
 
     // here are all the cube block mutation functions.
-    val setAll = builtInUnit(Symbol("cube:set-all"), (exps, env) => {
+    def builtInCube(name:Symbol, eval: (List[Expr], Env) => Cube) =
+      (name -> BuiltinFunction(name, (es, env) => { ObjectValue(eval(es,env)) }))
+    val setAll = builtInCube(Symbol("cube:set-all"), (exps, env) => {
       val c = evalToCube(exps(0), env)
       val m = evalToMaterial(exps(1), env)
       for(b <- c) b changeTo m
       p ! s"setting all in $c to $m"
+      c
     })
-    val changeSome = builtInUnit(Symbol("cube:change"), ((exps, env) => {
+    val changeSome = builtInCube(Symbol("cube:change"), ((exps, env) => {
       val c    = evalToCube(exps(0), env)
       val oldM = evalToMaterial(exps(1),env)
       val newM = evalToMaterial(exps(2),env)
       for(b <- c; if(b is oldM)) b changeTo newM
       p ! s"changed $oldM in $c to $newM"
+      c
     }))
-    val setWalls = builtInUnit(Symbol("cube:set-walls"), ((exps, env) => {
+    val setWalls = builtInCube(Symbol("cube:set-walls"), ((exps, env) => {
       val c = evalToCube(exps(0), env)
       val m = evalToMaterial(exps(1),env)
       c.walls.foreach(_ changeTo m)
       p ! s"set walls in $c to: $m"
+      c
     }))
-    val setFloor = builtInUnit(Symbol("cube:set-floor"), ((exps, env) => {
+    val setFloor = builtInCube(Symbol("cube:set-floor"), ((exps, env) => {
       val c = evalToCube(exps(0), env)
       val m = evalToMaterial(exps(1),env)
       c.floor.foreach(_ changeTo m)
       p ! s"set floor in $c to: $m"
+      c
     }))
     val message = builtInUnit('message, (exps, env) =>
       p ! (exps.map(e => evalredval(e, env).toString).mkString("\n"))

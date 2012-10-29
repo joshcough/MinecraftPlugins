@@ -4,7 +4,21 @@
       (cube:set-walls c "stone")
       (cube:set-walls (.expandOut c 1) "brick")
       (cube:set-walls (.expandOut (.expandOut c 1) 1) "gold_block")
-      (.expandOut (.expandOut c 1) 1)
+
+      ; an different way to do the same thing above, but not quite as nice:
+      (cube:set-walls
+        (.expandOut
+          (cube:set-walls
+            (.expandOut
+              (cube:set-walls c "stone")
+              1
+            )
+            "brick"
+          )
+          1
+        )
+        "gold_block"
+      )
     )
   )
 )
