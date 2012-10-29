@@ -34,7 +34,7 @@
   )
   ; builds a skyscraper
   (def build-skyscraper (l)   (build-house l 50 8 10 "stone" "obsidian" "diamond_block"))
-  ; builds a house - 5 = wood plank, 17 = wood, 20 = glass
+  ; builds a house - {5 -> wood plank, 17 -> wood, 20 -> glass}
   (def build-normal-house (l) (build-house l 4 3 3 "5" "17" "20"))
 
   ; builds a row of skyscrapers. not really a full city, yet.
