@@ -4,17 +4,15 @@
 
   ; build a pyramid!
   (defrec pyramid (c m)
-    (begin
-      (cube:set-walls c m)
-      (let (closed (lam (c) (or (<= (- (.maxX c) (.minX c)) 1) (<= (- (.maxZ c) (.minZ c)) 1))))
-        (unless (closed c) (pyramid (.shiftY (.shrinkIn c 1) 1) m))
-      )
+    (cube:set-walls c m)
+    (let (closed (lam (c) (or (<= (- (.maxX c) (.minX c)) 1) (<= (- (.maxZ c) (.minZ c)) 1))))
+      (unless (closed c) (pyramid (.shiftY (.shrinkIn c 1) 1) m))
     )
   )
   ; build a single house
   (def build-house (start-point h w d floor-m walls-m roof-m)
     (let* ((c (.growUp (.expandZ (.expandX (new jcdc.pluginfactory.Cube start-point start-point) w) d) h))
-           (build-ceiling (lam (c m) (begin (pyramid (.expandOut (.ceiling c) 1) m) c))))
+           (build-ceiling (lam (c m) (pyramid (.expandOut (.ceiling c) 1) m) c)))
       (begin
         (build-ceiling (cube:set-walls (cube:set-floor (cube:set-all c "air") floor-m) walls-m) roof-m)
         c
@@ -33,7 +31,7 @@
     )
   )
   ; builds a skyscraper
-  (def build-skyscraper (l)   (build-house l 50 8 10 "stone" "obsidian" "diamond_block"))
+  (def build-skyscraper   (l) (build-house l 50 8 10 "stone" "obsidian" "diamond_block"))
   ; builds a house - {5 -> wood plank, 17 -> wood, 20 -> glass}
   (def build-normal-house (l) (build-house l 4 3 3 "5" "17" "20"))
 

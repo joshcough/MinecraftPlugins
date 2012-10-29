@@ -65,11 +65,18 @@ trait MineLangParser extends MineLangAST with io.Reader {
       case _ => sys error s"bad def name: $a"
     }
     a match {
+      // catch def with one body expression
       case List('def,    name, args, body) =>
         Defn(parseName(name), parseLambda(args, body, recursive=None))
+      case 'def :: name :: args :: bodyStatements =>
+        Defn(parseName(name), parseLambda(args, 'begin :: bodyStatements, recursive=None))
+      // catch defrec with one body expression
       case List('defrec, name, args, body) =>
         val n = parseName(name)
         Defn(n, parseLambda(args, body, recursive=Some(n)))
+      case 'defrec :: name :: args :: bodyStatements =>
+        val n = parseName(name)
+        Defn(n, parseLambda(args, 'begin :: bodyStatements, recursive=Some(n)))
       case List('val,    name, body) => Val(parseName(name), parseExpr(body))
     }
   }
@@ -104,6 +111,7 @@ trait MineLangParser extends MineLangAST with io.Reader {
       // new, lam, let, begin
       case 'new :: Symbol(className) :: args => New(className, args map parseExpr)
       case List('lam, args, body)  => parseLambda(args, body, None)
+      case 'lam :: args :: body    => parseLambda(args, 'begin :: body, None)
       case List('let, List(arg, expr), body) => parseLet(arg,expr,body)
       case List(Symbol("let*"), args, body)  => args match {
         case Nil                     => parseExpr(body)
