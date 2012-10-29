@@ -294,6 +294,11 @@ trait MineLangCore extends MineLangInterpreter with MineLangParser {
     case ObjectValue(false) => eval(exps(2), env)
     case ev => sys error s"bad if predicate: $ev"
   })
+  val unless = builtIn('unless, (exps, env) => evalred(exps(0), env) match {
+    case ObjectValue(true)  => UnitValue
+    case ObjectValue(false) => eval(exps(1), env)
+    case ev => sys error s"bad unless predicate: $ev"
+  })
   val eqBuiltIn = builtIn('eq, (exps, env) =>
     (evalred(exps(0), env), evalred(exps(1), env)) match {
       case (ObjectValue(av), ObjectValue(bv)) => ObjectValue(av == bv)
@@ -363,7 +368,7 @@ trait MineLangCore extends MineLangInterpreter with MineLangParser {
     'false  -> ObjectValue(false),
     'unit   -> ObjectValue(()),
     // simple builtins
-    eqBuiltIn, ifStat, toStringPrim, printOnSameLine, printLine,
+    eqBuiltIn, ifStat, unless, toStringPrim, printOnSameLine, printLine,
     add, sub, mult, mod, lt, lteq, gt, gteq, abs,
     'random -> DynamicValue(() => ObjectValue(math.random)),
     spawn

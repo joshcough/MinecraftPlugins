@@ -7,7 +7,7 @@
     (begin
       (cube:set-walls c m)
       (let (closed (lam (c) (or (<= (- (.maxX c) (.minX c)) 1) (<= (- (.maxZ c) (.minZ c)) 1))))
-        (if (closed c) do-nothing (pyramid (.shiftY (.shrinkIn c 1) 1) m))
+        (unless (closed c) (pyramid (.shiftY (.shrinkIn c 1) 1) m))
       )
     )
   )
@@ -23,8 +23,7 @@
   )
   ; build a row of houses
   (defrec build-house-row (at nr-houses house-builder-f)
-    (if (eq nr-houses 0)
-      do-nothing
+    (unless (eq nr-houses 0)
       (begin
         ;(message nr-houses)
         (house-builder-f at)
