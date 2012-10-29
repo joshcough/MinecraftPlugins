@@ -89,6 +89,11 @@ trait MineLangParser extends MineLangAST with io.Reader {
     Lambda(parseLamArgList(args), parseExpr(body), recursive)
   }
 
+  def parseLet(arg:Any, expr:Any, body:Any) = arg match {
+    case s:Symbol => Let(s, parseExpr(expr), parseExpr(body))
+    case _ => sys error s"bad let argument: $arg"
+  }
+
   def parseExpr(a:Any): Expr = {
     a match {
       // some prims
@@ -99,13 +104,15 @@ trait MineLangParser extends MineLangAST with io.Reader {
       // new, lam, let, begin
       case 'new :: Symbol(className) :: args => New(className, args map parseExpr)
       case List('lam, args, body)  => parseLambda(args, body, None)
-      case List('let, List(arg, expr), body) => arg match {
-        case s:Symbol => Let(s, parseExpr(expr), parseExpr(body))
-        case _ => sys error s"bad let argument: $a"
+      case List('let, List(arg, expr), body) => parseLet(arg,expr,body)
+      case List(Symbol("let*"), args, body)  => args match {
+        case Nil                     => parseExpr(body)
+        case List(arg1, body1) :: xs => parseLet(arg1, body1, List(Symbol("let*"), xs, body))
+        case _                       => sys error s"bad let* arguments: $args"
       }
       case List('letrec, List(arg, List('lam, args, expr)), body) => arg match {
         case s:Symbol => LetRec(s, parseLambda(args, expr, Some(s)), parseExpr(body))
-        case _ => sys error s"bad letrec argument: $a"
+        case _        => sys error s"bad letrec argument: $a"
       }
       case 'begin :: body          => Sequential(body map parseExpr)
       // finally, function application

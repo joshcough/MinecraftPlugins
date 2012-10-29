@@ -34,6 +34,10 @@ object MineLangTests extends Properties("MinecraftParserTests") with EnrichmentC
   val invokeWithFun1b  = """((.invokeFun1b (new jcdc.pluginfactory.Point 5 6) (lam (x) (+ x x))))"""
   val invokeWithFun2a  = """((.invokeFun2a (new jcdc.pluginfactory.Point 5 6) (lam (x y) (* 9 8))))"""
   val listMap          = """((.map (cons 1 (cons 2 (cons 3 nil))) (lam (x) (* x x))))"""
+  val let1             = """((let (a 5) a))"""
+  val let2             = """((let (a 5) (+ a a)))"""
+  val letNested        = """((let (a 5) (let (a 10) 10)))"""
+  val letStar          = """((let* ((a 5) (b 6)) (+ a b)))"""
 
   // simple java interop tests
   evalTest("constructorCall1", constructorCall1, ObjectValue(Point(5,6)))
@@ -49,9 +53,14 @@ object MineLangTests extends Properties("MinecraftParserTests") with EnrichmentC
   evalTest("invokeWithFun1b",  invokeWithFun1b,  ObjectValue(16))
   evalTest("invokeWithFun2a",  invokeWithFun2a,  ObjectValue(72))
   evalTest("access nil",  s"(nil)",  ObjectValue(Nil))
-  evalTest("apply cons",  s"((cons 1 nil))",  ObjectValue(List(1)))
-// TODO: failing
-//  evalTest("list map"  ,  listMap,  ObjectValue(List(1, 4, 9)))
+  evalTest("apply cons",  s"((cons 1 nil))",     ObjectValue(List(1)))
+  evalTest("let1 test",        let1,             ObjectValue(5))
+  evalTest("let2 test",        let2,             ObjectValue(10))
+  evalTest("letNested test",   letNested,        ObjectValue(10))
+  evalTest("let* test",        letStar,          ObjectValue(11))
+
+  // TODO: failing
+  //evalTest("list map"  ,  listMap,  ObjectValue(List(1, 4, 9)))
 
 
   val expandMc = mineLangDir.child("expand.mc")
@@ -65,7 +74,7 @@ object MineLangTests extends Properties("MinecraftParserTests") with EnrichmentC
   evalWithDefsTest("factorial defs eval", "(test)", ObjectValue(120), factorialDefs)
 
   val houseDefs = mineLangDir.child("house.mc")
-  parseDefsTest("house defs parse", houseDefs, 11)
+  parseDefsTest("house defs parse", houseDefs, 10)
   evalWithDefsTest("house defs eval", "(city)", UnitValue, houseDefs)
 
   def evalTest(name:String, code:String, expected:Value) =
