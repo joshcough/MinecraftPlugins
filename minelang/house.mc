@@ -1,5 +1,4 @@
 (; program to build houses and cities
-  (val do-nothing unit)
   (def even (n) (eq (% n 2) 0))
 
   ; build a pyramid!

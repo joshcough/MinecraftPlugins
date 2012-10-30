@@ -26,7 +26,6 @@ trait MineLangAST {
     case class StringExpr(s:String) extends Expr
     case class Variable(s:Symbol)   extends Expr
     case class EvaledExpr(v:Value)  extends Expr
-    case object UnitExpr            extends Expr
 
   type Env = Map[Symbol,Value]
 
@@ -184,7 +183,6 @@ trait MineLangInterpreter extends MineLangAST {
       case Num(i)             => ObjectValue(i)
       case StringExpr(s)      => ObjectValue(s)
       case EvaledExpr(v)      => v
-      case UnitExpr           => ObjectValue(())
       case Variable(s)        => env.get(s).getOrElse(sys error s"not found: $s in: ${env.keys}")
       case l@Lambda(_, _, _)  => Closure(l, env)
       case Let(x, e, body)    => eval(body, env + (x -> eval(e,env)))
@@ -286,26 +284,35 @@ trait MineLangInterpreter extends MineLangAST {
 
   def builtIn(name:Symbol, eval: (List[Expr], Env) => Value) =
     (name -> BuiltinFunction(name, eval))
-  def builtInUnit(name:Symbol, eval: (List[Expr], Env) => Unit) =
+  def builtInNil(name:Symbol, eval: (List[Expr], Env) => Unit) =
     (name -> BuiltinFunction(name, (es, env) => { ObjectValue(eval(es,env)) }))
 }
 
 trait MineLangCore extends MineLangInterpreter with MineLangParser {
 
-  val UnitValue  = ObjectValue(())
+  val NilValue   = ObjectValue(())
   val TrueValue  = ObjectValue(true)
   val FalseValue = ObjectValue(false)
 
   // TODO on all these builtins, check the number of arguments.
+  val isa = builtIn(Symbol("isa?"), (exps, env) => (evalred(exps(0), env), exps(1)) match {
+    case (NilValue, Variable(Symbol("scala.collection.immutable.List"))) =>
+      ObjectValue(true)
+    case (o, Variable(Symbol(className)))  =>
+      ObjectValue(Class.forName(className).isAssignableFrom(o.getClass))
+    case (o, c) =>
+      sys error s"invalid class name: $c"
+  })
   val ifStat = builtIn('if, (exps, env) => evalred(exps(0), env) match {
     case ObjectValue(true)  => eval(exps(1), env)
     case ObjectValue(false) => eval(exps(2), env)
-    case ev => sys error s"bad if predicate: $ev"
+    case ev                 => sys error s"bad if predicate: $ev"
   })
+  // TODO: this could be done with a macro
   val unless = builtIn('unless, (exps, env) => evalred(exps(0), env) match {
-    case ObjectValue(true)  => UnitValue
+    case ObjectValue(true)  => NilValue
     case ObjectValue(false) => eval(exps(1), env)
-    case ev => sys error s"bad unless predicate: $ev"
+    case ev                 => sys error s"bad unless predicate: $ev"
   })
   val eqBuiltIn = builtIn('eq, (exps, env) =>
     (evalred(exps(0), env), evalred(exps(1), env)) match {
@@ -323,7 +330,7 @@ trait MineLangCore extends MineLangInterpreter with MineLangParser {
         new Thread(new Runnable() {
           def run(){ (1 to n).foreach(n => {call(c, List(n), env); Thread.sleep(waitTime * 1000)})}
         }).start
-        UnitValue
+        NilValue
       case (i,w,f) => sys error s"spawn expected <int> <int> <function>, but got: $i, $w $f"
     }
   )
@@ -351,10 +358,10 @@ trait MineLangCore extends MineLangInterpreter with MineLangParser {
   val lteq = twoNumOp('<=)((i,j) => ObjectValue(i <= j))
   val gteq = twoNumOp('>=)((i,j) => ObjectValue(i >= j))
 
-  val printOnSameLine = builtInUnit('print, (exps, env) =>
+  val printOnSameLine = builtInNil('print, (exps, env) =>
     print(exps.map(e => evalredval(e, env).toString).mkString(" ")))
 
-  val printLine = builtInUnit('println, (exps, env) =>
+  val printLine = builtInNil('println, (exps, env) =>
     println(exps.map(e => evalredval(e, env).toString).mkString("\n")))
 
   val boolLib = List(
@@ -366,15 +373,17 @@ trait MineLangCore extends MineLangInterpreter with MineLangParser {
 
   //http://stackoverflow.com/questions/6578615/how-to-use-scala-collection-immutable-list-in-a-java-code
   val listLib = List(
-    "(val nil scala.collection.immutable.Nil$/MODULE$)",
-    "(def cons (h t) (.apply scala.collection.immutable.$colon$colon$/MODULE$ h t))"
+    "(val empty scala.collection.immutable.Nil$/MODULE$)",
+    "(def empty? (l)   (or (eq? l nil) (eq? l false)))",
+    "(def cons   (h t) (.apply scala.collection.immutable.$colon$colon$/MODULE$ h t))",
+    "(def list?  (l)   (isa? l scala.collection.immutable.List))"
   ).map(s => parseDef(read(s)))
 
   private val initialLib: Env = Map(
     // primitives
-    'true   -> ObjectValue(true),
-    'false  -> ObjectValue(false),
-    'unit   -> ObjectValue(()),
+    'true  -> ObjectValue(true),
+    'false -> ObjectValue(false),
+    'nil   -> ObjectValue(()),
     // simple builtins
     eqBuiltIn, ifStat, unless, toStringPrim, printOnSameLine, printLine,
     add, sub, mult, mod, lt, lteq, gt, gteq, abs,
@@ -388,6 +397,7 @@ trait MineLangCore extends MineLangInterpreter with MineLangParser {
 object MineLang extends EnrichmentClasses with MineLangCore {
 
   def run(code:String, p:Player) = runProgram(parse(code), p)
+  def runExpr(code:String, p:Player) = runProgram(parse(s"($code)"), p)
   def runProgram(prog:Program, p:Player) = evalProg(prog, new WorldEditExtension(p).lib ++ lib)
 
   case class WorldEditExtension(p:Player) {
@@ -411,7 +421,7 @@ object MineLang extends EnrichmentClasses with MineLangCore {
       }
     })
 
-    val goto = builtInUnit('goto, (exps, env) => {
+    val goto = builtInNil('goto, (exps, env) => {
       val loc = evalToLocation(exps(0),env)
       p ! s"teleported to: ${loc.xyz}"; p.teleport(loc)
     })
@@ -454,7 +464,7 @@ object MineLang extends EnrichmentClasses with MineLangCore {
       p ! s"set floor in $c to: $m"
       c
     }))
-    val message = builtInUnit('message, (exps, env) =>
+    val message = builtInNil('message, (exps, env) =>
       p ! (exps.map(e => evalredval(e, env).toString).mkString("\n"))
     )
 
@@ -475,5 +485,18 @@ object MineLang extends EnrichmentClasses with MineLangCore {
       // send a message to the player
       message
     )
+  }
+}
+
+object MineLangRepl {
+  def main(args:Array[String]): Unit = {
+    val commands = collection.mutable.ListBuffer[String]()
+    var next = readLine()
+    while(next != "quit") {
+      commands += next
+      val res = MineLang.runExpr(next, TestServer.player)
+      println(res)
+      next = readLine()
+    }
   }
 }
