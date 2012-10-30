@@ -163,12 +163,12 @@ trait MineLangInterpreter extends MineLangAST {
   }
 
   def evalred   (e:Expr, env:Env): Value = reduce(eval(e, env))
-  def evalredval(e:Expr, env:Env): Any = getRawValue(evalred(e, env))
-  def getRawValue(v:Value): Any = v match {
+  def evalredval(e:Expr, env:Env): Any = unbox(evalred(e, env))
+  def unbox(v:Value): Any = v match {
     case c@Closure(l, env)  => l args match {
       case Nil      => () => ()
-      case a1 :: Nil => (a2: Any) => getRawValue(call(c, List(a2), env))
-      case a1 :: b1 :: Nil => (a2: Any, b2: Any) => getRawValue(call(c, List(a2,b2), env))
+      case a1 :: Nil => (a2: Any) => unbox(call(c, List(a2), env))
+      case a1 :: b1 :: Nil => (a2: Any, b2: Any) => unbox(call(c, List(a2,b2), env))
     }
     case ObjectValue(a)              => a
     case DynamicValue(getter)        => sys error "shouldnt be possible, we already reduced"
@@ -397,7 +397,7 @@ trait MineLangCore extends MineLangInterpreter with MineLangParser {
 object MineLang extends EnrichmentClasses with MineLangCore {
 
   def run(code:String, p:Player) = runProgram(parse(code), p)
-  def runExpr(code:String, p:Player) = runProgram(parse(s"($code)"), p)
+  def runExpr(code:String, p:Player) = unbox(runProgram(parse(s"($code)"), p))
   def runProgram(prog:Program, p:Player) = evalProg(prog, new WorldEditExtension(p).lib ++ lib)
 
   case class WorldEditExtension(p:Player) {
@@ -489,14 +489,31 @@ object MineLang extends EnrichmentClasses with MineLangCore {
 }
 
 object MineLangRepl {
+
+  import scala.tools.jline.console.ConsoleReader
+  import scala.tools.jline.console.history.{FileHistory}
+  //.{ArgumentCompletor, Completor, ConsoleReader, MultiCompletor, NullCompletor, SimpleCompletor}
+
+  val historyFile = new File(s"${System.getProperty("user.home")}/.mc-history")
+  historyFile.createNewFile
+
+  private val history = new FileHistory(historyFile)
+
+  private val reader = new ConsoleReader(){
+    setBellEnabled(false)
+    setHistory(history)
+    setHistoryEnabled(true)
+    //cr addCompletor completor
+  }
+
+  def readLine = reader.readLine("mc>")
+
   def main(args:Array[String]): Unit = {
-    val commands = collection.mutable.ListBuffer[String]()
-    var next = readLine()
-    while(next != "quit") {
-      commands += next
-      val res = MineLang.runExpr(next, TestServer.player)
-      println(res)
-      next = readLine()
+    var next = readLine
+    while(next != null) {
+      println(MineLang.runExpr(next, TestServer.player))
+      next = readLine
     }
+    history.flush
   }
 }
