@@ -295,7 +295,7 @@ trait MineLangCore extends MineLangInterpreter with MineLangParser {
   val FalseValue = ObjectValue(false)
 
   // TODO on all these builtins, check the number of arguments.
-  val isa = builtIn(Symbol("isa?"), (exps, env) => (evalred(exps(0), env), exps(1)) match {
+  val isa = builtIn(Symbol("isa?"), (exps, env) => (evalredval(exps(0), env), exps(1)) match {
     case (NilValue, Variable(Symbol("scala.collection.immutable.List"))) =>
       ObjectValue(true)
     case (o, Variable(Symbol(className)))  =>
@@ -385,7 +385,7 @@ trait MineLangCore extends MineLangInterpreter with MineLangParser {
     'false -> ObjectValue(false),
     'nil   -> ObjectValue(()),
     // simple builtins
-    eqBuiltIn, ifStat, unless, toStringPrim, printOnSameLine, printLine,
+    eqBuiltIn, isa, ifStat, unless, toStringPrim, printOnSameLine, printLine,
     add, sub, mult, mod, lt, lteq, gt, gteq, abs,
     'random -> DynamicValue(() => ObjectValue(math.random)),
     spawn
@@ -488,34 +488,28 @@ object MineLang extends EnrichmentClasses with MineLangCore {
   }
 }
 
-object MineLangRepl {
-
-  import scala.tools.jline.console.ConsoleReader
-  import scala.tools.jline.console.history.{FileHistory}
-  //.{ArgumentCompletor, Completor, ConsoleReader, MultiCompletor, NullCompletor, SimpleCompletor}
-
-  class Session(p:Player){
-    import MineLang._
-    var count = 0
-    val baseLib = new WorldEditExtension(p).lib ++ lib
-    var currentLib = baseLib
-    def runExpr(code:String) = {
-      val name = nextName
-      try {
-        val res = runProgram(parse(s"($code)"))
-        currentLib = currentLib + (name -> res)
-        println(s"${name.toString.drop(1)}: ${unbox(res)}")
-      } catch { case e: Exception => e.printStackTrace }
-    }
+class Session(p:Player){
+  import MineLang._
+  var count = 0
+  val baseLib = new WorldEditExtension(p).lib ++ lib
+  var currentLib = baseLib
+  def runExpr(code:String): (String, Any) = {
     def nextName: Symbol = {
       val n = Symbol(s"res$count")
       if(! currentLib.contains(n)) n else { count = count + 1; nextName }
     }
-    def runProgram(prog:Program): Value = evalProg(prog, currentLib)
+    val name = nextName
+    val res = runProgram(parse(s"($code)"))
+    currentLib = currentLib + (name -> res)
+    name.toString.drop(1) -> unbox(res)
   }
+  def runProgram(prog:Program): Value = evalProg(prog, currentLib)
+}
 
-  val session = new Session(TestServer.player)
-
+class Repl {
+  import scala.tools.jline.console.ConsoleReader
+  import scala.tools.jline.console.history.FileHistory
+  //.{ArgumentCompletor, Completor, ConsoleReader, MultiCompletor, NullCompletor, SimpleCompletor}
   val input = new ConsoleReader(){
     setBellEnabled(false)
     val history = {
@@ -529,13 +523,20 @@ object MineLangRepl {
     def saveHistory: Unit = history.flush
     def next = readLine("mc> ")
   }
-
-  def main(args:Array[String]): Unit = {
+  def run: Unit = {
+    val session = new Session(TestServer.player)
     var next = input.next
-    while(next != null) {
-      session runExpr next
+    while (next != null) {
+      try {
+        val (name,result) = session runExpr next
+        println(s"$name: $result")
+      } catch { case e: Exception => e.printStackTrace }
       next = input.next
     }
     input.saveHistory
   }
+}
+
+object MineLangRepl {
+  def main(args:Array[String]): Unit = new Repl().run
 }
