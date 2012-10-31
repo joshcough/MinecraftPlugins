@@ -494,26 +494,48 @@ object MineLangRepl {
   import scala.tools.jline.console.history.{FileHistory}
   //.{ArgumentCompletor, Completor, ConsoleReader, MultiCompletor, NullCompletor, SimpleCompletor}
 
-  val historyFile = new File(s"${System.getProperty("user.home")}/.mc-history")
-  historyFile.createNewFile
+  class Session(p:Player){
+    import MineLang._
+    var count = 0
+    val baseLib = new WorldEditExtension(p).lib ++ lib
+    var currentLib = baseLib
+    def runExpr(code:String) = {
+      val name = nextName
+      try {
+        val res = runProgram(parse(s"($code)"))
+        currentLib = currentLib + (name -> res)
+        println(s"${name.toString.drop(1)}: ${unbox(res)}")
+      } catch { case e: Exception => e.printStackTrace }
+    }
+    def nextName: Symbol = {
+      val n = Symbol(s"res$count")
+      if(! currentLib.contains(n)) n else { count = count + 1; nextName }
+    }
+    def runProgram(prog:Program): Value = evalProg(prog, currentLib)
+  }
 
-  private val history = new FileHistory(historyFile)
+  val session = new Session(TestServer.player)
 
-  private val reader = new ConsoleReader(){
+  val input = new ConsoleReader(){
     setBellEnabled(false)
+    val history = {
+      val historyFile = new File(s"${System.getProperty("user.home")}/.mc-history")
+      historyFile.createNewFile
+      new FileHistory(historyFile)
+    }
     setHistory(history)
     setHistoryEnabled(true)
     //cr addCompletor completor
+    def saveHistory: Unit = history.flush
+    def next = readLine("mc> ")
   }
 
-  def readLine = reader.readLine("mc>")
-
   def main(args:Array[String]): Unit = {
-    var next = readLine
+    var next = input.next
     while(next != null) {
-      println(MineLang.runExpr(next, TestServer.player))
-      next = readLine
+      session runExpr next
+      next = input.next
     }
-    history.flush
+    input.saveHistory
   }
 }
