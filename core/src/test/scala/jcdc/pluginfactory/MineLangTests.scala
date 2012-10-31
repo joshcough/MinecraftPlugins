@@ -39,50 +39,48 @@ object MineLangTests extends Properties("MinecraftParserTests") with EnrichmentC
   val letNested        = """((let (a 5) (let (a 10) 10)))"""
   val letStar1         = """((let* ((a 5) (b 6)) (+ a b)))"""
   val letStar2         = """((let* ((a 5) (b (+ a 2))) (+ a b)))"""
+  val isaTest1         = """((isa? "hi" java.lang.String))"""
 
   // simple java interop tests
-//  evalTest("constructorCall1", constructorCall1, ObjectValue(Point(5,6)))
-  evalTest("constructorCall2", constructorCall2, ObjectValue(Point(5,6)))
-//  evalTest("instanceCall0",    instanceCall0,    ObjectValue("(5,6)"))
-//  evalTest("instanceCall1",    instanceCall1,    ObjectValue("6"))
-//  evalTest("instanceCall2",    instanceCall2,    ObjectValue("6"))
-//  evalTest("instanceCall3",    instanceCall3,    ObjectValue("6"))
-//  evalTest("staticCall1",      staticCall1,      ObjectValue("5"))
-//  evalTest("staticField1",     staticField1,     ObjectValue(Math.PI))
-//  evalTest("lamTest",          lamTest,          ObjectValue(7))
-//  evalTest("invokeWithFun1a",  invokeWithFun1a,  ObjectValue(7))
-//  evalTest("invokeWithFun1b",  invokeWithFun1b,  ObjectValue(16))
-//  evalTest("invokeWithFun2a",  invokeWithFun2a,  ObjectValue(72))
-//  evalTest("access nil",       s"(nil)",         ObjectValue(Nil))
-//  evalTest("apply cons",       s"((cons 1 nil))",ObjectValue(List(1)))
-//  evalTest("let1 test",        let1,             ObjectValue(5))
-//  evalTest("let2 test",        let2,             ObjectValue(10))
-//  evalTest("letNested test",   letNested,        ObjectValue(10))
-//  evalTest("let* test 1",      letStar1,         ObjectValue(11))
-//  evalTest("let* test 2",      letStar2,         ObjectValue(12))
-//
-//  // TODO: failing
-//  //evalTest("list map"  ,  listMap,  ObjectValue(List(1, 4, 9)))
-//
-//
-//  val expandMc = mineLangDir.child("expand.mc")
-//  parseDefsTest("expand defs parse", expandMc, 0)
-//  evalTest("expand", expandMc.slurp,
-//    ObjectValue(Cube(TestServer.world(12,3,12), TestServer.world(-2,3,-2)))
-//  )
-//
-//  val factorialDefs = mineLangDir.child("factorial.mc")
-//  parseDefsTest("factorial defs parse", factorialDefs, 2)
-//  evalWithDefsTest("factorial defs eval", "(test)", ObjectValue(120), factorialDefs)
-//
-//  val houseDefs = mineLangDir.child("house.mc")
-//  parseDefsTest("house defs parse", houseDefs, 9)
-//  evalWithDefsTest("house defs eval", "(city)", NilValue, houseDefs)
-//
-  def evalTest(name:String, code:String, expected:Value) =
+  evalTest("constructorCall1", constructorCall1,    Point(5,6))
+  evalTest("constructorCall2", constructorCall2,    Point(5,6))
+  evalTest("instanceCall0",    instanceCall0,       "(5,6)")
+  evalTest("instanceCall1",    instanceCall1,       "6")
+  evalTest("instanceCall2",    instanceCall2,       "6")
+  evalTest("instanceCall3",    instanceCall3,       "6")
+  evalTest("staticCall1",      staticCall1,         "5")
+  evalTest("staticField1",     staticField1,        Math.PI)
+  evalTest("lamTest",          lamTest,             7)
+  evalTest("invokeWithFun1a",  invokeWithFun1a,     7)
+  evalTest("invokeWithFun1b",  invokeWithFun1b,     16)
+  evalTest("invokeWithFun2a",  invokeWithFun2a,     72)
+  evalTest("let1 test",        let1,                5)
+  evalTest("let2 test",        let2,                10)
+  evalTest("letNested test",   letNested,           10)
+  evalTest("let* test 1",      letStar1,            11)
+  evalTest("let* test 2",      letStar2,            12)
+  evalTest("isa? test 1",      isaTest1,            true)
+  evalTest("access empty",     s"(empty)",          Nil)
+  evalTest("apply cons",       s"((cons 1 empty))", List(1))
+  // TODO: failing
+  //evalTest("list map"  ,  listMap,  List(1, 4, 9))
+
+  val expandMc = mineLangDir.child("expand.mc")
+  parseDefsTest("expand defs parse", expandMc, 0)
+  evalTest("expand", expandMc.slurp, Cube(TestServer.world(12,3,12), TestServer.world(-2,3,-2)))
+
+  val factorialDefs = mineLangDir.child("factorial.mc")
+  parseDefsTest("factorial defs parse", factorialDefs, 2)
+  evalWithDefsTest("factorial defs eval", "(test)", 120, factorialDefs)
+
+  val houseDefs = mineLangDir.child("house.mc")
+  parseDefsTest("house defs parse", houseDefs, 9)
+  evalWithDefsTest("house defs eval", "(city)", (), houseDefs)
+
+  def evalTest(name:String, code:String, expected:Any) =
     property(name) = secure { run(code, expected) }
 
-  def evalWithDefsTest(name:String, code:String, expected:Value, defs:File) =
+  def evalWithDefsTest(name:String, code:String, expected:Any, defs:File) =
     property(name) = secure { runWithDefs(code, expected, parseDefs(read(defs))) }
 
   def parseDefsTest(name:String, code:File, expected:Int) =
@@ -95,14 +93,14 @@ object MineLangTests extends Properties("MinecraftParserTests") with EnrichmentC
       }
     }
 
-  def run(code:String, expected:AnyRef): Boolean = attemptThrowable {
-    val actual = MineLang.run(code, TestServer.player)
+  def run(code:String, expected:Any): Boolean = attemptThrowable {
+    val actual = unbox(MineLang.run(code, TestServer.player))
     println(s"Result: $actual")
     actual == expected
   }
 
-  def runWithDefs(code:String, expected:AnyRef, defs:List[Def]): Boolean = attemptThrowable {
-    val actual = runProgram(Program(defs, parseExpr(read(code))), TestServer.player)
+  def runWithDefs(code:String, expected:Any, defs:List[Def]): Boolean = attemptThrowable {
+    val actual = unbox(runProgram(Program(defs, parseExpr(read(code))), TestServer.player))
     println(s"Result: $actual")
     actual == expected
   }
