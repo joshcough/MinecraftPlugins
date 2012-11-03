@@ -1,8 +1,9 @@
 all: compile arena ban-arrows block-changer block-changer-gold curse-ban farmer god lightning-arrows mpc no-rain thor tree-delogger warp-plugin world-edit yellow-brick-road zombie-apocalypse
 
 demo: clean-plugins compile block-changer block-changer-gold mpc plugin-commander warp-plugin world-edit
-we: clean-plugins compile mpc world-edit
-#we: world-edit
+mlp: clean-plugins compile mpc world-edit minelang-plugin
+we-quick: world-edit
+mlp-quick: minelang-plugin
 test: compile run-tests
 
 perms: clean-plugins compile permissions-test
@@ -51,6 +52,9 @@ lightning-arrows:
 mpc:
 	$(call plugin, "multiplayercommands.yml", "MultiPlayerCommands.jar")
 
+minelang-plugin:
+	$(call plugin, "minelangplugin.yml", "MineLangPlugin.jar")
+
 no-rain:
 	$(call plugin, "norain.yml", "NoRain.jar")
 
@@ -77,4 +81,3 @@ yellow-brick-road:
 
 zombie-apocalypse: 
 	$(call plugin, "zombieapocalypse.yml", "ZombieApocalyspse.jar")
-

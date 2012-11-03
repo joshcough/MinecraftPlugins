@@ -6,6 +6,8 @@ organization := "jcdc.pluginfactory"
 
 scalaVersion := "2.10.0-M7"
 
+mainClass := Some("jcdc.pluginfactory.MineLangRepl")
+
 resolvers += Resolver.sonatypeRepo("snapshots")
 
 libraryDependencies += "javax.servlet" % "servlet-api" % "2.5" % "provided->default"

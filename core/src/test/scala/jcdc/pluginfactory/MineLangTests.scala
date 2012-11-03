@@ -2,69 +2,16 @@ package jcdc.pluginfactory
 
 import org.scalacheck.Properties
 import org.scalacheck.Prop.secure
-import MineLang._
+import ClojureInScala._
+  import Reader._
+  import AST._
+  import Parser._
+  import MineLang._
 import java.io.File
-
-case class Point(x:Int, y:Int){
-  def this(x:java.lang.Integer, y:java.lang.Integer, z:Unit) = this(x, y)
-  override def toString = s"($x,$y)"
-  def invoke1(i:java.lang.Integer) = "6"
-  def invoke2(i:Int) = "6"
-  def invoke3(i:Int, i2:java.lang.Integer)  = "6"
-  def invoke4(i:Int, i2:java.lang.Integer*) = "6"
-  def invokeFun1a(f: Any => Int) = f(7)
-  def invokeFun1b(f: Int => Int) = f(8)
-  def invokeFun2a(f: (Int, Int) => Int) = f(8, 9)
-}
 
 object MineLangTests extends Properties("MinecraftParserTests") with EnrichmentClasses {
 
-  val mineLangDir = new File("../minelang/")
-
-  val constructorCall1 = """((new jcdc.pluginfactory.Point 5 6))"""
-  val constructorCall2 = """((new jcdc.pluginfactory.Point 5 6 nil))"""
-  val instanceCall0    = """((.toString (new jcdc.pluginfactory.Point 5 6)))"""
-  val instanceCall1    = """((.invoke1 (new jcdc.pluginfactory.Point 5 6) 0))"""
-  val instanceCall2    = """((.invoke2 (new jcdc.pluginfactory.Point 5 6) 0))"""
-  val instanceCall3    = """((.invoke3 (new jcdc.pluginfactory.Point 5 6) 0 0))"""
-  val staticCall1      = """((java.lang.String/valueOf 5))"""
-  val staticField1     = """(java.lang.Math/PI)"""
-  val lamTest          = """(((lam (x) x) 7))"""
-  val invokeWithFun1a  = """((.invokeFun1a (new jcdc.pluginfactory.Point 5 6) (lam (x) x)))"""
-  val invokeWithFun1b  = """((.invokeFun1b (new jcdc.pluginfactory.Point 5 6) (lam (x) (+ x x))))"""
-  val invokeWithFun2a  = """((.invokeFun2a (new jcdc.pluginfactory.Point 5 6) (lam (x y) (* 9 8))))"""
-  val listMap          = """((.map (cons 1 (cons 2 (cons 3 nil))) (lam (x) (* x x))))"""
-  val let1             = """((let (a 5) a))"""
-  val let2             = """((let (a 5) (+ a a)))"""
-  val letNested        = """((let (a 5) (let (a 10) 10)))"""
-  val letStar1         = """((let* ((a 5) (b 6)) (+ a b)))"""
-  val letStar2         = """((let* ((a 5) (b (+ a 2))) (+ a b)))"""
-  val isaTest1         = """((isa? "hi" java.lang.String))"""
-
-  // simple java interop tests
-  evalTest("constructorCall1", constructorCall1,    Point(5,6))
-  evalTest("constructorCall2", constructorCall2,    Point(5,6))
-  evalTest("instanceCall0",    instanceCall0,       "(5,6)")
-  evalTest("instanceCall1",    instanceCall1,       "6")
-  evalTest("instanceCall2",    instanceCall2,       "6")
-  evalTest("instanceCall3",    instanceCall3,       "6")
-  evalTest("staticCall1",      staticCall1,         "5")
-  evalTest("staticField1",     staticField1,        Math.PI)
-  evalTest("lamTest",          lamTest,             7)
-  evalTest("invokeWithFun1a",  invokeWithFun1a,     7)
-  evalTest("invokeWithFun1b",  invokeWithFun1b,     16)
-  evalTest("invokeWithFun2a",  invokeWithFun2a,     72)
-  evalTest("let1 test",        let1,                5)
-  evalTest("let2 test",        let2,                10)
-  evalTest("letNested test",   letNested,           10)
-  evalTest("let* test 1",      letStar1,            11)
-  evalTest("let* test 2",      letStar2,            12)
-  evalTest("isa? test 1",      isaTest1,            true)
-  evalTest("access empty",     s"(empty)",          Nil)
-  evalTest("apply cons",       s"((cons 1 empty))", List(1))
-  // TODO: failing
-  //evalTest("list map"  ,  listMap,  List(1, 4, 9))
-
+  val mineLangDir = stdLibDir
   val expandMc = mineLangDir.child("expand.mc")
   parseDefsTest("expand defs parse", expandMc, 0)
   evalTest("expand", expandMc.slurp, Cube(TestServer.world(12,3,12), TestServer.world(-2,3,-2)))
@@ -86,7 +33,7 @@ object MineLangTests extends Properties("MinecraftParserTests") with EnrichmentC
   def parseDefsTest(name:String, code:File, expected:Int) =
     property(name) = secure {
       attemptThrowable {
-        val res = MineLang.parseDefs(read(code))
+        val res = parseDefs(read(code))
         //println(s"Parse Result:")
         //res.foreach(println)
         res.size == expected
@@ -94,13 +41,13 @@ object MineLangTests extends Properties("MinecraftParserTests") with EnrichmentC
     }
 
   def run(code:String, expected:Any): Boolean = attemptThrowable {
-    val actual = unbox(MineLang.run(code, TestServer.player))
+    val actual = MineLang.run(code, TestServer.player)
     println(s"Result: $actual")
     actual == expected
   }
 
   def runWithDefs(code:String, expected:Any, defs:List[Def]): Boolean = attemptThrowable {
-    val actual = unbox(runProgram(Program(defs, parseExpr(read(code))), TestServer.player))
+    val actual = runProgram(Program(defs, parseExpr(read(code))), TestServer.player)
     println(s"Result: $actual")
     actual == expected
   }

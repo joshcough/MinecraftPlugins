@@ -6,13 +6,11 @@ import org.bukkit.{Location, Material}
 import org.bukkit.ChatColor._
 import org.bukkit.entity.Player
 import Material._
-import java.io.File
 
 class WorldEdit extends ListenersPlugin
   with CommandsPlugin with SingleClassDBPlugin[Script] {
 
   val dbClass = classOf[Script]
-
   val corners = collection.mutable.Map[Player, List[Location]]().withDefaultValue(Nil)
 
   val listeners = List(
@@ -20,25 +18,7 @@ class WorldEdit extends ListenersPlugin
     OnRightClickBlock((p, e) => if(p isHoldingA WOOD_AXE) { setSecondPos(p, e.loc) })
   )
 
-  import MineLang._
-
-  val houseDefs = new File("../minelang/house.mc")
-
-  var defs: List[Def] = parseDefs(read(houseDefs))
-
   val commands = List(
-//    Command("house", "build a house", noArgs(MineLang.run(MineLangExamples.house, _))),
-
-    Command("import", "import some defs", args(existingFile){ case (_, codeFile) =>
-      defs = defs ::: parseDefs(read(codeFile))
-    }),
-
-    Command("interp", "run a program", args(slurp){ case (p, code) =>
-      runProgram(Program(defs, parseExpr(read(code))), p)
-    }),
-
-    Command("reload-code", "run a program", noArgs{ p => defs = parseDefs(read(houseDefs))}),
-
 //    Command("code-book-example", "get a 'code book' example", args(anyString.?){ case (p, title) =>
 //      p.inventory addItem Book(author = p, title, pages =
 //        """
