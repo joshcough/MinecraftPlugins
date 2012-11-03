@@ -8,8 +8,8 @@ object ClojureInScala {
   import Reader._
 
   trait Reader {
-    def read(s:String)  : Any = read(stripComments(s).toList)
-    def read(f:File)    : Any = read(fileToString(f))
+    def read(s:String): Any = read(stripComments(s).toList)
+    def read(f:File)  : Any = read(fileToString(f))
     def fileToString(f:File): String = scala.io.Source.fromFile(f).getLines().mkString("\n")
   
     def stripComments(code:String) = code.split("\n").map(s => s.takeWhile(_!=';').trim).mkString(" ")
@@ -305,8 +305,12 @@ object ClojureInScala {
       case d:Double => d.toInt
       case  _       => die(s"not a number: $a")
     }
-    def evalToInt   (e:Expr, env:Env): Int = evalTo(e,env,"int")   { case ObjectValue(v:Int) => v }
-    def evalToObject(e:Expr, env:Env): Any = evalTo(e,env,"object"){ case ObjectValue(o)     => o }
+    def evalToInt   (e:Expr, env:Env): Int    =
+      evalTo(e,env,"Int")   {case ObjectValue(v:Int)    => v}
+    def evalToString(e:Expr, env:Env): String =
+      evalTo(e,env,"String"){case ObjectValue(v:String) => v}
+    def evalToObject(e:Expr, env:Env): Any    =
+      evalTo(e,env,"Object"){case ObjectValue(o)        => o}
   
     def getClasses(as:List[Any]): List[Class[_]] = as map (_ match {
       case i:Int     => classOf[Int]
@@ -353,6 +357,30 @@ object ClojureInScala {
 
   val stdLibDir = new File("./src/main/resources/minelang")
   val resourcesStdLibDir = new File("./minelang")
+
+  object LibLoader {
+    def loadLib(file:String): List[Def] = {
+      // try to load from the file system
+      val fromFileSystem = Option(new File(stdLibDir, file)).filter(_.exists)
+      // if that fails, try to load from the jar
+      val url = Option(getClass.getClassLoader.getResource(resourcesStdLibDir + "/" + file))
+      val fromJar = url.map(u => new File(u.toURI))
+      val theFile = fromFileSystem match {
+        case Some(f)   => println(s"loading: $f from disk"); f
+        case None      => fromJar match {
+          case Some(f) => println(s"loading: $f from resources"); f
+          case None    => die(s"couldn't find library: $file")
+        }
+      }
+      val defs =
+        try parseDefs(read(theFile))
+        catch{ case e: Exception => die(s"failed parsing library: $file", e) }
+      println(defs map (_.name))
+      defs
+    }
+    def evalLib(file:String, env:Env): Env = loadLib(file).foldLeft(env)(evalDef)
+  }
+  import LibLoader._
 
   object Lib extends Lib
 
@@ -431,26 +459,6 @@ object ClojureInScala {
   
     val printLine = builtInNil('println, (exps, env) =>
       println(exps.map(e => evalredval(e, env).toString).mkString("\n")))
-  
-    private def loadLib(file:String) = {
-      // try to load from the file system
-      val fromFileSystem = Option(new File(stdLibDir, file)).filter(_.exists)
-      // if that fails, try to load from the jar
-      val url = Option(getClass.getClassLoader.getResource(resourcesStdLibDir + "/" + file))
-      val fromJar = url.map(u => new File(u.toURI))
-      val theFile = fromFileSystem match {
-        case Some(f)   => println(s"loading: $f from disk"); f
-        case None      => fromJar match {
-          case Some(f) => println(s"loading: $f from resources"); f
-          case None    => die(s"couldn't find library: $file")
-        }
-      }
-      val defs =
-        try parseDefs(read(theFile))
-        catch{ case e: Exception => die(s"failed parsing library: $file", e) }
-      println(defs map (_.name))
-      defs
-    }
 
     private val builtinLib: Env = Map(
       // primitives
@@ -474,7 +482,8 @@ object ClojureInScala {
 
   class Session (val env:Env = Map()){
     var count              = 0
-    def join(moreEnv:Env): Session = new Session(env ++ moreEnv)
+    def join(moreEnv:Env)   : Session = new Session(env ++ moreEnv)
+    def load(defs:List[Def]): Session = new Session(defs.foldLeft(env)(evalDef))
     def runExpr(code:String): ((String, Any), Session) = {
       def nextName: Symbol = {
         val n = Symbol(s"res$count")
@@ -493,18 +502,17 @@ object ClojureInScala {
     import scala.collection.JavaConversions._
 
     trait ReplCommand
-      case object Quit extends ReplCommand
       case object LastError extends ReplCommand
       case object Reload extends ReplCommand
       case object Load extends ReplCommand
 
     private val replLib: Env = Map(
-      Symbol(":quit")       -> ObjectValue(Quit),
-      Symbol(":q")          -> ObjectValue(Quit),
-      Symbol(":exit")       -> ObjectValue(Quit),
       Symbol(":last-error") -> ObjectValue(LastError),
       Symbol(":reload")     -> ObjectValue(Reload),
-      Symbol(":load")       -> ObjectValue(Load)
+      builtIn(Symbol(":load"), (exps, env) => {
+        val f = evalToString(exps(0),env)
+        ObjectValue(List(Load, f, evalLib(f, session.env)))
+      })
     )
 
     var session = inputSession.join(replLib)
@@ -532,13 +540,15 @@ object ClojureInScala {
         try {
           val ((name,result), newSession) = session runExpr next
           result match {
-            case Quit      => return
             case LastError => lastException.foreach(_.printStackTrace())
             case Reload    => session = Session.reloadStdLib(session)
-            case List(Load, f) => println(s"load $f")
-            case _         => println(s"$name: $result")
+            case List(Load, file, newEnv:Env) =>
+              session = session.join(newEnv)
+              println(s"loaded $file")
+            case _         =>
+              println(s"$name: $result")
+              session = newSession
           }
-          session = newSession
         } catch { case e: Exception =>
           println(s"error: ${e.getMessage}")
           lastException = Some(e)
