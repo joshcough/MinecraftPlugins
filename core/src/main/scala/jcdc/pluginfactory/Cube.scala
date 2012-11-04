@@ -45,30 +45,28 @@ case class Cube(l1: Location, l2: Location) {
 
   import Cube._
 
+  val maxX  = math.max(l1.x, l2.x)
+  val minX  = math.min(l1.x, l2.x)
+  val maxY  = math.max(l1.y, l2.y)
+  val minY  = math.min(l1.y, l2.y)
+  val maxZ  = math.max(l1.z, l2.z)
+  val minZ  = math.min(l1.z, l2.z)
+  val world = l1.world
+
   override def toString = s"Cube(l1: ${(maxX,maxY,maxZ)}, l2: ${(minX,minY,minZ)})"
   override def equals(a:Any) = a match {
-    case c@Cube(_,_) => 
+    case c@Cube(_,_) =>
       (maxX,maxY,maxZ) == (c.maxX,c.maxY,c.maxZ) &&
-      (minX,minY,minZ) == (c.minX,c.minY,c.minZ) &&
-      c.world.name == world.name
+        (minX,minY,minZ) == (c.minX,c.minY,c.minZ) &&
+        c.world.name == world.name
     case _ => false
   }
-  val world     = l1.world
-
-  val maxX      = math.max(l1.x, l2.x)
-  val minX      = math.min(l1.x, l2.x)
-  val maxY      = math.max(l1.y, l2.y)
-  val minY      = math.min(l1.y, l2.y)
-  val maxZ      = math.max(l1.z, l2.z)
-  val minZ      = math.min(l1.z, l2.z)
-
   def copy(minX:Int=minX, minY:Int=minY, minZ:Int=minZ,
            maxX:Int=maxX, maxY:Int=maxY, maxZ:Int=maxZ): Cube =
     Cube(new Location(world, minX, minY, minZ), new Location(world, maxX, maxY, maxZ))
 
   // this must be a def to avoid it memoizing.
-  def blocks    = world.between(l1, l2)
-
+  def blocks = world.between(l1, l2)
   def width  = maxX - minX
   def height = maxY - minY
   def depth  = maxZ - minZ
@@ -211,6 +209,8 @@ case class Cube(l1: Location, l2: Location) {
   def shrinkMaxXBy(less:Int)  = copy(maxX=maxX-less)
   def shrinkMaxYBy(less:Int)  = copy(maxY=maxY-less)
   def shrinkMaxZBy(less:Int)  = copy(maxZ=maxZ-less)
+  // move x and z in by n
+  def shrinkXZ(n:Int) = shrink(n,0,n)
 
   def expandX     (i:Int)     = grow(i,0,0)
   def expandY     (i:Int)     = grow(0,i,0)

@@ -305,12 +305,10 @@ object ClojureInScala {
       case d:Double => d.toInt
       case  _       => die(s"not a number: $a")
     }
-    def evalToInt   (e:Expr, env:Env): Int    =
-      evalTo(e,env,"Int")   {case ObjectValue(v:Int)    => v}
-    def evalToString(e:Expr, env:Env): String =
-      evalTo(e,env,"String"){case ObjectValue(v:String) => v}
-    def evalToObject(e:Expr, env:Env): Any    =
-      evalTo(e,env,"Object"){case ObjectValue(o)        => o}
+    def evalToInt   (e:Expr, env:Env): Int    = evalTo(e,env,"Int")   { case ObjectValue(v:Int) => v }
+    def evalToDouble(e:Expr, env:Env): Double = evalTo(e,env,"Double"){ case ObjectValue(v:Double) => v }
+    def evalToString(e:Expr, env:Env): String = evalTo(e,env,"String"){ case ObjectValue(v:String) => v }
+    def evalToObject(e:Expr, env:Env): Any    = evalTo(e,env,"Object"){ case ObjectValue(o) => o }
   
     def getClasses(as:List[Any]): List[Class[_]] = as map (_ match {
       case i:Int     => classOf[Int]
@@ -441,21 +439,38 @@ object ClojureInScala {
         ObjectValue(vals.foldLeft(""){(acc,s) => acc + s })
       else die(s"+ expected all numbers or all strings, but got $vals")
     })
-    val abs = builtIn('abs, (exps, env) => ObjectValue(Math.abs(evalToInt(exps(0), env))))
-    def twoNumOp(name:Symbol)(f: (Int,Int) => Value) = builtIn(name, (exps, env) =>
+    val abs       = builtIn('abs, (exps, env) => ObjectValue(Math.abs(evalToInt(exps(0), env))))
+    val toDouble  = builtIn('toDouble, (exps, env) => eval(exps(0), env) match {
+      case ObjectValue(d:Double) => ObjectValue(d)
+      case ObjectValue(i:Int)    => ObjectValue(i.toDouble)
+      case o => die(s"toDouble expected a number, but got: o")
+    })
+    val toIntPrim = builtIn('toInt, (exps, env) => eval(exps(0), env) match {
+      case ObjectValue(d:Double) => ObjectValue(d.toInt)
+      case ObjectValue(i:Int)    => ObjectValue(i)
+      case o => die(s"toInt expected a number, but got: o")
+    })
+    val randomPrim = builtIn('random, (exps, env) => ObjectValue(math.random))
+
+    def twoIntOp(name:Symbol)
+                (fi: (Int,Int)       => Any)
+                (fd: (Double,Double) => Any) = builtIn(name, (exps, env) =>
       (evalred(exps(0), env), evalred(exps(1), env)) match {
-        case (ObjectValue(av:Int), ObjectValue(bv:Int)) => f(av, bv)
+        case (ObjectValue(av:Int),    ObjectValue(bv:Int))    => ObjectValue(fi(av, bv))
+        case (ObjectValue(av:Double), ObjectValue(bv:Double)) => ObjectValue(fd(av, bv))
+        case (ObjectValue(av:Int),    ObjectValue(bv:Double)) => ObjectValue(fd(av.toDouble, bv))
+        case (ObjectValue(av:Double), ObjectValue(bv:Int))    => ObjectValue(fd(av, bv.toDouble))
         case (av,bv) => die(s"${name.toString drop 1} expected two numbers, but got: $av, $bv")
       }
     )
     // todo: these need to deal with different numberic data types
-    val sub  = twoNumOp('-) ((i,j) => ObjectValue(i - j))
-    val mult = twoNumOp('*) ((i,j) => ObjectValue(i * j))
-    val mod  = twoNumOp('%) ((i,j) => ObjectValue(i % j))
-    val lt   = twoNumOp('<) ((i,j) => ObjectValue(i < j))
-    val gt   = twoNumOp('>) ((i,j) => ObjectValue(i > j))
-    val lteq = twoNumOp('<=)((i,j) => ObjectValue(i <= j))
-    val gteq = twoNumOp('>=)((i,j) => ObjectValue(i >= j))
+    val sub  = twoIntOp('-) ((i,j) => i - j) ((i,j) => i - j)
+    val mult = twoIntOp('*) ((i,j) => i * j) ((i,j) => i * j)
+    val mod  = twoIntOp('%) ((i,j) => i % j) ((i,j) => i % j)
+    val lt   = twoIntOp('<) ((i,j) => i < j) ((i,j) => i < j)
+    val gt   = twoIntOp('>) ((i,j) => i > j) ((i,j) => i > j)
+    val lteq = twoIntOp('<=)((i,j) => i <= j)((i,j) => i <= j)
+    val gteq = twoIntOp('>=)((i,j) => i >= j)((i,j) => i >= j)
   
     val printOnSameLine = builtInNil('print, (exps, env) =>
       print(exps.map(e => evalredval(e, env).toString).mkString(" ")))
@@ -470,12 +485,14 @@ object ClojureInScala {
       'nil   -> ObjectValue(()),
       // simple builtins
       eqBuiltIn, isa, ifStat, unless, toStringPrim, printOnSameLine, printLine,
-      add, sub, mult, mod, lt, lteq, gt, gteq, abs,
-      'random -> DynamicValue(() => ObjectValue(math.random)),
+      add, sub, mult, mod, lt, lteq, gt, gteq, abs, toDouble, toIntPrim, randomPrim,
       spawn
     )
 
-    def lib = (loadLib("bool.mc") ::: loadLib("list.mc")).foldLeft(builtinLib)(evalDef)
+    def lib = List(
+      "bool.mc",
+      "math.mc",
+      "list.mc").flatMap(loadLib).foldLeft(builtinLib)(evalDef)
   }
 
   object Session {
