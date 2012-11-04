@@ -22,7 +22,6 @@
   (defrec build-house-row [at nr-houses house-builder-f]
     (unless (eq? nr-houses 0)
       (begin
-        ;(message nr-houses)
         (house-builder-f at)
         ; TODO: 20 isnt right here. the houses could be bigger than 20 wide...
         (build-house-row (loc (+ 20 (.getX at)) (.getY at) (.getZ at)) (- nr-houses 1) house-builder-f)

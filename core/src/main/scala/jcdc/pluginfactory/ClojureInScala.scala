@@ -62,7 +62,7 @@ object ClojureInScala {
     }
   
     def printSExp(a:Any): String = a match {
-      case s:Symbol    => s.toString.drop(1)
+      case s:Symbol    => s.toString drop 1
       case s:String    => s
       case i:Int       => i.toString
       case l:List[Any] => l.map(printSExp).mkString("(", " ", ")")
@@ -355,13 +355,13 @@ object ClojureInScala {
       (name -> BuiltinFunction(name, (es, env) => { ObjectValue(eval(es,env)) }))
   }
 
-  val stdLibDir = new File("./src/main/resources/minelang")
+  val filesystemStdLibDir = new File("./src/main/resources/clojureinscala")
   val resourcesStdLibDir = new File("./minelang")
 
   object LibLoader {
     def loadLib(file:String): List[Def] = {
       // try to load from the file system
-      val fromFileSystem = Option(new File(stdLibDir, file)).filter(_.exists)
+      val fromFileSystem = Option(new File(filesystemStdLibDir, file)).filter(_.exists)
       // if that fails, try to load from the jar
       val url = Option(getClass.getClassLoader.getResource(resourcesStdLibDir + "/" + file))
       val fromJar = url.map(u => new File(u.toURI))
@@ -481,8 +481,8 @@ object ClojureInScala {
   }
 
   class Session (val env:Env = Map()){
-    var count              = 0
-    def join(moreEnv:Env)   : Session = new Session(env ++ moreEnv)
+    var count = 0
+    def add(moreEnv:Env)    : Session = new Session(env ++ moreEnv)
     def load(defs:List[Def]): Session = new Session(defs.foldLeft(env)(evalDef))
     def runExpr(code:String): ((String, Any), Session) = {
       def nextName: Symbol = {
@@ -504,18 +504,18 @@ object ClojureInScala {
     trait ReplCommand
       case object LastError extends ReplCommand
       case object Reload extends ReplCommand
-      case object Load extends ReplCommand
+      case class  Load(file:String, newEnv:Env) extends ReplCommand
 
     private val replLib: Env = Map(
       Symbol(":last-error") -> ObjectValue(LastError),
       Symbol(":reload")     -> ObjectValue(Reload),
       builtIn(Symbol(":load"), (exps, env) => {
         val f = evalToString(exps(0),env)
-        ObjectValue(List(Load, f, evalLib(f, session.env)))
+        ObjectValue(Load(f, evalLib(f, session.env)))
       })
     )
 
-    var session = inputSession.join(replLib)
+    var session = inputSession.add(replLib)
 
     val input = new ConsoleReader(){
       setBellEnabled(false)
@@ -528,7 +528,7 @@ object ClojureInScala {
       setHistoryEnabled(true)
       //.{ArgumentCompletor, Completor, ConsoleReader, MultiCompletor, NullCompletor, SimpleCompletor}
       addCompleter(new StringsCompleter(replLib.keys.map(_.name)))
-      addCompleter(new FileNameCompleter(){ override def getUserDir = stdLibDir })
+      addCompleter(new FileNameCompleter(){ override def getUserDir = filesystemStdLibDir })
       def saveHistory: Unit = history.flush
       def next = readLine("mc> ")
     }
@@ -542,8 +542,8 @@ object ClojureInScala {
           result match {
             case LastError => lastException.foreach(_.printStackTrace())
             case Reload    => session = Session.reloadStdLib(session)
-            case List(Load, file, newEnv:Env) =>
-              session = session.join(newEnv)
+            case Load(file, newEnv) =>
+              session = session.add(newEnv)
               println(s"loaded $file")
             case _         =>
               println(s"$name: $result")

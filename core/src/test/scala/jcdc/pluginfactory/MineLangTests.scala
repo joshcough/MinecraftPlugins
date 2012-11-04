@@ -11,7 +11,7 @@ import java.io.File
 
 object MineLangTests extends Properties("MinecraftParserTests") with EnrichmentClasses {
 
-  val mineLangDir = stdLibDir
+  val mineLangDir = filesystemStdLibDir
   val expandMc = mineLangDir.child("expand.mc")
   parseDefsTest("expand defs parse", expandMc, 0)
   evalTest("expand", expandMc.slurp, Cube(TestServer.world(12,3,12), TestServer.world(-2,3,-2)))
