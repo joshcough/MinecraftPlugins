@@ -119,6 +119,7 @@ trait EnrichmentClasses {
   }
 
   implicit class RichWorld(w:World){
+    def name = w.getName
     def entities = w.getEntities
     def apply(x: Int, y: Int, z: Int): Block = blockAt(x.toDouble, y.toDouble, z.toDouble)
     def apply(x: Double, y: Double, z: Double): Block = new Location(w, x, y, z).getBlock

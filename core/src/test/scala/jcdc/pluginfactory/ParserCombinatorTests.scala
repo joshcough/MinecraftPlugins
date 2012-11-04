@@ -3,9 +3,9 @@ package jcdc.pluginfactory
 import org.scalacheck.Properties
 import org.scalacheck.Prop._
 
-object ParserCombinatorTests extends Properties("ParserCombinatorTests") with ParserCombinators {
+object ParserCombinatorTests extends Properties("ParserCombinatorTests") with ParserCombinators with TestHelpers {
 
-  property("strings") = forAll { (s:String) => stringToParser(s)(List(s)).get ?= s }
+  test("strings")(forAll { (s:String) => stringToParser(s)(List(s)).get ?= s })
 
   property("ints") = forAll { (i:Int) => int(List(i.toString)).get ?= i }
 

@@ -3,16 +3,56 @@ package jcdc.pluginfactory
 import org.bukkit.block.Block
 import org.bukkit.entity.Player
 import EnrichmentClasses._
-import org.bukkit.{Material, Location}
+import org.bukkit.{World, Material, Location}
 import collection.JavaConversions.asScalaIterator
 
 object Cube{
+  type TLoc = (Int,Int,Int)
   implicit def toStream(c:Cube): Stream[Block] = c.blocks
+  implicit def toLocation(t:TLoc)(implicit w:World) = w(t._1, t._2, t._3)
+  def apply(c1:TLoc, c2:TLoc)(implicit w:World): Cube = Cube(toLocation(c1), toLocation(c2))
 }
 
+/**
+ * Awesome class for manipulating all blocks in a 3D cube between two corners of the world.
+ * The minecraft world looks like this:
+ *
+ *          (minZ)
+ *           -Z
+ *            N
+ *
+ *  (-X)  W       E (+X)
+ * (minX)          (maxX)
+ *            S
+ *           +Z
+ *          (maxZ)
+ *
+ *  y increases going up towards the clouds
+ *  y decreases going down towards the bottom (or core) of the world.
+ *
+ *  north: z goes down
+ *  south: z goes up
+ *  east: x goes up
+ *  west: x goes down
+ *  x axis is width
+ *  y axis is height
+ *  z axis is depth
+ *
+ * @param l1 one corner of the cube
+ * @param l2 the other corner
+ */
 case class Cube(l1: Location, l2: Location) {
 
-  override def toString = s"Cube(l1: ${l1.xyz}, l2: ${l2.xyz})"
+  import Cube._
+
+  override def toString = s"Cube(l1: ${(maxX,maxY,maxZ)}, l2: ${(minX,minY,minZ)})"
+  override def equals(a:Any) = a match {
+    case c@Cube(_,_) => 
+      (maxX,maxY,maxZ) == (c.maxX,c.maxY,c.maxZ) &&
+      (minX,minY,minZ) == (c.minX,c.minY,c.minZ) &&
+      c.world.name == world.name
+    case _ => false
+  }
   val world     = l1.world
 
   val maxX      = math.max(l1.x, l2.x)
@@ -28,77 +68,186 @@ case class Cube(l1: Location, l2: Location) {
 
   // this must be a def to avoid it memoizing.
   def blocks    = world.between(l1, l2)
-  def players: Iterator[Player] = world.getPlayers.iterator.filter(contains)
 
-  def northWall = world.between(world(minX, minY, maxZ), world(maxX, maxY, maxZ))
-  def southWall = world.between(world(minX, minY, minZ), world(maxX, maxY, minZ))
-  def eastWall  = world.between(world(maxX, minY, minZ), world(maxX, maxY, maxZ))
-  def westWall  = world.between(world(minX, minY, minZ), world(minX, maxY, maxZ))
-
-  // TODO: can i do this more efficiently?
-  def walls     = blocks.filter(onWall)
-
-  def onWall(b: Block)    = b.x == l1.x or b.x == l2.x or b.z == l1.z or b.z == l2.z
-
-  def floor  = Cube(world(maxX, minY, maxZ), world(minX, minY, minZ))
-  def onFloor(b: Block)   = b.y == minY
-
-  def ceiling = Cube(world(maxX, maxY, maxZ), world(minX, maxY, minZ))
-  def onCeiling(b: Block) = b.y == maxY
-
-  def insides = world.between(world(maxX-1, maxY-1, maxZ-1), world(minX-1, minY-1, minZ-1))
-
-  // todo: i could really use outsides, or box, or something, that is the inverse of insides.
-  // todo: which is walls + ceiling + floor
-  // but i should be careful...
-  // right now the walls extend into the borders of the ceiling and floor.
+  def width  = maxX - minX
+  def height = maxY - minY
+  def depth  = maxZ - minZ
+  def size: BigInt = BigInt(width) * BigInt(height) * BigInt(depth)
 
   def contains(p: Player)  : Boolean = this.contains(p.loc)
   def contains(l: Location): Boolean = (
     l.xd <= maxX and l.xd >= minX and
-    l.yd <= maxY and l.yd >= minY and
-    l.zd <= maxZ and l.zd >= minZ
-  )
+      l.yd <= maxY and l.yd >= minY and
+      l.zd <= maxZ and l.zd >= minZ
+    )
 
+  /**
+   * get the floor of this cube
+   * @return a new Cube
+   */
+  def floor  = Cube(world(maxX, minY, maxZ), world(minX, minY, minZ))
+  def bottom = floor _
+
+  /**
+   * Returns true if the given block is on the floor of this cube
+   * @param b
+   * @return
+   */
+  def onFloor(b: Block)   = b.y == minY
+  def onBottom = onFloor _
+
+  /**
+   * get the ceiling of this cube
+   * @return a new Cube
+   */
+  def ceiling = Cube(world(maxX, maxY, maxZ), world(minX, maxY, minZ))
+  def top     = ceiling _
+
+  /**
+   * Returns true if the given block is on the ceiling of this cube
+   * @param b
+   * @return
+   */
+  def onCeiling(b: Block) = b.y == maxY
+  def onTop = onCeiling _
+
+  def northWall: Cube = Cube(world(minX, minY, minZ), world(maxX, maxY, minZ))
+  def southWall: Cube = Cube(world(minX, minY, maxZ), world(maxX, maxY, maxZ))
+  def eastWall : Cube = Cube(world(maxX, minY, minZ), world(maxX, maxY, maxZ))
+  def westWall : Cube = Cube(world(minX, minY, minZ), world(minX, maxY, maxZ))
+
+  /**
+   * Return a Stream of all the blocks in this cube
+   * the order of the blocks in the stream is not particularly meaningful
+   * and shouldnt be relied on.
+   * TODO: can i do this more efficiently?
+   * TODO: can i make this return 4 cubes?
+   */
+  def walls: Stream[Block] = blocks.filter(onWall)
+
+  def onWall(b: Block)     = b.x == l1.x or b.x == l2.x or b.z == l1.z or b.z == l2.z
+
+  /**
+   * Shrink this cube on all sides by one, giving just the insides of the cube
+   * You can also think about this as this cube without its ceiling, floor, and 4 walls
+   * TODO: dont shrink if the Cube is too small.
+   * @return A new cube
+   */
+  def insides = Cube(world(maxX-1, maxY-1, maxZ-1), world(minX+1, minY+1, minZ+1))
+
+  /**
+   * Set all the blocks in this Cube to AIR
+   */
   def eraseAll: Unit = blocks.foreach(_.erase)
+
+  /**
+   * Set all the the blocks in this cube to the new type.
+   * @param newM
+   */
+  def setAll(newM: Material)       : Unit = setAll(new MaterialAndData(newM, None))
   def setAll(newM: MaterialAndData): Unit = for(b <- blocks) newM.update(b)
 
-  def changeAll(oldM: Material, newM: Material, data: Option[Byte]=None): Unit =
-    for(b <- blocks; if b is oldM){
-      b changeTo newM
-      data.foreach(b.setData)
-    }
+  /**
+   * Change all of the blocks in this cube that are of the old material type
+   * to the new material type.
+   * @param oldM
+   * @param newM
+   */
+  def changeAll(oldM: Material, newM: Material): Unit =
+    changeAll(oldM, new MaterialAndData(newM, None))
+  def changeAll(oldM: Material, newM: MaterialAndData): Unit =
+    for(b <- blocks; if b is oldM) newM.update(b)
 
-  // expand in all directions
-  def expand(n:Int)    = Cube(world(maxX+n, maxY+n, maxZ+n), world(minX-n, minY-n, minZ-n))
-  // move the Y up by n
-  def expandUp(n:Int)  = growMaxYBy(n)
-  // move x and z out by n
-  def expandOut(n:Int) = Cube(world(maxX+n, maxY,   maxZ+n), world(minX-n, minY,   minZ-n))
-  // move x and z in by n
-  def shrinkIn(n:Int)  = {
-    val newMaxX = if (maxX - minX <= 1) maxX else maxX - 1
-    val newMinX = if (maxX - minX <= 1) minX else minX + 1
-    val newMaxZ = if (maxZ - minZ <= 1) maxZ else maxZ - 1
-    val newMinZ = if (maxZ - minZ <= 1) minZ else minZ + 1
-    Cube(world(newMaxX, maxY, newMaxZ), world(newMinX, minY, newMinZ))
+  /**
+   * A whole pile of operations to change the size of this Cube
+   */
+
+  def shrink(xLess:Int, yLess:Int, zLess:Int)  = {
+    def midpoint(max:Int, min:Int): Int = (max-min) / 2
+    def newMaxMin(max:Int, min:Int, less:Int): (Int,Int) =
+      if (max - min <= 1) (max,min)
+      else if (max - min <= (less*2)) (midpoint(max, min),midpoint(max, min))
+      else (max - less, min + less)
+    val (newMaxX,newMinX) = newMaxMin(maxX, minX,xLess)
+    val (newMaxY,newMinY) = newMaxMin(maxY, minY,yLess)
+    val (newMaxZ,newMinZ) = newMaxMin(maxZ, minZ,zLess)
+    Cube(world(newMaxX, newMaxY, newMaxZ), world(newMinX, newMinY, newMinZ))
   }
-  def growMinXBy(extra:Int)  = copy(minX=minX+extra)
-  def growMinYBy(extra:Int)  = copy(minY=minY+extra)
-  def growMinZBy(extra:Int)  = copy(minZ=minZ+extra)
-  def growMaxXBy(extra:Int)  = copy(maxX=maxX+extra)
-  def growMaxYBy(extra:Int)  = copy(maxY=maxY+extra)
-  def growUp(extra:Int) = growMaxYBy(extra)
-  def growMaxZBy(extra:Int)  = copy(maxZ=maxZ+extra)
-  def shrinkMinXBy(less:Int) = copy(minX=minX-less)
-  def shrinkMinYBy(less:Int) = copy(minY=minY-less)
-  def shrinkMinZBy(less:Int) = copy(minZ=minZ-less)
-  def shrinkMaxXBy(less:Int) = copy(maxX=maxX-less)
-  def shrinkMaxYBy(less:Int) = copy(maxY=maxY-less)
-  def shrinkMaxZBy(less:Int) = copy(maxZ=maxZ-less)
-  def expandX(i:Int) = growMaxXBy(i).shrinkMinXBy(i)
-  def expandZ(i:Int) = growMaxZBy(i).shrinkMinZBy(i)
-  def shiftX(i:Int) = growMaxXBy(i).growMinXBy(i)
-  def shiftY(i:Int) = growMaxYBy(i).growMinYBy(i)
-  def shiftZ(i:Int) = growMaxZBy(i).growMinZBy(i)
+
+  def grow(xMore:Int,yMore:Int,zMore:Int)  = {
+    val (newMaxX,newMinX) = (maxX + xMore, minX - xMore)
+    val (newMaxY,newMinY) = (maxY + yMore, minY - yMore)
+    val (newMaxZ,newMinZ) = (maxZ + zMore, minZ - zMore)
+    Cube(world(newMaxX, newMaxY, newMaxZ), world(newMinX, newMinY, newMinZ))
+  }
+
+  /**
+   * All grow operations make the cube bigger
+   * Min (X,Y or Z) becomes min (X,Y or Z) - extra
+   * Max (X,Y or Z) becomes min (X,Y or Z) + extra
+   * @return a new Cube
+   **/
+
+  def growMinXBy  (extra:Int) = copy(minX=minX-extra)
+  def growMinYBy  (extra:Int) = copy(minY=minY-extra)
+  def growMinZBy  (extra:Int) = copy(minZ=minZ-extra)
+  def growMaxXBy  (extra:Int) = copy(maxX=maxX+extra)
+  def growMaxYBy  (extra:Int) = copy(maxY=maxY+extra)
+  def growUp      (extra:Int) = growMaxYBy(extra)
+  def growDown    (extra:Int) = growMinYBy(extra)
+  def growMaxZBy  (extra:Int) = copy(maxZ=maxZ+extra)
+
+  /**
+   * All shrink operations make the cube smaller
+   * TODO: But, you can't shrink smaller than a 1x1x1 cube.
+   * Min (X,Y or Z) becomes min (X,Y or Z) - extra
+   * Max (X,Y or Z) becomes min (X,Y or Z) + extra
+   * @return a new Cube
+   **/
+
+  def shrinkMinXBy(less:Int)  = copy(minX=minX+less)
+  def shrinkMinYBy(less:Int)  = copy(minY=minY+less)
+  def shrinkMinZBy(less:Int)  = copy(minZ=minZ+less)
+  def shrinkMaxXBy(less:Int)  = copy(maxX=maxX-less)
+  def shrinkMaxYBy(less:Int)  = copy(maxY=maxY-less)
+  def shrinkMaxZBy(less:Int)  = copy(maxZ=maxZ-less)
+
+  def expandX     (i:Int)     = grow(i,0,0)
+  def expandY     (i:Int)     = grow(0,i,0)
+  def expandZ     (i:Int)     = grow(0,0,i)
+
+  /**
+   * expand by n blocks in all directions  (N,S,E,W,Up,Down)
+   */
+  def expand(n:Int)    = grow(n,n,n)
+
+  /**
+   * expand by n blocks upwards only.
+   */
+  def expandUp(n:Int)  = growMaxYBy(n)
+
+  /**
+   * expand by n blocks N,S,E,W
+   */
+  def expandXZ(n:Int) = grow(n,0,n)
+
+
+  /**
+   * A whole pile of operations to change the position of this Cube
+   */
+
+  def shiftX      (i:Int)     = growMaxXBy(i).shrinkMinXBy(i)
+  def shiftY      (i:Int)     = growMaxYBy(i).shrinkMinYBy(i)
+  def shiftZ      (i:Int)     = growMaxZBy(i).shrinkMinZBy(i)
+  def shiftNorth  (i:Int)     = shiftZ(-i)
+  def shiftSouth  (i:Int)     = shiftZ( i)
+  def shiftEast   (i:Int)     = shiftX( i)
+  def shiftWest   (i:Int)     = shiftZ(-i)
+  def shiftUp     (i:Int)     = shiftY( i)
+  def shiftDown   (i:Int)     = shiftY(-i)
+
+  /**
+   * get all the players inside this cube at the time of this call.
+   */
+  def players: Iterator[Player] = world.getPlayers.iterator.filter(contains)
 }

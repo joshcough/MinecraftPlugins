@@ -356,7 +356,10 @@ object ClojureInScala {
   }
 
   val filesystemStdLibDir = new File("./src/main/resources/clojureinscala")
-  val resourcesStdLibDir = new File("./minelang")
+  val resourcesStdLibDir  = new File("./clojureinscala")
+
+//  trait Module
+//    case object BuiltIn
 
   object LibLoader {
     def loadLib(file:String): List[Def] = {
@@ -382,9 +385,9 @@ object ClojureInScala {
   }
   import LibLoader._
 
-  object Lib extends Lib
+  object StdLib extends StdLib
 
-  trait Lib {
+  trait StdLib {
 
     val NilValue   = ObjectValue(())
     val TrueValue  = ObjectValue(true)
@@ -476,8 +479,8 @@ object ClojureInScala {
   }
 
   object Session {
-    def withStdLib(more:Env = Map()): Session = new Session(Lib.lib ++ more)
-    def reloadStdLib(s:Session): Session = new Session(s.env ++ Lib.lib)
+    def withStdLib(more:Env = Map()): Session = new Session(StdLib.lib ++ more)
+    def reloadStdLib(s:Session): Session = new Session(s.env ++ StdLib.lib)
   }
 
   class Session (val env:Env = Map()){
@@ -541,7 +544,10 @@ object ClojureInScala {
           val ((name,result), newSession) = session runExpr next
           result match {
             case LastError => lastException.foreach(_.printStackTrace())
+            // todo: this would reload stdlib, but not other files loaded.
             case Reload    => session = Session.reloadStdLib(session)
+            // todo: once the file is loaded, we forget all information about it
+            // like the filename, and what defs were in it. its not reloadable.
             case Load(file, newEnv) =>
               session = session.add(newEnv)
               println(s"loaded $file")

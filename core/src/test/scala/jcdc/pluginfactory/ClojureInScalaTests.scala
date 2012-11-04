@@ -16,7 +16,7 @@ case class Point(x:Int, y:Int){
   def invokeFun2a(f: (Int, Int) => Int) = f(8, 9)
 }
 
-object ClojureInScalaTests extends Properties("MinecraftParserTests") with EnrichmentClasses {
+object ClojureInScalaTests extends Properties("MinecraftParserTests") with EnrichmentClasses with TestHelpers {
 
   evalTest("constructorCall1", "(new jcdc.pluginfactory.Point 5 6)",                Point(5,6))
   evalTest("constructorCall2", "(new jcdc.pluginfactory.Point 5 6 nil)",            Point(5,6))
@@ -41,10 +41,9 @@ object ClojureInScalaTests extends Properties("MinecraftParserTests") with Enric
   evalTest("apply cons",       s"(cons 1 empty)",                     List(1))
   evalTest("list map"  ,  "(map (lam (x) (* x x)) (cons 1 (cons 2 (cons 3 empty))))",  List(1, 4, 9))
 
-  def evalTest(name:String, code:String, expected:Any) = property(name) = secure(try {
-      val actual = new Session().runExpr(code)._2
-      println(s"Result: $actual")
-      actual == expected
-    } catch { case e: Throwable  => e.printStackTrace; throw e }
-  )
+  def evalTest(name:String, code:String, expected:Any) = test("name"){
+    val actual = Session.withStdLib().runExpr(code)._1._2
+    println(s"Result: $actual")
+    actual == expected
+  }
 }

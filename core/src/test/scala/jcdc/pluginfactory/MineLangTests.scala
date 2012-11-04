@@ -9,7 +9,7 @@ import ClojureInScala._
   import MineLang._
 import java.io.File
 
-object MineLangTests extends Properties("MinecraftParserTests") with EnrichmentClasses {
+object MineLangTests extends Properties("MinecraftParserTests") with EnrichmentClasses with TestHelpers{
 
   val mineLangDir = filesystemStdLibDir
   val expandMc = mineLangDir.child("expand.mc")
@@ -24,36 +24,29 @@ object MineLangTests extends Properties("MinecraftParserTests") with EnrichmentC
   parseDefsTest("house defs parse", houseDefs, 9)
   evalWithDefsTest("house defs eval", "(city)", (), houseDefs)
 
-  def evalTest(name:String, code:String, expected:Any) =
-    property(name) = secure { run(code, expected) }
+  def evalTest(name:String, code:String, expected:Any) = test(name){ run(code, expected) }
 
   def evalWithDefsTest(name:String, code:String, expected:Any, defs:File) =
-    property(name) = secure { runWithDefs(code, expected, parseDefs(read(defs))) }
+    test(name) { runWithDefs(code, expected, parseDefs(read(defs))) }
 
   def parseDefsTest(name:String, code:File, expected:Int) =
-    property(name) = secure {
-      attemptThrowable {
-        val res = parseDefs(read(code))
-        //println(s"Parse Result:")
-        //res.foreach(println)
-        res.size == expected
-      }
+    test(name) {
+      val res = parseDefs(read(code))
+      //println(s"Parse Result:")
+      //res.foreach(println)
+      res.size == expected
     }
 
-  def run(code:String, expected:Any): Boolean = attemptThrowable {
+  def run(code:String, expected:Any): Boolean = {
     val actual = MineLang.run(code, TestServer.player)
     println(s"Result: $actual")
     actual == expected
   }
 
-  def runWithDefs(code:String, expected:Any, defs:List[Def]): Boolean = attemptThrowable {
+  def runWithDefs(code:String, expected:Any, defs:List[Def]): Boolean = {
     val actual = runProgram(Program(defs, parseExpr(read(code))), TestServer.player)
     println(s"Result: $actual")
     actual == expected
-  }
-
-  def attemptThrowable[T](f: => T) = try f catch {
-    case e: Throwable  => e.printStackTrace; throw e
   }
 }
 
