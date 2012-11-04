@@ -21,7 +21,7 @@ object MineLangTests extends Properties("MinecraftParserTests") with EnrichmentC
   evalWithDefsTest("factorial defs eval", "(test)", 120, factorialDefs)
 
   val houseDefs = mineLangDir.child("house.mc")
-  parseDefsTest("house defs parse", houseDefs, 10)
+  parseDefsTest("house defs parse", houseDefs, 13)
   evalWithDefsTest("house defs eval", "(city)", (), houseDefs)
 
   def evalTest(name:String, code:String, expected:Any) = test(name){ run(code, expected) }

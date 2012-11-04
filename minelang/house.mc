@@ -1,5 +1,11 @@
 (; program to build houses and cities
 
+  ; see http://www.minecraftwiki.net/wiki/Data_values#Block_IDs for the block names
+  (val house-blocks (list 1 4 5 7 14 15 16 17 20 21 22 24 35 41 42 43 45 47
+                          48 49 56 57 73 74 87 89 98 112 121 23 124 125 129 133))
+  (val nr-house-blocks (.size house-blocks))
+  (def random-house-block [] (material (.apply house-blocks (random-int 0 nr-house-blocks))))
+
   ; build a pyramid!
   ; Cube -> Material -> Cube
   (defrec pyramid [c m]
@@ -25,27 +31,20 @@
   ; Location -> Int -> (Location -> Cube) -> Cube
   (defrec build-house-row [at nr-houses house-builder-f]
     (unless (eq? nr-houses 0)
-      (begin
-        (house-builder-f at)
+      (let (c (house-builder-f at))
         ; TODO: 20 isnt right here. the houses could be bigger than 20 wide...
-        (build-house-row (loc (+ 20 (.getX at)) (.getY at) (.getZ at)) (- nr-houses 1) house-builder-f)
+        (build-house-row
+          (loc
+            (+ (* 2 (.width c)) (.getX at))
+            (.getY at)
+            (.getZ at)
+          )
+          (- nr-houses 1)
+          house-builder-f
+        )
       )
     )
   )
-  ; builds a skyscraper
-  ; Location -> Cube
-  (def build-skyscraper [l] (build-house l 50 8 10 "stone" "obsidian" "diamond_block"))
-  (def build-random-skyscraper [l]
-    (build-house l
-      20 100 ; min-h max-h
-       4  10 ; min-w max-w
-       4  10 ; min-d max-d
-      "stone" "obsidian" "diamond_block")
-  )
-
-  ; builds a house - {5 -> wood plank, 17 -> wood, 20 -> glass}
-  ; Location -> Cube
-  (def build-normal-house [l] (build-house l 4 3 3 "5" "17" "20"))
 
   (def random-building [center-point
                         min-h max-h
@@ -56,15 +55,29 @@
       (random-int min-h max-h)
       (random-int min-w max-w)
       (random-int max-w max-d)
-      "stone"
-      "obsidian"
-      "diamond_block"
+      (random-house-block)
+      (random-house-block)
+      (random-house-block)
     )
   )
 
+  ; builds a skyscraper
+  ; Location -> Cube
+  (def build-skyscraper [l] (build-house l 50 8 10 "stone" "obsidian" "diamond_block"))
+  (def build-random-skyscraper [l] (random-building l
+      20 100 ; min-h max-h
+       4  10 ; min-w max-w
+       4  10 ; min-d max-d
+  ))
+
+  ; builds a house - {5 -> wood plank, 17 -> wood, 20 -> glass}
+  ; Location -> Cube
+  (def build-normal-house [l] (build-house l 4 3 3 "5" "17" "20"))
+
   ; builds a row of skyscrapers. not really a full city, yet.
   ; -> Cube
-  (def city    [] (build-house-row XYZ 10 build-skyscraper))
+  (def city    [] (build-house-row XYZ 10 build-random-skyscraper)))
+
   ; builds a row of little houses. could be considered a village.
   ; -> Cube
   (def village [] (build-house-row XYZ  6 build-normal-house))

@@ -34,6 +34,9 @@ object MineLang {
         case ObjectValue(s:String) => ObjectValue(
           BasicMinecraftParsers.material(s).fold(sys error _)((m, _) => m)
         )
+        case ObjectValue(i:Int) => ObjectValue(
+          BasicMinecraftParsers.material(i.toString).fold(sys error _)((m, _) => m)
+        )
         case ev                    => sys error s"not a material: $ev"
       }
     })

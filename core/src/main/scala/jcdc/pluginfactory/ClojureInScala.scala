@@ -305,11 +305,17 @@ object ClojureInScala {
       case d:Double => d.toInt
       case  _       => die(s"not a number: $a")
     }
-    def evalToInt   (e:Expr, env:Env): Int    = evalTo(e,env,"Int")   { case ObjectValue(v:Int) => v }
-    def evalToDouble(e:Expr, env:Env): Double = evalTo(e,env,"Double"){ case ObjectValue(v:Double) => v }
-    def evalToString(e:Expr, env:Env): String = evalTo(e,env,"String"){ case ObjectValue(v:String) => v }
-    def evalToObject(e:Expr, env:Env): Any    = evalTo(e,env,"Object"){ case ObjectValue(o) => o }
-  
+    def evalToInt   (e:Expr, env:Env): Int    =
+      evalTo(e,env,"Int")   { case ObjectValue(v:Int) => v }
+    def evalToDouble(e:Expr, env:Env): Double =
+      evalTo(e,env,"Double"){ case ObjectValue(v:Double) => v }
+    def evalToString(e:Expr, env:Env): String =
+      evalTo(e,env,"String"){ case ObjectValue(v:String) => v }
+    def evalToObject(e:Expr, env:Env): Any    =
+      evalTo(e,env,"Object"){ case ObjectValue(o) => o }
+    def evalToArray (e:Expr, env:Env): Array[_] =
+      evalTo(e,env,"Array") { case ObjectValue(v:Array[_]) => v }
+
     def getClasses(as:List[Any]): List[Class[_]] = as map (_ match {
       case i:Int     => classOf[Int]
       case b:Boolean => classOf[Boolean]
@@ -362,7 +368,10 @@ object ClojureInScala {
   object LibLoader {
     def loadLib(file:String): List[Def] = {
       // try to load from the file system
-      val fromFileSystem = Option(new File(filesystemStdLibDir, file)).filter(_.exists)
+      val fromFileSystem =
+        Option(new File(filesystemStdLibDir, file)).filter(_.exists).orElse(
+          Option(new File(file)).filter(_.exists)
+        )
       // if that fails, try to load from the jar
       val url = Option(getClass.getClassLoader.getResource(resourcesStdLibDir + "/" + file))
       val fromJar = url.map(u => new File(u.toURI))
@@ -431,7 +440,9 @@ object ClojureInScala {
         case (i,w,f) => die(s"spawn expected <int> <int> <function>, but got: $i, $w $f")
       }
     )
-    val add = builtIn('+, (exps, env) => {
+    val list   = builtIn('list, (exps, env) => ObjectValue(exps.map(e => evalredval(e, env))))
+    val toList = builtIn(Symbol("to-list"), (exps, env) => ObjectValue(evalToArray(exps(0), env).toList))
+    val add    = builtIn('+, (exps, env) => {
       val vals = exps.map(e => evalredval(e, env))
       if (allNumbers(vals))  // all numbers
         ObjectValue(vals.map(toInt).foldLeft(0){(acc,i) => acc + i})
@@ -486,7 +497,7 @@ object ClojureInScala {
       // simple builtins
       eqBuiltIn, isa, ifStat, unless, toStringPrim, printOnSameLine, printLine,
       add, sub, mult, mod, lt, lteq, gt, gteq, abs, toDouble, toIntPrim, randomPrim,
-      spawn
+      spawn, list, toList
     )
 
     def lib = List(
@@ -549,6 +560,7 @@ object ClojureInScala {
       //.{ArgumentCompletor, Completor, ConsoleReader, MultiCompletor, NullCompletor, SimpleCompletor}
       addCompleter(new StringsCompleter(replLib.keys.map(_.name)))
       addCompleter(new FileNameCompleter(){ override def getUserDir = filesystemStdLibDir })
+      addCompleter(new FileNameCompleter(){ override def getUserDir = new File("..") })
       def saveHistory: Unit = history.flush
       def next = readLine("mc> ")
     }
