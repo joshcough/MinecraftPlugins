@@ -30,7 +30,7 @@ object MineLang {
       evalTo(e,env,"cube"){ case ObjectValue(c@Cube(_,_)) => c }
 
     val getMaterial = builtIn('material, (exps, env) => {
-      evalred(exps(0),env) match {
+      eval(exps(0),env) match {
         case ObjectValue(s:String) => ObjectValue(
           BasicMinecraftParsers.material(s).fold(sys error _)((m, _) => m)
         )
@@ -45,7 +45,7 @@ object MineLang {
       p ! s"teleported to: ${loc.xyz}"; p.teleport(loc)
     })
     val loc = builtIn('loc, (exps, env) => {
-      val (xe,ye,ze) = (evalredval(exps(0),env),evalredval(exps(1),env),evalredval(exps(2),env))
+      val (xe,ye,ze) = (evalAndUnbox(exps(0),env),evalAndUnbox(exps(1),env),evalAndUnbox(exps(2),env))
       if (allNumbers(List(xe,ye,ze)))
         ObjectValue(new Location(p.world,toInt(xe),toInt(ye),toInt(ze)))
       else sys error s"bad location data: ${(xe,ye,ze)}"
@@ -83,19 +83,18 @@ object MineLang {
       c
     }))
     val message = builtInNil('message, (exps, env) =>
-      p ! (exps.map(e => evalredval(e, env).toString).mkString("\n"))
+      p ! (exps.map(e => evalAndUnbox(e, env).toString).mkString("\n"))
     )
 
     val lib: Env = Map(
       loc, goto,
       'MAXY   -> ObjectValue(255),
       'MINY   -> ObjectValue(0),
-      'X      -> DynamicValue(() => ObjectValue(p.x)),
-      'X      -> DynamicValue(() => ObjectValue(p.x)),
-      'Y      -> DynamicValue(() => ObjectValue(p.blockOn.y)),
-      'Z      -> DynamicValue(() => ObjectValue(p.z)),
-      'XYZ    -> DynamicValue(() => ObjectValue(p.blockOn.loc)),
-      'origin -> DynamicValue(() => ObjectValue(p.world.getHighestBlockAt(0,0))),
+      builtInNoArg('X,      ObjectValue(p.x)),
+      builtInNoArg('Y,      ObjectValue(p.blockOn.y)),
+      builtInNoArg('Z,      ObjectValue(p.z)),
+      builtInNoArg('XYZ,    ObjectValue(p.blockOn.loc)),
+      builtInNoArg('origin, ObjectValue(p.world.getHighestBlockAt(0,0))),
       // material functions
       getMaterial,
       // mutable world edit functions

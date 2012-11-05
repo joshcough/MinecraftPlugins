@@ -100,7 +100,6 @@ object ClojureInScala {
     sealed trait Value
       case class Closure(l:Lambda, env:Env) extends Value
       case class ObjectValue(value:Any)           extends Value
-      case class DynamicValue(value: () => Value) extends Value
       case class BuiltinFunction(name: Symbol, eval: (List[Expr], Env) => Value) extends Value
   }
 
@@ -220,18 +219,12 @@ object ClojureInScala {
       case Val (name, expr) => name -> eval(expr, env)
       case Defn(name, lam)  => name -> Closure(lam, env)
     })
-  
-    def reduce(v:Value): Value = v match {
-      case DynamicValue(f) => reduce(f())
-      case _ => v
-    }
-  
+    
     def call(c:Closure, args:List[Any], env:Env): Value =
-      evalred(App(EvaledExpr(c), args.map(a => EvaledExpr(ObjectValue(a)))), env)
+      eval(App(EvaledExpr(c), args.map(a => EvaledExpr(ObjectValue(a)))), env)
 
-    def evalred   (e:Expr, env:Env): Value = reduce(eval(e, env))
-    def evalredval(e:Expr, env:Env): Any = unbox(evalred(e, env))
-    def unbox(v:Value): Any = reduce(v) match {
+    def evalAndUnbox(e:Expr, env:Env): Any = unbox(eval(e, env))
+    def unbox(v:Value): Any = v match {
       case c@Closure(l, env) => l.args match {
         case Nil             => () => ()
         case a1 :: Nil       => (a2: Any) => unbox(call(c, List(a2), env))
@@ -240,7 +233,6 @@ object ClojureInScala {
           (a2: Any, b2: Any, c2: Any) => unbox(call(c, List(a2,b2,c2), env))
       }
       case ObjectValue(a)              => a
-      case DynamicValue(getter)        => die("shouldnt be possible, we already reduced")
       case BuiltinFunction(name, eval) => die(s"implement unbox for: $name")
     }
   
@@ -255,7 +247,7 @@ object ClojureInScala {
       case Let(x, e, body)    => eval(body, env + (x -> eval(e,env)))
       case LetRec(x, e, body) => eval(body, env + (x -> eval(e, env + (x -> Closure(e,env)))))
       case App(f, args)       =>
-        evalred(f, env) match {
+        eval(f, env) match {
           // todo: make sure formals.size == args.size...
           // or partially apply?
           case c@Closure(Lambda(formals, body, rec), closedOverEnv) =>
@@ -270,7 +262,7 @@ object ClojureInScala {
         // first, go look up the class by name
         val clas: Class[_] = Class.forName(c)
         // then eval all the arguments
-        val evaledArgs = args map (e => evalredval(e, env))
+        val evaledArgs = args map (e => evalAndUnbox(e, env))
         // then look for the right constructor
         val constructors = clas.getConstructors
         val matches = constructors.filter(c => matchesAll(c.getParameterTypes, evaledArgs))
@@ -285,15 +277,15 @@ object ClojureInScala {
       // TODO: better error handling in almost all cases
       case InstanceMethodCall(ob, func, args) =>
         val o = evalToObject(ob, env)
-        invoke(o.getClass, func, o, args map (evalredval(_, env)))
+        invoke(o.getClass, func, o, args map (evalAndUnbox(_, env)))
       case StaticMethodCall(className, func, args) =>
-        invoke(Class.forName(className), func, null, args map (evalredval(_, env)))
+        invoke(Class.forName(className), func, null, args map (evalAndUnbox(_, env)))
       case StaticReference(className, field) =>
         ObjectValue(Class.forName(className).getField(field).get(null))
     }
 
     def evalTo[T](e:Expr, env:Env, argType:String)(f: PartialFunction[Value, T]): T = {
-      val v = evalred(e,env)
+      val v = eval(e,env)
       if(f isDefinedAt v) f(v) else die(s"not a valid $argType: $v")
     }
     def allNumbers(as: List[Any]) = as.forall(x =>
@@ -313,8 +305,12 @@ object ClojureInScala {
       evalTo(e,env,"String"){ case ObjectValue(v:String) => v }
     def evalToObject(e:Expr, env:Env): Any    =
       evalTo(e,env,"Object"){ case ObjectValue(o) => o }
-    def evalToArray (e:Expr, env:Env): Array[_] =
-      evalTo(e,env,"Array") { case ObjectValue(v:Array[_]) => v }
+    def evalToArray (e:Expr, env:Env): Array[Any] =
+      evalTo(e,env,"Array") { case ObjectValue(v:Array[Any]) => v }
+    def evalToList (e:Expr, env:Env): List[Any] =
+      evalTo(e,env,"List") { case ObjectValue(v:List[Any]) => v }
+    def evalToTuple2 (e:Expr, env:Env): Tuple2[Any,Any] =
+      evalTo(e,env,"Tuple2"){ case ObjectValue(v:Tuple2[Any,Any]) => v }
 
     def getClasses(as:List[Any]): List[Class[_]] = as map (_ match {
       case i:Int     => classOf[Int]
@@ -355,6 +351,10 @@ object ClojureInScala {
 
     def builtIn(name:Symbol, eval: (List[Expr], Env) => Value) =
       (name -> BuiltinFunction(name, eval))
+    def builtInNoArg(name:Symbol, v: => Value) =
+      (name -> BuiltinFunction(name, (es, env) =>
+        if(es.size == 0) v else die(s"expected no arguments, but got: $es")
+      ))
     def builtInNil(name:Symbol, eval: (List[Expr], Env) => Unit) =
       (name -> BuiltinFunction(name, (es, env) => { ObjectValue(eval(es,env)) }))
   }
@@ -401,7 +401,7 @@ object ClojureInScala {
     val FalseValue = ObjectValue(false)
   
     // TODO on all these builtins, check the number of arguments.
-    val isa = builtIn(Symbol("isa?"), (exps, env) => (evalredval(exps(0), env), exps(1)) match {
+    val isa = builtIn(Symbol("isa?"), (exps, env) => (evalAndUnbox(exps(0), env), exps(1)) match {
       case (NilValue, Variable(Symbol("scala.collection.immutable.List"))) =>
         ObjectValue(true)
       case (o, Variable(Symbol(className)))  =>
@@ -409,29 +409,29 @@ object ClojureInScala {
       case (o, c) =>
         die(s"invalid class name: $c")
     })
-    val ifStat = builtIn('if, (exps, env) => evalred(exps(0), env) match {
+    val ifStat = builtIn('if, (exps, env) => eval(exps(0), env) match {
       case ObjectValue(true)  => eval(exps(1), env)
       case ObjectValue(false) => eval(exps(2), env)
       case ev                 => die(s"bad if predicate: $ev")
     })
     // TODO: this could be done with a macro
-    val unless = builtIn('unless, (exps, env) => evalred(exps(0), env) match {
+    val unless = builtIn('unless, (exps, env) => eval(exps(0), env) match {
       case ObjectValue(true)  => NilValue
       case ObjectValue(false) => eval(exps(1), env)
       case ev                 => die(s"bad unless predicate: $ev")
     })
     val eqBuiltIn = builtIn(Symbol("eq?"), (exps, env) =>
-      (evalred(exps(0), env), evalred(exps(1), env)) match {
+      (eval(exps(0), env), eval(exps(1), env)) match {
         case (ObjectValue(av), ObjectValue(bv)) => ObjectValue(av == bv)
         // todo: could we handle lambdas somehow? does anyone ever do that? is it insane?
         // todo: and what about BuiltinFunctions?
         case _                                  => ObjectValue(false)
       })
     val toStringPrim = builtIn(Symbol("to-string"), (exps, env) =>
-      ObjectValue(evalredval(exps(0), env).toString)
+      ObjectValue(evalAndUnbox(exps(0), env).toString)
     )
     val spawn = builtIn('spawn, (exps, env) =>
-      (evalred(exps(0), env),evalred(exps(1), env),evalred(exps(2), env)) match {
+      (eval(exps(0), env),eval(exps(1), env),eval(exps(2), env)) match {
         case (ObjectValue(n:Int), ObjectValue(waitTime:Int), c@Closure(lam, env))  =>
           new Thread(new Runnable() {
             def run(){ (1 to n).foreach(n => {call(c, List(n), env); Thread.sleep(waitTime * 1000)})}
@@ -440,10 +440,24 @@ object ClojureInScala {
         case (i,w,f) => die(s"spawn expected <int> <int> <function>, but got: $i, $w $f")
       }
     )
-    val list   = builtIn('list, (exps, env) => ObjectValue(exps.map(e => evalredval(e, env))))
+    val list   = builtIn('list, (exps, env) => ObjectValue(exps.map(e => evalAndUnbox(e, env))))
     val toList = builtIn(Symbol("to-list"), (exps, env) => ObjectValue(evalToArray(exps(0), env).toList))
+    val map    = builtIn('map, (exps, env) => ObjectValue(exps.map(e => evalToTuple2(e, env)).toMap))
+    val tuple  = builtIn('->, (exps, env) => exps.map(e => evalAndUnbox(e, env)) match {
+      case List() | List(_)          => die(s"-> expected at least 2 arguments, got ${exps.size}")
+      case List(a,b)                 => ObjectValue((a,b))
+      case List(a,b,c)               => ObjectValue((a,b,c))
+      case List(a,b,c,d)             => ObjectValue((a,b,c,d))
+      case List(a,b,c,d,e)           => ObjectValue((a,b,c,d,e))
+      case List(a,b,c,d,e,f)         => ObjectValue((a,b,c,d,e,f))
+      case List(a,b,c,d,e,f,g)       => ObjectValue((a,b,c,d,e,f,g))
+      case List(a,b,c,d,e,f,g,h)     => ObjectValue((a,b,c,d,e,f,g,h))
+      case List(a,b,c,d,e,f,g,h,i)   => ObjectValue((a,b,c,d,e,f,g,h,i))
+      case List(a,b,c,d,e,f,g,h,i,j) => ObjectValue((a,b,c,d,e,f,g,h,i,j))
+    })
+
     val add    = builtIn('+, (exps, env) => {
-      val vals = exps.map(e => evalredval(e, env))
+      val vals = exps.map(e => evalAndUnbox(e, env))
       if (allNumbers(vals))  // all numbers
         ObjectValue(vals.map(toInt).foldLeft(0){(acc,i) => acc + i})
       else if (vals.forall(_.isInstanceOf[String])) // all strings
@@ -466,7 +480,7 @@ object ClojureInScala {
     def twoIntOp(name:Symbol)
                 (fi: (Int,Int)       => Any)
                 (fd: (Double,Double) => Any) = builtIn(name, (exps, env) =>
-      (evalred(exps(0), env), evalred(exps(1), env)) match {
+      (eval(exps(0), env), eval(exps(1), env)) match {
         case (ObjectValue(av:Int),    ObjectValue(bv:Int))    => ObjectValue(fi(av, bv))
         case (ObjectValue(av:Double), ObjectValue(bv:Double)) => ObjectValue(fd(av, bv))
         case (ObjectValue(av:Int),    ObjectValue(bv:Double)) => ObjectValue(fd(av.toDouble, bv))
@@ -484,10 +498,10 @@ object ClojureInScala {
     val gteq = twoIntOp('>=)((i,j) => i >= j)((i,j) => i >= j)
   
     val printOnSameLine = builtInNil('print, (exps, env) =>
-      print(exps.map(e => evalredval(e, env).toString).mkString(" ")))
+      print(exps.map(e => evalAndUnbox(e, env).toString).mkString(" ")))
   
     val printLine = builtInNil('println, (exps, env) =>
-      println(exps.map(e => evalredval(e, env).toString).mkString("\n")))
+      println(exps.map(e => evalAndUnbox(e, env).toString).mkString("\n")))
 
     private val builtinLib: Env = Map(
       // primitives
@@ -497,13 +511,11 @@ object ClojureInScala {
       // simple builtins
       eqBuiltIn, isa, ifStat, unless, toStringPrim, printOnSameLine, printLine,
       add, sub, mult, mod, lt, lteq, gt, gteq, abs, toDouble, toIntPrim, randomPrim,
-      spawn, list, toList
+      spawn, list, toList, tuple, map
     )
 
-    def lib = List(
-      "bool.mc",
-      "math.mc",
-      "list.mc").flatMap(loadLib).foldLeft(builtinLib)(evalDef)
+    private val libFiles = List("bool.mc", "math.mc", "list.mc")
+    def lib = libFiles.flatMap(loadLib).foldLeft(builtinLib)(evalDef)
   }
 
   object Session {

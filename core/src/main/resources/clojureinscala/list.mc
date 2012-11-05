@@ -17,7 +17,7 @@
   (defrec foldl  [f init l] (if (empty? l) init (foldl f (f init (head l)) (tail l))))
   ;(a -> b -> b) -> b -> [a] -> b
   (defrec foldr  [f init l] (if (empty? l) init (f (head l) (foldr f init (tail l)))))
-  (def bind      [f xs] (foldr (lam [a b] (join (f a) b)) empty xs))
-  (defrec map    [f xs] (bind  (lam [x]   (unit (f x))) xs))
+  (def    bind   [f xs] (foldr (lam [a b] (join (f a) b)) empty xs))
+  (defrec fmap   [f xs] (bind  (lam [x]   (unit (f x))) xs))
   (defrec filter [p xs] (foldr (lam [a b] (if (p a) (cons a b) b)) empty xs))
 )
