@@ -16,6 +16,13 @@ resolvers ++= Seq(
   "Bukkit"             at "http://repo.bukkit.org/content/repositories/releases"
 )
 
+resolvers += Resolver.url(
+  "sbt-plugin-releases",
+  new URL("http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases/")
+)(Resolver.ivyStylePatterns)
+
+addSbtPlugin("com.github.retronym" % "sbt-onejar" % "0.8")
+
 libraryDependencies ++= Seq(
   "javax.servlet" % "servlet-api" % "2.5" % "provided->default",
   "org.bukkit" % "craftbukkit" % "1.4.5-R0.2",

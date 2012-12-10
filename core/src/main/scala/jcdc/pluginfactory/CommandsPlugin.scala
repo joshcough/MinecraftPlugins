@@ -158,6 +158,7 @@ trait CommandsPlugin extends ScalaPlugin with BasicMinecraftParsers {
       def sendRawMessage(p1: String) { println(s"raw message: $p1") }
       def setGameMode(p1: GameMode) {}
       def setBedSpawnLocation(p1: Location) {}
+      def setBedSpawnLocation(x$1: org.bukkit.Location,x$2: Boolean): Unit = {}
       def getHealth: Int = 0
       def getItemInHand: ItemStack = new ItemStack(Material.AIR)
       override def getDisplayName: String = getServer.getName
@@ -325,6 +326,7 @@ trait CommandsPlugin extends ScalaPlugin with BasicMinecraftParsers {
       def canSee(p1: Player): Boolean = true
       def getEnderChest(): org.bukkit.inventory.Inventory = ???
       def playSound(x$1: org.bukkit.Location,x$2: org.bukkit.Sound,x$3: Float,x$4: Float): Unit = {}
+      def giveExpLevels(x$1: Int): Unit = {}
     }
   }
 }

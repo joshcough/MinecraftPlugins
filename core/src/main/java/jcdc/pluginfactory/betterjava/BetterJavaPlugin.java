@@ -236,6 +236,7 @@ public class BetterJavaPlugin extends JavaPlugin {
     public boolean isPlayerTimeRelative() { return false; }
     public void resetPlayerTime() {}
     public void giveExp(int i) {}
+    public void giveExpLevels(int i) {}
     public float getExp() { return 0; }
     public void setExp(float v) {}
     public int getLevel() { return 0; }    
@@ -249,8 +250,9 @@ public class BetterJavaPlugin extends JavaPlugin {
     public int getFoodLevel() { return 0; }    
     public void setFoodLevel(int i) {}    
     public Location getBedSpawnLocation() { return null; }    
-    public void setBedSpawnLocation(Location location) {}    
-    public boolean getAllowFlight() { return false; }    
+    public void setBedSpawnLocation(Location location) {}
+    public void setBedSpawnLocation(Location location, boolean b) {}
+    public boolean getAllowFlight() { return false; }
     public void setAllowFlight(boolean b) {}    
     public void hidePlayer(Player player) {}    
     public void showPlayer(Player player) {}    

@@ -199,6 +199,12 @@ object TestServer { ts =>
     def unloadChunk(x$1: org.bukkit.Chunk): Boolean = true
     def unloadChunkRequest(x$1: Int,x$2: Int,x$3: Boolean): Boolean = true
     def unloadChunkRequest(x$1: Int,x$2: Int): Boolean = true
+    def getAmbientSpawnLimit(): Int = 0
+    def getGameRuleValue(x$1: String): String = ???
+    def getGameRules(): Array[String] = Array()
+    def isGameRule(x$1: String): Boolean = false
+    def setAmbientSpawnLimit(x$1: Int): Unit = {}
+    def setGameRuleValue(x$1: String,x$2: String): Boolean = false
   }
 
   val server: Server = new Server {
@@ -284,6 +290,8 @@ object TestServer { ts =>
     def unloadWorld(x$1: org.bukkit.World,x$2: Boolean): Boolean = sys error "todo"
     def unloadWorld(x$1: String,x$2: Boolean): Boolean = sys error "todo"
     def useExactLoginLocation(): Boolean = sys error "todo"
+    def getAmbientSpawnLimit(): Int = 0
+    def isHardcore(): Boolean = false
   }
  
   val origin: Location = new Location(world, 0, 4, 0)
@@ -481,6 +489,8 @@ object TestServer { ts =>
     def canSee(p1: Player): Boolean = true
     def getEnderChest(): org.bukkit.inventory.Inventory = sys error "todo"
     def playSound(x$1: org.bukkit.Location,x$2: org.bukkit.Sound,x$3: Float,x$4: Float): Unit = {}
+    def giveExpLevels(x$1: Int): Unit = {}
+    def setBedSpawnLocation(x$1: org.bukkit.Location,x$2: Boolean): Unit = {}
   }
 }
 
