@@ -46,8 +46,8 @@ trait Listeners extends EnrichmentClasses {
   def OnPlayerChat(f: (Player, PlayerChatEvent) => Unit) = new Listener {
     @EH def on(e:PlayerChatEvent)     = f(e.getPlayer, e)
   }
-  def OnBlockBreak(f: (Block, BlockBreakEvent) => Unit) = new Listener {
-    @EH def on(e:BlockBreakEvent)     = f(e.getBlock, e)
+  def OnBlockBreak(f: (Block, Player, BlockBreakEvent) => Unit) = new Listener {
+    @EH def on(e:BlockBreakEvent)     = f(e.getBlock, e.getPlayer, e)
   }
   def OnBlockDamage(f: (Block, BlockDamageEvent) => Unit) = new Listener {
     @EH def on(e:BlockDamageEvent)    = f(e.getBlock, e)

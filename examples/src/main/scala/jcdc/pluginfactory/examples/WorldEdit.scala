@@ -7,46 +7,16 @@ import org.bukkit.ChatColor._
 import org.bukkit.entity.Player
 import Material._
 
-class WorldEdit extends ListenersPlugin
-  with CommandsPlugin with SingleClassDBPlugin[Script] {
+class WorldEdit extends ListenersPlugin with CommandsPlugin {
 
-  val dbClass = classOf[Script]
   val corners = collection.mutable.Map[Player, List[Location]]().withDefaultValue(Nil)
 
   val listeners = List(
-    OnLeftClickBlock((p, e)  => if(p isHoldingA WOOD_AXE) { setFirstPos (p, e.loc); e.cancel }),
+    OnLeftClickBlock ((p, e) => if(p isHoldingA WOOD_AXE) { setFirstPos (p, e.loc); e.cancel }),
     OnRightClickBlock((p, e) => if(p isHoldingA WOOD_AXE) { setSecondPos(p, e.loc) })
   )
 
   val commands = List(
-//    Command("code-book-example", "get a 'code book' example", args(anyString.?){ case (p, title) =>
-//      p.inventory addItem Book(author = p, title, pages =
-//        """
-//         ((change grass diamond_block)
-//          (change dirt  gold_block)
-//          (change stone iron_block))
-//        """.trim
-//      )
-//    }),
-//    Command("run-book", "run the code in a book", noArgs(p =>
-//      ScriptRunner.runBook(p, Book.fromHand(p)))
-//    ),
-//    Command("make-script", "build a script", args(anyString ~ slurp){ case (p, title ~ code) =>
-//      val script = createScript(p, title, code)
-//      p ! s"$script"
-//      db.insert(script)
-//    }),
-//    Command("show-script", "show the code in a script", args(anyString){ case (p, title) =>
-//      db.firstWhere(Map("player" -> p.name, "title" -> title)).
-//        fold(p ! s"unknown script: $title")(s => p ! s"$s")
-//    }),
-//    Command("show-scripts", "show the code in a script", noArgs(p =>
-//      db.findAll.foreach(s => p ! s"$s")
-//    )),
-//    Command("run-script", "run the code in a script", args(anyString){ case (p, title) =>
-//      db.firstWhere(Map("player" -> p.name, "title" -> title)).
-//        fold(p ! s"unknown script: $title")(s => ScriptRunner.runScript(p, s))
-//    }),
     Command("goto", "Teleport!", args(location){ case (you, loc) => you teleport loc(you.world) }),
     Command("wand", "Get a WorldEdit wand.", noArgs(_.loc.dropItem(WOOD_AXE))),
     Command("pos1", "Set the first position",  args(location.?){ case (p, loc) =>
@@ -140,7 +110,49 @@ class WorldEdit extends ListenersPlugin
     case Nil =>
       p ! "set corner one first! (with a left click)"
   }
+}
 
+//import javax.persistence._
+//import scala.beans.BeanProperty
+//@Entity
+//class Script {
+//  @Id @GeneratedValue @BeanProperty var id = 0
+//  @BeanProperty var player = ""
+//  @BeanProperty var title: String = ""
+//  @BeanProperty var commandsString:String = ""
+//  def commands = commandsString.split(";").map(_.trim).filter(_.nonEmpty)
+//  override def toString = s"$player.$title \n[${commands.mkString("\n")}]"
+//}
+//with SingleClassDBPlugin[Script]
+//val dbClass = classOf[Script]
+//    Command("code-book-example", "get a 'code book' example", args(anyString.?){ case (p, title) =>
+//      p.inventory addItem Book(author = p, title, pages =
+//        """
+//         ((change grass diamond_block)
+//          (change dirt  gold_block)
+//          (change stone iron_block))
+//        """.trim
+//      )
+//    }),
+//    Command("run-book", "run the code in a book", noArgs(p =>
+//      ScriptRunner.runBook(p, Book.fromHand(p)))
+//    ),
+//    Command("make-script", "build a script", args(anyString ~ slurp){ case (p, title ~ code) =>
+//      val script = createScript(p, title, code)
+//      p ! s"$script"
+//      db.insert(script)
+//    }),
+//    Command("show-script", "show the code in a script", args(anyString){ case (p, title) =>
+//      db.firstWhere(Map("player" -> p.name, "title" -> title)).
+//        fold(p ! s"unknown script: $title")(s => p ! s"$s")
+//    }),
+//    Command("show-scripts", "show the code in a script", noArgs(p =>
+//      db.findAll.foreach(s => p ! s"$s")
+//    )),
+//    Command("run-script", "run the code in a script", args(anyString){ case (p, title) =>
+//      db.firstWhere(Map("player" -> p.name, "title" -> title)).
+//        fold(p ! s"unknown script: $title")(s => ScriptRunner.runScript(p, s))
+//    }),
 //  object ScriptRunner{
 //    def run(p:Player, lines:Seq[String]): Unit = for {
 //      commandAndArgs <- lines.map(_.trim).filter(_.nonEmpty)
@@ -156,17 +168,12 @@ class WorldEdit extends ListenersPlugin
 //  def createScript(p: Player, title:String, commands:String): Script = {
 //    val s = new Script(); s.player = p.name; s.title = title; s.commandsString = commands; s
 //  }
-}
 
-import javax.persistence._
-import scala.beans.BeanProperty
-
-@Entity
-class Script {
-  @Id @GeneratedValue @BeanProperty var id = 0
-  @BeanProperty var player = ""
-  @BeanProperty var title: String = ""
-  @BeanProperty var commandsString:String = ""
-  def commands = commandsString.split(";").map(_.trim).filter(_.nonEmpty)
-  override def toString = s"$player.$title \n[${commands.mkString("\n")}]"
-}
+/**
+ * broken recur code. move it somewhere else and fix it
+  val recurs  = collection.mutable.Map[Player, Int]().withDefaultValue(0)
+  OnBlockBreak((cb,p,_)    => if(p isHoldingA WOOD_PICKAXE)
+    for(b <- Cube(cb.loc,cb.loc).expand(recurs(p)); if (b is cb.getType)) b.erase
+  )
+  Command(name="recur", desc="set your recur depth", body=args(int) {case (p,i) => recurs(p)=i})
+ */

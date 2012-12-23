@@ -4,7 +4,7 @@
     <facet type="scala" name="Scala">
       <configuration>
         <option name="compilerLibraryLevel" value="Global" />
-        <option name="compilerLibraryName" value="scala-compiler-2.10.0-M7" />
+        <option name="compilerLibraryName" value="scala-2.10.0-RC5" />
       </configuration>
     </facet>
   </component>
@@ -42,7 +42,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.nlogo/NetLogo/jars/NetLogo-5.0.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.nlogo/NetLogo/jars/NetLogo-5.0.3.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -60,7 +60,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.scalaz/scalaz-core_2.10.0-M7/bundles/scalaz-core_2.10.0-M7-7.0.0-M3.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.scalaz/scalaz-core_2.10.0-RC5/bundles/scalaz-core_2.10.0-RC5-7.0.0-M6.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -78,7 +78,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.scala-lang/jline/jars/jline-2.10.0-M7.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.scala-lang/jline/jars/jline-2.10.0-RC5.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -87,13 +87,13 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.scala-lang/scala-library/jars/scala-library-2.10.0-M7.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.scala-lang/scala-library/jars/scala-library-2.10.0-RC5.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="library" name="scala-compiler-2.10.0-M7" level="application" />
+    <orderEntry type="library" name="scala-2.10.0-RC5" level="application" />
     <orderEntry type="module-library">
       <library>
         <CLASSES>
