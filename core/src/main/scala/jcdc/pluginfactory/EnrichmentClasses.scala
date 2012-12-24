@@ -241,7 +241,7 @@ trait EnrichmentClasses {
 
   implicit class RichWeatherChangeEvent(e:WeatherChangeEvent) {
     def rain = e.toWeatherState
-    def sun  = ! e.toWeatherState
+    def sun  = ! rain
   }
 
   def tryO[T](f: => T): Option[T] = Try(Option(f)).getOrElse(None)

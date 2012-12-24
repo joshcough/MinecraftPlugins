@@ -27,8 +27,15 @@ abstract class ScalaPlugin extends org.bukkit.plugin.java.JavaPlugin with Enrich
    * A list of dependencies that this plugin depends on.
    * JcdcPluginFactory is automatically included, which contains Scala, Clojure, and
    * all of the classes in jcdc.pluginfactory.
+   * See http://wiki.bukkit.org/Plugin_YAML for more info
    */
   def dependencies: List[String] = Nil
+
+  /**
+   * A list of all the soft dependencies for this plugin.
+   * See http://wiki.bukkit.org/Plugin_YAML for more info
+   */
+  def softDependencies: List[String] = Nil
 
   // db setup stuff.
   def dbClasses: List[Class[_]] = Nil
@@ -38,18 +45,27 @@ abstract class ScalaPlugin extends org.bukkit.plugin.java.JavaPlugin with Enrich
       try getDatabase.find(dbClasses.head).findRowCount
       catch{ case e: PersistenceException => logTask("Installing DB"){ installDDL() } }
 
-  /* http://wiki.bukkit.org/Plugin_YAML */
+  /**
+   * Generates the plugin.yml contents for this plugin.
+   * See http://wiki.bukkit.org/Plugin_YAML for more info
+   **/
   def yml(author:String, version: String) = List(
-      "name: "     + this.name,
-      "main: "     + this.getClass.getName,
-      "author: "   + author,
-      "version: "  + version,
-      "database: " + (this.dbClasses.size > 0),
+      "name: "        + this.name,
+      "main: "        + this.getClass.getName,
+      "author: "      + author,
+      "version: "     + version,
+      "database: "    + (this.dbClasses.size > 0),
       // the JcdcPluginFactory dependency makes sure Scala, Clojure, and
       // all of the classes in jcdc.pluginfactory are on the classpath at runtime
-      "depend: ["   + ("JcdcPluginFactory" :: this.dependencies).mkString(", ") + "]"
+      "depend: ["     + ("JcdcPluginFactory" :: this.dependencies).mkString(", ") + "]",
+      "softdepend: [" + this.softDependencies.mkString(", ") + "]"
     ).mkString("\n")
 
+  /**
+   * Writes out the yml file. This is used to build the plugin.
+   * @param author  the author of the plugin
+   * @param version the version of the plugin
+   */
   def writeYML(author: String, version: String): Unit = {
     val resources = new java.io.File("./src/main/resources")
     resources.mkdir
