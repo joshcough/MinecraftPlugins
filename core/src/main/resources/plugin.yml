@@ -1,0 +1,5 @@
+name: ScalaLibraryPlugin
+main: jcdc.pluginfactory.ScalaLibraryPlugin
+author: Josh Cough
+version: 0.1
+database: false

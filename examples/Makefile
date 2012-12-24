@@ -2,6 +2,7 @@ all: compile arena ban-arrows block-changer block-changer-gold curse-ban farmer 
 
 demo: clean-plugins compile block-changer block-changer-gold mpc plugin-commander warp-plugin world-edit
 mlp: clean-plugins compile mpc world-edit minelang-plugin
+we: compile world-edit
 we-quick: world-edit
 mlp-quick: minelang-plugin
 test: compile run-tests
@@ -9,18 +10,17 @@ test: compile run-tests
 perms: clean-plugins compile permissions-test
 
 clean-plugins:
-	cd ../bukkit/plugins; rm -f *.jar
+	cd $(BUKKIT)/plugins; rm -f *.jar
 
 compile:
-	cd ../core; ./sbt publish-local
-	cp ../core/target/scala-2.10/jcdc-plugin-factory_2.10-0.1.jar $(BUKKIT)/lib/jcdc-plugin-factory-0.1.jar
+	cd ../core; ./sbt publish-local; lein uberjar;
+	cp ../core/target/jcdc.pluginfactory-0.1.0-standalone.jar $(BUKKIT)/plugins/
 	./sbt compile "run-main jcdc.pluginfactory.examples.YMLGenerator"
 
 run-tests:
 	./sbt test
 
 plugin = ./bin/plugin.sh $1 $2
-package = ./bin/plugin.sh $1 $2; ./bin/package.sh $2
 
 arena:
 	$(call plugin, "arena.yml", "Arena.jar")

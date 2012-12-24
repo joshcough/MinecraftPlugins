@@ -33,12 +33,14 @@ abstract class ScalaPlugin extends org.bukkit.plugin.java.JavaPlugin with Enrich
       try getDatabase.find(dbClasses.head).findRowCount
       catch{ case e: PersistenceException => logTask("Installing DB"){ installDDL() } }
 
+  /* http://wiki.bukkit.org/Plugin_YAML */
   def yml(author:String, version: String) = List(
       "name: "     + this.name,
       "main: "     + this.getClass.getName,
       "author: "   + author,
       "version: "  + version,
-      "database: " + (this.dbClasses.size > 0)
+      "database: " + (this.dbClasses.size > 0),
+      "depend: "   + "[ScalaLibraryPlugin]"
     ).mkString("\n")
 
   // logging
