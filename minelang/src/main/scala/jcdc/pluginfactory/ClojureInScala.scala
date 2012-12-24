@@ -76,13 +76,13 @@ object ClojureInScala {
     case class Program(defs:List[Def], body:Expr)
   
     sealed trait Def{ val name: Symbol }
-      case class Defn(name:Symbol, lam:Lambda) extends Def
+      case class Defn(name:Symbol, fn:Fn) extends Def
       case class Val (name:Symbol, expr:Expr)  extends Def
   
     sealed trait Expr
-      case class Lambda(args:List[Symbol], body: Expr, recursive:Option[Symbol]) extends Expr
+      case class Fn(args:List[Symbol], body: Expr, recursive:Option[Symbol]) extends Expr
       case class Let(x:Symbol, e:Expr, body:Expr) extends Expr
-      case class LetRec(x:Symbol, e:Lambda, body:Expr) extends Expr
+      case class LetRec(x:Symbol, e:Fn, body:Expr) extends Expr
       case class App(f:Expr, args:List[Expr]) extends Expr
       case class New(className:String, args:List[Expr]) extends Expr
       case class StaticMethodCall(className:String, func:String, args:List[Expr]) extends Expr
@@ -96,9 +96,27 @@ object ClojureInScala {
       case class EvaledExpr(v:Value)  extends Expr
   
     type Env = Map[Symbol,Value]
-  
+
+    /**
+     * Just a few thoughts on namespaces.
+     * 1) You start in a default namespace: user
+     * 2) When you define something, it goes into that namespace
+     * 3) You can switch namespaces, and then repeat 2.
+     *
+     * By default, user has a bunch of things added to it:
+     *   Everything in java.lang and closure/core
+     *
+     * I'm not exactly sure how this is accomplished just yet.
+     * But here are some things that must be supported
+     *   (new String "weirjwer")  (same as new java.lang.String "werwioer")
+     *
+     * @param path
+     * @param vals
+     */
+    case class Namespace(path: List[Symbol], vals:Map[Symbol, Value])
+
     sealed trait Value
-      case class Closure(l:Lambda, env:Env) extends Value
+      case class Closure(l:Fn, env:Env) extends Value
       case class ObjectValue(value:Any)           extends Value
       case class BuiltinFunction(name: Symbol, eval: (List[Expr], Env) => Value) extends Value
   }
@@ -132,33 +150,33 @@ object ClojureInScala {
       a match {
         // catch def with one body expression
         case List('def,    name, args, body) =>
-          Defn(parseName(name), parseLambda(args, body, recursive=None))
+          Defn(parseName(name), parseFn(args, body, recursive=None))
         case 'def :: name :: args :: bodyStatements =>
-          Defn(parseName(name), parseLambda(args, 'begin :: bodyStatements, recursive=None))
+          Defn(parseName(name), parseFn(args, 'begin :: bodyStatements, recursive=None))
         // catch defrec with one body expression
         case List('defrec, name, args, body) =>
           val n = parseName(name)
-          Defn(n, parseLambda(args, body, recursive=Some(n)))
+          Defn(n, parseFn(args, body, recursive=Some(n)))
         case 'defrec :: name :: args :: bodyStatements =>
           val n = parseName(name)
-          Defn(n, parseLambda(args, 'begin :: bodyStatements, recursive=Some(n)))
+          Defn(n, parseFn(args, 'begin :: bodyStatements, recursive=Some(n)))
         case List('val,    name, body) => Val(parseName(name), parseExpr(body))
       }
     }
   
-    def parseLambda(args:Any, body:Any, recursive:Option[Symbol]): Lambda = {
-      def parseLamArgList(a:Any): List[Symbol] = {
-        def parseLamArg(a:Any) = a match {
-          case s:Symbol => s // TODO: check s against builtin things like X,Y,Z,etc
-          case _ => die(s"bad lambda arg: $a")
+    def parseFn(args:Any, body:Any, recursive:Option[Symbol]): Fn = {
+      def parseFnArgList(a:Any): List[Symbol] = {
+        def parseFnArg(a:Any) = a match {
+          case s:Symbol => s
+          case _ => die(s"bad Fn arg: $a")
         }
         a match {
           case Nil         => Nil
-          case l:List[Any] => l.map(parseLamArg)
-          case _           => die(s"bad lambda arg list: $a")
+          case l:List[Any] => l.map(parseFnArg)
+          case _           => die(s"bad Fn arg list: $a")
         }
       }
-      Lambda(parseLamArgList(args), parseExpr(body), recursive)
+      Fn(parseFnArgList(args), parseExpr(body), recursive)
     }
   
     def parseLet(arg:Any, expr:Any, body:Any) = arg match {
@@ -172,18 +190,18 @@ object ClojureInScala {
       case Symbol(s) if s.contains("/") => StaticReference(s.split('/')(0), s.split('/')(1))
       case s:Symbol                => Variable(s)
       case s:String                => StringExpr(s)
-      // new, lam, let, begin
+      // new, fn, let, begin
       case 'new :: Symbol(className) :: args => New(className, args map parseExpr)
-      case List('lam, args, body)  => parseLambda(args, body, None)
-      case 'lam :: args :: body    => parseLambda(args, 'begin :: body, None)
+      case List('fn, args, body)   => parseFn(args, body, None)
+      case 'fn :: args :: body    => parseFn(args, 'begin :: body, None)
       case List('let, List(arg, expr), body) => parseLet(arg,expr,body)
       case List(Symbol("let*"), args, body)  => args match {
         case Nil                     => parseExpr(body)
         case List(arg1, body1) :: xs => parseLet(arg1, body1, List(Symbol("let*"), xs, body))
         case _                       => die(s"bad let* arguments: $args")
       }
-      case List('letrec, List(arg, List('lam, args, expr)), body) => arg match {
-        case s:Symbol => LetRec(s, parseLambda(args, expr, Some(s)), parseExpr(body))
+      case List('letrec, List(arg, List('fn, args, expr)), body) => arg match {
+        case s:Symbol => LetRec(s, parseFn(args, expr, Some(s)), parseExpr(body))
         case _        => die(s"bad letrec argument: $a")
       }
       case 'begin :: body          => Sequential(body map parseExpr)
@@ -217,7 +235,7 @@ object ClojureInScala {
     // extends the env, and collects side effects for vals
     def evalDef(env: Env, d:Def): Env = env + (d match {
       case Val (name, expr) => name -> eval(expr, env)
-      case Defn(name, lam)  => name -> Closure(lam, env)
+      case Defn(name, fn)  => name -> Closure(fn, env)
     })
     
     def call(c:Closure, args:List[Any], env:Env): Value =
@@ -242,15 +260,23 @@ object ClojureInScala {
       case Num(i)             => ObjectValue(i)
       case StringExpr(s)      => ObjectValue(s)
       case EvaledExpr(v)      => v
-      case Variable(s)        => env.get(s).getOrElse(die(s"not found: $s in: ${env.keys}"))
-      case l@Lambda(_, _, _)  => Closure(l, env)
+      case Variable(s)        => {
+        // i imagine the algo goes like this:
+        // lookup the simple in the local scope
+        // and the try to look it up in some namespaces:
+        //   - the mainspace for this file (maybe just user for now)
+        //   - look it up in some predef, like clojure
+        //   - look it up in java.lang?
+        env.get(s).getOrElse(die(s"not found: $s in: ${env.keys}"))
+      }
+      case l@Fn(_, _, _)  => Closure(l, env)
       case Let(x, e, body)    => eval(body, env + (x -> eval(e,env)))
       case LetRec(x, e, body) => eval(body, env + (x -> eval(e, env + (x -> Closure(e,env)))))
       case App(f, args)       =>
         eval(f, env) match {
           // todo: make sure formals.size == args.size...
           // or partially apply?
-          case c@Closure(Lambda(formals, body, rec), closedOverEnv) =>
+          case c@Closure(Fn(formals, body, rec), closedOverEnv) =>
             val envWORecursion   = closedOverEnv ++ formals.zip(args map (eval(_, env)))
             val envWithRecursion = rec.fold(envWORecursion)(name => envWORecursion + (name -> c))
             eval(body, envWithRecursion)
@@ -423,7 +449,7 @@ object ClojureInScala {
     val eqBuiltIn = builtIn(Symbol("eq?"), (exps, env) =>
       (eval(exps(0), env), eval(exps(1), env)) match {
         case (ObjectValue(av), ObjectValue(bv)) => ObjectValue(av == bv)
-        // todo: could we handle lambdas somehow? does anyone ever do that? is it insane?
+        // todo: could we handle Fns somehow? does anyone ever do that? is it insane?
         // todo: and what about BuiltinFunctions?
         case _                                  => ObjectValue(false)
       })
@@ -432,7 +458,7 @@ object ClojureInScala {
     )
     val spawn = builtIn('spawn, (exps, env) =>
       (eval(exps(0), env),eval(exps(1), env),eval(exps(2), env)) match {
-        case (ObjectValue(n:Int), ObjectValue(waitTime:Int), c@Closure(lam, env))  =>
+        case (ObjectValue(n:Int), ObjectValue(waitTime:Int), c@Closure(fn, env))  =>
           new Thread(new Runnable() {
             def run(){ (1 to n).foreach(n => {call(c, List(n), env); Thread.sleep(waitTime * 1000)})}
           }).start

@@ -43,6 +43,16 @@ abstract class ScalaPlugin extends org.bukkit.plugin.java.JavaPlugin with Enrich
       "depend: "   + "[ScalaLibraryPlugin]"
     ).mkString("\n")
 
+  def writeYML(author: String, version: String): Unit = {
+    val resources = new java.io.File("./src/main/resources")
+    resources.mkdir
+    val ymlFile = new java.io.File(resources, s"${this.name.toLowerCase}.yml")
+    val ymlContents = this.yml(author, version)
+    val f = new java.io.FileWriter(ymlFile)
+    f.write(ymlContents)
+    f.close
+  }
+
   // logging
   def logInfo(message:String) { log.info(s"[$name] - $message") }
   def logTask[T](message:String)(f: => T): T = {
