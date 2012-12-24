@@ -77,7 +77,7 @@ trait CommandsPlugin extends ScalaPlugin with BasicMinecraftParsers {
     CommandBody(
       argsParser.describe, (p: Player, c: BukkitCommand, args: List[String]) => {
         def sendError(msg:String) =
-          p !* (RED + msg, RED + c.getDescription, RED + c.getUsage)
+          p !* (RED(msg), RED(c.getDescription), RED(c.getUsage))
         argsParser(args) match {
           case Success(t, Nil) => f(p -> t)
           case Success(t, xs)  => sendError(s"unprocessed input: ${xs.mkString(" ")}")
@@ -108,7 +108,7 @@ trait CommandsPlugin extends ScalaPlugin with BasicMinecraftParsers {
   def opOnly(ch: CommandBody): CommandBody = CommandBody(
     s"${ch.argDesc} [Op Only]", (player: Player, c: BukkitCommand, args: List[String]) =>
       if (player.isOp) ch.f(player, c, args)
-      else player ! (RED + s"You must be an op to run /${c.getName}")
+      else player ! RED(s"You must be an op to run /${c.getName}")
   )
 
   type PlayerToPlayer = (Player, Player) => Unit

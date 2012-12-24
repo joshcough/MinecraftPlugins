@@ -33,7 +33,19 @@ trait EnrichmentClasses {
   implicit def blockToLoc(b: Block): Location  = b.getLocation
 
   implicit class RichT[T](t:T){
-    def |> [U](f: Function1[T,U]) = f(t)
+    def |> [U](f: T => U) = f(t)
+  }
+
+  implicit class RichFunction1Function1[A,B,R](f: A => (B => R)) {
+    def flip: B => A => R = b => a => f(a)(b)
+  }
+
+  implicit class RichFunction2[A,B,R](f: (A, B) => R) {
+    def flip: (B, A) => R = (b, a) => f(a, b)
+  }
+
+  implicit class RichOption[T](o: Option[T]){
+    def flipFold[B]: (T => B) => B => B = ((b: B) => (f: T => B) => o.fold(b)(f)).flip
   }
 
   implicit class RichBlock(b:Block) {
@@ -181,7 +193,7 @@ trait EnrichmentClasses {
       ot.fold(player ! s)(t => f(t))
     }
     def attempt[T](f: => T): Unit = try f catch {
-      case e: Exception => player ! s"$RED $e ${e.getMessage}\n${e.getStackTraceString}"
+      case e: Exception => player ! RED(s"$e ${e.getMessage}\n${e.getStackTraceString}")
     }
 
     def blockOn         = player.loc.block.blockBelow
@@ -191,21 +203,19 @@ trait EnrichmentClasses {
 
     def doTo(otherPlayer: Player, f: => Unit, actionName: String){
       f
-      otherPlayer  ! (GREEN + s"you have been $actionName by ${player.name}")
-      player       ! (GREEN + s"you have $actionName ${otherPlayer.name}")
+      otherPlayer  ! GREEN(s"you have been $actionName by ${player.name}")
+      player       ! GREEN(s"you have $actionName ${otherPlayer.name}")
     }
 
     def !  (s:String)    = if(s != null) player.sendMessage(s)
     def !* (ss: String*) = ss.foreach(s => player ! s)
-    def sendError(message:String) = player.sendMessage(RED + message)
+    def sendError(message:String) = player.sendMessage(RED(message))
     def bomb(message:String) = {
-      player.sendMessage(RED + message)
+      player ! RED(message)
       throw new RuntimeException(message)
     }
-    def findPlayer(name:String)(f: Player => Unit) = server.findPlayer(name) match {
-      case Some(p) => f(p)
-      case None => sendError("kill could not find player: " + name)
-    }
+    def findPlayer(name:String)(f: Player => Unit) =
+      server.findPlayer(name).fold(sendError("kill could not find player: " + name))(f)
     def findPlayers(names:List[String])(f: Player => Unit) = names.foreach(n => findPlayer(n)(f))
     def ban(reason:String){ player.setBanned(true); player.kickPlayer("banned: $reason") }
     def kill(playerName:String): Unit = findPlayer(playerName)(kill)
@@ -249,6 +259,10 @@ trait EnrichmentClasses {
   implicit def richBoolean(b1:Boolean) = new {
     def or (b2: => Boolean) = b1 || b2
     def and(b2: => Boolean) = b1 && b2
+  }
+
+  implicit class RichColor(c: ChatColor) {
+    def apply(s: String) = c + s
   }
 
   sealed case class Color(data:Byte){

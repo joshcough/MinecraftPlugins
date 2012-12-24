@@ -79,7 +79,7 @@ class PermissionsTest extends CommandsPlugin { self =>
     Command("test-perm",  "Test", args(anyString){
       case (p, perm) =>
         if (p hasPermission perm) p ! s"you have permission: $perm"
-        else p ! s"$RED you don't have permission: $perm"
+        else p ! RED(s"you don't have permission: $perm")
     })
   )
 }

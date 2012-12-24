@@ -4,6 +4,22 @@ import java.io.File
 
 object ClojureInScala {
 
+  object EnrichmentClasses {
+    implicit class RichFunction1Function1[A,B,R](f: A => (B => R)) {
+      def flip: B => A => R = b => a => f(a)(b)
+    }
+
+    implicit class RichFunction2[A,B,R](f: (A, B) => R) {
+      def flip: (B, A) => R = (b, a) => f(a, b)
+    }
+
+    implicit class RichOption[T](o: Option[T]){
+      def flipFold[B]: (T => B) => B => B = ((b: B) => (f: T => B) => o.fold(b)(f)).flip
+    }
+  }
+
+  import EnrichmentClasses._
+
   object Reader extends Reader
   import Reader._
 
@@ -401,12 +417,13 @@ object ClojureInScala {
       // if that fails, try to load from the jar
       val url = Option(getClass.getClassLoader.getResource(resourcesStdLibDir + "/" + file))
       val fromJar = url.map(u => new File(u.toURI))
-      val theFile = fromFileSystem match {
-        case Some(f)   => println(s"loading: $f from disk"); f
-        case None      => fromJar match {
-          case Some(f) => println(s"loading: $f from resources"); f
-          case None    => die(s"couldn't find library: $file")
-        }
+      val theFile: File = {
+        def loadedFrom(location: String)(f: File): File = { println(s"loading: $f from $location"); f }
+        // load from the filesystem first, then from the jar.
+        fromFileSystem.flipFold(loadedFrom("disk"))
+          (fromJar.flipFold(loadedFrom("resources"))
+            (die(s"couldn't find library: $file"))
+        )
       }
       val defs =
         try parseDefs(read(theFile))
@@ -634,4 +651,5 @@ object ClojureInScala {
 
   private def die(message:String) = sys error message
   private def die(message:String, e:Exception) = throw new RuntimeException(message, e)
+
 }
