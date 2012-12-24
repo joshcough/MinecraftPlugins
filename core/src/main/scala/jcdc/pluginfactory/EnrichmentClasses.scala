@@ -180,7 +180,10 @@ trait EnrichmentClasses {
     def attemptO[T, U](ot: Option[T])(s: => String, f: T => U){
       ot.fold(player ! s)(t => f(t))
     }
-    def attempt[T](f: => Unit) = try f catch { case e: Exception => this.!(e.getMessage) }
+    def attempt[T](f: => T): Unit = try f catch {
+      case e: Exception => player ! s"$RED $e ${e.getMessage}\n${e.getStackTraceString}"
+    }
+
     def blockOn         = player.loc.block.blockBelow
     def blockAboveHead  = blockOn.nthBlockAbove(3)
     def blocksAboveHead = blockAboveHead.blocksAbove

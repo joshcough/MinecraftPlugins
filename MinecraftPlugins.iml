@@ -30,6 +30,7 @@
       <excludeFolder url="file://$MODULE_DIR$/examples/target" />
       <excludeFolder url="file://$MODULE_DIR$/minelang/project" />
       <excludeFolder url="file://$MODULE_DIR$/minelang/target" />
+      <excludeFolder url="file://$MODULE_DIR$/netlogo/bukkit" />
       <excludeFolder url="file://$MODULE_DIR$/netlogo/project" />
       <excludeFolder url="file://$MODULE_DIR$/netlogo/target" />
     </content>

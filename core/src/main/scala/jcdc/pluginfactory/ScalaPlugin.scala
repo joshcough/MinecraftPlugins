@@ -23,6 +23,13 @@ abstract class ScalaPlugin extends org.bukkit.plugin.java.JavaPlugin with Enrich
   def registerListener(listener:Listener): Unit =
     server.getPluginManager.registerEvents(listener, this)
 
+  /**
+   * A list of dependencies that this plugin depends on.
+   * JcdcPluginFactory is automatically included, which contains Scala, Clojure, and
+   * all of the classes in jcdc.pluginfactory.
+   */
+  def dependencies: List[String] = Nil
+
   // db setup stuff.
   def dbClasses: List[Class[_]] = Nil
   override def getDatabaseClasses = new java.util.ArrayList[Class[_]](){ dbClasses.foreach(add) }
@@ -38,9 +45,9 @@ abstract class ScalaPlugin extends org.bukkit.plugin.java.JavaPlugin with Enrich
       "author: "   + author,
       "version: "  + version,
       "database: " + (this.dbClasses.size > 0),
-      // this dependency makes sure Scala (and Clojure) is on the classpath at runtime
-      // TODO: it would be nice to have a way of specifying dependencies.
-      "depend: "   + "[JcdcPluginFactory]"
+      // the JcdcPluginFactory dependency makes sure Scala, Clojure, and
+      // all of the classes in jcdc.pluginfactory are on the classpath at runtime
+      "depend: ["   + ("JcdcPluginFactory" :: this.dependencies).mkString(", ") + "]"
     ).mkString("\n")
 
   def writeYML(author: String, version: String): Unit = {
@@ -60,10 +67,6 @@ abstract class ScalaPlugin extends org.bukkit.plugin.java.JavaPlugin with Enrich
   }
   def logError(e:Throwable){
     log.log(java.util.logging.Level.SEVERE, s"[$name] - ${e.getMessage}", e)
-  }
-  // TODO: move these to RichPlayer
-  def attempt(p:Player, f: => Unit): Unit = try f catch {
-    case e: Exception => p ! s"$RED $e ${e.getMessage}\n${e.getStackTraceString}"
   }
   def broadcast(message:String) = server.broadcastMessage(s"[$name] - $message")
 }
