@@ -4,8 +4,6 @@ import java.util.logging.Logger
 import javax.persistence.PersistenceException
 import org.bukkit.event.{Event, Listener}
 import util.Try
-import org.bukkit.entity.Player
-import org.bukkit.ChatColor._
 
 object ScalaPlugin extends EnrichmentClasses
 
@@ -50,16 +48,16 @@ abstract class ScalaPlugin extends org.bukkit.plugin.java.JavaPlugin with Enrich
    * See http://wiki.bukkit.org/Plugin_YAML for more info
    **/
   def yml(author:String, version: String) = List(
-      "name: "        + this.name,
-      "main: "        + this.getClass.getName,
-      "author: "      + author,
-      "version: "     + version,
-      "database: "    + (this.dbClasses.size > 0),
-      // the JcdcPluginFactory dependency makes sure Scala, Clojure, and
-      // all of the classes in jcdc.pluginfactory are on the classpath at runtime
-      "depend: ["     + ("JcdcPluginFactory" :: this.dependencies).mkString(", ") + "]",
-      "softdepend: [" + this.softDependencies.mkString(", ") + "]"
-    ).mkString("\n")
+    "name: "        + this.name,
+    "main: "        + this.getClass.getName,
+    "author: "      + author,
+    "version: "     + version,
+    "database: "    + (this.dbClasses.size > 0),
+    // the JcdcPluginFactory dependency makes sure Scala, Clojure, and
+    // all of the classes in jcdc.pluginfactory are on the classpath at runtime
+    "depend: ["     + ("JcdcPluginFactory" :: this.dependencies).mkString(", ") + "]",
+    "softdepend: [" + this.softDependencies.mkString(", ") + "]"
+  ).mkString("\n")
 
   /**
    * Writes out the yml file. This is used to build the plugin.

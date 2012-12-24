@@ -19,6 +19,9 @@ case class Command(name: String, description: Option[String], body: CommandBody)
 
 object BasicMinecraftParsers extends BasicMinecraftParsers
 
+/**
+ * Parsers for all sorts of useful things in Minecraft.
+ */
 trait BasicMinecraftParsers extends ScalaPlugin with ParserCombinators {
   val gamemode: Parser[GameMode] =
     ("c" | "creative" | "1") ^^^ CREATIVE |
@@ -31,48 +34,87 @@ trait BasicMinecraftParsers extends ScalaPlugin with ParserCombinators {
     case x ~ y ~ Some(z) => (w:World) => w(x, y, z)
     case x ~ z ~ None    => (w:World) => w.getHighestBlockAt(x, z)
   }
-  val plugin  : Parser[Plugin] = token("plugin")(s => tryO(pluginManager.getPlugin(s)))
+  val plugin  : Parser[Plugin] = token("plugin")(s => tryO(pluginManager getPlugin s))
   val time    : Parser[Int]    = int.flatMapWithNext((i, rest) =>
     if (i >= 0 && i <= 24000) Success(i, rest)
     else Failure("time must be between 0 and 24000")
   ).named("time (0-24000)")
 }
 
+/**
+ * A trait that allows a plugin to have one command, very easily.
+ */
 trait CommandPlugin extends CommandsPlugin {
   val command: Command
   def commands = List(command)
 }
 
+/**
+ * A trait that greatly simplifies creating Bukkit commands.
+ */
 trait CommandsPlugin extends ScalaPlugin with BasicMinecraftParsers {
 
   def commands: List[Command]
 
-  private def lowers = commands.map(c => (c.name.toLowerCase, c)).toMap
+  private def commandsMap = commands.map(c => (c.name.toLowerCase, c)).toMap
 
-  def runCommand(p: Player, commandLabel: String, args: Seq[String]) = {
-    p ! s"$name running: $commandLabel ${args.mkString(" ")}"
-    onCommand(p, getCommand(commandLabel), commandLabel, args.toArray)
-  }
-
+  /**
+   * This is Bukkit's main entry point for plugins handling commands.
+   * When a command is entered by a player, the plugin will look through
+   * all of its commands. If one matches the command entered, it will be executed.
+   */
   override def onCommand(sender: CommandSender, cmd: BukkitCommand,
-                         commandLabel: String, args: Array[String]) = {
-    println(s"$name handling $commandLabel [${args.mkString(",")}]")
+                         commandName: String, args: Array[String]) = {
+    println(s"$name handling $commandName [${args.mkString(",")}]")
+
+    def toPlayer(cs:CommandSender): Player = cs match {
+      case p: Player => p
+      case _ => ConsolePlayer.player
+    }
+
     val p = toPlayer(sender)
-    (for (ch <- lowers.get(cmd.getName.toLowerCase)) yield
+    (for (ch <- commandsMap.get(cmd.getName.toLowerCase)) yield
       try {
         ch.body.f(p, cmd, args.toList)
         true
       }
       catch { case e: Exception =>
-        p ! (e.getMessage + "\n" + e.getStackTraceString)
+        p ! RED(e.getMessage + "\n" + e.getStackTraceString)
         e.printStackTrace
         false
       }).getOrElse(true)
   }
 
+  /**
+   * Invokes a command programmatically.
+   */
+  def runCommand(p: Player, commandName: String, args: Seq[String]) = {
+    p ! s"$name running: $commandName ${args.mkString(" ")}"
+    onCommand(p, getCommand(commandName), commandName, args.toArray)
+  }
+
+  /**
+   * noArgs is used to create commands that take no arguments.
+   *
+   * Takes a function from Player to unit, and if the command is entered by a player
+   * the function is executed with that player.
+   */
   def noArgs(f: Player => Unit): CommandBody =
     CommandBody("", (p: Player, c: BukkitCommand, args: List[String]) => f(p))
 
+  /**
+   * args is used to create commands that take arguments.
+   *
+   * Takes an Parser[T] and a function from Player and T to Unit, and returns a command body
+   * If the command is executed, then the parser is run with the command arguments.
+   *
+   * If those arguments successfully parse, the parser will produce a T.
+   * The function (the body of the command) will then be invoked with the player
+   * that entered the command, and the T produced by parsing.
+   *
+   * If the arguments do not parse, then the player who entered the command
+   * is sent an error message, explaining what went wrong, and how to use the command.
+   */
   def args[T](argsParser: Parser[T])(f: ((Player, T)) => Unit): CommandBody =
     CommandBody(
       argsParser.describe, (p: Player, c: BukkitCommand, args: List[String]) => {
@@ -86,16 +128,17 @@ trait CommandsPlugin extends ScalaPlugin with BasicMinecraftParsers {
       }
     )
 
+  /**
+   * Overriding just to print out all the commands in this plugin to the console.
+   */
   override def onEnable() {
     super.onEnable()
-    lowers.foreach { case (name, _) => logInfo("command: " + name) }
+    commandsMap.foreach { case (name, _) => logInfo("command: " + name) }
   }
 
-  def toPlayer(cs:CommandSender): Player = cs match {
-    case p: Player => p
-    case _ => ConsolePlayer.player
-  }
-
+  /**
+   * Overriding to add commands into the plugin.yml.
+   */
   override def yml(author:String, version: String) = {
     def commandYml(c: Command) =
       s"  ${c.name}:\n" +
@@ -105,18 +148,42 @@ trait CommandsPlugin extends ScalaPlugin with BasicMinecraftParsers {
     List(super.yml(author, version), commandsYml).mkString("\n")
   }
 
+  /**
+   * This should probably be done better, using bukkit permissions, but later.
+   *
+   * Takes a CommandBody and wraps it in another CommandBody that first checks
+   * if the user is an op. If the user is an op, the inner CommandBody is executed.
+   * If not, then the user is given an error message.
+   */
   def opOnly(ch: CommandBody): CommandBody = CommandBody(
     s"${ch.argDesc} [Op Only]", (player: Player, c: BukkitCommand, args: List[String]) =>
       if (player.isOp) ch.f(player, c, args)
       else player ! RED(s"You must be an op to run /${c.getName}")
   )
 
-  type PlayerToPlayer = (Player, Player) => Unit
-  def p2p(p2pc: PlayerToPlayer): CommandBody = args(player) { case (p1, p2) => p2pc(p1, p2) }
+  /**
+   * Simple combinator for creating commands that take a single Player argument (only).
+   */
+  def p2p(p2pc: (Player, Player) => Unit): CommandBody = args(player){case (p1,p2) => p2pc(p1, p2)}
 
-
+  /**
+   * This is used so that any plugin commands can be entered at the console.
+   * it 'converts' a the console to a player, that way not all plugins have to
+   * check if(console) then ... else ...
+   * this might be less type safe, and allows commands to be entered at the console
+   * that really shouldnt be entered, however, it keeps the api very clean
+   * and the console owner will generally be aware of what should and shouldnt work
+   * at the console anyway.
+   *
+   * Here's one trivial example of a command that wouldn't work:
+   *
+   * If there was a command that opened the users inventory (eg: /inv), it wouldn't
+   * work because the console has no inventory, and the open inventory function is
+   * implemented like this:
+   *
+   *  def openInventory(p1: Inventory): InventoryView = ???
+   */
   object ConsolePlayer {
-
     import org.bukkit._
     import org.bukkit.inventory._
     import org.bukkit.inventory.InventoryView.Property

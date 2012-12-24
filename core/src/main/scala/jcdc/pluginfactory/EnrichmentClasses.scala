@@ -3,16 +3,14 @@ package jcdc.pluginfactory
 import org.bukkit.{ChatColor, Effect, Location, Material, OfflinePlayer, Server, World}
 import org.bukkit.block.Block
 import org.bukkit.event.Cancellable
-import org.bukkit.event.entity.{EntityDamageByEntityEvent}
+import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.weather.WeatherChangeEvent
 import org.bukkit.inventory.ItemStack
 import ChatColor._
 import Effect._
 import Material._
-//import org.bukkit.craftbukkit.CraftWorld
-//import net.minecraft.server.WorldServer
 import org.bukkit.entity.{LivingEntity, Entity, EntityType, Player}
-import org.bukkit.event.player.{PlayerInteractEvent}
+import org.bukkit.event.player.PlayerInteractEvent
 import util.Try
 import java.io.File
 import scala.io.Source
@@ -95,7 +93,7 @@ trait EnrichmentClasses {
       changeTo(AIR)
     }
     def changeTo(m: Material) = {
-      try { if (! chunk.isLoaded) chunk.load }
+      try if(! chunk.isLoaded) chunk.load
       catch { case e: Exception => println("unable to load chunk.") }
       b setType m
     }
@@ -122,11 +120,11 @@ trait EnrichmentClasses {
   }
 
   implicit class RichLivingEntity(e: LivingEntity){
-    def die = e.setHealth(0)
+    def die = e setHealth 0
   }
 
   implicit class RichItemStack(i:ItemStack){
-    def isA(m:Material)  = i.getType == m
+    def isA (m:Material) = i.getType == m
     def isAn(m:Material) = i.getType == m
   }
 
@@ -146,8 +144,6 @@ trait EnrichmentClasses {
       lazy val nats:Stream[Int] = 0 #:: 1 #:: nats.tail.map(_+1)
       for (x<-nats) yield w(loc.x + x, loc.y, loc.z)
     }
-//    def mcWorld = w.asInstanceOf[CraftWorld]
-//    def worldServer: WorldServer = mcWorld.getHandle
   }
 
   implicit class RichLocation(loc: Location){
