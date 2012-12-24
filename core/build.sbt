@@ -18,7 +18,7 @@ resolvers ++= Seq(
 
 libraryDependencies ++= Seq(
   "javax.servlet"     % "servlet-api"            % "2.5" % "provided->default",
-  "org.bukkit"        % "craftbukkit"            % "1.4.5-R0.2",
+  "org.bukkit"        % "craftbukkit"            % "1.4.6-R0.1",
   "ch.spacebase"      % "NPCCreatures"           % "1.4" from "http://dev.bukkit.org/media/files/584/232/NPCCreatures.jar",
   "org.scala-lang"    % "jline"                  % "2.10.0-RC5",
   "org.clojure"       % "clojure"                % "1.4.0",

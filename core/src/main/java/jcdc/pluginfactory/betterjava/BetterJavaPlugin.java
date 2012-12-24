@@ -13,10 +13,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryView;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.*;
 import org.bukkit.map.MapView;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.permissions.Permission;
@@ -262,8 +259,9 @@ public class BetterJavaPlugin extends JavaPlugin {
     public void setFlySpeed(float v) throws IllegalArgumentException {}    
     public void setWalkSpeed(float v) throws IllegalArgumentException {}    
     public float getFlySpeed() { return 0; }    
-    public float getWalkSpeed() { return 0; }    
-    public void sendMessage(String s) {}    
+    public float getWalkSpeed() { return 0; }
+    public void setTexturePack(String s) {}
+    public void sendMessage(String s) {}
     public void sendMessage(String[] strings) {}    
     public Map<String, Object> serialize() { return null; }    
     public boolean isConversing() { return false; }    
@@ -323,8 +321,14 @@ public class BetterJavaPlugin extends JavaPlugin {
     public boolean hasPotionEffect(PotionEffectType potionEffectType) { return false; }    
     public void removePotionEffect(PotionEffectType potionEffectType) {}
     public Collection<PotionEffect> getActivePotionEffects() { return null; }    
-    public boolean hasLineOfSight(Entity entity) { return false; }    
-    public Location getLocation() { return null; }    
+    public boolean hasLineOfSight(Entity entity) { return false; }
+    public boolean getRemoveWhenFarAway() { return false; }
+    public void setRemoveWhenFarAway(boolean b) {}
+    public EntityEquipment getEquipment() { return null; }
+    public void setCanPickupItems(boolean b) {}
+    public boolean getCanPickupItems() { return false; }
+    public Location getLocation() { return null; }
+    public Location getLocation(Location location) { return getLocation(); }
     public void setVelocity(Vector vector) {}
     public Vector getVelocity() { return null; }    
     public World getWorld() { return null; }    

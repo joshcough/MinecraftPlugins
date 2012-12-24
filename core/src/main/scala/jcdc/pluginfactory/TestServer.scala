@@ -60,6 +60,7 @@ object TestServer { ts =>
     def getDrops(p1: ItemStack): util.Collection[ItemStack] = new util.LinkedList[ItemStack]()
     def getDrops: util.Collection[ItemStack] = new util.LinkedList[ItemStack]()
     def getLocation: Location = new Location(world, x, y, z)
+    def getLocation(l: org.bukkit.Location): Location = getLocation
     def isBlockFaceIndirectlyPowered(p1: BlockFace): Boolean = false
     def getChunk: Chunk = chunk
     def breakNaturally(p1: ItemStack): Boolean = false
@@ -96,10 +97,11 @@ object TestServer { ts =>
     def sendPluginMessage(x$1: org.bukkit.plugin.Plugin,x$2: String,x$3: Array[Byte]): Unit = sys error "todo"
     // Members declared in org.bukkit.World
     def canGenerateStructures(): Boolean = sys error "todo"
-    def createExplosion(x$1: org.bukkit.Location,x$2: Float,x$3: Boolean): Boolean = sys error "todo"
-    def createExplosion(x$1: org.bukkit.Location,x$2: Float): Boolean = sys error "todo"
-    def createExplosion(x$1: Double,x$2: Double,x$3: Double,x$4: Float,x$5: Boolean): Boolean = sys error "todo"
-    def createExplosion(x$1: Double,x$2: Double,x$3: Double,x$4: Float): Boolean = sys error "todo"
+    def createExplosion(x$1: org.bukkit.Location, x$2: Float,  x$3: Boolean): Boolean = sys error "todo"
+    def createExplosion(x$1: org.bukkit.Location, x$2: Float): Boolean = sys error "todo"
+    def createExplosion(x$1: Double,x$2: Double,  x$3: Double, x$4: Float,x$5: Boolean): Boolean = sys error "todo"
+    def createExplosion(x$1: Double,x$2: Double,  x$3: Double, x$4: Float): Boolean = sys error "todo"
+    def createExplosion(x$1: Double, x$2: Double, x$3: Double, x$4: Float, x$5: Boolean, x$6: Boolean): Boolean = sys error "todo"
     def dropItem(x$1: org.bukkit.Location,x$2: org.bukkit.inventory.ItemStack): org.bukkit.entity.Item = sys error "todo"
     def dropItemNaturally(x$1: org.bukkit.Location,x$2: org.bukkit.inventory.ItemStack): org.bukkit.entity.Item = sys error "todo"
     def generateTree(x$1: org.bukkit.Location,x$2: org.bukkit.TreeType,x$3: org.bukkit.BlockChangeDelegate): Boolean = sys error "todo"
@@ -292,6 +294,8 @@ object TestServer { ts =>
     def useExactLoginLocation(): Boolean = sys error "todo"
     def getAmbientSpawnLimit(): Int = 0
     def isHardcore(): Boolean = false
+    def getItemFactory(): org.bukkit.inventory.ItemFactory = sys error "todo"
+    def getShutdownMessage(): String = "shutting down test server"
   }
  
   val origin: Location = new Location(world, 0, 4, 0)
@@ -464,6 +468,7 @@ object TestServer { ts =>
     def getAddress: InetSocketAddress = sys error "todo"
     def getExhaustion: Float = 0
     def getLocation: Location = new Location(world, x, y, z)
+    def getLocation(l: org.bukkit.Location): org.bukkit.Location = getLocation
     def getItemOnCursor: ItemStack = new ItemStack(Material.AIR)
     def getEyeLocation: Location = origin
     def isSprinting: Boolean = false
@@ -491,7 +496,11 @@ object TestServer { ts =>
     def playSound(x$1: org.bukkit.Location,x$2: org.bukkit.Sound,x$3: Float,x$4: Float): Unit = {}
     def giveExpLevels(x$1: Int): Unit = {}
     def setBedSpawnLocation(x$1: org.bukkit.Location,x$2: Boolean): Unit = {}
+    def getCanPickupItems(): Boolean = true
+    def getEquipment(): org.bukkit.inventory.EntityEquipment = sys error "todo"
+    def getRemoveWhenFarAway(): Boolean = false
+    def setCanPickupItems(x$1: Boolean): Unit = {}
+    def setRemoveWhenFarAway(x$1: Boolean): Unit = {}
+    def setTexturePack(x$1: String): Unit = {}
   }
 }
-
-

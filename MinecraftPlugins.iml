@@ -28,6 +28,10 @@
       <excludeFolder url="file://$MODULE_DIR$/core/target" />
       <excludeFolder url="file://$MODULE_DIR$/examples/project" />
       <excludeFolder url="file://$MODULE_DIR$/examples/target" />
+      <excludeFolder url="file://$MODULE_DIR$/minelang/project" />
+      <excludeFolder url="file://$MODULE_DIR$/minelang/target" />
+      <excludeFolder url="file://$MODULE_DIR$/netlogo/project" />
+      <excludeFolder url="file://$MODULE_DIR$/netlogo/target" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
@@ -45,15 +49,6 @@
       <library>
         <CLASSES>
           <root url="jar://$USER_HOME$/.ivy2/cache/org.nlogo/NetLogo/jars/NetLogo-5.0.3.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$USER_HOME$/.ivy2/cache/ch.spacebase/NPCCreatures/jars/NPCCreatures-1.4.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -99,11 +94,11 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.bukkit/craftbukkit/jars/craftbukkit-1.4.5-R0.2.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.bukkit/craftbukkit/jars/craftbukkit-1.4.6-R0.1.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.bukkit/craftbukkit/jars/craftbukkit-1.4.5-R0.2.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.bukkit/craftbukkit/jars/craftbukkit-1.4.6-R0.1.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>

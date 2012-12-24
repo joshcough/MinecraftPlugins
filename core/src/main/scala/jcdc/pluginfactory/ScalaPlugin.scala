@@ -2,7 +2,6 @@ package jcdc.pluginfactory
 
 import java.util.logging.Logger
 import javax.persistence.PersistenceException
-import org.bukkit.craftbukkit.CraftServer
 import org.bukkit.event.{Event, Listener}
 import util.Try
 import org.bukkit.entity.Player
@@ -15,7 +14,6 @@ abstract class ScalaPlugin extends org.bukkit.plugin.java.JavaPlugin with Enrich
   val log  = Logger.getLogger("Minecraft")
   def name = Try(this.getDescription.getName).getOrElse(this.getClass.getSimpleName)
   def server        = getServer
-  def craftServer   = org.bukkit.Bukkit.getServer.asInstanceOf[CraftServer]
   def pluginManager = getServer.getPluginManager
   def fire(e:Event) = server.getPluginManager.callEvent(e)
 

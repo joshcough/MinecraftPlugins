@@ -301,6 +301,7 @@ trait CommandsPlugin extends ScalaPlugin with BasicMinecraftParsers {
       def getAddress: InetSocketAddress = ???
       def getExhaustion: Float = 0
       def getLocation: Location = origin
+      def getLocation(l: org.bukkit.Location): org.bukkit.Location = getLocation
       def getItemOnCursor: ItemStack = new ItemStack(Material.AIR)
       def getEyeLocation: Location = origin
       def isSprinting: Boolean = false
@@ -327,6 +328,12 @@ trait CommandsPlugin extends ScalaPlugin with BasicMinecraftParsers {
       def getEnderChest(): org.bukkit.inventory.Inventory = ???
       def playSound(x$1: org.bukkit.Location,x$2: org.bukkit.Sound,x$3: Float,x$4: Float): Unit = {}
       def giveExpLevels(x$1: Int): Unit = {}
+      def getCanPickupItems(): Boolean = false
+      def getEquipment(): org.bukkit.inventory.EntityEquipment = ???
+      def getRemoveWhenFarAway(): Boolean = false
+      def setCanPickupItems(x$1: Boolean): Unit = {}
+      def setRemoveWhenFarAway(x$1: Boolean): Unit = {}
+      def setTexturePack(x$1: String): Unit = {}
     }
   }
 }

@@ -9,8 +9,8 @@ import org.bukkit.inventory.ItemStack
 import ChatColor._
 import Effect._
 import Material._
-import org.bukkit.craftbukkit.CraftWorld
-import net.minecraft.server.WorldServer
+//import org.bukkit.craftbukkit.CraftWorld
+//import net.minecraft.server.WorldServer
 import org.bukkit.entity.{LivingEntity, Entity, EntityType, Player}
 import org.bukkit.event.player.{PlayerInteractEvent}
 import util.Try
@@ -134,8 +134,8 @@ trait EnrichmentClasses {
       lazy val nats:Stream[Int] = 0 #:: 1 #:: nats.tail.map(_+1)
       for (x<-nats) yield w(loc.x + x, loc.y, loc.z)
     }
-    def mcWorld = w.asInstanceOf[CraftWorld]
-    def worldServer: WorldServer = mcWorld.getHandle
+//    def mcWorld = w.asInstanceOf[CraftWorld]
+//    def worldServer: WorldServer = mcWorld.getHandle
   }
 
   implicit class RichLocation(loc: Location){

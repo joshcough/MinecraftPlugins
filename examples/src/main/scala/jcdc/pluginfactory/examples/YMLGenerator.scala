@@ -9,7 +9,7 @@ object YMLGenerator {
     new GetOffMyLawn,
     new LightningArrows,
     new MultiPlayerCommands,
-    new NPCTest,
+//    new NPCTest,
     new BanArrows,
     new BlockChanger,
     new BlockChangerGold,
