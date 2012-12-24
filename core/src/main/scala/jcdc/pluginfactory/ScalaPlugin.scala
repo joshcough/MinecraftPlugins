@@ -40,7 +40,9 @@ abstract class ScalaPlugin extends org.bukkit.plugin.java.JavaPlugin with Enrich
       "author: "   + author,
       "version: "  + version,
       "database: " + (this.dbClasses.size > 0),
-      "depend: "   + "[ScalaLibraryPlugin]"
+      // this dependency makes sure Scala (and Clojure) is on the classpath at runtime
+      // TODO: it would be nice to have a way of specifying dependencies.
+      "depend: "   + "[JcdcPluginFactory]"
     ).mkString("\n")
 
   def writeYML(author: String, version: String): Unit = {

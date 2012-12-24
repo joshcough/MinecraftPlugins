@@ -1,5 +1,5 @@
-name: ScalaLibraryPlugin
-main: jcdc.pluginfactory.ScalaLibraryPlugin
+name: JcdcPluginFactory
+main: jcdc.pluginfactory.JcdcPluginFactory
 author: Josh Cough
 version: 0.1
 database: false
