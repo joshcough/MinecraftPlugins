@@ -27,9 +27,3 @@ libraryDependencies ++= Seq(
   "org.scalacheck"    % "scalacheck_2.10.0-RC5"  % "1.10.0" % "test",
   "org.scalaz"        % "scalaz-core_2.10.0-RC5" % "7.0.0-M6"
 )
-
-//resolvers += Resolver.url(
-//  "sbt-plugin-releases",
-//  new URL("http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases/")
-//)(Resolver.ivyStylePatterns)
-//addSbtPlugin("com.github.retronym" % "sbt-onejar" % "0.8")
