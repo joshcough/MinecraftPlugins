@@ -31,8 +31,8 @@ trait BasicMinecraftParsers extends ScalaPlugin with ParserCombinators {
   val player  : Parser[Player]     = token("player-name")  (server.findPlayer)
   val coordinates = int ~ int ~ int.?
   val location: Parser[World => Location] = coordinates ^^ {
-    case x ~ y ~ Some(z) => (w:World) => w(x, y, z)
-    case x ~ z ~ None    => (w:World) => w.getHighestBlockAt(x, z)
+    case x ~ y ~ Some(z) => (w:World) => w(x, y, z).loc
+    case x ~ z ~ None    => (w:World) => w.getHighestBlockAt(x, z).loc
   }
   val plugin  : Parser[Plugin] = token("plugin")(s => tryO(pluginManager getPlugin s))
   val time    : Parser[Int]    = int.flatMapWithNext((i, rest) =>
@@ -200,7 +200,7 @@ trait CommandsPlugin extends ScalaPlugin with BasicMinecraftParsers {
     import org.bukkit.block.Block
     import org.bukkit.util.Vector
 
-    def origin = server.getWorlds.get(0).blockAt(0,0,0)
+    def origin = server.getWorlds.get(0).blockAt(0,0,0).loc
 
     val player = new Player {
       def setWhitelisted(p1: Boolean) {}
@@ -317,7 +317,7 @@ trait CommandsPlugin extends ScalaPlugin with BasicMinecraftParsers {
       def recalculatePermissions {}
       def getLineOfSight(p1: java.util.HashSet[java.lang.Byte], p2: Int): java.util.List[Block] = new java.util.LinkedList()
       def setLastDamage(p1: Int) {}
-      def getTargetBlock(p1: java.util.HashSet[java.lang.Byte], p2: Int): Block = origin
+      def getTargetBlock(p1: java.util.HashSet[java.lang.Byte], p2: Int): Block = origin.block
       def removePotionEffect(p1: PotionEffectType) {}
       def setLevel(p1: Int) {}
       def setFlying(p1: Boolean) {}

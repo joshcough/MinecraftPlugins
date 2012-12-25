@@ -10,7 +10,8 @@ object Cube{
   type TLoc = (Int,Int,Int)
   implicit def toStream(c:Cube): Stream[Block] = c.blocks
   implicit def toLocation(t:TLoc)(implicit w:World) = w(t._1, t._2, t._3)
-  def apply(c1:TLoc, c2:TLoc)(implicit w:World): Cube = Cube(toLocation(c1), toLocation(c2))
+  def apply(c1:TLoc,  c2:TLoc) (implicit w:World): Cube = Cube(toLocation(c1), toLocation(c2))
+  def apply(b1:Block, b2:Block)(implicit w:World): Cube = Cube(b1.loc, b2.loc)
 }
 
 /**
@@ -51,7 +52,7 @@ case class Cube(l1: Location, l2: Location) {
   val minY  = math.min(l1.y, l2.y)
   val maxZ  = math.max(l1.z, l2.z)
   val minZ  = math.min(l1.z, l2.z)
-  val world = l1.world
+  implicit val world = l1.world
 
   override def toString = s"Cube(l1: ${(maxX,maxY,maxZ)}, l2: ${(minX,minY,minZ)})"
   override def equals(a:Any) = a match {

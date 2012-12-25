@@ -5,8 +5,9 @@ import javax.persistence.PersistenceException
 import org.bukkit.event.{Event, Listener}
 import util.Try
 
-object ScalaPlugin extends EnrichmentClasses
-
+/**
+ * The base class that helps make writing Bukkit plugins vastly easier.
+ */
 abstract class ScalaPlugin extends org.bukkit.plugin.java.JavaPlugin with EnrichmentClasses {
 
   val log  = Logger.getLogger("Minecraft")
@@ -46,6 +47,8 @@ abstract class ScalaPlugin extends org.bukkit.plugin.java.JavaPlugin with Enrich
   /**
    * Generates the plugin.yml contents for this plugin.
    * See http://wiki.bukkit.org/Plugin_YAML for more info
+   * @param author  the author  of the plugin
+   * @param version the version of the plugin
    **/
   def yml(author:String, version: String) = List(
     "name: "        + this.name,
@@ -61,7 +64,7 @@ abstract class ScalaPlugin extends org.bukkit.plugin.java.JavaPlugin with Enrich
 
   /**
    * Writes out the yml file. This is used to build the plugin.
-   * @param author  the author of the plugin
+   * @param author  the author  of the plugin
    * @param version the version of the plugin
    */
   def writeYML(author: String, version: String): Unit = {
@@ -74,7 +77,16 @@ abstract class ScalaPlugin extends org.bukkit.plugin.java.JavaPlugin with Enrich
     f.close
   }
 
-  // logging
+  /**
+   * Broadcast a message to the world.
+   * The name of the plugin is prepended to the given message, like so:
+   * [$name] - $message
+   * @param message
+   * @return
+   */
+  def broadcast(message:String) = server.broadcastMessage(s"[$name] - $message")
+
+  // various logging utility functions.
   def logInfo(message:String) { log.info(s"[$name] - $message") }
   def logTask[T](message:String)(f: => T): T = {
     logInfo(s"Starting: $message"); val t = f; logInfo(s"Finished: $message"); t
@@ -82,5 +94,4 @@ abstract class ScalaPlugin extends org.bukkit.plugin.java.JavaPlugin with Enrich
   def logError(e:Throwable){
     log.log(java.util.logging.Level.SEVERE, s"[$name] - ${e.getMessage}", e)
   }
-  def broadcast(message:String) = server.broadcastMessage(s"[$name] - $message")
 }

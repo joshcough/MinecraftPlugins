@@ -5,6 +5,16 @@ import util.Try
 
 object ParserCombinators extends ParserCombinators
 
+/**
+ * Simple (relatively naive) parser combinator library.
+ * I wouldn't actually recommend using them, I'd probably say go use Scala's first,
+ * or another parser combinator library. However, they do work well, and are simple
+ * to learn. The reason that I implemented my own is because I was unable to get
+ * good self descriptions out of Scala's parses. These parsers are able to
+ * explain to you the types of all the arguments that they take. This comes in
+ * especially handy when giving error messages to users, and when generating
+ * the commands section of the plugin.yml file for a plugin.
+ */
 trait ParserCombinators {
 
   case class ~[+A, +B](a: A, b: B) {
