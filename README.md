@@ -1,11 +1,11 @@
 # Overview
 
-This project contains an API for building Minecraft Plugins in Scala. It is currently made up of three projects:
+This project contains an API for building Minecraft Plugins in Scala. It is currently made up of several sub-projects, but the most important ones to know about are:
 
-  * core     - The main API
-  * examples - Several example plugins using the core API
-  * netlogo  - A plugin that enables running NetLogo models in Minecraft servers (also using the core API)
-
+  * core         - The main API
+  * microexample - A first example of how to create a plugin in Scala.
+  * examples     - Several more example plugins using the core API
+  
 There are several reasons for building this API, but the three that pop to mind immediately are:
 
   * To show how easy it is to put better/cleaner APIs on top of existing Java APIs.
@@ -29,4 +29,11 @@ class LightningArrows extends ListeningFor(OnEntityDamageByEntity { e =>
 })
 ```
 
-[NetLogo Plugin](https://github.com/joshcough/MinecraftPlugins/wiki/NetLogo)
+## Other Stuff
+
+There are a few other sub projects and I'll mention them just very briefly here.
+
+  * netlogo      - A plugin that enables running NetLogo models in Minecraft servers. More info here: [NetLogo Plugin](https://github.com/joshcough/MinecraftPlugins/wiki/NetLogo)
+  * minelang     - An ongoing attempt at writing my own language (very much like Clojure, but not as good) that allows users to write their own minecraft plugins without having to know anything about IDE's and Jar files and stuff like that. I don't have any other information to give on this just yet, though.
+
+
