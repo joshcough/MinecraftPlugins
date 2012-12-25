@@ -80,7 +80,7 @@ abstract class ScalaPlugin extends org.bukkit.plugin.java.JavaPlugin with Enrich
   /**
    * Broadcast a message to the world.
    * The name of the plugin is prepended to the given message, like so:
-   * [$name] - $message
+   * [plugin-name] - message
    * @param message
    * @return
    */

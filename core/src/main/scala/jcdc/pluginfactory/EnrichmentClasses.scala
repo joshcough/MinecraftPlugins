@@ -49,6 +49,13 @@ trait EnrichmentClasses {
   }
 
   /**
+   * Enrich a Function1.
+   */
+  implicit class RichFunction1[A,B,R](f: A => R) {
+    def of(a:A): R = f(a)
+  }
+
+  /**
    * Enrich a Function1 that returns a Function1.
    */
   implicit class RichFunction1Function1[A,B,R](f: A => B => R) {
@@ -150,9 +157,8 @@ trait EnrichmentClasses {
 
     /**
      * Change this block to the given material.
-     * @param m
      */
-    def changeTo(m: Material) = {
+    def changeTo(m: Material): Unit = {
       try if(! chunk.isLoaded) chunk.load
       catch { case e: Exception => println("unable to load chunk.") }
       b setType m
@@ -191,9 +197,8 @@ trait EnrichmentClasses {
     def isA (et:EntityType) = isAn(et)
     /**
      * Run f on e, if e is a Player
-     * @param f
      */
-    def whenPlayer(f: Player => Unit) = if(e.isInstanceOf[Player]) f(e.asInstanceOf[Player])
+    def whenPlayer(f: Player => Unit): Unit = if(e.isInstanceOf[Player]) f(e.asInstanceOf[Player])
     def shock = world strikeLightning loc
   }
 
@@ -201,7 +206,7 @@ trait EnrichmentClasses {
    * Add some awesomeness to LivingEntity.
    */
   implicit class RichLivingEntity(e: LivingEntity){
-    def die = e setHealth 0
+    def die: Unit = e setHealth 0
   }
 
   /**
@@ -240,8 +245,6 @@ trait EnrichmentClasses {
     /**
      * Returns an infinite Stream[Block] that increases positively in X (or EAST)
      * starting at the given Location.
-     * @param loc
-     * @return
      */
     def fromX(loc:Location): Stream[Block] = {
       lazy val nats:Stream[Int] = 0 #:: 1 #:: nats.tail.map(_+1)
@@ -312,23 +315,22 @@ trait EnrichmentClasses {
     /**
      * Sends player a message.
      */
-    def !  (s:  String)  = if(s != null) player.sendMessage(s)
+    def !  (s:  String): Unit  = if(s != null) player.sendMessage(s)
 
     /**
      * Sends player all of the given messages
      */
-    def !* (ss: String*) = ss.foreach(s => player ! s)
+    def !* (ss: String*): Unit = ss.foreach(s => player ! s)
 
     /**
      * Sends the player the given message, but turns it red.
-     * @param message
      */
-    def sendError(message:String) = player.sendMessage(RED(message))
+    def sendError(message:String): Unit = player.sendMessage(RED(message))
 
     /**
      * Send the player an error message, and then throw an exception violently.
      */
-    def bomb(message:String) = {
+    def bomb(message:String): Nothing = {
       player ! RED(message)
       throw new RuntimeException(message)
     }
@@ -336,18 +338,18 @@ trait EnrichmentClasses {
     /**
      * Brings the player UP to the top of the world (but at the same NSEW coordinate).
      */
-    def surface = teleportTo(world.getHighestBlockAt(loc))
+    def surface: Unit = teleportTo(world getHighestBlockAt loc)
 
     // just a ton of utility functions that i don't feel like documenting
 
-    def findPlayer(name:String)(f: Player => Unit) =
+    def findPlayer(name:String)(f: Player => Unit): Unit =
       server.findPlayer(name).fold(sendError("kill could not find player: " + name))(f)
-    def findPlayers(names:List[String])(f: Player => Unit) = names.foreach(n => findPlayer(n)(f))
+    def findPlayers(names:List[String])(f: Player => Unit): Unit = names.foreach(n => findPlayer(n)(f))
     def ban(reason:String){ player.setBanned(true); player.kickPlayer("banned: $reason") }
-    def kill(playerName:String): Unit = findPlayer(playerName)(kill)
-    def kill(p:Player) = doTo(p, p.setHealth(0), "killed")
+    def kill(playerName:String): Unit   = findPlayer(playerName)(kill)
+    def kill(p:Player): Unit            = doTo(p, p.setHealth(0), "killed")
     def teleportTo(otherPlayer: Player) = player.teleport(otherPlayer)
-    def teleportTo(b: Block)            = player.teleport(b.loc)
+    def teleportTo(b: Block): Unit      = player.teleport(b.loc)
     def shockWith(message:String) {
       player.shock
       player ! message
@@ -442,14 +444,14 @@ trait EnrichmentClasses {
   case class MaterialAndData(m: Material, data: Option[Byte]){
     def update(b: Block): Unit = {
       b changeTo m
-      data.foreach(b.setData)
+      data foreach b.setData
     }
-    def itemStack = data.fold(new ItemStack(m))(new ItemStack(m, 1, 0:Short, _))
+    def itemStack: ItemStack = data.fold(new ItemStack(m))(new ItemStack(m, 1, 0:Short, _))
   }
 
   implicit class RichFile(f:File){
-    def child(name:String) = new File(f, name)
-    def slurp: String      = Source.fromFile(f).getLines().mkString("\n")
+    def child(name:String): File = new File(f, name)
+    def slurp: String            = Source.fromFile(f).getLines().mkString("\n")
   }
 
   // old, now unused implicit conversions. it seems like they might be used in commented out

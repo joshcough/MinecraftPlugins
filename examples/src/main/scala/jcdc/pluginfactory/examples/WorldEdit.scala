@@ -91,12 +91,8 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin {
     )
   )
 
-  def cube(p:Player): Cube = {
-    corners.get(p).filter(_.size == 2) match {
-      case None => p bomb "Both corners must be set!"
-      case Some(ls) => Cube(ls(0), ls(1))
-    }
-  }
+  def cube(p:Player): Cube = corners.get(p).filter(_.size == 2).
+    fold(p bomb "Both corners must be set!")(ls => Cube(ls(0), ls(1)))
 
   def setFirstPos(p:Player,loc: Location): Unit = {
     corners.update(p, List(loc))

@@ -11,7 +11,7 @@ class MultiPlayerCommands extends CommandsPlugin {
   val commands = List(
 
     Command("goto",     "Teleport!", args(player or location){ case (you, e) =>
-      e.fold(them => you teleportTo them, loc => you.teleport(you.world |> loc))
+      e.fold(them => you teleportTo them, loc => you.teleport(loc of you.world))
     }),
 
     Command("up",       "Go up to the surface.", noArgs(_.surface)),

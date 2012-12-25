@@ -11,7 +11,7 @@ trait CommonCommands extends CommandsPlugin {
   // some simple useful commands
   val goto  = Command("goto",     "Teleport to a player.", args(player or location){
     case (you, Left(them)) => you.teleportTo(them)
-    case (you, Right(loc)) => you.teleport(you.world |> loc)
+    case (you, Right(loc)) => you.teleport(loc of you.world)
   })
   val timeCommand  =  Command("set-time", "Sets the time.", args(time){
     case (p, n) => p.world.setTime(n)
