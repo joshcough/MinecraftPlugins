@@ -1,7 +1,7 @@
 name: MineLangPlugin
 main: jcdc.pluginfactory.MineLangPlugin
 author: Josh Cough
-version: 0.1
+version: 0.2.0
 database: false
 depend: [ScalaLibraryPlugin]
 commands:

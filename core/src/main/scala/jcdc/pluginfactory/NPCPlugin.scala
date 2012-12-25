@@ -15,7 +15,7 @@
 //*/
 //trait NPCPlugin extends CommandsPlugin {
 //  private lazy val npcManager =
-//    server.getPluginManager.getPlugin("NPCCreatures").asInstanceOf[NPCCreatures].getNPCManager
+//    pluginManager.getPlugin("NPCCreatures").asInstanceOf[NPCCreatures].getNPCManager
 //  def npcType = token("npc-type"){ s => Option(NPCType.getByName(s)) }
 //
 //  def despawn(npc:NPC){ npcManager.despawnById(npc.getNPCId) }

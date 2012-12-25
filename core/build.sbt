@@ -1,6 +1,6 @@
 name := "JCDC Plugin Factory"
 
-version := "0.1"
+version := "0.2.0"
 
 organization := "jcdc.pluginfactory"
 
@@ -24,6 +24,5 @@ libraryDependencies ++= Seq(
   "org.clojure"       % "clojure"                % "1.4.0",
   // TODO: put this back when 2.10 is finally out, i think
   //"org.scalacheck" %% "scalacheck"             % "1.10.0" % "test",
-  "org.scalacheck"    % "scalacheck_2.10.0-RC5"  % "1.10.0" % "test",
-  "org.scalaz"        % "scalaz-core_2.10.0-RC5" % "7.0.0-M6"
+  "org.scalacheck"    % "scalacheck_2.10.0-RC5"  % "1.10.0" % "test"
 )

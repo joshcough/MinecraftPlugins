@@ -9,18 +9,62 @@ import org.bukkit.event.entity.{EntityDamageEvent, PlayerDeathEvent, EntityDamag
 import org.bukkit.event.weather.WeatherChangeEvent
 import org.bukkit.event.player.{PlayerInteractEvent, PlayerMoveEvent, PlayerChatEvent}
 
-trait ListenerPlugin extends ScalaPlugin with Listeners {
-  val listener:Listener
+/**
+ * A trait that supports exactly one listener.
+ * This is really just a tiny convenience wrapper over ListenersPlugin,
+ * so that you can say:
+ *
+ *   val listener = createMyListener
+ *
+ * instead of:
+ *
+ *   val listeners = List(createMyListener)
+ */
+trait ListenerPlugin extends ListenersPlugin {
+  def listener: Listener
+  def listeners = List(listener)
   override def onEnable(){ super.onEnable(); registerListener(listener) }
 }
 
+/**
+ * A trait that can have many Listeners.
+ *
+ * All clients need to do is specify the listeners val, like so:
+ *
+ * val listeners = List(
+ *   createListener1,
+ *   createListener2,
+ *   ...
+ * )
+ *
+ * Convenience functions for creating Listeners are provided in the Listeners trait.
+ */
 trait ListenersPlugin extends ScalaPlugin with Listeners {
-  val listeners:List[Listener]
+  def listeners: List[Listener]
   override def onEnable(){ super.onEnable(); listeners.foreach(registerListener) }
+  def registerListener(listener:Listener): Unit = pluginManager.registerEvents(listener, this)
 }
 
 object Listeners extends Listeners
 
+/**
+ * This trait supports many convenience wrappers for creating Listeners with
+ * higher order functions. Creating Listeners in Bukkit is fairly awkward.
+ * You have to create a Listener instance with an annotated method,
+ * that method can have any name, and it must take some Event as an argument, like so:
+ *
+ * new Listener {
+ *   @EventHandler def on(e:PlayerMoveEvent): Unit = doSomething(e)
+ * }
+ *
+ * This is all abstracted away from the user here. A user now just says:
+ *
+ * OnPlayerMove(doSomething)
+ *
+ * (where doSomething is just a function that takes a PlayerMoveEvent, same as above)
+ *
+ * There are piles of examples of this in the examples code.
+ **/
 trait Listeners extends EnrichmentClasses {
   abstract case class ListeningFor(listener:Listener) extends ListenerPlugin
 

@@ -55,19 +55,15 @@ class Farmer extends ListenersPlugin {
   )
 }
 
-class God extends ListenerPlugin with CommandsPlugin {
+class God extends ListenerPlugin with CommandPlugin {
   val gods = collection.mutable.Map[Player, Boolean]().withDefaultValue(false)
-  implicit def playerToGod(p:Player) = new { def isAGod = gods(p) }
-  val listener = OnPlayerDamage { (p, e) => e cancelIf p.isAGod }
-  val commands = List(
-    Command(
-      name = "god",
-      desc = "Toggle God mode.",
-      body = noArgs { p =>
-        gods.update(p, ! p.isAGod)
-        p ! s"god mode is now ${if(p.isAGod) "on" else "off"}"
-      }
-    )
+  val listener = OnPlayerDamage { (p, e) => e cancelIf gods(p) }
+  val command = Command(
+    name = "god", desc = "Toggle God mode.",
+    body = noArgs { p =>
+      gods.update(p, ! gods(p))
+      p ! s"god mode ${if(gods(p)) "enabled" else "disabled"}"
+    }
   )
 }
 

@@ -20,9 +20,9 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin {
     Command("goto", "Teleport!", args(location){ case (you, loc) => you teleport loc(you.world) }),
     Command("wand", "Get a WorldEdit wand.", noArgs(_.loc.dropItem(WOOD_AXE))),
     Command("pos1", "Set the first position",  args(location.?){ case (p, loc) =>
-      setFirstPos(p, loc.fold(p.loc)(_(p.world)))
+      setFirstPos (p, loc.fold(p.loc)(_(p.world)))
     }),
-    Command("pos2", "Set the second position",  args(location.?){ case (p, loc) =>
+    Command("pos2", "Set the second position", args(location.?){ case (p, loc) =>
       setSecondPos(p, loc.fold(p.loc)(_(p.world)))
     }),
     Command("cube-to",  "Set both positions",  args(location ~ location.?){

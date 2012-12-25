@@ -22,12 +22,14 @@
       <sourceFolder url="file://$MODULE_DIR$/examples/src/test/clojure" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/minelang/src/main/scala" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/minelang/src/test/scala" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/microexample/src/main/scala" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/.idea" />
       <excludeFolder url="file://$MODULE_DIR$/bukkit" />
       <excludeFolder url="file://$MODULE_DIR$/core/project" />
       <excludeFolder url="file://$MODULE_DIR$/core/target" />
       <excludeFolder url="file://$MODULE_DIR$/examples/project" />
       <excludeFolder url="file://$MODULE_DIR$/examples/target" />
+      <excludeFolder url="file://$MODULE_DIR$/microexample/target" />
       <excludeFolder url="file://$MODULE_DIR$/minelang/project" />
       <excludeFolder url="file://$MODULE_DIR$/minelang/target" />
       <excludeFolder url="file://$MODULE_DIR$/netlogo/bukkit" />

@@ -1,26 +1,24 @@
 package jcdc.pluginfactory
 
+import org.bukkit.Server
+import org.bukkit.event.Event
+import util.Try
 import java.util.logging.Logger
 import javax.persistence.PersistenceException
-import org.bukkit.event.{Event, Listener}
-import util.Try
 
 /**
  * The base class that helps make writing Bukkit plugins vastly easier.
+ * However, it's unlikely that you'll subclass ScalaPlugin directly. It's
+ * far more likely that you'll subclass jcdc.pluginfactory.CommandsPlugin,
+ * jcdc.pluginfactory.ListenersPlugin, or both.
  */
 abstract class ScalaPlugin extends org.bukkit.plugin.java.JavaPlugin with EnrichmentClasses {
 
   val log  = Logger.getLogger("Minecraft")
-  def name = Try(this.getDescription.getName).getOrElse(this.getClass.getSimpleName)
-  def server        = getServer
-  def pluginManager = getServer.getPluginManager
-  def fire(e:Event) = server.getPluginManager.callEvent(e)
 
   // setup stuff
-  override def onEnable(){ super.onEnable(); setupDatabase; logInfo(s"$name enabled!") }
-  override def onDisable(){ super.onDisable(); logInfo(s"$name disabled!") }
-  def registerListener(listener:Listener): Unit =
-    server.getPluginManager.registerEvents(listener, this)
+  override def onEnable() { super.onEnable() ; setupDatabase; logInfo(s"$name enabled!" ) }
+  override def onDisable(){ super.onDisable();                logInfo(s"$name disabled!") }
 
   /**
    * A list of dependencies that this plugin depends on.
@@ -36,12 +34,21 @@ abstract class ScalaPlugin extends org.bukkit.plugin.java.JavaPlugin with Enrich
    */
   def softDependencies: List[String] = Nil
 
-  // db setup stuff.
-  def dbClasses: List[Class[_]] = Nil
-  override def getDatabaseClasses = new java.util.ArrayList[Class[_]](){ dbClasses.foreach(add) }
-  def setupDatabase: Unit =
+  /**
+   * Classes that want to use a database should override this def, providing
+   * all of the Entity classes. See WarpPlugin in examples.
+   */
+  def dbClasses: List[Class[_]]    = Nil
+  // this is here just so subclasses dont have to use java.util.ArrayList.
+  override def getDatabaseClasses  = new java.util.ArrayList[Class[_]](){ dbClasses.foreach(add) }
+  // this is horrible bukkit nonsense that every plugin must do if it wants to use the database.
+  private  def setupDatabase: Unit =
     if(dbClasses.nonEmpty)
+      // this somehow forces attempting to initialize the database
       try getDatabase.find(dbClasses.head).findRowCount
+      // and if it throws... that means you haven't yet initialized the db,
+      // and you need to call installDLL...
+      // really, this is just crap. happy to hide it from any users.
       catch{ case e: PersistenceException => logTask("Installing DB"){ installDDL() } }
 
   /**
@@ -68,30 +75,52 @@ abstract class ScalaPlugin extends org.bukkit.plugin.java.JavaPlugin with Enrich
    * @param version the version of the plugin
    */
   def writeYML(author: String, version: String): Unit = {
+    val ymlContents = this.yml(author, version)
     val resources = new java.io.File("./src/main/resources")
     resources.mkdir
-    val ymlFile = new java.io.File(resources, s"${this.name.toLowerCase}.yml")
-    val ymlContents = this.yml(author, version)
-    val f = new java.io.FileWriter(ymlFile)
-    f.write(ymlContents)
-    f.close
+
+    def write(filename:String): Unit = {
+      val f = new java.io.FileWriter(new java.io.File(resources, filename))
+      f.write(ymlContents)
+      f.close
+    }
+
+    write(s"${this.name.toLowerCase}.yml")
+    write("plugin.yml")
   }
 
   /**
    * Broadcast a message to the world.
    * The name of the plugin is prepended to the given message, like so:
    * [plugin-name] - message
-   * @param message
-   * @return
    */
-  def broadcast(message:String) = server.broadcastMessage(s"[$name] - $message")
+  def broadcast(message:String): Unit = server.broadcastMessage(s"[$name] - $message")
 
-  // various logging utility functions.
-  def logInfo(message:String) { log.info(s"[$name] - $message") }
+  /**
+   * Log the given message at INFO level.
+   */
+  def logInfo(message:String): Unit = { log.info(s"[$name] - $message") }
+
+  /**
+   * Log around the given task like so:
+   * 'Starting - message'
+   *    f
+   * 'Finished - message'
+   */
   def logTask[T](message:String)(f: => T): T = {
     logInfo(s"Starting: $message"); val t = f; logInfo(s"Finished: $message"); t
   }
-  def logError(e:Throwable){
+
+  /**
+   * Log the given exception at SEVERE level.
+   */
+  def logError(e:Throwable): Unit = {
     log.log(java.util.logging.Level.SEVERE, s"[$name] - ${e.getMessage}", e)
   }
+
+  // Various other little helper functions.
+  def name = Try(this.getDescription.getName).getOrElse(this.getClass.getSimpleName)
+  def server: Server      = getServer
+  def pluginManager       = getServer.getPluginManager
+  def fire(e:Event): Unit = server.getPluginManager.callEvent(e)
 }

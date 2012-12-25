@@ -16,7 +16,7 @@ trait CommonCommands extends CommandsPlugin {
   val timeCommand  =  Command("set-time", "Sets the time.", args(time){
     case (p, n) => p.world.setTime(n)
   })
-  val day   =  Command("day",   "Sets the time to 1.", noArgs(_.world.setTime(1)))
+  val day   =  Command("day",   "Sets the time to 1.",     noArgs(_.world.setTime(1)))
   val night =  Command("night", "Sets the time to 15000.", noArgs(_.world.setTime(15000)))
   val gm    =  Command("gm",    "Set your game mode", args(gamemode){
     case (p, gm) => p.setGameMode(gm)
