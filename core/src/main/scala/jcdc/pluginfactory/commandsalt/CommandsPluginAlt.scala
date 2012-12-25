@@ -30,31 +30,33 @@ trait BasicMinecraftParsers extends ScalaPlugin with ParserCombinators {
   ).named("time (0-24000)")
 }
 
-case class Command[T](
+case class Command(
   name: String,
   description: String,
   argsDescription: Option[String],
-  runner: (Player, BukkitCommand, List[String]) => Unit) {
-  def yml =
-    s"  $name:\n" +
-    s"    description: $description\n" +
-    s"    usage: /$name ${argsDescription.getOrElse("")}"
-}
+  body: (Player, BukkitCommand, List[String]) => Unit)
 
 /**
  * A trait that allows a plugin to have one command, very easily.
  */
 trait CommandPlugin extends CommandsPlugin {
-  val command: Command[_]
+  val command: Command
   def commands = List(command)
 }
 
 trait CommandsPlugin extends ScalaPlugin with BasicMinecraftParsers {
 
-  def commands: List[Command[_]]
+  def commands: List[Command]
 
-  private def commandsMap: Map[String, Command[_]] =
+  private def commandsMap: Map[String, Command] =
     commands.map(c => (c.name.toLowerCase, c)).toMap
+
+
+  def ArgsCommand[T](name: String, desc: String, p: Parser[T])
+                    (body: ((Player, T)) => Unit): Command = Command(name, desc, p)(body)
+
+  def NoArgsCommand(name: String, desc: String)
+                   (body: Player => Unit): Command = Command(name, desc)(body)
 
   /**
    *
@@ -66,52 +68,33 @@ trait CommandsPlugin extends ScalaPlugin with BasicMinecraftParsers {
    * @return
    */
   def Command[T](name: String, desc: String, args: Parser[T])
-                (body: ((Player, T)) => Unit): Command[T] = {
-    val commandName = name
-    val argsParser = args
-    new Command[T](
-      name = commandName,
-      description = desc,
-      argsDescription = Some(argsParser.describe),
-      runner = (p: Player, c: BukkitCommand, args: List[String]) => {
-        def sendError(msg:String): Unit =
-          p !* (RED(msg), RED(c.getDescription), RED(c.getUsage))
-        argsParser(args) match {
-          case Success(t, Nil) => body(p -> t)
-          case Success(t, xs)  => sendError(s"unprocessed input: ${xs.mkString(" ")}")
-          case Failure(msg)    => sendError(msg)
-        }
+                (body: ((Player, T)) => Unit): Command = new Command(
+    name = name, description = desc, argsDescription = Some(args.describe),
+    body = (p: Player, c: BukkitCommand, argsList: List[String]) => {
+      def sendError(msg:String): Unit = p !* (RED(msg), RED(c.getDescription), RED(c.getUsage))
+      args(argsList) match {
+        case Success(t, Nil) => body(p -> t)
+        case Success(t, xs)  => sendError(s"unprocessed input: ${xs.mkString(" ")}")
+        case Failure(msg)    => sendError(msg)
       }
-    )
-  }
-
-  def ArgsCommand[T](name: String, desc: String, p: Parser[T])
-                    (body: ((Player, T)) => Unit): Command[T] = Command(name, desc, p)(body)
-
-  def NoArgsCommand(name: String, desc: String)
-                   (body: Player => Unit): Command[Nothing]   = Command(name, desc)(body)
+    }
+  )
 
   /**
    *
-   * @param commandName
+   * @param name
    * @param desc
    * @param body
    * @return
    */
   def Command(name: String, desc: String)
-             (body: Player => Unit): Command[Nothing] = {
-    val commandName = name
-    new Command[Nothing](
-      name = commandName,
-      description = desc,
-      argsDescription = None,
-      runner = (p: Player, c: BukkitCommand, args: List[String]) => {
-        def sendError(msg:String): Unit =
-          p !* (RED(msg), RED(c.getDescription), RED(c.getUsage))
-        noArguments(args).fold(sendError(_))((_, _) => body(p))
-      }
-    )
-  }
+             (body: Player => Unit): Command = new Command(
+    name = name, description = desc, argsDescription = None,
+    body = (p: Player, c: BukkitCommand, args: List[String]) => {
+      def sendError(msg:String): Unit = p !* (RED(msg), RED(c.getDescription), RED(c.getUsage))
+      noArguments(args).fold(sendError(_))((_, _) => body(p))
+    }
+  )
 
   /**
    * This is Bukkit's main entry point for plugins handling commands.
@@ -123,7 +106,7 @@ trait CommandsPlugin extends ScalaPlugin with BasicMinecraftParsers {
     println(s"$name handling $commandName [${args.mkString(",")}]")
     val p = sender match { case p: Player => p; case _ => ConsolePlayer.player }
     (for (c <- commandsMap.get(cmd.getName.toLowerCase)) yield
-      try { c.runner(p, cmd, args.toList); true }
+      try { c.body(p, cmd, args.toList); true }
       catch { case e: Exception =>
         p ! RED(e.getMessage + "\n" + e.getStackTraceString)
         e.printStackTrace
@@ -145,15 +128,15 @@ trait CommandsPlugin extends ScalaPlugin with BasicMinecraftParsers {
    * if the user is an op. If the user is an op, the inner CommandBody is executed.
    * If not, then the user is given an error message.
    */
-  def OpOnly[T](c: Command[T]): Command[T] =
-    c.copy(runner=(p: Player, bc: BukkitCommand, args: List[String]) =>
-      if (p.isOp) c.runner(p, bc, args) else p ! RED(s"You must be an op to run /${c.name}")
+  def OpOnly(c: Command): Command =
+    c.copy(body=(p: Player, bc: BukkitCommand, args: List[String]) =>
+      if (p.isOp) c.body(p, bc, args) else p ! RED(s"You must be an op to run /${c.name}")
     )
 
   /**
    * Simple combinator for creating commands that take a single Player argument (only).
    */
-  def P2P(name: String, desc: String)(f: (Player, Player) => Unit): Command[Player] =
+  def P2P(name: String, desc: String)(f: (Player, Player) => Unit): Command =
     Command(name, desc, player){case (p1,p2) => f(p1, p2)}
 
   /**
@@ -168,7 +151,11 @@ trait CommandsPlugin extends ScalaPlugin with BasicMinecraftParsers {
    * Overriding to add commands into the plugin.yml.
    */
   override def yml(author:String, version: String) = {
-    val commandsYml = s"commands:\n${commands.map(_.yml).mkString("\n")}"
+    def yml(c: Command) =
+      s"  ${c.name}:\n" +
+      s"    description: ${c.description}\n" +
+      s"    usage: /$name ${c.argsDescription.getOrElse("")}"
+    val commandsYml = s"commands:\n${commands.map(yml).mkString("\n")}"
     List(super.yml(author, version), commandsYml).mkString("\n")
   }
 

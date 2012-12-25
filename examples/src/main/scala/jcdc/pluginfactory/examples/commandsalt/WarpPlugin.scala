@@ -1,9 +1,10 @@
-package jcdc.pluginfactory.examples
+package jcdc.pluginfactory.examples.commandsalt
 
-import jcdc.pluginfactory.{Command, CommandsPlugin, SingleClassDBPlugin}
+import jcdc.pluginfactory.SingleClassDBPlugin
 import org.bukkit.{Location, World}
 import org.bukkit.entity.Player
 import scala.collection.JavaConversions._
+import jcdc.pluginfactory.commandsalt.CommandsPlugin
 
 /**
  * Classic Warp Plugin example, done in Scala.
@@ -24,36 +25,35 @@ class WarpPlugin extends CommandsPlugin with SingleClassDBPlugin[Warp] {
 
   val commands = List(
 
-    Command("warps", "List all warps.", noArgs(p => warpsFor(p).foreach(w => p ! w.toString))),
+    Command("warps", "List all warps.")(p => warpsFor(p).foreach(w => p ! w.toString)),
 
-    Command("warp",  "Warp to the given warp location.",
-      args(warpToken){ case (p, wt) => withWarp(p, wt)(w => p teleport w.location(p.world)) }),
+    Command("warp",  "Warp to the given warp location.", warpToken){ case (p, wt) =>
+      withWarp(p, wt)(w => p teleport w.location(p.world))
+    },
 
-    Command("delete-warp", "Delete a warp location.",
-      args(warpToken){ case (p, wt) => withWarp(p, wt){w =>
-        db.delete(w)
-        p ! s"deleted warp: ${w.name}"
-      }}),
+    Command("delete-warp", "Delete a warp location.", warpToken){ case (p, wt) =>
+      withWarp(p, wt){w => db.delete(w); p ! s"deleted warp: ${w.name}" }
+    },
 
-    Command("delete-all", "Delete all your warps.",
-      noArgs(p => warpsFor(p).foreach{ w => p ! s"deleting: $w"; db.delete(w); })),
-
-    Command("set-warp", "Create a new warp location.",
-      args(warpToken){ case (p, warpName)  =>
-        println(s"creating warp: $warpName")
-        // TODO: can i use an update here?
-        db.firstWhere(Map("player" -> p.name, "name" -> warpName)).foreach{ w =>
-          // warp already exists, so delete it.
-          db.delete(w)
-          p ! s"deleted warp: $warpName"
-        }
-        db.insert(createWarp(warpName, p))
-        p ! s"created warp: $warpName"
-      }
+    Command("delete-all", "Delete all your warps.")(p =>
+      warpsFor(p).foreach{ w => p ! s"deleting: $w"; db.delete(w); }
     ),
 
-    Command("purge-warps-database", "Delete all warps in the database.",
-      opOnly(noArgs(p => db.foreach { w => p ! s"deleting: $w"; db.delete(w) })))
+    Command("set-warp", "Create a new warp location.", warpToken){ case (p, warpName) =>
+      println(s"creating warp: $warpName")
+      // TODO: can i use an update here?
+      db.firstWhere(Map("player" -> p.name, "name" -> warpName)).foreach{ w =>
+        // warp already exists, so delete it.
+        db.delete(w)
+        p ! s"deleted warp: $warpName"
+      }
+      db.insert(createWarp(warpName, p))
+      p ! s"created warp: $warpName"
+    },
+
+    OpOnly(Command("purge-warps-database", "Delete all warps in the database.")(p =>
+      db.foreach { w => p ! s"deleting: $w"; db.delete(w) })
+    )
   )
 
   def createWarp(n: String, p: Player): Warp = {
