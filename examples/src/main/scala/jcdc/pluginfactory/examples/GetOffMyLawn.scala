@@ -4,6 +4,12 @@ import jcdc.pluginfactory._
 import EnrichmentClasses._
 import org.bukkit.event.player.PlayerMoveEvent
 
+/**
+ * Notifies you any time someone comes onto your lawn,
+ * so that you can yell at them, kick them off, and shock them with lightning.
+ *
+ * Very similar in functionality to the Arena plugin in this same directory.
+ */
 class GetOffMyLawn extends ListenerPlugin with WorldEditCommands with Cubes {
 
   def movingOntoLawn(e:PlayerMoveEvent, lawn: Cube) =
@@ -15,11 +21,11 @@ class GetOffMyLawn extends ListenerPlugin with WorldEditCommands with Cubes {
   )
 
   val commands = List(
-    pos1,
-    pos2,
+    pos1, // to set the first  corner of your lawn
+    pos2, // to set the second corner of your lawn
     Command(
       name = "GetOffMyLawn",
-      desc = "Kick everyone off your lawn, and shocks them with lightning",
+      desc = "Kicks everyone off your lawn, and shocks them with lightning",
       body = noArgs(owner => run(owner)(lawn =>
         for(p <- lawn.players; if(p != owner)) {
           p.teleportTo(p.world.getHighestBlockAt(p.world(lawn.maxX + 5, 0, lawn.maxZ + 5).loc))

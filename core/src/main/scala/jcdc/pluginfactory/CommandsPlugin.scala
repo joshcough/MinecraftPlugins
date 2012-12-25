@@ -51,6 +51,37 @@ trait CommandPlugin extends CommandsPlugin {
 
 /**
  * A trait that greatly simplifies creating Bukkit commands.
+ * There are many examples in the examples folder that
+ * demonstrate how to use this trait. But here is a simple example:
+ *
+ * trait GotoPlugin extends CommandsPlugin {
+ *   val commands = List(
+ *     Command("goto", "Teleport!", args(location){ case (you, loc) =>
+ *       you teleport loc(you.world)
+ *     })
+ *   )
+ * }
+ *
+ * Users simply provide a list of commands they want to use in their plugin.
+ *
+ * A Command is:
+ *   - A name
+ *   - A description
+ *   - and a 'CommandBody'
+ *
+ * A CommandBody consists of
+ *   - a parser for the arguments of the command
+ *   - and a function that takes
+ *      - the player that entered the command
+ *      - and result of parsing
+
+ * If the command is entered, the parser runs on the arguments.
+ * If the parser succeeds, the function is ran.
+ * If it fails, the player is given an error message.
+ *
+ * In the example above, args(location){ you teleport loc(you.world) }
+ * TODO keep writing.
+ *
  */
 trait CommandsPlugin extends ScalaPlugin with BasicMinecraftParsers {
 
@@ -66,13 +97,10 @@ trait CommandsPlugin extends ScalaPlugin with BasicMinecraftParsers {
   override def onCommand(sender: CommandSender, cmd: BukkitCommand,
                          commandName: String, args: Array[String]) = {
     println(s"$name handling $commandName [${args.mkString(",")}]")
-
-    def toPlayer(cs:CommandSender): Player = cs match {
+    val p = sender match {
       case p: Player => p
       case _ => ConsolePlayer.player
     }
-
-    val p = toPlayer(sender)
     (for (ch <- commandsMap.get(cmd.getName.toLowerCase)) yield
       try {
         ch.body.f(p, cmd, args.toList)

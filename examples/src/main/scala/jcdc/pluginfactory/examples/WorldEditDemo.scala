@@ -6,6 +6,7 @@ import org.bukkit.entity.Player
 import Material._
 import org.bukkit.block.Block
 
+// A simplified, self-contained version of WorldEdit for demo purposes.
 class WorldEditDemo extends ListenersPlugin with CommandsPlugin {
 
   val corners = collection.mutable.Map[Player, List[Location]]().withDefaultValue(Nil)

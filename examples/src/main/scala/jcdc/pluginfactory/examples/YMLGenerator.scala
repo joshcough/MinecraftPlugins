@@ -2,6 +2,7 @@ package jcdc.pluginfactory.examples
 
 import jcdc.pluginfactory.ScalaPlugin
 
+// A helper object I use to auto generate all my plugin.yml files.
 object YMLGenerator {
 
   val plugins = List[ScalaPlugin](
@@ -25,7 +26,7 @@ object YMLGenerator {
     new ZombieApocalypse,
     new WarpPlugin,
     new WorldEdit,
-    new WorldEditV2,
+    new WorldEditCubes,
     new YellowBrickRoad)
 
   def main(args: Array[String]): Unit =

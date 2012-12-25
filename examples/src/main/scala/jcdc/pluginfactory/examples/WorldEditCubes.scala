@@ -4,7 +4,9 @@ import org.bukkit.Material
 import Material._
 import jcdc.pluginfactory.{Cubes, Command, CommandsPlugin, Cube, ListenersPlugin}
 
-class WorldEditV2 extends ListenersPlugin with CommandsPlugin with Cubes {
+// WorldEdit redone using Cubes.
+// Cubes is a trait that simplifies cube creation and manipulation.
+class WorldEditCubes extends ListenersPlugin with CommandsPlugin with Cubes {
 
   val listeners = List(
     OnLeftClickBlock((p, e) => if (p isHoldingA WOOD_AXE) {

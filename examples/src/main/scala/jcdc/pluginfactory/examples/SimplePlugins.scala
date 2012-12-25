@@ -10,7 +10,7 @@ import jcdc.pluginfactory._
 import Listeners._
 
 class BanArrows extends ListeningFor(OnPlayerDamageByEntity { (p, e) =>
-  if (e.getDamager isAn ARROW) p.ban("struck by an arrow!")
+  if (e.getDamager isAn ARROW) p ban "struck by an arrow!"
 })
 
 class BlockChangerGold extends ListeningFor(OnLeftClickBlock((p, e) =>
@@ -55,6 +55,7 @@ class Farmer extends ListenersPlugin {
   )
 }
 
+// this same plugin exists in microexamples, and elsewhere, but that's ok.
 class God extends ListenerPlugin with CommandPlugin {
   val gods = collection.mutable.Map[Player, Boolean]().withDefaultValue(false)
   val listener = OnPlayerDamage { (p, e) => e cancelIf gods(p) }
@@ -83,10 +84,10 @@ class PermissionsTest extends CommandsPlugin { self =>
 class PluginCommander extends CommandsPlugin {
   val commands = List(
     Command("enable",  "Enable some plugins",  args(plugin.+){
-      case (_, plugins) => plugins.foreach(pluginManager.enablePlugin)
+      case (_, plugins) => plugins foreach pluginManager.enablePlugin
     }),
     Command("disable", "Disable some plugins", args(plugin.+){
-      case (_, plugins) => plugins.foreach(pluginManager.disablePlugin)
+      case (_, plugins) => plugins foreach pluginManager.disablePlugin
     })
   )
 }

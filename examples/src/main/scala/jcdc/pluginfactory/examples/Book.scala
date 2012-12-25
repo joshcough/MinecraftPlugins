@@ -1,3 +1,5 @@
+// Dead as of bukkit 1.4.6. Need to find a new way to do this stuff.
+
 //package jcdc.pluginfactory
 //
 //import net.minecraft.server.{NBTTagCompound, NBTTagList, NBTTagString}

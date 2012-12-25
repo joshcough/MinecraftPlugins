@@ -156,6 +156,14 @@ trait ParserCombinators {
     def describe = name
   }
 
+  def noArguments = new Parser[Unit] {
+    def apply(args: List[String]) = args match {
+      case Nil => Success((), Nil)
+      case _   => Failure(s"expected no arguments, got ${args.mkString(" ")}")
+    }
+    def describe = "nothing"
+  }
+
   def anyString: Parser[String] = token("string") { s => Some(s) }
 // TODO: review these and maybe fix up later
   val slurp: Parser[String] = (anyString.* ^^ (ss => ss.mkString(" "))).named("slurp")

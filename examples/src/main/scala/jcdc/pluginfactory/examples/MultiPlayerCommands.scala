@@ -6,6 +6,11 @@ import org.bukkit.Material._
 import org.bukkit.entity.EntityType._
 import scala.collection.JavaConversions._
 
+/**
+ * Classic MultiPlayerCommands plugin, done in Scala.
+ * Gives a whole pile of useful commands.
+ * Their descriptions serve well as documentation.
+ */
 class MultiPlayerCommands extends CommandsPlugin {
 
   val commands = List(
@@ -18,7 +23,7 @@ class MultiPlayerCommands extends CommandsPlugin {
 
     Command("set-time", "Sets the time.", args(time){ case (p, n) => p.world setTime n }),
 
-    Command("day",      "Sets the time to day (1000).", noArgs(_.world setTime 1000)),
+    Command("day",      "Sets the time to day (1000).",    noArgs(_.world setTime 1000)),
 
     Command("night",    "Sets the time to night (15000).", noArgs(_.world setTime 15000)),
 

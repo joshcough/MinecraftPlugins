@@ -1,12 +1,31 @@
 package jcdc.pluginfactory.examples
 
-import scala.collection.JavaConversions._
 import jcdc.pluginfactory._
 import org.bukkit.{Location, Material}
-import org.bukkit.ChatColor._
 import org.bukkit.entity.Player
 import Material._
 
+/**
+ * Classic WorldEdit plugin, done in Scala.
+ *
+ * This plugin allows you to manipulate the world in various ways.
+ *
+ * To do this, first set two corners of the world by:
+ *   Using the /wand command to get a wooden axe.
+ *   Left clicking on the first corner with a wooden axe.
+ *   Right clicking on the second corner with a wooden axe.
+ *   Or alternatively, using the pos1 and pos2 commands.
+ *
+ * After you've set your two corners, you can manipulate blocks in that cube.
+ *
+ * Popular world manipulation commands are:
+ *
+ *   /set material: sets all the blocks in the cube to the given material
+ *   /change m1 m2: changes all the blocks of type m1 to m2
+ *   /walls material: sets the walls of the cube to the given material
+ *
+ * Have a look through the code, or navigate the help menu for more info on the commands.
+ */
 class WorldEdit extends ListenersPlugin with CommandsPlugin {
 
   val corners = collection.mutable.Map[Player, List[Location]]().withDefaultValue(Nil)
@@ -17,7 +36,6 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin {
   )
 
   val commands = List(
-    Command("goto", "Teleport!", args(location){ case (you, loc) => you teleport loc(you.world) }),
     Command("wand", "Get a WorldEdit wand.", noArgs(_.loc.dropItem(WOOD_AXE))),
     Command("pos1", "Set the first position",  args(location.?){ case (p, loc) =>
       setFirstPos (p, loc.fold(p.loc)(_(p.world)))
@@ -88,11 +106,12 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin {
         val (x, y, z) = p.loc.xyzd
         Cube(p.world(x + b, y, z + b).loc, p.world(x - b, y - depth, z - b).loc).eraseAll
       }
-    )
+    ),
+    Command("goto", "Teleport!", args(location){ case (you, loc) => you teleport loc(you.world) })
   )
 
   def cube(p:Player): Cube = corners.get(p).filter(_.size == 2).
-    fold(p bomb "Both corners must be set!")(ls => Cube(ls(0), ls(1)))
+    flipFold(ls => Cube(ls(0), ls(1)))(p bomb "Both corners must be set!")
 
   def setFirstPos(p:Player,loc: Location): Unit = {
     corners.update(p, List(loc))

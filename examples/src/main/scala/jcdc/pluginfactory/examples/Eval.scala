@@ -1,3 +1,7 @@
+// Dead. I wanted to try to evaluate scala expressions, and that sort of works
+// but I don't know how to evaluate them in a given context, so that they can
+// see variables. It might not be possible.
+
 //package jcdc.pluginfactory.examples
 //
 //import scala.tools.reflect.ToolBox
