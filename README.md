@@ -29,4 +29,4 @@ class LightningArrows extends ListeningFor(OnEntityDamageByEntity { e =>
 })
 ```
 
-[NetLogo Plugin](https://github.com/joshcough/MinecraftPlugins/blob/master/docs/NetLogo.md)
+[NetLogo Plugin](https://github.com/joshcough/MinecraftPlugins/wiki/NetLogo)
