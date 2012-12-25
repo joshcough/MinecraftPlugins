@@ -6,7 +6,7 @@ import org.bukkit.Material._
 import org.bukkit.block.Block
 import org.bukkit.entity.EntityType.{ARROW, ZOMBIE}
 import org.bukkit.entity.Player
-import jcdc.pluginfactory._
+import jcdc.pluginfactory.{CommandPlugin, CommandsPlugin, ListenersPlugin, ListenerPlugin, Listeners}
 import Listeners._
 
 class BanArrows extends ListeningFor(OnPlayerDamageByEntity { (p, e) =>
@@ -25,7 +25,8 @@ class BlockChanger extends ListenerPlugin with CommandPlugin {
   val command  = Command(
     name = "bc",
     desc = "Specify which material to change blocks to, or just /bc to turn off",
-    body = args(material.?){
+    args = material.?)(
+    body = {
       case (p, Some(m))  => users += (p -> m); p ! (s"bc using: $m")
       case (p, None)     => users -= p;        p ! "bc has been disabled"
     }
@@ -60,8 +61,8 @@ class God extends ListenerPlugin with CommandPlugin {
   val gods = collection.mutable.Map[Player, Boolean]().withDefaultValue(false)
   val listener = OnPlayerDamage { (p, e) => e cancelIf gods(p) }
   val command = Command(
-    name = "god", desc = "Toggle God mode.",
-    body = noArgs { p =>
+    name = "god", desc = "Toggle God mode.")(
+    body = p => {
       gods.update(p, ! gods(p))
       p ! s"god mode ${if(gods(p)) "enabled" else "disabled"}"
     }
@@ -70,25 +71,25 @@ class God extends ListenerPlugin with CommandPlugin {
 
 class PermissionsTest extends CommandsPlugin { self =>
   val commands = List(
-    Command("give-perm",  "Give a player a permission", args(anyString){
+    Command("give-perm",  "Give a player a permission", anyString){
       case (p, perm) => p.addAttachment(self).setPermission(perm, true)
-    }),
-    Command("test-perm",  "Test", args(anyString){
+    },
+    Command("test-perm",  "Test", anyString){
       case (p, perm) =>
         if (p hasPermission perm) p ! s"you have permission: $perm"
         else p ! RED(s"you don't have permission: $perm")
-    })
+    }
   )
 }
 
 class PluginCommander extends CommandsPlugin {
   val commands = List(
-    Command("enable",  "Enable some plugins",  args(plugin.+){
+    Command("enable",  "Enable some plugins",  plugin.+){
       case (_, plugins) => plugins foreach pluginManager.enablePlugin
-    }),
-    Command("disable", "Disable some plugins", args(plugin.+){
+    },
+    Command("disable", "Disable some plugins", plugin.+){
       case (_, plugins) => plugins foreach pluginManager.disablePlugin
-    })
+    }
   )
 }
 

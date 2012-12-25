@@ -2,8 +2,8 @@ package jcdc.pluginfactory.examples
 
 import org.bukkit.Material
 import Material._
-import jcdc.pluginfactory.{Cube, Cubes, Command, CommandsPlugin, ListenersPlugin}
 import org.bukkit.event.player.PlayerMoveEvent
+import jcdc.pluginfactory.{CommandsPlugin, Cube, Cubes, ListenersPlugin}
 
 /**
  * The goal of this plugin was to have combatants enter an arena and
@@ -35,13 +35,14 @@ class Arena extends ListenersPlugin with CommandsPlugin with Cubes {
   )
 
   val commands = List(
-    Command(name = "axe", desc = "Get an Arena wand.", body = noArgs(_.loc.dropItem(STONE_AXE))),
+    Command(name = "axe", desc = "Get an Arena wand.")(_.loc.dropItem(STONE_AXE)),
     // this isnt really needed, but it makes things easier to see in the game
     // try doing it, and then boucing in and out of the arena.
     Command(
       name = "make-arena",
       desc = "Set the walls and floor to the given material type.",
-      body = args(material) { case (p, m) => run(p){ cube =>
+      args = material)(
+      body = { case (p, m) => run(p){ cube =>
         for(b <- cube.blocks)
           if(cube.onWall(b) or cube.onFloor(b)) b changeTo m else b changeTo AIR
       }}

@@ -1,6 +1,6 @@
 package jcdc.pluginfactory.examples
 
-import jcdc.pluginfactory.{Command, CommandsPlugin, ListenersPlugin}
+import jcdc.pluginfactory.{CommandsPlugin, Command, ListenersPlugin}
 import org.bukkit.{Location, Material}
 import org.bukkit.entity.Player
 import Material._
@@ -17,19 +17,18 @@ class WorldEditDemo extends ListenersPlugin with CommandsPlugin {
   )
 
   val commands = List(
+    Command(name = "wand", desc = "Get a WorldEdit wand.")(_.loc.dropItem(WOOD_AXE)),
     Command(
-      name = "wand", desc = "Get a WorldEdit wand.", body = noArgs(_.loc.dropItem(WOOD_AXE))
-    ),
-    Command(
-      name = "set", desc = "Set all the selected blocks to the given material type.",
-      body = args(material){ case (p, m) => for(b <- cube(p)) b changeTo m }
+      name = "set" ,
+      desc = "Set all the selected blocks to the given material type.",
+      args = material)(
+      body = { case (p, m) => for(b <- cube(p)) b changeTo m }
     ),
     Command(
       name = "change",
       desc = "Change all the selected blocks of the first material type to the second material type.",
-      body = args(material ~ material){
-        case (p, oldM ~ newM) => for(b <- cube(p); if(b is oldM)) b changeTo newM
-      }
+      args = material ~ material)(
+      body = { case (p, oldM ~ newM) => for(b <- cube(p); if(b is oldM)) b changeTo newM }
     )
   )
 

@@ -15,12 +15,12 @@ class MineLangPlugin extends CommandsPlugin {
   var defs: List[Def] = parseDefs(read(houseDefs))
 
   val commands = List(
-    Command("import", "import some defs", args(existingFile){ case (_, codeFile) =>
+    Command("import", "import some defs", existingFile){ case (_, codeFile) =>
       defs = defs ::: parseDefs(read(codeFile))
-    }),
-    Command("run", "run a program", args(slurp){ case (p, code) =>
+    },
+    Command("run", "run a program", slurp){ case (p, code) =>
       runProgram(Program(defs, parseExpr(read(code))), p)
-    }),
-    Command("reload-code", "run a program", noArgs{ p => defs = parseDefs(read(houseDefs))})
+    },
+    Command("reload-code", "run a program")(p => defs = parseDefs(read(houseDefs)))
   )
 }

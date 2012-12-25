@@ -1,31 +1,21 @@
 package jcdc.pluginfactory
 
 import org.bukkit.ChatColor._
-import org.bukkit.command.{CommandSender, Command => BukkitCommand}
 import org.bukkit.GameMode._
+import org.bukkit.command.{CommandSender, Command => BukkitCommand}
 import org.bukkit.entity.{EntityType, Player}
-import EnrichmentClasses._
-import org.bukkit.{GameMode, Material, Location, World}
+import org.bukkit.{Location, World, Material, GameMode}
 import org.bukkit.plugin.Plugin
 
-case class CommandBody(argDesc: String, f:(Player, BukkitCommand, List[String]) => Unit)
-
-object Command {
-  def apply(name: String, desc: String, body: CommandBody) = new Command(name, Some(desc), body)
-  def apply(name: String, body: CommandBody) = new Command(name, None, body)
-}
-
-case class Command(name: String, description: Option[String], body: CommandBody)
-
-object BasicMinecraftParsers extends BasicMinecraftParsers
 
 /**
  * Parsers for all sorts of useful things in Minecraft.
  */
+object BasicMinecraftParsers extends BasicMinecraftParsers
 trait BasicMinecraftParsers extends ScalaPlugin with ParserCombinators {
   val gamemode: Parser[GameMode] =
     ("c" | "creative" | "1") ^^^ CREATIVE |
-    ("s" | "survival" | "0") ^^^ SURVIVAL
+      ("s" | "survival" | "0") ^^^ SURVIVAL
   val entity  : Parser[EntityType] = token("entity-type")  (findEntity)
   val material: Parser[Material]   = token("material-type")(findMaterial)
   val player  : Parser[Player]     = token("player-name")  (server.findPlayer)
@@ -40,6 +30,12 @@ trait BasicMinecraftParsers extends ScalaPlugin with ParserCombinators {
     else Failure("time must be between 0 and 24000")
   ).named("time (0-24000)")
 }
+
+case class Command(
+                    name: String,
+                    description: String,
+                    argsDescription: Option[String],
+                    body: (Player, BukkitCommand, List[String]) => Unit)
 
 /**
  * A trait that allows a plugin to have one command, very easily.
@@ -87,50 +83,18 @@ trait CommandsPlugin extends ScalaPlugin with BasicMinecraftParsers {
 
   def commands: List[Command]
 
-  private def commandsMap = commands.map(c => (c.name.toLowerCase, c)).toMap
+  private def commandsMap: Map[String, Command] =
+    commands.map(c => (c.name.toLowerCase, c)).toMap
+
+
+  def ArgsCommand[T](name: String, desc: String, p: Parser[T])
+                    (body: ((Player, T)) => Unit): Command = Command(name, desc, p)(body)
+
+  def NoArgsCommand(name: String, desc: String)
+                   (body: Player => Unit): Command = Command(name, desc)(body)
 
   /**
-   * This is Bukkit's main entry point for plugins handling commands.
-   * When a command is entered by a player, the plugin will look through
-   * all of its commands. If one matches the command entered, it will be executed.
-   */
-  override def onCommand(sender: CommandSender, cmd: BukkitCommand,
-                         commandName: String, args: Array[String]) = {
-    println(s"$name handling $commandName [${args.mkString(",")}]")
-    val p = sender match {
-      case p: Player => p
-      case _ => ConsolePlayer.player
-    }
-    (for (ch <- commandsMap.get(cmd.getName.toLowerCase)) yield
-      try {
-        ch.body.f(p, cmd, args.toList)
-        true
-      }
-      catch { case e: Exception =>
-        p ! RED(e.getMessage + "\n" + e.getStackTraceString)
-        e.printStackTrace
-        false
-      }).getOrElse(true)
-  }
-
-  /**
-   * Invokes a command programmatically.
-   */
-  def runCommand(p: Player, commandName: String, args: Seq[String]) = {
-    p ! s"$name running: $commandName ${args.mkString(" ")}"
-    onCommand(p, getCommand(commandName), commandName, args.toArray)
-  }
-
-  /**
-   * noArgs is used to create commands that take no arguments.
-   *
-   * Takes a function from Player to unit, and if the command is entered by a player
-   * the function is executed with that player.
-   */
-  def noArgs(f: Player => Unit): CommandBody =
-    CommandBody("", (p: Player, c: BukkitCommand, args: List[String]) => f(p))
-
-  /**
+   * TODO
    * args is used to create commands that take arguments.
    *
    * Takes an Parser[T] and a function from Player and T to Unit, and returns a command body
@@ -142,57 +106,109 @@ trait CommandsPlugin extends ScalaPlugin with BasicMinecraftParsers {
    *
    * If the arguments do not parse, then the player who entered the command
    * is sent an error message, explaining what went wrong, and how to use the command.
+   *
+   * @param name
+   * @param desc
+   * @param args
+   * @param body
+   * @tparam T
+   * @return
    */
-  def args[T](argsParser: Parser[T])(f: ((Player, T)) => Unit): CommandBody =
-    CommandBody(
-      argsParser.describe, (p: Player, c: BukkitCommand, args: List[String]) => {
-        def sendError(msg:String): Unit =
-          p !* (RED(msg), RED(c.getDescription), RED(c.getUsage))
-        argsParser(args) match {
-          case Success(t, Nil) => f(p -> t)
-          case Success(t, xs)  => sendError(s"unprocessed input: ${xs.mkString(" ")}")
-          case Failure(msg)    => sendError(msg)
-        }
+  def Command[T](name: String, desc: String, args: Parser[T])
+                (body: ((Player, T)) => Unit): Command = new Command(
+    name = name, description = desc, argsDescription = Some(args.describe),
+    body = (p: Player, c: BukkitCommand, argsList: List[String]) => {
+      def sendError(msg:String): Unit = p !* (RED(msg), RED(c.getDescription), RED(c.getUsage))
+      args(argsList) match {
+        case Success(t, Nil) => body(p -> t)
+        case Success(t, xs)  => sendError(s"unprocessed input: ${xs.mkString(" ")}")
+        case Failure(msg)    => sendError(msg)
       }
-    )
+    }
+  )
 
   /**
-   * Overriding just to print out all the commands in this plugin to the console.
+   * TODO
+   * noArgs is used to create commands that take no arguments.
+   *
+   * Takes a function from Player to unit, and if the command is entered by a player
+   * the function is executed with that player.
+   * @param name
+   * @param desc
+   * @param body
+   * @return
    */
+  def Command(name: String, desc: String)
+             (body: Player => Unit): Command = new Command(
+    name = name, description = desc, argsDescription = None,
+    body = (p: Player, c: BukkitCommand, args: List[String]) => {
+      def sendError(msg:String): Unit = p !* (RED(msg), RED(c.getDescription), RED(c.getUsage))
+      noArguments(args).fold(sendError(_))((_, _) => body(p))
+    }
+  )
+
+  /**
+   * This is Bukkit's main entry point for plugins handling commands.
+   * When a command is entered by a player, the plugin will look through
+   * all of its commands. If one matches the command entered, it will be executed.
+   */
+  override def onCommand(sender: CommandSender, cmd: BukkitCommand,
+                         commandName: String, args: Array[String]) = {
+    println(s"$name handling $commandName [${args.mkString(",")}]")
+    val p = sender match { case p: Player => p; case _ => ConsolePlayer.player }
+    (for (c <- commandsMap.get(cmd.getName.toLowerCase)) yield
+      try { c.body(p, cmd, args.toList); true }
+      catch { case e: Exception =>
+        p ! RED(e.getMessage + "\n" + e.getStackTraceString)
+        e.printStackTrace
+        false
+      }).getOrElse(true)
+  }
+
   override def onEnable() {
     super.onEnable()
     commandsMap.foreach { case (name, _) => logInfo("command: " + name) }
   }
 
   /**
-   * Overriding to add commands into the plugin.yml.
-   */
-  override def yml(author:String, version: String) = {
-    def commandYml(c: Command) =
-      s"  ${c.name}:\n" +
-      s"    description: ${c.description.getOrElse(c.name)}\n" +
-      s"    usage: /${c.name} ${c.body.argDesc}"
-    val commandsYml = s"commands:\n${commands.map(commandYml).mkString("\n")}"
-    List(super.yml(author, version), commandsYml).mkString("\n")
-  }
-
-  /**
+   * TODO: rewrite comment
+   *
    * This should probably be done better, using bukkit permissions, but later.
    *
    * Takes a CommandBody and wraps it in another CommandBody that first checks
    * if the user is an op. If the user is an op, the inner CommandBody is executed.
    * If not, then the user is given an error message.
    */
-  def opOnly(ch: CommandBody): CommandBody = CommandBody(
-    s"${ch.argDesc} [Op Only]", (player: Player, c: BukkitCommand, args: List[String]) =>
-      if (player.isOp) ch.f(player, c, args)
-      else player ! RED(s"You must be an op to run /${c.getName}")
-  )
+  def OpOnly(c: Command): Command =
+    c.copy(body=(p: Player, bc: BukkitCommand, args: List[String]) =>
+      if (p.isOp) c.body(p, bc, args) else p ! RED(s"You must be an op to run /${c.name}")
+    )
 
   /**
    * Simple combinator for creating commands that take a single Player argument (only).
    */
-  def p2p(p2pc: (Player, Player) => Unit): CommandBody = args(player){case (p1,p2) => p2pc(p1, p2)}
+  def P2P(name: String, desc: String)(f: (Player, Player) => Unit): Command =
+    Command(name, desc, player){case (p1,p2) => f(p1, p2)}
+
+  /**
+   * Invokes a command programmatically.
+   */
+  def runCommand(p: Player, commandName: String, args: Seq[String]) = {
+    p ! s"$name running: $commandName ${args.mkString(" ")}"
+    onCommand(p, getCommand(commandName), commandName, args.toArray)
+  }
+
+  /**
+   * Overriding to add commands into the plugin.yml.
+   */
+  override def yml(author:String, version: String) = {
+    def yml(c: Command) =
+      s"  ${c.name}:\n" +
+        s"    description: ${c.description}\n" +
+        s"    usage: /$name ${c.argsDescription.getOrElse("")}"
+    val commandsYml = s"commands:\n${commands.map(yml).mkString("\n")}"
+    List(super.yml(author, version), commandsYml).mkString("\n")
+  }
 
   /**
    * This is used so that any plugin commands can be entered at the console.
