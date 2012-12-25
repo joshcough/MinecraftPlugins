@@ -145,7 +145,7 @@ trait CommandsPlugin extends ScalaPlugin with BasicMinecraftParsers {
    * if the user is an op. If the user is an op, the inner CommandBody is executed.
    * If not, then the user is given an error message.
    */
-  def opOnly[T](c: Command[T]): Command[T] =
+  def OpOnly[T](c: Command[T]): Command[T] =
     c.copy(runner=(p: Player, bc: BukkitCommand, args: List[String]) =>
       if (p.isOp) c.runner(p, bc, args) else p ! RED(s"You must be an op to run /${c.name}")
     )
@@ -153,7 +153,7 @@ trait CommandsPlugin extends ScalaPlugin with BasicMinecraftParsers {
   /**
    * Simple combinator for creating commands that take a single Player argument (only).
    */
-  def p2p(name: String, desc: String, f: (Player, Player) => Unit): Command[Player] =
+  def P2P(name: String, desc: String)(f: (Player, Player) => Unit): Command[Player] =
     Command(name, desc, player){case (p1,p2) => f(p1, p2)}
 
   /**
