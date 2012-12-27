@@ -15,7 +15,7 @@ object ParserCombinators extends ParserCombinators
  * especially handy when giving error messages to users, and when generating
  * the commands section of the plugin.yml file for a plugin.
  */
-trait ParserCombinators {
+trait ParserCombinators extends EnchrichedScalaClasses {
 
   case class ~[+A, +B](a: A, b: B) {
     override def toString = s"($a ~ $b)"
@@ -60,6 +60,10 @@ trait ParserCombinators {
       def apply(args: List[String]): ParseResult[U] = self(args) flatMapWithNext f
       def describe = self.describe
     }
+
+    def filter(f: T => Boolean) = this.flatMapWithNext((t, rest) =>
+      if (f(t)) Success(t, rest) else Failure("invalid: " + this.describe)
+    )
 
     def filterWith(f: T => Boolean)(message: String) = this.flatMapWithNext((t, rest) =>
       if (f(t)) Success(t, rest) else Failure(message)
@@ -152,13 +156,15 @@ trait ParserCombinators {
     def describe = s
   }
 
-  def token[T](name: String)(f: (String) => Option[T]) = new Parser[T] {
-    def apply(args: List[String]) = args match {
-      case Nil => Failure(s"expected $name, got nothing")
-      case x :: xs => f(x).fold[ParseResult[T]](Failure(s"invalid $name: $x"))(t => Success(t, xs))
-    }
-    def describe = name
-  }
+  def maybe[T](name: String)(f: String => Option[T]): Parser[T] =
+    anyString.flatMapWithNext{ (s, rest) =>
+      f(s).fold[ParseResult[T]](Failure(s"invalid $name: $s"))(Success(_, rest))
+    }.named(name)
+
+  def attempt[T](name: String)(f: String => T): Parser[T] =
+    anyString.flatMapWithNext{(s, rest) =>
+      try Success(f(s), rest) catch { case e: Exception => Failure(s"invalid $name: $s") }
+    }.named(name)
 
   def noArguments = new Parser[Unit] {
     def apply(args: List[String]) = args match {
@@ -168,9 +174,33 @@ trait ParserCombinators {
     def describe = "nothing"
   }
 
-  def anyString: Parser[String] = token("string") { s => Some(s) }
+  def anyString: Parser[String] = attempt("string")(id)
+  val slurp    : Parser[String] = (anyString.* ^^ (ss => ss.mkString(" "))).named("slurp")
+
+  // number parsers
+  val int:     Parser[Int]  = attempt("int")(_.toInt)
+  val oddNum:  Parser[Int]  = int.filter(_.isOdd) .named("odd-number")
+  val evenNum: Parser[Int]  = int.filter(_.isEven).named("even-number")
+  val long:    Parser[Long] = attempt("long")(_.toLong)
+
+  val bool:        Parser[Boolean] = attempt("boolean")(_.toBoolean)
+  val boolOrTrue:  Parser[Boolean] = bool.? ^^ { _ getOrElse true }
+  val boolOrFalse: Parser[Boolean] = bool.? ^^ { _ getOrElse false }
+
+  // file parsers
+  val file:    Parser[File] = anyString ^^ (new File(_))
+  val newFile: Parser[File] = attempt("new-file"){ s =>
+    val f = new File(s)
+    f.createNewFile
+    f
+  }
+  // todo, maybe deal with exception handling here...
+  val existingFile     : Parser[File] = file.filter(_.exists).named("existing-file")
+  val existingOrNewFile: Parser[File] = existingFile | newFile
+}
+
+
 // TODO: review these and maybe fix up later
-  val slurp: Parser[String] = (anyString.* ^^ (ss => ss.mkString(" "))).named("slurp")
 //  def slurpUntil(delim:Char): Parser[String] = new Parser[String] {
 //    def apply(args: List[String]) = {
 //      val all = args.mkString(" ")
@@ -193,32 +223,3 @@ trait ParserCombinators {
 //    def describe = s"slurp until: $c"
 //  }
 
-  def tryOption[T](f: => T): Option[T] = Try(Option(f)).getOrElse(None)
-
-  // number parsers
-  def even(n: Int) = n % 2 == 0
-  def odd (n: Int) = !even(n)
-  def tryNum(s: String)     = tryOption(s.toInt)
-  val int:     Parser[Int]  = token("int") (tryNum)
-  val oddNum:  Parser[Int]  = token("odd-number") { s => tryNum(s).filter(odd) }
-  val evenNum: Parser[Int]  = token("even-number") { s => tryNum(s).filter(even) }
-  val long:    Parser[Long] = token("long") { s => tryOption(s.toLong) }
-
-  val bool:        Parser[Boolean] = token("boolean") { s => tryOption(s.toBoolean) }
-  val boolOrTrue:  Parser[Boolean] = bool.? ^^ { _.getOrElse(true) }
-  val boolOrFalse: Parser[Boolean] = bool.? ^^ { _.getOrElse(false) }
-
-  // file parsers
-  val file:    Parser[File] = token("file") { s => Some(new File(s)) }
-  val newFile: Parser[File] = token("new-file"){ s => tryOption {
-    val f = new File(s)
-    f.createNewFile()
-    f
-  }}
-  // todo, maybe deal with exception handling here...
-  val existingFile: Parser[File] = token("existing-file"){ s =>
-    val f = new File(s)
-    if (f.exists) Some(f) else None
-  }
-  val existingOrNewFile: Parser[File] = existingFile | newFile
-}

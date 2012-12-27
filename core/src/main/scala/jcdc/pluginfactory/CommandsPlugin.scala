@@ -16,16 +16,16 @@ trait BasicMinecraftParsers extends ScalaPlugin with ParserCombinators {
   val gamemode: Parser[GameMode] =
     ("c" | "creative" | "1") ^^^ CREATIVE |
     ("s" | "survival" | "0") ^^^ SURVIVAL
-  val entity  : Parser[EntityType] = token("entity-type")  (findEntity)
-  val material: Parser[Material]   = token("material-type")(findMaterial)
-  val player  : Parser[Player]     = token("player-name")  (server.findPlayer)
+  val entity  : Parser[EntityType] = maybe("entity-type")  (findEntity)
+  val material: Parser[Material]   = maybe("material-type")(findMaterial)
+  val player  : Parser[Player]     = maybe("player-name")  (server.findPlayer)
+  val plugin  : Parser[Plugin]     = maybe("plugin")       (pluginManager findPlugin _)
   val coordinates = int ~ int ~ int.?
   val location: Parser[World => Location] = coordinates ^^ {
     case x ~ y ~ Some(z) => (w:World) => w(x, y, z).loc
     case x ~ z ~ None    => (w:World) => w.getHighestBlockAt(x, z).loc
   }
-  val plugin  : Parser[Plugin] = token("plugin")(s => tryO(pluginManager getPlugin s))
-  val time    : Parser[Int]    =
+  val time    : Parser[Int] =
     int.filterWith(i => i >= 0 && i <= 24000)("time must be between 0 and 24000")
 }
 

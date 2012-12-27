@@ -6,6 +6,7 @@ import org.bukkit.event.Cancellable
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.weather.WeatherChangeEvent
 import org.bukkit.inventory.ItemStack
+import org.bukkit.plugin.{Plugin, PluginManager}
 import ChatColor._
 import Effect._
 import Material._
@@ -15,30 +16,7 @@ import util.Try
 import java.io.File
 import scala.io.Source
 
-object EnrichmentClasses extends EnrichmentClasses
-
-/**
- * Adds piles of missing functions to Bukkit classes, and some Scala classes too.
- *
- * This is all done using Scala 2.10 enrichment classes, which work like this:
- *
- * implicit class RichThing(t: Thing) {
- *   def someNewFunction = ...
- * }
- *
- * Where Thing is the class getting functions added to it. Any functions inside
- * of the RichClass are added to Thing (or available at compile time, anyway).
- *
- * No implicit conversions are used here. Everything is explicit, in order to keep sanity.
- * It would be easy to convert back and forth from say, a Block and a Location,
- * but instead I provide functions like b.loc, and l.block. While I think this provides
- * a good amount of sanity for the price of a little extra verbosity. This is especially true
- * because this trait is mixed into ScalaPlugin, meaning that every ScalaPlugin
- * has access to everything here. If there were a number of implicit conversions, things
- * could potentially get ugly fast.
- */
-trait EnrichmentClasses {
-
+trait EnchrichedScalaClasses {
   /**
    * Allows for F# style pipelining
    * x |> f is the same as f(x).
@@ -79,6 +57,48 @@ trait EnrichmentClasses {
      */
     def flipFold[B]: (T => B) => B => B = ((b: B) => (f: T => B) => o.fold(b)(f)).flip
   }
+
+  // alias for identity.
+  def id[T](t:T) = identity(t)
+
+  implicit class RichBoolean(b1:Boolean) {
+    def or (b2: => Boolean) = b1 || b2
+    def and(b2: => Boolean) = b1 && b2
+  }
+
+  implicit class RichInt(i: Int){
+    def isEven = i % 2 == 0
+    def isOdd  = ! isEven
+  }
+
+  implicit class RichFile(f:File){
+    def child(name:String): File = new File(f, name)
+    def slurp: String            = Source.fromFile(f).getLines().mkString("\n")
+  }
+}
+
+/**
+ * Adds piles of missing functions to Bukkit classes, and some Scala classes too.
+ *
+ * This is all done using Scala 2.10 enrichment classes, which work like this:
+ *
+ * implicit class RichThing(t: Thing) {
+ *   def someNewFunction = ...
+ * }
+ *
+ * Where Thing is the class getting functions added to it. Any functions inside
+ * of the RichClass are added to Thing (or available at compile time, anyway).
+ *
+ * No implicit conversions are used here. Everything is explicit, in order to keep sanity.
+ * It would be easy to convert back and forth from say, a Block and a Location,
+ * but instead I provide functions like b.loc, and l.block. While I think this provides
+ * a good amount of sanity for the price of a little extra verbosity. This is especially true
+ * because this trait is mixed into ScalaPlugin, meaning that every ScalaPlugin
+ * has access to everything here. If there were a number of implicit conversions, things
+ * could potentially get ugly fast.
+ */
+object EnrichmentClasses extends EnrichmentClasses
+trait  EnrichmentClasses extends EnchrichedScalaClasses {
 
   /**
    * Add a whole pile of awesomeness to Block.
@@ -395,6 +415,10 @@ trait EnrichmentClasses {
     def sun  = ! rain
   }
 
+  implicit class RichPluginManager(pm: PluginManager) {
+    def findPlugin(name: String): Option[Plugin] = tryO(pm.getPlugin(name))
+  }
+
   // arguably, these functions should be someplace else...
   def tryO[T](f: => T): Option[T] = Try(Option(f)).getOrElse(None)
 
@@ -405,14 +429,6 @@ trait EnrichmentClasses {
   def findMaterial(nameOrId: String) = Option(getMaterial(nameOrId.toUpperCase)).orElse(
     tryO(getMaterial(nameOrId.toInt))
   )
-
-  // alias for identity.
-  def id[T](t:T) = identity(t)
-
-  implicit class RichBoolean(b1:Boolean) {
-    def or (b2: => Boolean) = b1 || b2
-    def and(b2: => Boolean) = b1 && b2
-  }
 
   implicit class RichColor(c: ChatColor) {
     def apply(s: String) = c + s
@@ -447,11 +463,6 @@ trait EnrichmentClasses {
       data foreach b.setData
     }
     def itemStack: ItemStack = data.fold(new ItemStack(m))(new ItemStack(m, 1, 0:Short, _))
-  }
-
-  implicit class RichFile(f:File){
-    def child(name:String): File = new File(f, name)
-    def slurp: String            = Source.fromFile(f).getLines().mkString("\n")
   }
 
   // old, now unused implicit conversions. it seems like they might be used in commented out
