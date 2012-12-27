@@ -23,26 +23,14 @@ trait ParserCombinators extends EnchrichedScalaClasses {
 
   trait ParseResult[+T]{
     def get: T
-    def map[U](f: T => U): ParseResult[U]
-    def flatMapWithNext[U](f: (T, List[String]) => ParseResult[U]): ParseResult[U]
-    def flatMap[U](f: T => ParseResult[U]): ParseResult[U]
-    def mapFailure[U >: T](f: String => ParseResult[U]): ParseResult[U]
     def fold[A](failF: String => A)(sucF: (T,List[String]) => A): A
   }
   case class Failure(message: String) extends ParseResult[Nothing]{
     def get: Nothing = throw new IllegalStateException("can't get from a failure")
-    def map[U](f: Nothing => U) = this
-    def flatMapWithNext[U](f: (Nothing, List[String]) => ParseResult[U]) = this
-    def flatMap[U](f: Nothing => ParseResult[U]): ParseResult[U] = this
-    def mapFailure[U >: Nothing](f: String => ParseResult[U]) = f(message)
     def fold[A](failF: String => A)(sucF: (Nothing,List[String]) => A): A = failF(message)
   }
   case class Success[+T](value: T, rest: List[String]) extends ParseResult[T]{
     def get: T = value
-    def map[U](f: T => U): ParseResult[U] = Success(f(value), rest)
-    def flatMapWithNext[U](f: (T, List[String]) => ParseResult[U]) = f(value, rest)
-    def flatMap[U](f: T => ParseResult[U]): ParseResult[U] = f(value)
-    def mapFailure[U >: T](a: String => ParseResult[U]): ParseResult[U] = this
     def fold[A](failF: String => A)(sucF: (T,List[String]) => A): A = sucF(value, rest)
   }
 
@@ -56,81 +44,52 @@ trait ParserCombinators extends EnchrichedScalaClasses {
       def describe: String = name
     }
 
-    def flatMapWithNext[U](f: (T, List[String]) => ParseResult[U]) = new Parser[U] {
-      def apply(args: List[String]): ParseResult[U] = self(args) flatMapWithNext f
-      def describe = self.describe
-    }
-
-    def filter(f: T => Boolean) = this.flatMapWithNext((t, rest) =>
-      if (f(t)) Success(t, rest) else Failure("invalid: " + this.describe)
-    )
-
-    def filterWith(f: T => Boolean)(message: String) = this.flatMapWithNext((t, rest) =>
-      if (f(t)) Success(t, rest) else Failure(message)
-    )
-
-    def ^^[U](f: T => U) = new Parser[U] {
-      def apply(args: List[String]): ParseResult[U] = self(args) map f
-      def describe = self.describe
-    }
-
-    def ^^^[U](u: => U) = new Parser[U] {
-      def apply(args: List[String]): ParseResult[U] = self(args) map (_ => u)
-      def describe = self.describe
-    }
-
-    def ~[U](p2: => Parser[U]) = new Parser[~[T, U]] {
-      def apply(args: List[String]) = self(args) flatMapWithNext {
-        (t, rest) => p2(rest) map { u => new ~(t, u) }
+    def flatMap[U](f: T => Parser[U]) = new Parser[U] {
+      def apply(args: List[String]): ParseResult[U] = self(args) match {
+        case Success(t, rest) =>  f(t)(rest)
+        case Failure(m) => Failure(m)
       }
-      def describe = self.describe + "  " + p2.describe
+      def describe = self.describe
     }
 
-    def |[U >: T] (p2: => Parser[U]) = new Parser[U] {
-      def apply(args: List[String]): ParseResult[U] = self(args) mapFailure { m1 =>
-        p2(args) mapFailure { m2 => Failure(s"$m1 or $m2") }
-      }
-      def describe = s"(${self.describe} or ${p2.describe})"
-    }
+    def filter(f: T => Boolean) = filterWith(f)("invalid " + this.describe)
+    def filterWith(f: T => Boolean)(message: String) = this.flatMap(t =>
+      if(f(t)) success(t) else failure(message + ": " + t)
+    )
+    def map[U](f: T => U) = this.flatMap(t => success(f(t)))
+    def ^^[U](f: T => U) = map(f)
+    def ^^^[U](u: => U) = this ^^ (_ => u)
+    def ~[U](p2: => Parser[U]): Parser[T ~ U] = for(t <- self; u <- p2) yield new ~(t, u)
+    def |[U >: T] (p2: => Parser[U]) = this.or(p2) ^^ (_.fold(id, id))
 
     def or[U](p2: => Parser[U]) = new Parser[Either[T, U]] {
-      def apply(args: List[String]): ParseResult[Either[T, U]] =
-        self(args) map (Left(_)) mapFailure { m1 => p2(args) map (Right(_)) mapFailure { m2 =>
-          Failure(s"$m1 or $m2")
+      def apply(args: List[String]): ParseResult[Either[T, U]] = self(args) match {
+        case Success(t, rest) => Success(Left(t), rest)
+        case Failure(m1)      => p2(args) match {
+          case Success(u, rest) => Success(Right(u), rest)
+          case Failure(m2)      => Failure(s"$m1 or $m2")
         }
       }
       def describe = s"(${self.describe} or ${p2.describe})"
     }
 
     def * : Parser[List[T]] = ((this+) | success(List[T]())).named(self.describe + "*")
-
     def + : Parser[List[T]] =
       ((this ~ (this *)) ^^ { case t ~ ts => t :: ts}).named(self.describe + "+")
 
     def ? = new Parser[Option[T]] {
-      def apply(args: List[String]): ParseResult[Option[T]] = self(args) match {
-        case Failure(m) => Success(None: Option[T], args)
-        case Success(t, rest) => Success(Some(t), rest)
-      }
+      def apply(args: List[String]): ParseResult[Option[T]] =
+        self(args).fold(m => Success(None: Option[T], args))((t, rest) => Success(Some(t), rest))
       def describe = s"optional(${self.describe})"
     }
 
-    def ~>[U](p2:Parser[U]): Parser[U] = new Parser[U] {
-      def apply(args: List[String]) = self(args) flatMapWithNext { (t, rest) => p2(rest) }
-      def describe = self.describe + " ~> " + p2.describe
-    }
+    def ~>[U](p2:Parser[U]): Parser[U] =
+      (for (t <- this; u <- p2) yield u) named (self.describe + " ~> " + p2.describe)
+    def <~[U](p2:Parser[U]): Parser[T] =
+      (for (t <- this; u <- p2) yield t) named (self.describe + " <~ " + p2.describe)
 
-    def <~[U](p2:Parser[U]): Parser[T] = new Parser[T] {
-      def apply(args: List[String]) = self(args) flatMapWithNext {
-        (t,rest) => p2(rest).map(_ => t)
-      }
-      def describe = self.describe + " ~> " + p2.describe
-    }
-
-    def repSep[U](p2: Parser[U]): Parser[List[T]] = {
-      val more: Parser[List[T]] = (p2 ~> self).*
-      (self ~ more) ^^ { case (t ~ ts) => t :: ts }
-    }
+    def repSep[U](p2: Parser[U]): Parser[List[T]] =
+      (self ~ (p2 ~> self).*) ^^ { case (t ~ ts) => t :: ts }
 
     def debug: Parser[T] = new Parser[T] {
       def apply(args: List[String]) = {
@@ -148,23 +107,20 @@ trait ParserCombinators extends EnchrichedScalaClasses {
     def describe = t.toString
   }
 
-  implicit def stringToParser(s: String): Parser[String] = new Parser[String] {
-    def apply(args: List[String]) = args match {
-      case Nil => Failure(s"expected :$s, but got nothing")
-      case x :: xs => if (x == s) Success(x, xs) else Failure(s"expected: $s, but got: $x")
-    }
-    def describe = s
+  def failure[T](message: String) = new Parser[T] {
+    def apply(args: List[String]) = Failure(message)
+    def describe = message
   }
 
-  def maybe[T](name: String)(f: String => Option[T]): Parser[T] =
-    anyString.flatMapWithNext{ (s, rest) =>
-      f(s).fold[ParseResult[T]](Failure(s"invalid $name: $s"))(Success(_, rest))
-    }.named(name)
+  implicit def stringToParser(s: String): Parser[String] =
+    anyString.filterWith(_ == s)(s"expected: $s") named s
+
+  def maybe[T](name: String)(f: String => Option[T]): Parser[T] = (for {
+    s <- anyString; res <- f(s).fold[Parser[T]](failure(s"invalid $name: $s"))(success(_))
+  } yield res) named name
 
   def attempt[T](name: String)(f: String => T): Parser[T] =
-    anyString.flatMapWithNext{(s, rest) =>
-      try Success(f(s), rest) catch { case e: Exception => Failure(s"invalid $name: $s") }
-    }.named(name)
+    (anyString named name).flatMap{s => Try(success(f(s))).getOrElse(failure(s"invalid $name: $s"))}
 
   def noArguments = new Parser[Unit] {
     def apply(args: List[String]) = args match {
@@ -174,13 +130,20 @@ trait ParserCombinators extends EnchrichedScalaClasses {
     def describe = "nothing"
   }
 
-  def anyString: Parser[String] = attempt("string")(id)
-  val slurp    : Parser[String] = (anyString.* ^^ (ss => ss.mkString(" "))).named("slurp")
+  def anyString: Parser[String] = new Parser[String] {
+    def apply(args: List[String]) = args match {
+      case Nil => Failure(s"expected input, but got nothing")
+      case x :: xs => Success(x, xs)
+    }
+    def describe = "string"
+  }
+
+  val slurp: Parser[String] = (anyString.* ^^ (_.mkString(" "))) named "slurp"
 
   // number parsers
   val int:     Parser[Int]  = attempt("int")(_.toInt)
-  val oddNum:  Parser[Int]  = int.filter(_.isOdd) .named("odd-number")
-  val evenNum: Parser[Int]  = int.filter(_.isEven).named("even-number")
+  val oddNum:  Parser[Int]  = (int named "odd-int" ).filter(_.isOdd)
+  val evenNum: Parser[Int]  = (int named "even-int").filter(_.isEven)
   val long:    Parser[Long] = attempt("long")(_.toLong)
 
   val bool:        Parser[Boolean] = attempt("boolean")(_.toBoolean)
@@ -188,14 +151,9 @@ trait ParserCombinators extends EnchrichedScalaClasses {
   val boolOrFalse: Parser[Boolean] = bool.? ^^ { _ getOrElse false }
 
   // file parsers
-  val file:    Parser[File] = anyString ^^ (new File(_))
-  val newFile: Parser[File] = attempt("new-file"){ s =>
-    val f = new File(s)
-    f.createNewFile
-    f
-  }
-  // todo, maybe deal with exception handling here...
-  val existingFile     : Parser[File] = file.filter(_.exists).named("existing-file")
+  val file   : Parser[File] = anyString ^^ (new File(_))
+  val newFile: Parser[File] = attempt("new-file"){ s => val f = new File(s); f.createNewFile; f }
+  val existingFile     : Parser[File] = file.filter(_.exists) named "existing-file"
   val existingOrNewFile: Parser[File] = existingFile | newFile
 }
 

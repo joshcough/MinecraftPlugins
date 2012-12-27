@@ -22,18 +22,24 @@ object ParserCombinatorTests extends Properties("ParserCombinatorTests") with Pa
   }
 
   property("odd bad") = forAll { (i:Int) => (i % 2 == 0) ==>
-    (oddNum(List(i.toString)) ?= Failure(s"invalid odd-number: $i"))
+    (oddNum(List(i.toString)) ?= Failure(s"invalid odd-int: $i"))
   }
 
   property("even bad") = forAll { (i:Int) => (i % 2 == 1) ==>
-    (evenNum(List(i.toString)) ?= Failure(s"invalid even-number: $i"))
+    (evenNum(List(i.toString)) ?= Failure(s"invalid even-int: $i"))
   }
 
   property("+ ok") = forAll { (is:List[Int]) => (is.size > 0) ==>
     (int+(is.map(_.toString)) ?= Success(is, Nil))
   }
 
-  property("+ on nil") = { int+(Nil) ?= Failure("expected int, got nothing") }
+  property("+ on nil") = { int+(Nil) ?= Failure("expected input, but got nothing") }
 
   property("*") = forAll { (is:List[Int]) => int*(is.map(_.toString)) ?= Success(is, Nil) }
+
+  property("int") = { int(List("wfwefw")) ?= Failure("invalid int: wfwefw")}
+
+  property("int ~ int") = forAll { (i:Int, j: Int) =>
+    (int ~ int)(List(i.toString, j.toString)).get ?= new ~(i, j)
+  }
 }
