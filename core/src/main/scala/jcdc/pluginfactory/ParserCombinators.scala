@@ -61,6 +61,10 @@ trait ParserCombinators {
       def describe = self.describe
     }
 
+    def filterWith(f: T => Boolean)(message: String) = this.flatMapWithNext((t, rest) =>
+      if (f(t)) Success(t, rest) else Failure(message)
+    )
+
     def ^^[U](f: T => U) = new Parser[U] {
       def apply(args: List[String]): ParseResult[U] = self(args) map f
       def describe = self.describe

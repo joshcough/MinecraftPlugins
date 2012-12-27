@@ -23,15 +23,15 @@ class MultiPlayerCommands extends CommandsPlugin {
 
     Command("set-time", "Sets the time.", time){ case (p, n) => p.world setTime n },
 
-    Command("day",      "Sets the time to day (1000).")(_.world setTime 1000),
+    Command("day",      "Sets the time to day (1000).")   (_.world setTime 1000),
 
     Command("night",    "Sets the time to night (15000).")(_.world setTime 15000),
-
-    Command("gm",       "Set your game mode.", gamemode){ case (p, gm) => p setGameMode gm },
 
     Command("gms",      "Set your game mode to survival.")(_ setGameMode SURVIVAL),
 
     Command("gmc",      "Set your game mode to creative.")(_ setGameMode CREATIVE),
+
+    Command("gm",       "Set your game mode.", gamemode){ case (p, gm) => p setGameMode gm },
 
     Command("entities", "Display all the entities.")(p => p !* (p.world.entities.map(_.toString): _*)),
 
@@ -55,7 +55,7 @@ class MultiPlayerCommands extends CommandsPlugin {
     Command("drill",    "Drill down to bedrock immediately.")(p =>
       for (b <- p.blockOn.blocksBelow.takeWhile(_ isNot BEDROCK); if (b isNot AIR)) {
         b.erase
-        if (b.blockBelow is BEDROCK) b.nthBlockAbove(2) changeTo STATIONARY_WATER
+        if (b.blockBelow is BEDROCK) b nthBlockAbove 2 changeTo STATIONARY_WATER
       }
     ),
 

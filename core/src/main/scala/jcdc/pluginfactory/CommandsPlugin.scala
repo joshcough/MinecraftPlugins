@@ -15,7 +15,7 @@ object BasicMinecraftParsers extends BasicMinecraftParsers
 trait BasicMinecraftParsers extends ScalaPlugin with ParserCombinators {
   val gamemode: Parser[GameMode] =
     ("c" | "creative" | "1") ^^^ CREATIVE |
-      ("s" | "survival" | "0") ^^^ SURVIVAL
+    ("s" | "survival" | "0") ^^^ SURVIVAL
   val entity  : Parser[EntityType] = token("entity-type")  (findEntity)
   val material: Parser[Material]   = token("material-type")(findMaterial)
   val player  : Parser[Player]     = token("player-name")  (server.findPlayer)
@@ -25,17 +25,15 @@ trait BasicMinecraftParsers extends ScalaPlugin with ParserCombinators {
     case x ~ z ~ None    => (w:World) => w.getHighestBlockAt(x, z).loc
   }
   val plugin  : Parser[Plugin] = token("plugin")(s => tryO(pluginManager getPlugin s))
-  val time    : Parser[Int]    = int.flatMapWithNext((i, rest) =>
-    if (i >= 0 && i <= 24000) Success(i, rest)
-    else Failure("time must be between 0 and 24000")
-  ).named("time (0-24000)")
+  val time    : Parser[Int]    =
+    int.filterWith(i => i >= 0 && i <= 24000)("time must be between 0 and 24000")
 }
 
 case class Command(
-                    name: String,
-                    description: String,
-                    argsDescription: Option[String],
-                    body: (Player, BukkitCommand, List[String]) => Unit)
+  name: String,
+  description: String,
+  argsDescription: Option[String],
+  body: (Player, BukkitCommand, List[String]) => Unit)
 
 /**
  * A trait that allows a plugin to have one command, very easily.
