@@ -45,10 +45,8 @@ trait ParserCombinators extends EnchrichedScalaClasses {
     }
 
     def flatMap[U](f: T => Parser[U]) = new Parser[U] {
-      def apply(args: List[String]): ParseResult[U] = self(args) match {
-        case Success(t, rest) =>  f(t)(rest)
-        case Failure(m) => Failure(m)
-      }
+      def apply(args: List[String]): ParseResult[U] =
+        self(args).fold[ParseResult[U]](Failure(_))(f(_)(_))
       def describe = self.describe
     }
 
