@@ -12,7 +12,7 @@ There are several reasons for building this API, but the three that pop to mind 
   * To make command and argument parsing vastly easier using parser combinators.
   * To hopefully spark some interest in Scala among the Minecraft community.
 
-Note: The core API is built on Bukkit version 1.2.5-R1 (http://bukkit.org/). 
+Note: The core API is built on Bukkit version 1.4.6-R0.1 (http://bukkit.org/). 
 
 ## Examples
 
