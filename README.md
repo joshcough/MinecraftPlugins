@@ -1,6 +1,7 @@
 # Overview
 
-This project contains an API for building Minecraft Plugins in Scala. It is currently made up of several sub-projects, but the most important ones to know about are:
+This project contains an API for building Minecraft Plugins in Scala.
+It is currently made up of several sub-projects, but the most important ones to know about are:
 
   * microexample - A first example of how to create a plugin in Scala.
   * examples     - Several more example plugins using the core API
@@ -18,7 +19,9 @@ Note: The core API is built on Bukkit version 1.4.6-R0.1 (http://bukkit.org/).
 
 ### Listener example: LightningArrows
 
-The following example demonstrates how to use listeners in Scala. This plugin strikes an entity (any player or mob) with lightning if that entity is hit with an arrow:
+The following example demonstrates how to use listeners in Scala.
+This plugin strikes an entity (any player or mob) with lightning
+if that entity is hit with an arrow:
 
 ```scala
 import jcdc.pluginfactory.Listeners._
@@ -31,7 +34,9 @@ class LightningArrows extends ListeningFor(OnEntityDamageByEntity { e =>
 
 ### Commands example: Shock
 
-The following example demonstrates how to write commands in Scala. It has one command called "shock" which takes a player as input, and shocks that player with lightning. 
+The following example demonstrates how to write commands in Scala.
+It has one command called "shock" which takes a player as input,
+and shocks that player with lightning.
 
 ```scala
 import jcdc.pluginfactory.CommandPlugin
@@ -47,7 +52,11 @@ class Shock extends CommandPlugin {
 
 There are a few other sub projects and I'll mention them just very briefly here.
 
-  * netlogo      - A plugin that enables running NetLogo models in Minecraft servers. More info here: [NetLogo Plugin](https://github.com/joshcough/MinecraftPlugins/wiki/NetLogo)
-  * minelang     - An ongoing attempt at writing my own language (very much like Clojure, but not as good) that allows users to write their own minecraft plugins without having to know anything about IDE's and Jar files and stuff like that. I don't have any other information to give on this just yet, though.
+  * netlogo      - A plugin that enables running NetLogo models in Minecraft servers.
+                   More info here: [NetLogo Plugin](https://github.com/joshcough/MinecraftPlugins/wiki/NetLogo)
+  * minelang     - An ongoing attempt at writing my own language
+                  (very much like Clojure, but not as good) that allows users to write their own
+                  minecraft plugins without having to know anything about IDE's and Jar files and
+                  stuff like that. I don't have any other information to give on this just yet, though.
 
 

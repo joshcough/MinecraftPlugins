@@ -1,0 +1,41 @@
+Provides a library for writing server plugins in Scala. The plugins are vastly simpler to write than
+using the original Bukkit API in Java.
+
+This is not just providing Scala, but an entire Server Plugin API written in
+Scala as well that cleans things up very nicely, and allows for writing clean, declarative,
+immutable, and fun plugins. The source for the project can be found here:
+[https://github.com/joshcough/MinecraftPlugins](https://github.com/joshcough/MinecraftPlugins).
+
+## Examples
+
+### Listener example: LightningArrows
+
+The following example demonstrates how to use listeners in Scala.
+This plugin strikes an entity (any player or mob) with lightning if that entity is hit with an arrow:
+
+    import jcdc.pluginfactory.Listeners._
+    import org.bukkit.entity.EntityType.ARROW
+
+    class LightningArrows extends ListeningFor(OnEntityDamageByEntity { e =>
+      if (e.getDamager isAn ARROW) e.world.strikeLightning(e.loc)
+    })
+
+### Commands example: Shock
+
+The following example demonstrates how to write commands in Scala.
+It has one command called "shock" which takes a player as input, and shocks that player with lightning.
+
+    import jcdc.pluginfactory.CommandPlugin
+
+    class Shock extends CommandPlugin {
+      val command = Command("shock", "shock a player", player){
+        case (you, them) => them.shock
+      }
+    }
+
+### More examples
+
+Many, many more examples can be found here:
+[https://github.com/joshcough/MinecraftPlugins/tree/master/examples/src/main/scala/jcdc/pluginfactory/examples](https://github.com/joshcough/MinecraftPlugins/tree/master/examples/src/main/scala/jcdc/pluginfactory/examples),
+including Scala versions of WorldEdit, Multi Player Commands (a plugin that supports many of the
+same commands as Single Player Commands), Warp, and more.
