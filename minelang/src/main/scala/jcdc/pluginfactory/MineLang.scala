@@ -24,7 +24,7 @@ object MineLang {
     def evalToMaterial(e:Expr, env:Env): Material =
       evalTo(e,env,"material"){
         case ObjectValue(m:Material) => m
-        case ObjectValue(s:String) => BasicMinecraftParsers.material(s).fold(sys error _)((m, _) => m)
+        case ObjectValue(s:String) => MinecraftParsers.material(s).fold(sys error _)((m, _) => m)
       }
     def evalToCube(e:Expr, env:Env): Cube =
       evalTo(e,env,"cube"){ case ObjectValue(c@Cube(_,_)) => c }
@@ -32,10 +32,10 @@ object MineLang {
     val getMaterial = builtIn('material, (exps, env) => {
       eval(exps(0),env) match {
         case ObjectValue(s:String) => ObjectValue(
-          BasicMinecraftParsers.material(s).fold(sys error _)((m, _) => m)
+          MinecraftParsers.material(s).fold(sys error _)((m, _) => m)
         )
         case ObjectValue(i:Int) => ObjectValue(
-          BasicMinecraftParsers.material(i.toString).fold(sys error _)((m, _) => m)
+          MinecraftParsers.material(i.toString).fold(sys error _)((m, _) => m)
         )
         case ev                    => sys error s"not a material: $ev"
       }

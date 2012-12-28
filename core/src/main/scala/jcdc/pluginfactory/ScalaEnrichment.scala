@@ -7,6 +7,9 @@ import io.Source
  * Adds a bunch of missing functions to Scala classes.
  */
 trait ScalaEnrichment {
+
+  val unit = ()
+
   /**
    * Allows for F# style pipelining
    * x |> f is the same as f(x).

@@ -6,9 +6,9 @@ import org.bukkit.entity.EntityType
 import org.bukkit.Material
 import Material._
 
-object BasicMinecraftParsersTests extends Properties("MinecraftParserTests") with TestHelpers {
+object MinecraftParsersTests extends Properties("MinecraftParserTests") with TestHelpers {
 
-  import BasicMinecraftParsers._
+  import MinecraftParsers._
 
   for(m <- Material.values)
     test(m.name) {
@@ -32,7 +32,9 @@ object BasicMinecraftParsersTests extends Properties("MinecraftParserTests") wit
   }
 
   test("(material or noArguments)(werersd)") {
-    val res = (material or noArguments)("werersd").fold(id)((p,r) => "parser worked, but shouldnt have.")
+    val res = (material or noArguments)("werersd").fold(id)((p,r) =>
+      "parser worked with bogus material type: werersd, but shouldnt have."
+    )
     res ?= "invalid material-type: werersd or unprocessed input: werersd"
   }
 }

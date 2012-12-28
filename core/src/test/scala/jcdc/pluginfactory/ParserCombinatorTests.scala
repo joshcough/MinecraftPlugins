@@ -37,9 +37,32 @@ object ParserCombinatorTests extends Properties("ParserCombinatorTests") with Pa
 
   property("*") = forAll { (is:List[Int]) => int*(is.map(_.toString)) ?= Success(is, Nil) }
 
-  property("int") = { int(List("wfwefw")) ?= Failure("invalid int: wfwefw")}
+  property("int") = { int(List("wfwefw")) ?= Failure("invalid int: wfwefw") }
 
   property("int ~ int") = forAll { (i:Int, j: Int) =>
     (int ~ int)(List(i.toString, j.toString)).get ?= new ~(i, j)
+  }
+
+  property("int <~ anyString") = forAll { (i:Int, s: String) =>
+    (int <~ anyString)(List(i.toString, s)).get ?= i
+  }
+
+  property("int ~> anyString") = forAll { (i:Int, s: String) =>
+    (int ~> anyString)(List(i.toString, s)).get ?= s
+  }
+
+  property("int ~> int <~ anyString") = forAll { (i:Int, j: Int, s: String) =>
+    (int ~> int <~ anyString)(List(i.toString, j.toString, s)).get ?= j
+  }
+
+  test("(noArguments)(Nil)") { noArguments(Nil) ?= Success((), Nil) }
+  test("(noArguments)(\"werersd\")") {
+    noArguments("werersd") ?= Failure("unprocessed input: werersd")
+  }
+  test("(\"werersd\" <~ noArguments)('werersd')") {
+    ("werersd" <~ noArguments)("werersd").get ?= "werersd"
+  }
+  test("(\"werersd\" ~> noArguments)('werersd')") {
+    ("werersd" ~> noArguments)("werersd").get ?= unit
   }
 }

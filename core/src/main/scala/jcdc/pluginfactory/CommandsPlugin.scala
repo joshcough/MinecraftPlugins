@@ -10,8 +10,8 @@ import org.bukkit.plugin.Plugin
 /**
  * Parsers for all sorts of useful things in Minecraft.
  */
-object BasicMinecraftParsers extends BasicMinecraftParsers
-trait BasicMinecraftParsers extends ScalaPlugin with ParserCombinators {
+object MinecraftParsers extends MinecraftParsers
+trait MinecraftParsers extends ScalaPlugin with ParserCombinators {
   val gamemode: Parser[GameMode] =
     ("c" | "creative" | "1") ^^^ CREATIVE |
     ("s" | "survival" | "0") ^^^ SURVIVAL
@@ -76,7 +76,7 @@ trait CommandPlugin extends CommandsPlugin {
  * TODO keep writing.
  *
  */
-trait CommandsPlugin extends ScalaPlugin with BasicMinecraftParsers {
+trait CommandsPlugin extends ScalaPlugin with MinecraftParsers {
 
   def commands: List[Command]
 

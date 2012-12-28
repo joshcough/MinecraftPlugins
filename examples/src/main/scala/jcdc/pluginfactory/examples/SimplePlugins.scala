@@ -20,7 +20,7 @@ class BlockChangerGold extends ListeningFor(OnLeftClickBlock((p, e) =>
 class BlockChanger extends ListenerPlugin with CommandPlugin {
   val users    = collection.mutable.Map[Player, Material]()
   val listener = OnLeftClickBlock{ (p, e) =>
-    users.get(p).foreach{ m => e.block changeTo m; e.cancel }
+    for(m <- users get p){ e.block changeTo m; e.cancel }
   }
   val command  = Command(
     name = "bc",
