@@ -2,9 +2,9 @@
 
 This project contains an API for building Minecraft Plugins in Scala. It is currently made up of several sub-projects, but the most important ones to know about are:
 
-  * core         - The main API
   * microexample - A first example of how to create a plugin in Scala.
   * examples     - Several more example plugins using the core API
+  * core         - The core API
   
 There are several reasons for building this API, but the three that pop to mind immediately are:
 
@@ -16,9 +16,9 @@ Note: The core API is built on Bukkit version 1.4.6-R0.1 (http://bukkit.org/).
 
 ## Examples
 
-While there will be much more written soon in this section, here is an example that demonstrates how amazingly
-simple it is to write Minecraft plugins using this API. The following example demonstrates how to strike
-an entity (any player or mob) with lightning if that entity is hit with an arrow:
+### Listener example: LightningArrows
+
+The following example demonstrates how to use listeners in Scala. This plugin strikes an entity (any player or mob) with lightning if that entity is hit with an arrow:
 
 ```scala
 import jcdc.pluginfactory.Listeners._
@@ -27,6 +27,20 @@ import org.bukkit.entity.EntityType.ARROW
 class LightningArrows extends ListeningFor(OnEntityDamageByEntity { e =>
   if (e.getDamager isAn ARROW) e.world.strikeLightning(e.loc)
 })
+```
+
+### Commands example: Shock
+
+The following example demonstrates how to write commands in Scala. It has one command called "shock" which takes a player as input, and shocks that player with lightning. 
+
+```scala
+import jcdc.pluginfactory.CommandPlugin
+
+class Shock extends CommandPlugin {
+  val command = Command("shock", "shock a player", player){ case (you, them) =>
+    them.shock
+  }
+}
 ```
 
 ## Other Stuff
