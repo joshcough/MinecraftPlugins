@@ -92,10 +92,9 @@ trait CommandsPlugin extends ScalaPlugin with BasicMinecraftParsers {
                    (body: Player => Unit): Command = Command(name, desc)(body)
 
   /**
-   * TODO
-   * args is used to create commands that take arguments.
+   * Create commands that takes arguments.
    *
-   * Takes an Parser[T] and a function from Player and T to Unit, and returns a command body
+   * Takes an Parser[T] and a function from Player and T to Unit
    * If the command is executed, then the parser is run with the command arguments.
    *
    * If those arguments successfully parse, the parser will produce a T.
@@ -115,35 +114,26 @@ trait CommandsPlugin extends ScalaPlugin with BasicMinecraftParsers {
   def Command[T](name: String, desc: String, args: Parser[T])
                 (body: ((Player, T)) => Unit): Command = new Command(
     name = name, description = desc, argsDescription = Some(args.describe),
-    body = (p: Player, c: BukkitCommand, argsList: List[String]) => {
-      def sendError(msg:String): Unit = p !* (RED(msg), RED(c.getDescription), RED(c.getUsage))
-      args(argsList) match {
-        case Success(t, Nil) => body(p -> t)
-        case Success(t, xs)  => sendError(s"unprocessed input: ${xs.mkString(" ")}")
-        case Failure(msg)    => sendError(msg)
+    body = (p: Player, c: BukkitCommand, argsList: List[String]) =>
+      (args <~ noArguments)(argsList) match {
+        case Success(t,_) => body(p -> t)
+        case Failure(msg) => p !* (RED(msg), RED(c.getDescription), RED(c.getUsage))
       }
-    }
   )
 
   /**
-   * TODO
-   * noArgs is used to create commands that take no arguments.
+   * Create a command that take no arguments.
    *
-   * Takes a function from Player to unit, and if the command is entered by a player
+   * Takes a function from Player to unit,
+   * and if the command is entered by a player
    * the function is executed with that player.
    * @param name
    * @param desc
    * @param body
    * @return
    */
-  def Command(name: String, desc: String)
-             (body: Player => Unit): Command = new Command(
-    name = name, description = desc, argsDescription = None,
-    body = (p: Player, c: BukkitCommand, args: List[String]) => {
-      def sendError(msg:String): Unit = p !* (RED(msg), RED(c.getDescription), RED(c.getUsage))
-      noArguments(args).fold(sendError(_))((_, _) => body(p))
-    }
-  )
+  def Command(name: String, desc: String)(body: Player => Unit): Command =
+    Command(name, desc, noArguments){ case (p, _) => body(p) }
 
   /**
    * This is Bukkit's main entry point for plugins handling commands.

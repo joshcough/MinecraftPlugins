@@ -42,6 +42,7 @@ trait ParserCombinators extends EnchrichedScalaClasses {
         p(args).fold[ParseResult[U]](Failure(_))(f(_)(_))
       def describe = p.describe
     }
+    def map[T, U](p: Parser[T])(f: T => U) = bind(p)(t => unit(f(t)))
   }
 
   trait Parser[+T] extends (List[String] => ParseResult[T]) { self =>
@@ -53,12 +54,12 @@ trait ParserCombinators extends EnchrichedScalaClasses {
      * Create a new parser that when ran, if it succeeds,
      * take its result and map it over f.
      */
-    def map[U](f: T => U) = flatMap(t => success(f(t)))
+    def map[U](f: T => U) = ParserMonad.map(this)(f)
 
     /**
      * Operator alias for map.
      */
-    def ^^ [U](f: T => U) = map(f)
+    def ^^[U](f: T => U) = map(f)
 
     /**
      * Create a new parser that when ran, if it succeeds,
@@ -129,7 +130,7 @@ trait ParserCombinators extends EnchrichedScalaClasses {
      * @return
      */
     def + : Parser[List[T]] =
-      ((this ~ (this *)) ^^ { case t ~ ts => t :: ts}).named(describe + "+")
+      ((this ~ (this *)) ^^ { case t ~ ts => t :: ts }).named(describe + "+")
 
     /**
      * Return a new parser that will attempt to parse input (T), and returns an Option[T]
@@ -160,7 +161,7 @@ trait ParserCombinators extends EnchrichedScalaClasses {
       (for (t <- this; u <- p2) yield t) named (self.describe + " <~ " + p2.describe)
 
     def repSep[U](p2: Parser[U]): Parser[List[T]] =
-      (self ~ (p2 ~> self).*) ^^ { case (t ~ ts) => t :: ts }
+      (self ~ (p2 ~> self).*) ^^ { case t ~ ts => t :: ts }
 
     /**
      * Rename this parser the given string.
@@ -228,7 +229,7 @@ trait ParserCombinators extends EnchrichedScalaClasses {
       case Nil => Success((), Nil)
       case _   => Failure(s"unprocessed input: ${args.mkString(" ")}")
     }
-    def describe = "nothing"
+    def describe = ""
   }
 
   /**
