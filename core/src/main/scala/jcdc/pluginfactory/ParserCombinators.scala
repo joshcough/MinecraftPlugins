@@ -17,9 +17,7 @@ object ParserCombinators extends ParserCombinators
  */
 trait ParserCombinators extends EnchrichedScalaClasses {
 
-  case class ~[+A, +B](a: A, b: B) {
-    override def toString = s"($a ~ $b)"
-  }
+  case class ~[+A, +B](a: A, b: B) { override def toString = s"($a ~ $b)" }
 
   trait ParseResult[+T]{
     def get: T
@@ -34,32 +32,73 @@ trait ParserCombinators extends EnchrichedScalaClasses {
     def fold[A](failF: String => A)(sucF: (T,List[String]) => A): A = sucF(value, rest)
   }
 
+  object ParserMonad {
+    def unit[T](t: T) = new Parser[T] {
+      def apply(args: List[String]) = Success(t, args)
+      def describe = t.toString
+    }
+    def bind[T, U](p: Parser[T])(f: T => Parser[U]) = new Parser[U] {
+      def apply(args: List[String]): ParseResult[U] =
+        p(args).fold[ParseResult[U]](Failure(_))(f(_)(_))
+      def describe = p.describe
+    }
+  }
+
   trait Parser[+T] extends (List[String] => ParseResult[T]) { self =>
     def apply(args: List[String]): ParseResult[T]
     def apply(args: String): ParseResult[T] = this.apply(args.split(" ").toList)
     def describe: String
 
-    def named(name: String) = new Parser[T] {
-      def apply(args: List[String]) = self(args)
-      def describe: String = name
-    }
+    /**
+     * Create a new parser that when ran, if it succeeds,
+     * take its result and map it over f.
+     */
+    def map[U](f: T => U) = flatMap(t => success(f(t)))
 
-    def flatMap[U](f: T => Parser[U]) = new Parser[U] {
-      def apply(args: List[String]): ParseResult[U] =
-        self(args).fold[ParseResult[U]](Failure(_))(f(_)(_))
-      def describe = self.describe
-    }
+    /**
+     * Operator alias for map.
+     */
+    def ^^ [U](f: T => U) = map(f)
 
-    def filter(f: T => Boolean) = filterWith(f)("invalid " + this.describe)
-    def filterWith(f: T => Boolean)(message: String) = this.flatMap(t =>
-      if(f(t)) success(t) else failure(message + ": " + t)
-    )
-    def map[U](f: T => U) = this.flatMap(t => success(f(t)))
-    def ^^[U](f: T => U) = map(f)
-    def ^^^[U](u: => U) = this ^^ (_ => u)
+    /**
+     * Create a new parser that when ran, if it succeeds,
+     * throws out its result and returns u instead.
+     */
+    def ^^^[U](u: => U) = map (_ => u)
+
+    /**
+     * Monadic bind for a Parser. Used for chaining parsers together in for comprehensions,
+     * so that you can run N of them in a row, short circuiting if any fail.
+     */
+    def flatMap[U](f: T => Parser[U]) = ParserMonad.bind(this)(f)
+
+    /**
+     * Create a new parser that when ran, if it succeeds,
+     * then checks to see if its result also passes the given predicate.
+     * If it does not, then the parser fails.
+     */
+    def filter(f: T => Boolean): Parser[T] = filterWith(f)("invalid " + describe)
+
+    /**
+     * Same as filter, but allows for supplying a custom failure message
+     * if the result fails the predicate.
+     */
+    def filterWith(f: T => Boolean)(errMsg: String): Parser[T] =
+      flatMap(t => if(f(t)) success(t) else failure(errMsg + ": " + t))
+
+    /**
+     * Creates a new parser that chains two parsers together (this, and p2).
+     * The second parser works on the remaining input after the first parser is ran.
+     * If they both succeed, a compound result is returned: ~[T,U]
+     */
     def ~[U](p2: => Parser[U]): Parser[T ~ U] = for(t <- self; u <- p2) yield new ~(t, u)
-    def |[U >: T] (p2: => Parser[U]) = this.or(p2) ^^ (_.fold(id, id))
 
+    /**
+     * Creates a new parser that will succeed if either this, or p2 succeed.
+     * If this parser fails, then p2 will run on the same input.
+     * If this succeeds, Left(some t) is returned, and
+     * if p2 succeeds, Right(some u) is returned.
+     */
     def or[U](p2: => Parser[U]) = new Parser[Either[T, U]] {
       def apply(args: List[String]): ParseResult[Either[T, U]] = self(args) match {
         case Success(t, rest) => Success(Left(t), rest)
@@ -71,27 +110,72 @@ trait ParserCombinators extends EnchrichedScalaClasses {
       def describe = s"(${self.describe} or ${p2.describe})"
     }
 
-    def * : Parser[List[T]] = ((this+) | success(List[T]())).named(self.describe + "*")
-    def + : Parser[List[T]] =
-      ((this ~ (this *)) ^^ { case t ~ ts => t :: ts}).named(self.describe + "+")
+    /**
+     * Same as or, but where U is the same type as T, basically.
+     */
+    def |[U >: T] (p2: => Parser[U]) = or(p2) ^^ (_.fold(id, id))
 
+    /**
+     * Return a new parser that will parse zero or more of whatever this parser parses.
+     * The results are returned in a list.
+     * If zero parse successfully, Nil is returned.
+     */
+    def * : Parser[List[T]] = ((this+) | success(List[T]())).named(describe + "*")
+
+    /**
+     * Return a new parser that will parse one or more of whatever this parser parses.
+     * The results are returned in a list.
+     * If zero parse successfully, the parser fails.
+     * @return
+     */
+    def + : Parser[List[T]] =
+      ((this ~ (this *)) ^^ { case t ~ ts => t :: ts}).named(describe + "+")
+
+    /**
+     * Return a new parser that will attempt to parse input (T), and returns an Option[T]
+     * If parsing fails, None is returned. If parsing succeeds, Some(t) is returned.
+     */
     def ? = new Parser[Option[T]] {
       def apply(args: List[String]): ParseResult[Option[T]] =
         self(args).fold(m => Success(None: Option[T], args))((t, rest) => Success(Some(t), rest))
       def describe = s"optional(${self.describe})"
     }
 
+    /**
+     * Creates a new parser that chains two parsers together (this, and p2).
+     * The second parser works on the remaining input after the first parser is ran.
+     * If they both succeed, the result of the second parser is returned (U),
+     * and the result of the first parser is thrown out.
+     */
     def ~>[U](p2:Parser[U]): Parser[U] =
       (for (t <- this; u <- p2) yield u) named (self.describe + " ~> " + p2.describe)
+
+    /**
+     * Creates a new parser that chains two parsers together (this, and p2).
+     * The second parser works on the remaining input after the first parser is ran.
+     * If they both succeed, the result of the first parser is returned (T),
+     * and the result of the second parser is thrown out.
+     */
     def <~[U](p2:Parser[U]): Parser[T] =
       (for (t <- this; u <- p2) yield t) named (self.describe + " <~ " + p2.describe)
 
     def repSep[U](p2: Parser[U]): Parser[List[T]] =
       (self ~ (p2 ~> self).*) ^^ { case (t ~ ts) => t :: ts }
 
+    /**
+     * Rename this parser the given string.
+     */
+    def named(name: String) = new Parser[T] {
+      def apply(args: List[String]) = self(args)
+      def describe: String = name
+    }
+
+    /**
+     * Returns a new parser that prints debugging information before and after parsing the input.
+     */
     def debug: Parser[T] = new Parser[T] {
       def apply(args: List[String]) = {
-        println(s"applying ${self.describe} to $args")
+        println(s"applying $describe to $args")
         val res = self(args)
         println(s"got: $res")
         res
@@ -100,35 +184,58 @@ trait ParserCombinators extends EnchrichedScalaClasses {
     }
   }
 
-  def success[T](t: T) = new Parser[T] {
-    def apply(args: List[String]) = Success(t, args)
-    def describe = t.toString
-  }
+  /**
+   * Monadic return for Parsers. Create a parser that always succeeds, returning t.
+   */
+  def success[T](t: T) = ParserMonad.unit(t)
 
+  /**
+   * Create a parser that always fails with the given error message.
+   */
   def failure[T](message: String) = new Parser[T] {
     def apply(args: List[String]) = Failure(message)
     def describe = message
   }
 
+  /**
+   * Convert a String into a Parser that accepts only that String as valid input.
+   */
   implicit def stringToParser(s: String): Parser[String] =
     anyString.filterWith(_ == s)(s"expected: $s") named s
 
+  /**
+   * Create a parser from an operation that parses a String and returns Option[T].
+   * If that parsing operation returns None, then the parser fails.
+   * If the parsing operation returns Some(t), then the t is the result.
+   */
   def maybe[T](name: String)(f: String => Option[T]): Parser[T] = (for {
     s <- anyString; res <- f(s).fold[Parser[T]](failure(s"invalid $name: $s"))(success(_))
   } yield res) named name
 
+  /**
+   * Create a parser from an operation that may fail (with an exception).
+   * If it does not throw, then the parser succeeds, returning the result.
+   * If an exception is thrown, it is caught, and the parser fails.
+   */
   def attempt[T](name: String)(f: String => T): Parser[T] =
-    (anyString named name).flatMap{s => Try(success(f(s))).getOrElse(failure(s"invalid $name: $s"))}
+    (anyString named name).flatMap(s => Try(success(f(s))).getOrElse(failure(s"invalid $name: $s")))
 
-  def noArguments = new Parser[Unit] {
+  /**
+   * Create a parser that succeeds only if there is no input remaining to be parsed.
+   */
+  val noArguments = new Parser[Unit] {
     def apply(args: List[String]) = args match {
       case Nil => Success((), Nil)
-      case _   => Failure(s"expected no arguments, got ${args.mkString(" ")}")
+      case _   => Failure(s"unprocessed input: ${args.mkString(" ")}")
     }
     def describe = "nothing"
   }
 
-  def anyString: Parser[String] = new Parser[String] {
+  /**
+   * A parser that succeeds as long as there is
+   * at least one string remaining in the input.
+   */
+  val anyString: Parser[String] = new Parser[String] {
     def apply(args: List[String]) = args match {
       case Nil => Failure(s"expected input, but got nothing")
       case x :: xs => Success(x, xs)
@@ -136,17 +243,24 @@ trait ParserCombinators extends EnchrichedScalaClasses {
     def describe = "string"
   }
 
+  /**
+   * A parser that consumes the rest of the input, return it all back in one string.
+   */
   val slurp: Parser[String] = (anyString.* ^^ (_.mkString(" "))) named "slurp"
 
   // number parsers
-  val int:     Parser[Int]  = attempt("int")(_.toInt)
-  val oddNum:  Parser[Int]  = (int named "odd-int" ).filter(_.isOdd)
-  val evenNum: Parser[Int]  = (int named "even-int").filter(_.isEven)
-  val long:    Parser[Long] = attempt("long")(_.toLong)
-
+  val int:     Parser[Int]    = attempt("int")   (_.toInt)
+  val long:    Parser[Long]   = attempt("long")  (_.toLong)
+  val double:  Parser[Double] = attempt("double")(_.toDouble)
+  val short:   Parser[Short]  = attempt("short") (_.toShort)
+  val float:   Parser[Float]  = attempt("float") (_.toFloat)
+  val oddNum:  Parser[Int]    = (int named "odd-int" ).filter(_.isOdd)
+  val evenNum: Parser[Int]    = (int named "even-int").filter(_.isEven)
+  val binary:  Parser[String] = ("1" | "0").+ ^^ (_.mkString)
+  // bool parsers
   val bool:        Parser[Boolean] = attempt("boolean")(_.toBoolean)
-  val boolOrTrue:  Parser[Boolean] = bool.? ^^ { _ getOrElse true }
-  val boolOrFalse: Parser[Boolean] = bool.? ^^ { _ getOrElse false }
+  val boolOrTrue:  Parser[Boolean] = bool | success(true)
+  val boolOrFalse: Parser[Boolean] = bool | success(false)
 
   // file parsers
   val file   : Parser[File] = anyString ^^ (new File(_))
@@ -154,7 +268,6 @@ trait ParserCombinators extends EnchrichedScalaClasses {
   val existingFile     : Parser[File] = file.filter(_.exists) named "existing-file"
   val existingOrNewFile: Parser[File] = existingFile | newFile
 }
-
 
 // TODO: review these and maybe fix up later
 //  def slurpUntil(delim:Char): Parser[String] = new Parser[String] {
@@ -178,4 +291,3 @@ trait ParserCombinators extends EnchrichedScalaClasses {
 //    }
 //    def describe = s"slurp until: $c"
 //  }
-
