@@ -1,6 +1,6 @@
 package jcdc.pluginfactory
 
-import EnrichmentClasses._
+import BukkitEnrichment._
 import org.bukkit.Location
 import org.bukkit.entity.Player
 
@@ -9,12 +9,12 @@ trait Cubes {
 
   def setFirstPosition(p: Player, loc: Location) {
     positions.update(p, loc -> None)
-    p ! ("first position set to: " + loc.xyz)
+    p ! s"first position set to: ${loc.xyz}"
   }
   def setSecondPosition(p: Player, loc: Location) {
     positions.get(p).map(_._1).fold(p ! "You must set position 1 first!")(l => {
       positions.update(p, l -> Some(loc))
-      p ! ("second position set to: " + loc.xyz)
+      p ! s"second position set to: ${loc.xyz}"
     })
   }
   def cube(p: Player): Option[Cube] = positions.get(p).flatMap(lol => lol._2.map(Cube(lol._1, _)))

@@ -15,7 +15,7 @@ object ParserCombinators extends ParserCombinators
  * especially handy when giving error messages to users, and when generating
  * the commands section of the plugin.yml file for a plugin.
  */
-trait ParserCombinators extends EnchrichedScalaClasses {
+trait ParserCombinators extends ScalaEnrichment {
 
   case class ~[+A, +B](a: A, b: B) { override def toString = s"($a ~ $b)" }
 

@@ -7,7 +7,6 @@ import org.bukkit.entity.{EntityType, Player}
 import org.bukkit.{Location, World, Material, GameMode}
 import org.bukkit.plugin.Plugin
 
-
 /**
  * Parsers for all sorts of useful things in Minecraft.
  */
@@ -81,9 +80,7 @@ trait CommandsPlugin extends ScalaPlugin with BasicMinecraftParsers {
 
   def commands: List[Command]
 
-  private def commandsMap: Map[String, Command] =
-    commands.map(c => (c.name.toLowerCase, c)).toMap
-
+  private def commandsMap: Map[String, Command] = commands.map(c => (c.name.toLowerCase, c)).toMap
 
   def ArgsCommand[T](name: String, desc: String, p: Parser[T])
                     (body: ((Player, T)) => Unit): Command = Command(name, desc, p)(body)

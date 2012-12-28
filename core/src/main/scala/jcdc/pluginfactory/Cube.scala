@@ -2,7 +2,7 @@ package jcdc.pluginfactory
 
 import org.bukkit.block.Block
 import org.bukkit.entity.Player
-import EnrichmentClasses._
+import BukkitEnrichment._
 import org.bukkit.{World, Material, Location}
 import collection.JavaConversions.asScalaIterator
 

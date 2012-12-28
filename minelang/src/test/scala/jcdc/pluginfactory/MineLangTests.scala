@@ -9,7 +9,7 @@ import ClojureInScala._
   import MineLang._
 import java.io.File
 
-object MineLangTests extends Properties("MinecraftParserTests") with EnrichmentClasses with TestHelpers{
+object MineLangTests extends Properties("MinecraftParserTests") with BukkitEnrichment with TestHelpers{
 
   val mineLangDir = new File("../minelang")
   val expandMc = mineLangDir.child("expand.mc")

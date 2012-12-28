@@ -18,7 +18,7 @@ object MineLang {
   def runExpr   (code:String,  p:Player): Any = runProgram(parse(s"($code)"), p)
   def runProgram(prog:Program, p:Player): Any = unbox(mineLangSession(p).runProgram(prog))
 
-  case class WorldEditExtension(p:Player) extends EnrichmentClasses {
+  case class WorldEditExtension(p:Player) extends BukkitEnrichment {
     def evalToLocation(e:Expr, env:Env): Location =
       evalTo(e,env,"location"){ case ObjectValue(l:Location) => l }
     def evalToMaterial(e:Expr, env:Env): Material =

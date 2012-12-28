@@ -15,7 +15,7 @@ import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.util.Vector
 import block._
 import conversations.{ConversationAbandonedEvent, Conversation}
-import EnrichmentClasses._
+import BukkitEnrichment._
 import java.util
 import java.net.InetSocketAddress
 

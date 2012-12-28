@@ -16,7 +16,7 @@ case class Point(x:Int, y:Int){
   def invokeFun2a(f: (Int, Int) => Int) = f(8, 9)
 }
 
-object ClojureInScalaTests extends Properties("MinecraftParserTests") with EnrichmentClasses with TestHelpers {
+object ClojureInScalaTests extends Properties("MinecraftParserTests") with BukkitEnrichment with TestHelpers {
 
   evalTest("constructorCall1", "(new jcdc.pluginfactory.Point 5 6)",                Point(5,6))
   evalTest("constructorCall2", "(new jcdc.pluginfactory.Point 5 6 nil)",            Point(5,6))

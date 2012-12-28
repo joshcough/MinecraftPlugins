@@ -12,7 +12,7 @@ import javax.persistence.PersistenceException
  * far more likely that you'll subclass jcdc.pluginfactory.CommandsPlugin,
  * jcdc.pluginfactory.ListenersPlugin, or both.
  */
-abstract class ScalaPlugin extends org.bukkit.plugin.java.JavaPlugin with EnrichmentClasses {
+abstract class ScalaPlugin extends org.bukkit.plugin.java.JavaPlugin with BukkitEnrichment {
 
   val log  = Logger.getLogger("Minecraft")
 

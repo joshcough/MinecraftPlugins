@@ -65,7 +65,7 @@ object Listeners extends Listeners
  *
  * There are piles of examples of this in the examples code.
  **/
-trait Listeners extends EnrichmentClasses {
+trait Listeners extends BukkitEnrichment {
   abstract case class ListeningFor(listener:Listener) extends ListenerPlugin
 
   def OnPlayerMove(f: PlayerMoveEvent => Unit) = new Listener {
