@@ -50,6 +50,9 @@ class Shock extends CommandPlugin {
 
 ## Other Stuff
 
+
+#### Other subprojects
+
 There are a few other sub projects and I'll mention them just very briefly here.
 
   * netlogo      - A plugin that enables running NetLogo models in Minecraft servers.
@@ -59,4 +62,9 @@ There are a few other sub projects and I'll mention them just very briefly here.
                   minecraft plugins without having to know anything about IDE's and Jar files and
                   stuff like that. I don't have any other information to give on this just yet, though.
 
+#### Links
 
+Important links:
+
+  * [Project Website and ScalaDoc (GitHub Pages)](http://joshcough.github.com/MinecraftPlugins/)
+  * [Project site on Bukkit](http://dev.bukkit.org/server-mods/scala-plugin-api/)

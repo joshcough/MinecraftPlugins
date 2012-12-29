@@ -1,0 +1,11 @@
+name: BlockChanger
+main: BlockChanger
+author: Josh Cough
+version: 0.2.0
+database: false
+depend: [JcdcPluginFactory]
+softdepend: []
+commands:
+  bc:
+    description: Specify which material to change blocks to, or just /bc to turn off
+    usage: /BlockChanger optional(material-type)
