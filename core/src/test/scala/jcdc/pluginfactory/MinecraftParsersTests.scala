@@ -37,4 +37,11 @@ object MinecraftParsersTests extends Properties("MinecraftParserTests") with Tes
     )
     res ?= "invalid material-type: werersd or unprocessed input: werersd"
   }
+
+  test("((material or noArguments) <~ noArguments)(dirt 7)") {
+    val res = ((material or noArguments) <~ noArguments)("dirt 7").fold(id)((_,_) =>
+      "parser worked, but shouldnt have."
+    )
+    res ?= "unprocessed input: 7"
+  }
 }
