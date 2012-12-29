@@ -139,11 +139,11 @@ public class BetterJavaPlugin extends JavaPlugin {
   }
 
   abstract public class CommandBody<T>{
-    private ArgParser<T> argParser;
-    public CommandBody(ArgParser<T> argParser){ this.argParser = argParser; }
+    private Parser<T> parser;
+    public CommandBody(Parser<T> parser){ this.parser = parser; }
     abstract public void run(Player p, T t);
     public void parseAndRun(Player p, String[] args){
-      ParseResult<T> pr = argParser.parse(args);
+      ParseResult<T> pr = parser.parse(args);
       if(pr.isSuccess()) run(p, pr.get());
       else p.sendMessage(pr.error());
     }
@@ -169,25 +169,25 @@ public class BetterJavaPlugin extends JavaPlugin {
     return Option.apply(e);
   }
 
-  public ArgParser<Material> material = token("material",
+  public Parser<Material> material = token("material",
     new AbstractFunction1<String, Option<Material>>() {
       public Option<Material> apply(String s) { return findMaterial(s);};
     }
   );
 
-  public ArgParser<EntityType> entity = token("entity",
+  public Parser<EntityType> entity = token("entity",
     new AbstractFunction1<String, Option<EntityType>>() {
       public Option<EntityType> apply(String s) { return findEntity(s); };
     }
   );
 
-  public ArgParser<Player> player = token("player", new AbstractFunction1<String, Option<Player>>() {
+  public Parser<Player> player = token("player", new AbstractFunction1<String, Option<Player>>() {
     public Option<Player> apply(String s) {
       return Option.apply(getServer().getPlayer(s));
     };
   });
 
-  public ArgParser<GameMode> gamemode =
+  public Parser<GameMode> gamemode =
     match("c").or(match("creative")).or(match("1")).outputting(GameMode.CREATIVE).or(
     match("s").or(match("survival")).or(match("0")).outputting(GameMode.SURVIVAL));
 
