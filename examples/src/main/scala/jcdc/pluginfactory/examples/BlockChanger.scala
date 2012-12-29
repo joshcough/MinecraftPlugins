@@ -5,6 +5,7 @@ import jcdc.pluginfactory.Listeners.ListeningFor
 import jcdc.pluginfactory.{CommandPlugin, ListenerPlugin}
 import org.bukkit.entity.Player
 import org.bukkit.Material
+import Material.GOLD_BLOCK
 
 /**
  * A plugin that changes blocks to gold whenever they are punched.
