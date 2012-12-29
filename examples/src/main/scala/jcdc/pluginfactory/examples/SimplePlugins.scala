@@ -13,26 +13,6 @@ class BanArrows extends ListeningFor(OnPlayerDamageByEntity { (p, e) =>
   if (e.getDamager isAn ARROW) p ban "struck by an arrow!"
 })
 
-class BlockChangerGold extends ListeningFor(OnLeftClickBlock((p, e) =>
-  if (p is "joshcough") { e.block changeTo GOLD_BLOCK; e.cancel }
-))
-
-class BlockChanger extends ListenerPlugin with CommandPlugin {
-  val users    = collection.mutable.Map[Player, Material]()
-  val listener = OnLeftClickBlock{ (p, e) =>
-    for(m <- users get p){ e.block changeTo m; e.cancel }
-  }
-  val command  = Command(
-    name = "bc",
-    desc = "Specify which material to change blocks to, or just /bc to turn off",
-    args = material or noArguments)(
-    body = {
-      case (p, Left(m)) => users += (p -> m); p ! s"bc using: $m"
-      case (p, _)       => users -= p;        p ! "bc has been disabled"
-    }
-  )
-}
-
 object Curses {
   import org.bukkit.event.player.PlayerChatEvent
   val curses = List("btt", "tiju", "gvdl", "cjudi").map(_.map(c => (c - 1).toChar))

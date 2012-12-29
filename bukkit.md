@@ -33,7 +33,12 @@ It has one command called "shock" which takes a player as input, and shocks that
       }
     }
 
-### More examples
+## Getting Started
+
+A complete guide to getting started writing Scala plugins can be found here:
+[https://github.com/joshcough/MinecraftPlugins/wiki/Getting%20Started](https://github.com/joshcough/MinecraftPlugins/wiki/Getting%20Started)
+
+## More examples
 
 Many, many more examples can be found here:
 [https://github.com/joshcough/MinecraftPlugins/tree/master/examples/src/main/scala/jcdc/pluginfactory/examples](https://github.com/joshcough/MinecraftPlugins/tree/master/examples/src/main/scala/jcdc/pluginfactory/examples),
