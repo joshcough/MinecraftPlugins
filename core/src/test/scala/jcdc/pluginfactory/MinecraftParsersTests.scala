@@ -23,23 +23,23 @@ object MinecraftParsersTests extends Properties("MinecraftParserTests") with Tes
       (entity(List(e.toString.toLowerCase)).get == e)
     }
 
-  test("(material or noArguments)(gold_ore)") {
-    (material or noArguments)("gold_ore").get.left.get ?= GOLD_ORE
+  test("(material or eof)(gold_ore)") {
+    (material or eof)("gold_ore").get.left.get ?= GOLD_ORE
   }
 
-  test("(material or noArguments)(Nil)") {
-    (material or noArguments)(Nil).get.isRight
+  test("(material or eof)(Nil)") {
+    (material or eof)(Nil).get.isRight
   }
 
-  test("(material or noArguments)(werersd)") {
-    val res = (material or noArguments)("werersd").fold(id)((p,r) =>
+  test("(material or eof)(werersd)") {
+    val res = (material or eof)("werersd").fold(id)((p,r) =>
       "parser worked with bogus material type: werersd, but shouldnt have."
     )
     res ?= "invalid material-type: werersd or unprocessed input: werersd"
   }
 
-  test("((material or noArguments) <~ noArguments)(dirt 7)") {
-    val res = ((material or noArguments) <~ noArguments)("dirt 7").fold(id)((_,_) =>
+  test("((material or eof) <~ eof)(dirt 7)") {
+    val res = ((material or eof) <~ eof)("dirt 7").fold(id)((_,_) =>
       "parser worked, but shouldnt have."
     )
     res ?= "unprocessed input: 7"

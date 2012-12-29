@@ -22,18 +22,12 @@ trait MinecraftParsers extends ScalaPlugin with ParserCombinators {
   val plugin  : Parser[Plugin]     = maybe("plugin")       (pluginManager findPlugin _)
   val coordinates = int ~ int ~ int.?
   val location: Parser[World => Location] = coordinates ^^ {
-    case x ~ y ~ Some(z) => (w:World) => w(x, y, z).loc
+    case x ~ z ~ Some(y) => (w:World) => w(x, y, z).loc
     case x ~ z ~ None    => (w:World) => w.getHighestBlockAt(x, z).loc
   }
   val time    : Parser[Int] =
     int.filterWith(i => i >= 0 && i <= 24000)("time must be between 0 and 24000")
 }
-
-case class Command(
-  name: String,
-  description: String,
-  argsDescription: Option[String],
-  body: (Player, BukkitCommand, List[String]) => Unit)
 
 /**
  * A trait that allows a plugin to have one command, very easily.
@@ -68,7 +62,7 @@ trait CommandPlugin extends CommandsPlugin {
  *   - and a function that takes
  *      - the player that entered the command
  *      - and result of parsing
-
+ *
  * If the command is entered, the parser runs on the arguments.
  * If the parser succeeds, the function is ran.
  * If it fails, the player is given an error message.
@@ -79,9 +73,13 @@ trait CommandPlugin extends CommandsPlugin {
  */
 trait CommandsPlugin extends ScalaPlugin with MinecraftParsers {
 
-  def commands: List[Command]
+  case class Command(
+    name: String,
+    description: String,
+    argsDescription: Option[String],
+    body: (Player, BukkitCommand, List[String]) => Unit)
 
-  private def commandsMap: Map[String, Command] = commands.map(c => (c.name.toLowerCase, c)).toMap
+  def commands: List[Command]
 
   def ArgsCommand[T](name: String, desc: String, p: Parser[T])
                     (body: ((Player, T)) => Unit): Command = Command(name, desc, p)(body)
@@ -113,7 +111,7 @@ trait CommandsPlugin extends ScalaPlugin with MinecraftParsers {
                 (body: ((Player, T)) => Unit): Command = new Command(
     name = name, description = desc, argsDescription = Some(args.describe),
     body = (p: Player, c: BukkitCommand, argsList: List[String]) =>
-      (args <~ noArguments)(argsList) match {
+      (args <~ eof)(argsList) match {
         case Success(t,_) => body(p -> t)
         case Failure(msg) => p !* (RED(msg), RED(c.getDescription), RED(c.getUsage))
       }
@@ -131,7 +129,9 @@ trait CommandsPlugin extends ScalaPlugin with MinecraftParsers {
    * @return
    */
   def Command(name: String, desc: String)(body: Player => Unit): Command =
-    Command(name, desc, noArguments){ case (p, _) => body(p) }
+    Command(name, desc, eof){ case (p, _) => body(p) }
+
+  private lazy val commandsMap = commands.map(c => (c.name.toLowerCase, c)).toMap
 
   /**
    * This is Bukkit's main entry point for plugins handling commands.
@@ -190,8 +190,8 @@ trait CommandsPlugin extends ScalaPlugin with MinecraftParsers {
   override def yml(author:String, version: String) = {
     def yml(c: Command) =
       s"  ${c.name}:\n" +
-        s"    description: ${c.description}\n" +
-        s"    usage: /$name ${c.argsDescription.getOrElse("")}"
+      s"    description: ${c.description}\n" +
+      s"    usage: /$name ${c.argsDescription.getOrElse("")}"
     val commandsYml = s"commands:\n${commands.map(yml).mkString("\n")}"
     List(super.yml(author, version), commandsYml).mkString("\n")
   }

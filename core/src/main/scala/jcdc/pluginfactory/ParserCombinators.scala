@@ -224,13 +224,28 @@ trait ParserCombinators extends ScalaEnrichment {
   /**
    * Create a parser that succeeds only if there is no input remaining to be parsed.
    */
-  val noArguments = new Parser[Unit] {
+  val eof = new Parser[Unit] {
     def apply(args: List[String]) = args match {
       case Nil => Success((), Nil)
       case _   => Failure(s"unprocessed input: ${args.mkString(" ")}")
     }
-    def describe = ""
+    def describe = "EOF"
   }
+
+  /**
+   * Alias for eof
+   */
+  val noArguments = eof
+
+  /**
+   * Alias for eof
+   */
+  val nothing     = eof
+
+  /**
+   * Alias for eof
+   */
+  val empty       = eof
 
   /**
    * A parser that succeeds as long as there is

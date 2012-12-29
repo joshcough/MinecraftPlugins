@@ -1,12 +1,11 @@
 package jcdc.pluginfactory.examples
 
-import jcdc.pluginfactory.{CommandsPlugin, Command, ListenersPlugin}
+import jcdc.pluginfactory.{CommandsPlugin, ListenersPlugin}
 import org.bukkit.{Location, Material}
-import org.bukkit.entity.Player
-import Material._
 import org.bukkit.block.Block
+import org.bukkit.entity.Player
+import Material.WOOD_AXE
 
-// A simplified, self-contained version of WorldEdit for demo purposes.
 class WorldEditDemo extends ListenersPlugin with CommandsPlugin {
 
   val corners = collection.mutable.Map[Player, List[Location]]().withDefaultValue(Nil)
@@ -17,7 +16,6 @@ class WorldEditDemo extends ListenersPlugin with CommandsPlugin {
   )
 
   val commands = List(
-    Command(name = "wand", desc = "Get a WorldEdit wand.")(_.loc.dropItem(WOOD_AXE)),
     Command(
       name = "set" ,
       desc = "Set all the selected blocks to the given material type.",
@@ -32,24 +30,19 @@ class WorldEditDemo extends ListenersPlugin with CommandsPlugin {
     )
   )
 
-  def cube(p:Player):Iterator[Block] = {
-    def blocksBetween(loc1:Location, loc2: Location): Iterator[Block] = {
-      val ((x1, y1, z1), (x2, y2, z2)) = (loc1.xyz, loc2.xyz)
-      def range(i1: Int, i2: Int) = (if(i1 < i2) i1 to i2 else i2 to i1).iterator
-      for (x <- range(x1,x2); y <- range(y1,y2); z <- range(z1,z2)) yield loc1.world(x,y,z)
-    }
-    corners.get(p).filter(_.size == 2).
-      fold({p ! "Both corners must be set!"; Iterator[Block]()})(ls => blocksBetween(ls(0), ls(1)))
+  def cube(p:Player):Iterator[Block] = corners(p).filter(_.length == 2) match {
+    case List(loc1, loc2) => p.world.between(loc1, loc2).iterator
+    case _                => p ! "Both corners must be set!"; Iterator[Block]()
   }
 
   def setFirstPos(p:Player,loc: Location): Unit = {
-    corners.update(p, List(loc))
+    corners += (p -> List(loc))
     p ! s"first corner set to: ${loc.xyz}"
   }
 
   def setSecondPos(p:Player,loc2: Location): Unit = corners(p) match {
     case loc1 :: _ =>
-      corners.update(p, List(loc1, loc2))
+      corners += (p -> List(loc1, loc2))
       p ! s"second corner set to: ${loc2.xyz}"
     case Nil =>
       p ! "set corner one first! (with a left click)"

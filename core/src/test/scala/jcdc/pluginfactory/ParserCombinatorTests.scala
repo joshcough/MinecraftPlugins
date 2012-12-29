@@ -55,14 +55,14 @@ object ParserCombinatorTests extends Properties("ParserCombinatorTests") with Pa
     (int ~> int <~ anyString)(List(i.toString, j.toString, s)).get ?= j
   }
 
-  test("(noArguments)(Nil)") { noArguments(Nil) ?= Success((), Nil) }
-  test("(noArguments)(\"werersd\")") {
-    noArguments("werersd") ?= Failure("unprocessed input: werersd")
+  test("(eof)(Nil)") { eof(Nil) ?= Success((), Nil) }
+  test("(eof)(\"werersd\")") {
+    eof("werersd") ?= Failure("unprocessed input: werersd")
   }
-  test("(\"werersd\" <~ noArguments)('werersd')") {
-    ("werersd" <~ noArguments)("werersd").get ?= "werersd"
+  test("(\"werersd\" <~ eof)('werersd')") {
+    ("werersd" <~ eof)("werersd").get ?= "werersd"
   }
-  test("(\"werersd\" ~> noArguments)('werersd')") {
-    ("werersd" ~> noArguments)("werersd").get ?= unit
+  test("(\"werersd\" ~> eof)('werersd')") {
+    ("werersd" ~> eof)("werersd").get ?= unit
   }
 }
