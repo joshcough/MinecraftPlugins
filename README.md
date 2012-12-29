@@ -66,5 +66,6 @@ There are a few other sub projects and I'll mention them just very briefly here.
 
 Important links:
 
-  * [Project Website and ScalaDoc (GitHub Pages)](http://joshcough.github.com/MinecraftPlugins/)
+  * [Project Website on GitHub Pages)](http://joshcough.github.com/MinecraftPlugins/)
+  * [Project Scaladoc on GitHub Pages](http://joshcough.github.com/MinecraftPlugins/scaladoc)
   * [Project site on Bukkit](http://dev.bukkit.org/server-mods/scala-plugin-api/)
