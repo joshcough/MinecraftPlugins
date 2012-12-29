@@ -1,1 +1,109 @@
-My GitHub Page
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="MinecraftPlugins : Minecraft plugins implemented in Scala" />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>MinecraftPlugins</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/joshcough/MinecraftPlugins">View on GitHub</a>
+
+          <h1 id="project_title">MinecraftPlugins</h1>
+          <h2 id="project_tagline">Minecraft plugins implemented in Scala</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/joshcough/MinecraftPlugins/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/joshcough/MinecraftPlugins/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h1>Overview</h1>
+
+<p>This project contains an API for building Minecraft Plugins in Scala.
+It is currently made up of several sub-projects, but the most important ones to know about are:</p>
+
+<ul>
+<li>microexample - A first example of how to create a plugin in Scala.</li>
+<li>examples     - Several more example plugins using the core API</li>
+<li>core         - The core API</li>
+</ul><p>There are several reasons for building this API, but the three that pop to mind immediately are:</p>
+
+<ul>
+<li>To show how easy it is to put better/cleaner APIs on top of existing Java APIs.</li>
+<li>To make command and argument parsing vastly easier using parser combinators.</li>
+<li>To hopefully spark some interest in Scala among the Minecraft community.</li>
+</ul><p>Note: The core API is built on Bukkit version 1.4.6-R0.1 (<a href="http://bukkit.org/">http://bukkit.org/</a>). </p>
+
+<h2>Examples</h2>
+
+<h3>Listener example: LightningArrows</h3>
+
+<p>The following example demonstrates how to use listeners in Scala.
+This plugin strikes an entity (any player or mob) with lightning
+if that entity is hit with an arrow:</p>
+
+<div class="highlight"><pre><span class="k">import</span> <span class="nn">jcdc.pluginfactory.Listeners._</span>
+<span class="k">import</span> <span class="nn">org.bukkit.entity.EntityType.ARROW</span>
+
+<span class="k">class</span> <span class="nc">LightningArrows</span> <span class="k">extends</span> <span class="nc">ListeningFor</span><span class="o">(</span><span class="nc">OnEntityDamageByEntity</span> <span class="o">{</span> <span class="n">e</span> <span class="k">=&gt;</span>
+  <span class="k">if</span> <span class="o">(</span><span class="n">e</span><span class="o">.</span><span class="n">getDamager</span> <span class="n">isAn</span> <span class="nc">ARROW</span><span class="o">)</span> <span class="n">e</span><span class="o">.</span><span class="n">world</span><span class="o">.</span><span class="n">strikeLightning</span><span class="o">(</span><span class="n">e</span><span class="o">.</span><span class="n">loc</span><span class="o">)</span>
+<span class="o">})</span>
+</pre></div>
+
+<h3>Commands example: Shock</h3>
+
+<p>The following example demonstrates how to write commands in Scala.
+It has one command called "shock" which takes a player as input,
+and shocks that player with lightning.</p>
+
+<div class="highlight"><pre><span class="k">import</span> <span class="nn">jcdc.pluginfactory.CommandPlugin</span>
+
+<span class="k">class</span> <span class="nc">Shock</span> <span class="k">extends</span> <span class="nc">CommandPlugin</span> <span class="o">{</span>
+  <span class="k">val</span> <span class="n">command</span> <span class="k">=</span> <span class="nc">Command</span><span class="o">(</span><span class="s">"shock"</span><span class="o">,</span> <span class="s">"shock a player"</span><span class="o">,</span> <span class="n">player</span><span class="o">){</span> <span class="k">case</span> <span class="o">(</span><span class="n">you</span><span class="o">,</span> <span class="n">them</span><span class="o">)</span> <span class="k">=&gt;</span>
+    <span class="n">them</span><span class="o">.</span><span class="n">shock</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+<h2>Other Stuff</h2>
+
+<p>There are a few other sub projects and I'll mention them just very briefly here.</p>
+
+<ul>
+<li>netlogo      - A plugin that enables running NetLogo models in Minecraft servers.
+               More info here: <a href="https://github.com/joshcough/MinecraftPlugins/wiki/NetLogo">NetLogo Plugin</a>
+</li>
+<li>minelang     - An ongoing attempt at writing my own language
+              (very much like Clojure, but not as good) that allows users to write their own
+              minecraft plugins without having to know anything about IDE's and Jar files and
+              stuff like that. I don't have any other information to give on this just yet, though.</li>
+</ul>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">MinecraftPlugins maintained by <a href="https://github.com/joshcough">joshcough</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
