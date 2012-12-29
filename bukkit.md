@@ -33,6 +33,13 @@ It has one command called "shock" which takes a player as input, and shocks that
       }
     }
 
+## Other features
+
+* plugin.yml is automatically generated for you.
+* Advanced cube api for 3D world manipulation
+* Cleaner database connectivity
+* Cleaner logging api
+
 ## Getting Started
 
 A complete guide to getting started writing Scala plugins can be found here:

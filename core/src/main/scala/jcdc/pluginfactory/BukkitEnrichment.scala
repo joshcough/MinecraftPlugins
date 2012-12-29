@@ -14,6 +14,8 @@ import org.bukkit.entity.{LivingEntity, Entity, EntityType, Player}
 import org.bukkit.event.player.PlayerInteractEvent
 import util.Try
 
+
+object BukkitEnrichment extends BukkitEnrichment
 /**
  * Adds piles of missing functions to Bukkit classes.
  *
@@ -34,7 +36,6 @@ import util.Try
  * has access to everything here. If there were a number of implicit conversions, things
  * could potentially get ugly fast.
  */
-object BukkitEnrichment extends BukkitEnrichment
 trait  BukkitEnrichment extends ScalaEnrichment {
 
   /**

@@ -19,9 +19,15 @@ import BukkitEnrichment._
 import java.util
 import java.net.InetSocketAddress
 
-// TODO: rename this
+/**
+ * Code used for testing purposes.
+ * TODO: More information to come on this later.
+ */
 object TestServer { ts =>
 
+  /**
+   * Creates a Block object at the given x, y, z.
+   */
   def getBlock(x:Int, y:Int, z:Int): Block = new Block {
     def getType: Material = Material.STONE
     def setTypeIdAndData(p1: Int, p2: Byte, p3: Boolean): Boolean = true
@@ -70,6 +76,9 @@ object TestServer { ts =>
     def isBlockPowered: Boolean = false
   }
 
+  /**
+   * Creates a chunk object
+   */
   val chunk: Chunk = new Chunk {
     def getEntities: Array[Entity] = Array()
     def unload: Boolean = true
@@ -87,6 +96,9 @@ object TestServer { ts =>
     def getZ: Int = sys error "todo"
   }
 
+  /**
+   * Creates a world object
+   */
   val world: World = new JavaTestWorld {
     def getMetadata(x$1: String): java.util.List[org.bukkit.metadata.MetadataValue] = sys error "todo"
     def hasMetadata(x$1: String): Boolean = sys error "todo"
@@ -209,6 +221,9 @@ object TestServer { ts =>
     def setGameRuleValue(x$1: String,x$2: String): Boolean = false
   }
 
+  /**
+   * Creates a Server object
+   */
   val server: Server = new Server {
     def getListeningPluginChannels: java.util.Set[String] = sys error "todo"
     def sendPluginMessage(x$1: org.bukkit.plugin.Plugin,x$2: String,x$3: Array[Byte]): Unit = sys error "todo"
@@ -297,9 +312,15 @@ object TestServer { ts =>
     def getItemFactory: org.bukkit.inventory.ItemFactory = sys error "todo"
     def getShutdownMessage: String = "shutting down test server"
   }
- 
+
+  /**
+   * The world at x=0, y=4, z=0.
+   */
   val origin: Location = new Location(world, 0, 4, 0)
 
+  /**
+   * A test player object.
+   */
   val player = new Player {
     var x = 0d
     var y = 4d

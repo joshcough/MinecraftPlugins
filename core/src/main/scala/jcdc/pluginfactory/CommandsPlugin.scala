@@ -7,10 +7,11 @@ import org.bukkit.entity.{EntityType, Player}
 import org.bukkit.{Location, World, Material, GameMode}
 import org.bukkit.plugin.Plugin
 
+
+object MinecraftParsers extends MinecraftParsers
 /**
  * Parsers for all sorts of useful things in Minecraft.
  */
-object MinecraftParsers extends MinecraftParsers
 trait MinecraftParsers extends ScalaPlugin with ParserCombinators {
   val gamemode: Parser[GameMode] =
     ("c" | "creative" | "1") ^^^ CREATIVE |

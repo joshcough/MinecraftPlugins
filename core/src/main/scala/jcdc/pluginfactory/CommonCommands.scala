@@ -5,6 +5,11 @@ import org.bukkit.Material
 import Material._
 import scala.collection.JavaConversions._
 
+/**
+ * Some common commands that I found myself writing over and over again
+ * for various plugins. I wanted to put them all into one location,
+ * so that they could be reused elsewhere.
+ */
 trait CommonCommands extends CommandsPlugin {
 
   // some simple useful commands
@@ -28,6 +33,11 @@ trait CommonCommands extends CommandsPlugin {
   val allCommonCommands = List(goto, timeCommand, day, night, gm, gms, gmc, kill)
 }
 
+/**
+ * Some common world editing commands that I found myself writing over and over
+ * again for various plugins. I wanted to put them all into one location, so that
+ * they could be reused elsewhere.
+ */
 trait WorldEditCommands extends CommandsPlugin with Cubes {
   // some common world editing commands
   val wand  = Command("/wand",  "Get a WorldEdit wand.")  (_.loc.dropItem(WOOD_AXE))
