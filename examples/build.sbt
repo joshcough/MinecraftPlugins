@@ -1,6 +1,6 @@
 name := "JCDC Plugin Factory Examples"
 
-version := "0.2.0"
+version := "0.2.1"
 
 organization := "jcdc.pluginfactory"
 
@@ -13,7 +13,7 @@ resolvers ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-  "jcdc.pluginfactory" % "jcdc-plugin-factory_2.10" % "0.2.0",
+  "jcdc.pluginfactory" % "jcdc-plugin-factory_2.10" % "0.2.1",
   "javax.servlet"      % "servlet-api"              % "2.5" % "provided->default",
   "org.bukkit"         % "craftbukkit"              % "1.4.5-R0.2",
   // this is only necessary if you want to do some NPC hacking, like in NPCTest.scala
@@ -24,3 +24,11 @@ libraryDependencies ++= Seq(
   //"org.scalacheck"  %% "scalacheck"               % "1.10.0" % "test",
   "org.scalacheck"     % "scalacheck_2.10.0-RC5"    % "1.10.0" % "test"
 )
+
+
+//packageBin in Compile <<= (packageBin in Compile) dependsOn run
+//Keys.`package` <<= (Keys.`package` in Compile) dependsOn run
+//compile <<= (compile in Compile) map { result =>
+//  println("in compile, something")
+//  result
+//}

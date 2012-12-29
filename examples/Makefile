@@ -14,7 +14,7 @@ clean-plugins:
 
 compile:
 	cd ../core; ./sbt publish-local; lein uberjar;
-	cp ../core/target/jcdc.pluginfactory-0.2.0-standalone.jar $(BUKKIT)/plugins/
+	cp ../core/target/jcdc.pluginfactory-2.10.0-0.2.1-standalone.jar $(BUKKIT)/plugins/
 	./sbt compile "run-main jcdc.pluginfactory.examples.YMLGenerator"
 
 run-tests:

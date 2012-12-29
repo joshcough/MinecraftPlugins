@@ -51,3 +51,9 @@ Many, many more examples can be found here:
 [https://github.com/joshcough/MinecraftPlugins/tree/master/examples/src/main/scala/jcdc/pluginfactory/examples](https://github.com/joshcough/MinecraftPlugins/tree/master/examples/src/main/scala/jcdc/pluginfactory/examples),
 including Scala versions of WorldEdit, Multi Player Commands (a plugin that supports many of the
 same commands as Single Player Commands), Warp, and more.
+
+## Scaladoc
+
+The Scaladoc for the project can be found here:
+
+[http://joshcough.github.com/MinecraftPlugins/scaladoc](http://joshcough.github.com/MinecraftPlugins/scaladoc)
