@@ -1,0 +1,743 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html>
+        <head>
+          <title>Parser - jcdc.pluginfactory.ParserCombinators.Parser</title>
+          <meta name="description" content="Parser - jcdc.pluginfactory.ParserCombinators.Parser" />
+          <meta name="keywords" content="Parser jcdc.pluginfactory.ParserCombinators.Parser" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../lib/template.js"></script>
+      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
+      
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../index.html';
+            var hash = 'jcdc.pluginfactory.ParserCombinators$Parser';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="type">
+      <div id="definition">
+        <img src="../../lib/trait_big.png" />
+        <p id="owner"><a href="../package.html" class="extype" name="jcdc">jcdc</a>.<a href="package.html" class="extype" name="jcdc.pluginfactory">pluginfactory</a>.<a href="ParserCombinators.html" class="extype" name="jcdc.pluginfactory.ParserCombinators">ParserCombinators</a></p>
+        <h1>Parser</h1>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <span class="name">Parser</span><span class="tparams">[<span name="T">+T</span>]</span><span class="result"> extends (<span class="extype" name="scala.List">List</span>[<span class="extype" name="scala.Predef.String">String</span>]) ⇒ <a href="ParserCombinators$ParseResult.html" class="extype" name="jcdc.pluginfactory.ParserCombinators.ParseResult">ParseResult</a>[<span class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser.T">T</span>]</span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"><dl class="attributes block"> <dt>Self Type</dt><dd><a href="" class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser">Parser</a>[<span class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser.T">T</span>]</dd></dl><div class="toggleContainer block">
+          <span class="toggle">Linear Supertypes</span>
+          <div class="superTypes hiddenContent">(<span class="extype" name="scala.List">List</span>[<span class="extype" name="scala.Predef.String">String</span>]) ⇒ <a href="ParserCombinators$ParseResult.html" class="extype" name="jcdc.pluginfactory.ParserCombinators.ParseResult">ParseResult</a>[<span class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser.T">T</span>], <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+        </div></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        <div id="order">
+              <span class="filtertype">Ordering</span>
+              <ol>
+                
+                <li class="alpha in"><span>Alphabetic</span></li>
+                <li class="inherit out"><span>By inheritance</span></li>
+              </ol>
+            </div>
+        <div id="ancestors">
+                <span class="filtertype">Inherited<br />
+                </span>
+                <ol id="linearization">
+                  <li class="in" name="jcdc.pluginfactory.ParserCombinators.Parser"><span>Parser</span></li><li class="in" name="scala.Function1"><span>Function1</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                </ol>
+              </div><div id="ancestors">
+            <span class="filtertype"></span>
+            <ol>
+              <li class="hideall out"><span>Hide All</span></li>
+              <li class="showall in"><span>Show all</span></li>
+            </ol>
+            <a href="http://docs.scala-lang.org/overviews/scaladoc/usage.html#members" target="_blank">Learn more about member selection</a>
+          </div>
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        
+
+        
+
+        <div id="values" class="values members">
+              <h3>Abstract Value Members</h3>
+              <ol><li name="jcdc.pluginfactory.ParserCombinators.Parser#apply" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="apply(args:List[String]):ParserCombinators.this.ParseResult[T]"></a>
+      <a id="apply(List[String]):ParseResult[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">apply</span><span class="params">(<span name="args">args: <span class="extype" name="scala.List">List</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>)</span><span class="result">: <a href="ParserCombinators$ParseResult.html" class="extype" name="jcdc.pluginfactory.ParserCombinators.ParseResult">ParseResult</a>[<span class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser.T">T</span>]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser">Parser</a> → Function1</dd></dl></div>
+    </li><li name="jcdc.pluginfactory.ParserCombinators.Parser#describe" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="describe:String"></a>
+      <a id="describe:String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">describe</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+      </span>
+      </h4>
+      
+    </li></ol>
+            </div>
+
+        <div id="values" class="values members">
+              <h3>Concrete Value Members</h3>
+              <ol><li name="scala.AnyRef#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="!=(x$1:AnyRef):Boolean"></a>
+      <a id="!=(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.Any#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="!=(x$1:Any):Boolean"></a>
+      <a id="!=(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="scala.AnyRef###" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="##():Int"></a>
+      <a id="##():Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $hash$hash" class="name">##</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="jcdc.pluginfactory.ParserCombinators.Parser#*" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="*:ParserCombinators.this.Parser[List[T]]"></a>
+      <a id="*:Parser[List[T]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $times" class="name">*</span><span class="result">: <a href="" class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser">Parser</a>[<span class="extype" name="scala.List">List</span>[<span class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser.T">T</span>]]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Return a new parser that will parse zero or more of whatever this parser parses.</p><div class="fullcomment"><div class="comment cmt"><p>Return a new parser that will parse zero or more of whatever this parser parses.
+The results are returned in a list.
+If zero parse successfully, Nil is returned.
+</p></div></div>
+    </li><li name="jcdc.pluginfactory.ParserCombinators.Parser#+" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="+:ParserCombinators.this.Parser[List[T]]"></a>
+      <a id="+:Parser[List[T]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $plus" class="name">+</span><span class="result">: <a href="" class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser">Parser</a>[<span class="extype" name="scala.List">List</span>[<span class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser.T">T</span>]]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Return a new parser that will parse one or more of whatever this parser parses.</p><div class="fullcomment"><div class="comment cmt"><p>Return a new parser that will parse one or more of whatever this parser parses.
+The results are returned in a list.
+If zero parse successfully, the parser fails.</p></div><dl class="paramcmts block"><dt>returns</dt><dd class="cmt"><p>
+</p></dd></dl></div>
+    </li><li name="jcdc.pluginfactory.ParserCombinators.Parser#&lt;~" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="&lt;~[U](p2:ParserCombinators.this.Parser[U]):ParserCombinators.this.Parser[T]"></a>
+      <a id="&lt;~[U](Parser[U]):Parser[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $less$tilde" class="name">&lt;~</span><span class="tparams">[<span name="U">U</span>]</span><span class="params">(<span name="p2">p2: <a href="" class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser">Parser</a>[<span class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser.&lt;~.U">U</span>]</span>)</span><span class="result">: <a href="" class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser">Parser</a>[<span class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser.T">T</span>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Creates a new parser that chains two parsers together (this, and p2).</p><div class="fullcomment"><div class="comment cmt"><p>Creates a new parser that chains two parsers together (this, and p2).
+The second parser works on the remaining input after the first parser is ran.
+If they both succeed, the result of the first parser is returned (T),
+and the result of the second parser is thrown out.
+</p></div></div>
+    </li><li name="scala.AnyRef#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="==(x$1:AnyRef):Boolean"></a>
+      <a id="==(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.Any#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="==(x$1:Any):Boolean"></a>
+      <a id="==(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="jcdc.pluginfactory.ParserCombinators.Parser#?" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="?:ParserCombinators.this.Parser[Option[T]]"></a>
+      <a id="?:Parser[Option[T]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $qmark" class="name">?</span><span class="result">: <a href="" class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser">Parser</a>[<span class="extype" name="scala.Option">Option</span>[<span class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser.T">T</span>]]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Return a new parser that will attempt to parse input (T), and returns an Option[T]
+If parsing fails, None is returned.</p><div class="fullcomment"><div class="comment cmt"><p>Return a new parser that will attempt to parse input (T), and returns an Option[T]
+If parsing fails, None is returned. If parsing succeeds, Some(t) is returned.
+</p></div></div>
+    </li><li name="jcdc.pluginfactory.ParserCombinators.Parser#^^" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="^^[U](f:T=&gt;U):ParserCombinators.this.Parser[U]"></a>
+      <a id="^^[U]((T)⇒U):Parser[U]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $up$up" class="name">^^</span><span class="tparams">[<span name="U">U</span>]</span><span class="params">(<span name="f">f: (<span class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser.T">T</span>) ⇒ <span class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser.^^.U">U</span></span>)</span><span class="result">: <a href="" class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser">Parser</a>[<span class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser.^^.U">U</span>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Operator alias for map.</p>
+    </li><li name="jcdc.pluginfactory.ParserCombinators.Parser#^^^" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="^^^[U](u:=&gt;U):ParserCombinators.this.Parser[U]"></a>
+      <a id="^^^[U](⇒U):Parser[U]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $up$up$up" class="name">^^^</span><span class="tparams">[<span name="U">U</span>]</span><span class="params">(<span name="u">u: ⇒ <span class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser.^^^.U">U</span></span>)</span><span class="result">: <a href="" class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser">Parser</a>[<span class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser.^^^.U">U</span>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Create a new parser that when ran, if it succeeds,
+throws out its result and returns u instead.</p>
+    </li><li name="scala.Function1#andThen" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="andThen[A&lt;:&lt;?&gt;](g:&lt;?&gt;):T1=&gt;A"></a>
+      <a id="andThen[A]((ParseResult[T])⇒A):(List[String])⇒A"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">andThen</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="g">g: (<a href="ParserCombinators$ParseResult.html" class="extype" name="jcdc.pluginfactory.ParserCombinators.ParseResult">ParseResult</a>[<span class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser.T">T</span>]) ⇒ <span class="extype" name="scala.Function1.andThen.A">A</span></span>)</span><span class="result">: (<span class="extype" name="scala.List">List</span>[<span class="extype" name="scala.Predef.String">String</span>]) ⇒ <span class="extype" name="scala.Function1.andThen.A">A</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Function1</dd><dt>Annotations</dt><dd>
+                <span class="name">@unspecialized</span><span class="args">()</span>
+              
+        </dd></dl></div>
+    </li><li name="jcdc.pluginfactory.ParserCombinators.Parser#apply" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="apply(args:String):ParserCombinators.this.ParseResult[T]"></a>
+      <a id="apply(String):ParseResult[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">apply</span><span class="params">(<span name="args">args: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="ParserCombinators$ParseResult.html" class="extype" name="jcdc.pluginfactory.ParserCombinators.ParseResult">ParseResult</a>[<span class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser.T">T</span>]</span>
+      </span>
+      </h4>
+      
+    </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="asInstanceOf[T0]:T0"></a>
+      <a id="asInstanceOf[T0]:T0"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">asInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Any.asInstanceOf.T0">T0</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="clone():Object"></a>
+      <a id="clone():AnyRef"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<span class="extype" name="java.lang">java.lang</span>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">()</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.Function1#compose" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="compose[A&lt;:&lt;?&gt;](g:&lt;?&gt;):A=&gt;R"></a>
+      <a id="compose[A]((A)⇒List[String]):(A)⇒ParseResult[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">compose</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="g">g: (<span class="extype" name="scala.Function1.compose.A">A</span>) ⇒ <span class="extype" name="scala.List">List</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>)</span><span class="result">: (<span class="extype" name="scala.Function1.compose.A">A</span>) ⇒ <a href="ParserCombinators$ParseResult.html" class="extype" name="jcdc.pluginfactory.ParserCombinators.ParseResult">ParseResult</a>[<span class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser.T">T</span>]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Function1</dd><dt>Annotations</dt><dd>
+                <span class="name">@unspecialized</span><span class="args">()</span>
+              
+        </dd></dl></div>
+    </li><li name="jcdc.pluginfactory.ParserCombinators.Parser#debug" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="debug:ParserCombinators.this.Parser[T]"></a>
+      <a id="debug:Parser[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">debug</span><span class="result">: <a href="" class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser">Parser</a>[<span class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser.T">T</span>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Returns a new parser that prints debugging information before and after parsing the input.</p>
+    </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="eq(x$1:AnyRef):Boolean"></a>
+      <a id="eq(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#equals" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="equals(x$1:Any):Boolean"></a>
+      <a id="equals(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">equals</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="jcdc.pluginfactory.ParserCombinators.Parser#filter" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="filter(f:T=&gt;Boolean):ParserCombinators.this.Parser[T]"></a>
+      <a id="filter((T)⇒Boolean):Parser[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">filter</span><span class="params">(<span name="f">f: (<span class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser.T">T</span>) ⇒ <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="result">: <a href="" class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser">Parser</a>[<span class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser.T">T</span>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Create a new parser that when ran, if it succeeds,
+then checks to see if its result also passes the given predicate.</p><div class="fullcomment"><div class="comment cmt"><p>Create a new parser that when ran, if it succeeds,
+then checks to see if its result also passes the given predicate.
+If it does not, then the parser fails.
+</p></div></div>
+    </li><li name="jcdc.pluginfactory.ParserCombinators.Parser#filterWith" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="filterWith(f:T=&gt;Boolean)(errMsg:String):ParserCombinators.this.Parser[T]"></a>
+      <a id="filterWith((T)⇒Boolean)(String):Parser[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">filterWith</span><span class="params">(<span name="f">f: (<span class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser.T">T</span>) ⇒ <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="params">(<span name="errMsg">errMsg: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="" class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser">Parser</a>[<span class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser.T">T</span>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Same as filter, but allows for supplying a custom failure message
+if the result fails the predicate.</p>
+    </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="finalize():Unit"></a>
+      <a id="finalize():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">finalize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<span class="extype" name="java.lang">java.lang</span>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">()</span>
+              
+        </dd></dl></div>
+    </li><li name="jcdc.pluginfactory.ParserCombinators.Parser#flatMap" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="flatMap[U](f:T=&gt;ParserCombinators.this.Parser[U]):ParserCombinators.this.Parser[U]"></a>
+      <a id="flatMap[U]((T)⇒Parser[U]):Parser[U]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">flatMap</span><span class="tparams">[<span name="U">U</span>]</span><span class="params">(<span name="f">f: (<span class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser.T">T</span>) ⇒ <a href="" class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser">Parser</a>[<span class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser.flatMap.U">U</span>]</span>)</span><span class="result">: <a href="" class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser">Parser</a>[<span class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser.flatMap.U">U</span>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Monadic bind for a Parser.</p><div class="fullcomment"><div class="comment cmt"><p>Monadic bind for a Parser. Used for chaining parsers together in for comprehensions,
+so that you can run N of them in a row, short circuiting if any fail.
+</p></div></div>
+    </li><li name="scala.AnyRef#getClass" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getClass():Class[_]"></a>
+      <a id="getClass():Class[_]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getClass</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.Class">Class</span>[_]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef#hashCode" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="hashCode():Int"></a>
+      <a id="hashCode():Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">hashCode</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="isInstanceOf[T0]:Boolean"></a>
+      <a id="isInstanceOf[T0]:Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">isInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="jcdc.pluginfactory.ParserCombinators.Parser#map" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="map[U](f:T=&gt;U):ParserCombinators.this.Parser[U]"></a>
+      <a id="map[U]((T)⇒U):Parser[U]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">map</span><span class="tparams">[<span name="U">U</span>]</span><span class="params">(<span name="f">f: (<span class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser.T">T</span>) ⇒ <span class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser.map.U">U</span></span>)</span><span class="result">: <a href="" class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser">Parser</a>[<span class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser.map.U">U</span>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Create a new parser that when ran, if it succeeds,
+take its result and map it over f.</p>
+    </li><li name="jcdc.pluginfactory.ParserCombinators.Parser#named" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="named(name:String):ParserCombinators.this.Parser[T]"></a>
+      <a id="named(String):Parser[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">named</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="" class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser">Parser</a>[<span class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser.T">T</span>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Rename this parser the given string.</p>
+    </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ne(x$1:AnyRef):Boolean"></a>
+      <a id="ne(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#notify" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="notify():Unit"></a>
+      <a id="notify():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">notify</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#notifyAll" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="notifyAll():Unit"></a>
+      <a id="notifyAll():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">notifyAll</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="jcdc.pluginfactory.ParserCombinators.Parser#or" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="or[U](p2:=&gt;ParserCombinators.this.Parser[U]):ParserCombinators.this.Parser[Either[T,U]]"></a>
+      <a id="or[U](⇒Parser[U]):Parser[Either[T,U]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">or</span><span class="tparams">[<span name="U">U</span>]</span><span class="params">(<span name="p2">p2: ⇒ <a href="" class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser">Parser</a>[<span class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser.or.U">U</span>]</span>)</span><span class="result">: <a href="" class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser">Parser</a>[<span class="extype" name="scala.Either">Either</span>[<span class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser.T">T</span>, <span class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser.or.U">U</span>]]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Creates a new parser that will succeed if either this, or p2 succeed.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a new parser that will succeed if either this, or p2 succeed.
+If this parser fails, then p2 will run on the same input.
+If this succeeds, Left(some t) is returned, and
+if p2 succeeds, Right(some u) is returned.
+</p></div></div>
+    </li><li name="jcdc.pluginfactory.ParserCombinators.Parser#repSep" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="repSep[U](p2:ParserCombinators.this.Parser[U]):ParserCombinators.this.Parser[List[T]]"></a>
+      <a id="repSep[U](Parser[U]):Parser[List[T]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">repSep</span><span class="tparams">[<span name="U">U</span>]</span><span class="params">(<span name="p2">p2: <a href="" class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser">Parser</a>[<span class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser.repSep.U">U</span>]</span>)</span><span class="result">: <a href="" class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser">Parser</a>[<span class="extype" name="scala.List">List</span>[<span class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser.T">T</span>]]</span>
+      </span>
+      </h4>
+      
+    </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
+      <a id="synchronized[T0](⇒T0):T0"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">synchronized</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="params">(<span name="arg0">arg0: ⇒ <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>)</span><span class="result">: <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.Function1#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="toString():String"></a>
+      <a id="toString():String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">toString</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Function1 → AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait():Unit"></a>
+      <a id="wait():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">()</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait(x$1:Long,x$2:Int):Unit"></a>
+      <a id="wait(Long,Int):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>, <span name="arg1">arg1: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">()</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait(x$1:Long):Unit"></a>
+      <a id="wait(Long):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">()</span>
+              
+        </dd></dl></div>
+    </li><li name="jcdc.pluginfactory.ParserCombinators.Parser#|" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="|[U&gt;:T](p2:=&gt;ParserCombinators.this.Parser[U]):ParserCombinators.this.Parser[U]"></a>
+      <a id="|[U&gt;:T](⇒Parser[U]):Parser[U]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $bar" class="name">|</span><span class="tparams">[<span name="U">U &gt;: <span class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser.T">T</span></span>]</span><span class="params">(<span name="p2">p2: ⇒ <a href="" class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser">Parser</a>[<span class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser.|.U">U</span>]</span>)</span><span class="result">: <a href="" class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser">Parser</a>[<span class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser.|.U">U</span>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Same as or, but where U is the same type as T, basically.</p>
+    </li><li name="jcdc.pluginfactory.ParserCombinators.Parser#~" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="~[U](p2:=&gt;ParserCombinators.this.Parser[U]):ParserCombinators.this.Parser[ParserCombinators.this.~[T,U]]"></a>
+      <a id="~[U](⇒Parser[U]):Parser[~[T,U]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $tilde" class="name">~</span><span class="tparams">[<span name="U">U</span>]</span><span class="params">(<span name="p2">p2: ⇒ <a href="" class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser">Parser</a>[<span class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser.~.U">U</span>]</span>)</span><span class="result">: <a href="" class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser">Parser</a>[<a href="ParserCombinators$$tilde.html" class="extype" name="jcdc.pluginfactory.ParserCombinators.~">~</a>[<span class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser.T">T</span>, <span class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser.~.U">U</span>]]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Creates a new parser that chains two parsers together (this, and p2).</p><div class="fullcomment"><div class="comment cmt"><p>Creates a new parser that chains two parsers together (this, and p2).
+The second parser works on the remaining input after the first parser is ran.
+If they both succeed, a compound result is returned: ~[T,U]
+</p></div></div>
+    </li><li name="jcdc.pluginfactory.ParserCombinators.Parser#~&gt;" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="~&gt;[U](p2:ParserCombinators.this.Parser[U]):ParserCombinators.this.Parser[U]"></a>
+      <a id="~&gt;[U](Parser[U]):Parser[U]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $tilde$greater" class="name">~&gt;</span><span class="tparams">[<span name="U">U</span>]</span><span class="params">(<span name="p2">p2: <a href="" class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser">Parser</a>[<span class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser.~&gt;.U">U</span>]</span>)</span><span class="result">: <a href="" class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser">Parser</a>[<span class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser.~&gt;.U">U</span>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Creates a new parser that chains two parsers together (this, and p2).</p><div class="fullcomment"><div class="comment cmt"><p>Creates a new parser that chains two parsers together (this, and p2).
+The second parser works on the remaining input after the first parser is ran.
+If they both succeed, the result of the second parser is returned (U),
+and the result of the first parser is thrown out.
+</p></div></div>
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        <div class="parent" name="scala.Function1">
+              <h3>Inherited from (<span class="extype" name="scala.List">List</span>[<span class="extype" name="scala.Predef.String">String</span>]) ⇒ <a href="ParserCombinators$ParseResult.html" class="extype" name="jcdc.pluginfactory.ParserCombinators.ParseResult">ParseResult</a>[<span class="extype" name="jcdc.pluginfactory.ParserCombinators.Parser.T">T</span>]</h3>
+            </div><div class="parent" name="scala.AnyRef">
+              <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
+            </div><div class="parent" name="scala.Any">
+              <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>
+            </div>
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+
+
+    </body>
+      </html>
