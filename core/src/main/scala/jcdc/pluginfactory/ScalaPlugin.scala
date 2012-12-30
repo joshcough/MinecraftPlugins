@@ -1,11 +1,12 @@
 package jcdc.pluginfactory
 
 import org.bukkit.Server
-import org.bukkit.event.Event
+import org.bukkit.event.{Listener, Event}
 import org.bukkit.plugin.java.JavaPlugin
 import util.Try
-import java.util.logging.Logger
+import java.util.logging.{Level, Logger}
 import javax.persistence.PersistenceException
+import org.bukkit.entity.Player
 
 /**
  * The base class that helps make writing Bukkit plugins vastly easier.
@@ -13,7 +14,7 @@ import javax.persistence.PersistenceException
  * far more likely that you'll subclass jcdc.pluginfactory.CommandsPlugin,
  * jcdc.pluginfactory.ListenersPlugin, or both.
  */
-abstract class ScalaPlugin extends JavaPlugin with BukkitEnrichment {
+abstract class ScalaPlugin extends JavaPlugin with BukkitEnrichment { scalaPlugin =>
 
   lazy val log = Logger.getLogger("Minecraft")
 
@@ -100,7 +101,20 @@ abstract class ScalaPlugin extends JavaPlugin with BukkitEnrichment {
   /**
    * Log the given message at INFO level.
    */
-  def logInfo(message:String): Unit = { log.info(s"[$name] - $message") }
+  def logInfo(message:String): Unit = logMessage(Level.INFO)
+
+  /**
+   * Log the given message at INFO level.
+   */
+  def logWarning(message:String): Unit = logMessage(Level.WARNING)
+
+  /**
+   * Log the given exception at SEVERE level.
+   */
+  def logError(e:Throwable): Unit = logMessage(Level.SEVERE, e.getMessage)
+
+  private def logMessage(level: Level, message: String): Unit =
+    log.log(level, s"[$name] - $message")
 
   /**
    * Log around the given task like so:
@@ -112,33 +126,57 @@ abstract class ScalaPlugin extends JavaPlugin with BukkitEnrichment {
     logInfo(s"Starting: $message"); val t = f; logInfo(s"Finished: $message"); t
   }
 
-  /**
-   * Log the given exception at SEVERE level.
-   */
-  def logError(e:Throwable): Unit = {
-    log.log(java.util.logging.Level.SEVERE, s"[$name] - ${e.getMessage}", e)
-  }
 
   // Various other little helper functions.
   def name = Try(this.getDescription.getName).getOrElse(this.getClass.getSimpleName)
   def server: Server      = getServer
   def pluginManager       = getServer.getPluginManager
   def fire(e:Event): Unit = server.getPluginManager.callEvent(e)
-
+  def registerListener(listener:Listener): Unit = pluginManager.registerEvents(listener, this)
 
   // task stuff:
-  def scheduleSyncTask(task: => Unit): Int =
-    server.getScheduler.scheduleSyncDelayedTask(this, task)
+  private lazy val scheduler = server.getScheduler
 
-  def scheduleSyncDelayedTask(initialDelay: Long)(task: => Unit): Int =
-    server.getScheduler.scheduleSyncDelayedTask(this, task, initialDelay)
+  case class Task(id:Int)
 
-  def scheduleSyncRepeatingTask(period: Long)(task: => Unit): Int =
-    server.getScheduler.scheduleSyncRepeatingTask(this, task, 0L, period)
+  def scheduleSyncTask(task: => Unit): Task =
+    Task(scheduler.scheduleSyncDelayedTask(this, task))
 
-  def scheduleSyncRepeatingTask(initialDelay: Long, period: Long)(task: => Unit): Int =
-    server.getScheduler.scheduleSyncRepeatingTask(this, task, initialDelay, period)
+  def scheduleSyncDelayedTask(initialDelay: Long)(task: => Unit): Task =
+    Task(scheduler.scheduleSyncDelayedTask(this, task, initialDelay))
 
-  //  server.getScheduler.callSyncMethod()
+  def scheduleSyncRepeatingTask(period: Long)(task: => Unit): Task =
+    Task(scheduler.scheduleSyncRepeatingTask(this, task, 0L, period))
 
+  def scheduleSyncRepeatingTask(initialDelay: Long, period: Long)(task: => Unit): Task =
+    Task(scheduler.scheduleSyncRepeatingTask(this, task, initialDelay, period))
+
+  def cancelTask(t: Task) = scheduler cancelTask t.id
+
+  case class PlayerTasks(cancelOnExit: Boolean = true) extends PlayerState[Seq[Task]] {
+    override val default: Option[Seq[Task]] = Some(Nil)
+
+    registerListener(Listeners.OnPlayerQuit((p, _) => if(cancelOnExit) p.cancelAll))
+
+    implicit class PlayerWithTaskFunctions(p:Player){
+      private def addTask(t: Task): Task = { state += (p -> (getPlayerState(p) :+ t)); t }
+
+      def scheduleSyncTask(task: => Unit): Task = addTask(scalaPlugin.scheduleSyncTask(task))
+
+      def scheduleSyncRepeatingTask(initialDelay: Long, period: Long)(task: => Unit): Task =
+        addTask(scalaPlugin.scheduleSyncRepeatingTask(initialDelay, period)(task))
+
+      def cancelTask(t: Task): Unit = {
+        scheduler cancelTask t.id
+        state += (p -> getPlayerState(p).filter(_ != t))
+      }
+      def cancelAll: Unit = {
+        logInfo(s"canceling all tasks for: $p")
+        deletePlayerState(p) foreach { t =>
+          logInfo(s"canceling: $t")
+          scheduler cancelTask t.id
+        }
+      }
+    }
+  }
 }

@@ -29,6 +29,8 @@ import jcdc.pluginfactory.{CommandsPlugin, Cube, ListenersPlugin}
 class WorldEdit extends ListenersPlugin with CommandsPlugin {
 
   val corners = collection.mutable.Map[Player, List[Location]]().withDefaultValue(Nil)
+  lazy val tasks = new PlayerTasks
+  import tasks._
 
   val listeners = List(
     OnLeftClickBlock ((p, e) => if(p isHoldingA WOOD_AXE) { setFirstPos (p, e.loc); e.cancel }),
@@ -90,14 +92,16 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin {
       body = { case (p, m) => cube(p).walls.foreach(_ changeTo m) }
     ),
     Command(
-      name = "crazy-walls",
-      desc = "Create walls, and change them between several different materials, every N seconds.",
+      name = "cycle-walls",
+      desc =
+        "Create walls, and cycle the walls material between the given materials, " +
+        "in a span of N seconds.",
       args = int ~ material ~ material.+)(
       body = { case (p, period ~ initialMaterial ~ materials) => {
         val allMaterials = initialMaterial :: materials
         def initialDelay(index: Int) = index * period * 20 / allMaterials.size
         for((m, i) <- allMaterials.zipWithIndex)
-          scheduleSyncRepeatingTask(initialDelay = initialDelay(i), period = period * 20){
+          p.scheduleSyncRepeatingTask(initialDelay = initialDelay(i), period = period * 20){
             cube(p).walls.foreach(_ changeTo m)
           }
       }}
