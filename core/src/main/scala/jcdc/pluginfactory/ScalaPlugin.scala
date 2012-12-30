@@ -101,12 +101,12 @@ abstract class ScalaPlugin extends JavaPlugin with BukkitEnrichment { scalaPlugi
   /**
    * Log the given message at INFO level.
    */
-  def logInfo(message:String): Unit = logMessage(Level.INFO)
+  def logInfo(message:String): Unit = logMessage(Level.INFO, message)
 
   /**
    * Log the given message at INFO level.
    */
-  def logWarning(message:String): Unit = logMessage(Level.WARNING)
+  def logWarning(message:String): Unit = logMessage(Level.WARNING, message)
 
   /**
    * Log the given exception at SEVERE level.
@@ -159,7 +159,7 @@ abstract class ScalaPlugin extends JavaPlugin with BukkitEnrichment { scalaPlugi
     registerListener(Listeners.OnPlayerQuit((p, _) => if(cancelOnExit) p.cancelAll))
 
     implicit class PlayerWithTaskFunctions(p:Player){
-      private def addTask(t: Task): Task = { state += (p -> (getPlayerState(p) :+ t)); t }
+      private def addTask(t: Task): Task = { setPlayerState(p, (getPlayerState(p) :+ t)); t }
 
       def scheduleSyncTask(task: => Unit): Task = addTask(scalaPlugin.scheduleSyncTask(task))
 
@@ -168,7 +168,7 @@ abstract class ScalaPlugin extends JavaPlugin with BukkitEnrichment { scalaPlugi
 
       def cancelTask(t: Task): Unit = {
         scheduler cancelTask t.id
-        state += (p -> getPlayerState(p).filter(_ != t))
+        setPlayerState(p, getPlayerState(p).filter(_ != t))
       }
       def cancelAll: Unit = {
         logInfo(s"canceling all tasks for: $p")
