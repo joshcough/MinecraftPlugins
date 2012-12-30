@@ -3,6 +3,7 @@ package jcdc.pluginfactory
 import java.io.File
 import io.Source
 
+object ScalaEnrichment extends ScalaEnrichment
 /**
  * Adds a bunch of missing functions to Scala classes.
  */
@@ -18,6 +19,11 @@ trait ScalaEnrichment {
   implicit class RichT[T](t:T){
     def |> [U](f: T => U) = f(t)
   }
+
+  /**
+   * Implicit conversion to Runnable.
+   */
+  implicit def byNameToRunnable(f: => Unit) = new Runnable { def run = f }
 
   /**
    * Enrich a Function1.
@@ -48,7 +54,7 @@ trait ScalaEnrichment {
      * Fold with the argument order reversed, because sometimes its nice to put the
      * success case first, and the failure case last.
      */
-    def flipFold[B]: (T => B) => B => B = ((b: B) => (f: T => B) => o.fold(b)(f)).flip
+    def flipFold[B](f: T => B)(ifEmpty: => B) = o.fold(ifEmpty)(f)
   }
 
   // alias for identity.
