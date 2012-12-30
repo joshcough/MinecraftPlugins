@@ -13,8 +13,8 @@ clean-plugins:
 	cd $(BUKKIT)/plugins; rm -f *.jar
 
 compile:
-	cd ../core; ./sbt publish-local; lein uberjar;
-	cp ../core/target/jcdc.pluginfactory-2.10.0-0.2.1-standalone.jar $(BUKKIT)/plugins/
+	cd ../core; ./bin/publish-local.sh
+	cp ../core/target/scala-plugin-api-2.10.0-RC5-0.2.1.jar $(BUKKIT)/plugins/
 	./sbt compile "run-main jcdc.pluginfactory.examples.YMLGenerator"
 
 run-tests:
