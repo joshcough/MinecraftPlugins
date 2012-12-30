@@ -90,6 +90,19 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin {
       body = { case (p, m) => cube(p).walls.foreach(_ changeTo m) }
     ),
     Command(
+      name = "crazy-walls",
+      desc = "Create walls, and change them between several different materials, every N seconds.",
+      args = int ~ material ~ material.+)(
+      body = { case (p, period ~ initialMaterial ~ materials) => {
+        val allMaterials = initialMaterial :: materials
+        def initialDelay(index: Int) = index * period * 20 / allMaterials.size
+        for((m, i) <- allMaterials.zipWithIndex)
+          scheduleSyncRepeatingTask(initialDelay = initialDelay(i), period = period * 20){
+            cube(p).walls.foreach(_ changeTo m)
+          }
+      }}
+    ),
+    Command(
       name = "empty-tower",
       desc = "Create walls and floor with the given material type, and set everything inside to air.",
       args = material)(
@@ -121,7 +134,7 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin {
 
   def setSecondPos(p:Player,loc2: Location): Unit = corners(p) match {
     case loc1 :: _ =>
-      corners.update(p, List(loc1, loc2))
+      corners += (p -> List(loc1, loc2))
       p ! s"second corner set to: ${loc2.xyz}"
     case Nil =>
       p ! "set corner one first! (with a left click)"

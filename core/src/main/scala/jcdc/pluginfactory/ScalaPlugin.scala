@@ -2,6 +2,7 @@ package jcdc.pluginfactory
 
 import org.bukkit.Server
 import org.bukkit.event.Event
+import org.bukkit.plugin.java.JavaPlugin
 import util.Try
 import java.util.logging.Logger
 import javax.persistence.PersistenceException
@@ -12,9 +13,9 @@ import javax.persistence.PersistenceException
  * far more likely that you'll subclass jcdc.pluginfactory.CommandsPlugin,
  * jcdc.pluginfactory.ListenersPlugin, or both.
  */
-abstract class ScalaPlugin extends org.bukkit.plugin.java.JavaPlugin with BukkitEnrichment {
+abstract class ScalaPlugin extends JavaPlugin with BukkitEnrichment {
 
-  val log  = Logger.getLogger("Minecraft")
+  lazy val log = Logger.getLogger("Minecraft")
 
   // setup stuff
   override def onEnable() { super.onEnable() ; setupDatabase; logInfo(s"$name enabled!" ) }
@@ -123,4 +124,21 @@ abstract class ScalaPlugin extends org.bukkit.plugin.java.JavaPlugin with Bukkit
   def server: Server      = getServer
   def pluginManager       = getServer.getPluginManager
   def fire(e:Event): Unit = server.getPluginManager.callEvent(e)
+
+
+  // task stuff:
+  def scheduleSyncTask(task: => Unit): Int =
+    server.getScheduler.scheduleSyncDelayedTask(this, task)
+
+  def scheduleSyncDelayedTask(initialDelay: Long)(task: => Unit): Int =
+    server.getScheduler.scheduleSyncDelayedTask(this, task, initialDelay)
+
+  def scheduleSyncRepeatingTask(period: Long)(task: => Unit): Int =
+    server.getScheduler.scheduleSyncRepeatingTask(this, task, 0L, period)
+
+  def scheduleSyncRepeatingTask(initialDelay: Long, period: Long)(task: => Unit): Int =
+    server.getScheduler.scheduleSyncRepeatingTask(this, task, initialDelay, period)
+
+  //  server.getScheduler.callSyncMethod()
+
 }
