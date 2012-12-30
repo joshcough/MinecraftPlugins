@@ -7,7 +7,7 @@ import org.bukkit.event.block.{BlockBreakEvent, BlockDamageEvent}
 import org.bukkit.event.block.Action._
 import org.bukkit.event.entity.{EntityDamageEvent, PlayerDeathEvent, EntityDamageByEntityEvent}
 import org.bukkit.event.weather.WeatherChangeEvent
-import org.bukkit.event.player.{PlayerInteractEvent, PlayerMoveEvent, PlayerChatEvent}
+import org.bukkit.event.player.{PlayerQuitEvent, PlayerInteractEvent, PlayerMoveEvent, PlayerChatEvent}
 
 /**
  * A trait that supports exactly one listener.
@@ -42,7 +42,6 @@ trait ListenerPlugin extends ListenersPlugin {
 trait ListenersPlugin extends ScalaPlugin with Listeners {
   def listeners: List[Listener]
   override def onEnable(){ super.onEnable(); listeners.foreach(registerListener) }
-  def registerListener(listener:Listener): Unit = pluginManager.registerEvents(listener, this)
 }
 
 object Listeners extends Listeners
@@ -116,5 +115,8 @@ trait Listeners extends BukkitEnrichment {
   }
   def OnPlayerMove(f: (Player, PlayerMoveEvent) => Unit) = new Listener {
     @EH def on(e:PlayerMoveEvent): Unit     = f(e.getPlayer, e)
+  }
+  def OnPlayerQuit(f: (Player, PlayerQuitEvent) => Unit) = new Listener {
+    @EH def on(e: PlayerQuitEvent): Unit = f(e.getPlayer, e)
   }
 }
