@@ -12,7 +12,7 @@
  * added OnPlayerQuit Listener
  * renamed noArguments to eof, and added aliases noArguments, nothing, empty. not sure which of them i like or if i will keep them.
  * added byNameToRunnable implicit conversion in ScalaEnrichment
- * adde new Task api
+ * added new Task api
    * added functional wrappers on scheduleSyncTask, scheduleSyncDelayedTask, scheduleSyncRepeatingTask
    * added PlayerTasks class that:
      * also provides wrappers for creating tasks
