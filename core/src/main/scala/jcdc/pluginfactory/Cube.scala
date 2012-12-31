@@ -81,6 +81,11 @@ case class Cube(l1: Location, l2: Location) {
     )
 
   /**
+   * A Stream containing the floor, ceiling and walls of this cube.
+   */
+  def shell: Stream[Block] = (floor.blocks #::: ceiling.blocks #::: walls).distinct
+
+  /**
    * get the floor of this cube
    * @return a new Cube
    */

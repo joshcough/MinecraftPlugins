@@ -95,14 +95,21 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin with Cubes {
         "Create walls, and cycle the walls material between the given materials, " +
         "in a span of N seconds.",
       args = int ~ material ~ material.+)(
-      body = { case (p, period ~ initialMaterial ~ materials) => {
+      body = { case (p, period ~ initialMaterial ~ materials) =>
         val allMaterials = initialMaterial :: materials
         def initialDelay(index: Int) = index * period * 20 / allMaterials.size
         for((m, i) <- allMaterials.zipWithIndex)
           p.scheduleSyncRepeatingTask(initialDelay = initialDelay(i), period = period * 20){
             cube(p).walls.foreach(_ changeTo m)
           }
-      }}
+      }
+    ),
+    Command(
+      name = "haunted-house",
+      desc = "create a really scary, living haunted house!")(
+      body = p => p.scheduleSyncRepeatingTask(initialDelay = 0, period = 20){
+        cube(p).shell.foreach(_ changeTo (if(randomBoolen) REDSTONE_LAMP_ON else REDSTONE_LAMP_OFF))
+      }
     ),
     Command(
       name = "wave",
@@ -112,7 +119,7 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin with Cubes {
         val startX     = p.x
         val minHeight  = p.y
         val maxHeight  = minHeight + height
-        val z = p.z
+        val z          = p.z
         val up         = true
         val down       = false
         val directions = Array.fill(length)(up)
@@ -127,7 +134,7 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin with Cubes {
             def startDescent = directions(n) = down
             def atTop        = hb.y >= maxHeight
             def atBottom     = hb.y <= minHeight
-            if(ascending && atTop) startDescent else if (descending && atBottom) startAscent
+            if(ascending && atTop) startDescent else if(descending && atBottom) startAscent
             if(ascending) hb changeTo m else hb.blockBelow changeTo AIR
           }
       }
