@@ -26,3 +26,42 @@
  * added piles of other scaladoc to make sure it looks good in the generated html.
  * created http://joshcough.github.com/MinecraftPlugins/
  * created http://joshcough.github.com/MinecraftPlugins/scaladoc
+
+# 0.2.2
+
+ * upgraded to Bukkit 1.4.6-R0.3
+
+## Core Code Changes
+
+ * added corners function to Cube
+ * added shell function to Cube, which gives back walls, floor, and ceiling.
+ * added randomBoolen function to ScalaEnrichment
+ * added length, height and depth parsers (all ints)
+ * removed WorldEditCommands, because it's really not needed. i should figure out how to call commands from another plugin anyway, and just depend on worldedit instead.
+ * added OnPlayerQuit Listener
+ * renamed noArguments to eof, and added aliases noArguments, nothing, empty. not sure which of them i like or if i will keep them.
+ * added byNameToRunnable implicit conversion in ScalaEnrichment
+ * adde new Task api
+   * added functional wrappers on scheduleSyncTask, scheduleSyncDelayedTask, scheduleSyncRepeatingTask
+   * added PlayerTasks class that:
+     * also provides wrappers for creating tasks
+     * keeps track of running tasks for players.
+     * cancels them when the player leaves the game, if desired
+     * examples in WorldEdits
+
+## Bug Fixes
+
+ * fixed error reporting in CommandsPlugin, it was broken.
+ * fixed ~ (the parser) description, because it was completely broken
+ * fixed a horrible bug in Option flipFold, and added tests for it.
+
+## Example/Other Code Changes
+
+ * refactored WorldEdit to use the Cubes trait, removed WorldEditCubes, and refactored the Cubes trait a bit. Refactored Arena, and GetOffMyLawn to be current with the new Cubes changes.
+ * added random-house command, which changes all the blocks of the house to random materials (selected from materials the user typed in)
+ * added awesome wave command which creates a wave with length ~ height ~ material (no depth)
+ * added crazy-walls command to worldedit, to show off the task stuff. it has your walls change every second.
+ * updated WorldEdit with the cycle-walls command to use the new task api. the command changes walls to different materials, repeatedly until the user logs out.
+ * fixed up build scripts by adding publish-local.sh
+ * implemented ParserMonad in Java. puke. renamed ArgParser to just Parser in Java
+ * simplified WorldEditDemo a bit
