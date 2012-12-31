@@ -1,6 +1,6 @@
 name := "JCDC Plugin Factory Examples"
 
-version := "0.2.1"
+version := "0.2.2"
 
 organization := "jcdc.pluginfactory"
 
@@ -13,7 +13,7 @@ resolvers ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-  "jcdc.pluginfactory" % "jcdc-plugin-factory_2.10" % "0.2.1",
+  "jcdc.pluginfactory" % "jcdc-plugin-factory_2.10" % "0.2.2",
   "javax.servlet"      % "servlet-api"              % "2.5" % "provided->default",
   "org.bukkit"         % "craftbukkit"              % "1.4.5-R0.2",
   // this is only necessary if you want to do some NPC hacking, like in NPCTest.scala

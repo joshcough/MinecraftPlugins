@@ -12,7 +12,7 @@ clean-plugins:
 
 compile:
 	cd ../core; ./bin/publish-local.sh
-	cp ../core/target/scala-plugin-api-2.10.0-RC5-0.2.1.jar $(BUKKIT)/plugins/
+	cp ../core/target/scala-plugin-api-2.10.0-RC5-0.2.2.jar $(BUKKIT)/plugins/
 	./sbt compile "run-main jcdc.pluginfactory.examples.YMLGenerator"
 
 run-tests:

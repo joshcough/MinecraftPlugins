@@ -29,5 +29,5 @@ object YMLGenerator {
     new YellowBrickRoad)
 
   def main(args: Array[String]): Unit =
-    plugins.foreach(_.writeYML("Josh Cough", "0.2.1"))
+    plugins.foreach(_.writeYML("Josh Cough", "0.2.2"))
 }

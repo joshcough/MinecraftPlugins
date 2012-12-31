@@ -1,6 +1,6 @@
 name := "JCDC Plugin Factory"
 
-version := "0.2.1"
+version := "0.2.2"
 
 organization := "jcdc.pluginfactory"
 

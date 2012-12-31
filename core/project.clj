@@ -2,7 +2,7 @@
 ; project dependency for all my other plugins,
 ; so that scala, clojure and all the jcdc.pluginfactory classes are available (on the classpath)
 ; for all my plugins.
-(defproject scala-plugin-api "2.10.0-RC5-0.2.1"
+(defproject scala-plugin-api "2.10.0-RC5-0.2.2"
   ; puts plugin.xml, and all jcdc.pluginfactory classes in the jar.
   :resource-paths ["target/scala-2.10/classes/"]
   ; put the jar file in the target dir.

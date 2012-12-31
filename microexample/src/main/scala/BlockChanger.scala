@@ -20,5 +20,5 @@ class BlockChanger extends ListenerPlugin with CommandPlugin {
 
 object YMLGenerator {
   def main(args: Array[String]): Unit =
-    new BlockChanger().writeYML("Josh Cough", "0.2.1")
+    new BlockChanger().writeYML("Josh Cough", "0.2.2")
 }
