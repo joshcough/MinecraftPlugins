@@ -13,5 +13,5 @@ resolvers += "Bukkit" at "http://repo.bukkit.org/content/repositories/releases"
 libraryDependencies ++= Seq(
   "jcdc.pluginfactory" % "scala-plugin-api_2.10.0-RC5" % "0.2.1" from
     "http://dev.bukkit.org/media/files/660/788/scala-plugin-api-2.10.0-RC5-0.2.1.jar",
-  "org.bukkit"         % "craftbukkit"              % "1.4.5-R0.2"
+  "org.bukkit"         % "craftbukkit"              % "1.4.6-R0.3"
 )

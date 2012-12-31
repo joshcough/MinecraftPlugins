@@ -291,8 +291,10 @@ public class BetterJavaPlugin extends JavaPlugin {
     public int getExpToLevel() { return 0; }    
     public int getHealth() { return 0; }    
     public void setHealth(int i) {}    
-    public int getMaxHealth() { return 0; }    
-    public double getEyeHeight() { return 0; }    
+    public int getMaxHealth() { return 0; }
+    public void setMaxHealth(int i) {}
+    public void resetMaxHealth() {}
+    public double getEyeHeight() { return 0; }
     public double getEyeHeight(boolean b) { return 0; }    
     public Location getEyeLocation() { return null; }    
     public List<Block> getLineOfSight(HashSet<Byte> bytes, int i) { return null; }    

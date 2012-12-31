@@ -98,11 +98,11 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.bukkit/craftbukkit/jars/craftbukkit-1.4.6-R0.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.bukkit/craftbukkit/jars/craftbukkit-1.4.6-R0.3.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.bukkit/craftbukkit/jars/craftbukkit-1.4.6-R0.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.bukkit/craftbukkit/jars/craftbukkit-1.4.6-R0.3.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>

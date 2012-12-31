@@ -436,6 +436,8 @@ trait CommandsPlugin extends ScalaPlugin with MinecraftParsers {
       def setCanPickupItems(x$1: Boolean): Unit = {}
       def setRemoveWhenFarAway(x$1: Boolean): Unit = {}
       def setTexturePack(x$1: String): Unit = {}
+      def resetMaxHealth(): Unit = {}
+      def setMaxHealth(x: Int): Unit = {}
     }
   }
 }
