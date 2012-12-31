@@ -1,9 +1,8 @@
 package jcdc.pluginfactory.examples
 
-import org.bukkit.{Location, Material}
-import org.bukkit.entity.Player
-import Material._
 import jcdc.pluginfactory.{Cubes, CommandsPlugin, Cube, ListenersPlugin}
+import org.bukkit.Material
+import Material._
 
 /**
  * Classic WorldEdit plugin, done in Scala.
@@ -104,6 +103,34 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin with Cubes {
             cube(p).walls.foreach(_ changeTo m)
           }
       }}
+    ),
+    Command(
+      name = "wave",
+      desc = "Create an awesome wave made of any material.",
+      args = length ~ height ~ material)(
+      body = { case (p, length ~ height ~ m) =>
+        val startX     = p.x
+        val minHeight  = p.y
+        val maxHeight  = minHeight + height
+        val z = p.z
+        val up         = true
+        val down       = false
+        val directions = Array.fill(length)(up)
+        def highestBlock(n: Int) = p.world.getHighestBlockAt(n + startX, z)
+
+        for (n <- 0 to length)
+          p.scheduleSyncRepeatingTask(initialDelay = n * 10, period = 10 /* every .5 second */ ){
+            def hb           = highestBlock(n)
+            def ascending    = directions(n)
+            def descending   = ! ascending
+            def startAscent  = directions(n) = up
+            def startDescent = directions(n) = down
+            def atTop        = hb.y >= maxHeight
+            def atBottom     = hb.y <= minHeight
+            if(ascending && atTop) startDescent else if (descending && atBottom) startAscent
+            if(ascending) hb changeTo m else hb.blockBelow changeTo AIR
+          }
+      }
     ),
     Command(
       name = "empty-tower",
