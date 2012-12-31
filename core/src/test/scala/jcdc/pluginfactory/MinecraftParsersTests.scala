@@ -10,18 +10,17 @@ object MinecraftParsersTests extends Properties("MinecraftParserTests") with Tes
 
   import MinecraftParsers._
 
-  for(m <- Material.values)
-    test(m.name) {
-      (material(List(m.name)).get == m) &&
-      (material(List(m.toString.toLowerCase)).get == m) &&
-      (material(List(m.getId.toString)).get == m)
-    }
+  for(m <- Material.values) test(m.name) {
+    List(
+      material(List(m.name)),
+      material(List(m.toString.toLowerCase)),
+      material(List(m.getId.toString))
+    ).forall(_.get == m)
+  }
 
-  for(e <- EntityType.values)
-    test(e.name) {
-      (entity(List(e.name)).get == e) &&
-      (entity(List(e.toString.toLowerCase)).get == e)
-    }
+  for(e <- EntityType.values) test(e.name) {
+    List(entity(List(e.name)), entity(List(e.toString.toLowerCase))).forall(_.get == e)
+  }
 
   test("(material or eof)(gold_ore)") {
     (material or eof)("gold_ore").get.left.get ?= GOLD_ORE

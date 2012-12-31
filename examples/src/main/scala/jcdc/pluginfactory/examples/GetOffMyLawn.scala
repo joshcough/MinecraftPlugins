@@ -1,7 +1,7 @@
 package jcdc.pluginfactory.examples
 
 import org.bukkit.event.player.PlayerMoveEvent
-import jcdc.pluginfactory.{WorldEditCommands, Cube, Cubes, ListenerPlugin}
+import jcdc.pluginfactory.{CommandsPlugin, Cube, Cubes, ListenerPlugin}
 
 /**
  * Notifies you any time someone comes onto your lawn,
@@ -9,7 +9,7 @@ import jcdc.pluginfactory.{WorldEditCommands, Cube, Cubes, ListenerPlugin}
  *
  * Very similar in functionality to the Arena plugin in this same directory.
  */
-class GetOffMyLawn extends ListenerPlugin with WorldEditCommands with Cubes {
+class GetOffMyLawn extends ListenerPlugin with CommandsPlugin with Cubes {
 
   def movingOntoLawn(e:PlayerMoveEvent, lawn: Cube) =
     lawn.contains(e.getTo) && ! lawn.contains(e.getFrom)
@@ -20,17 +20,18 @@ class GetOffMyLawn extends ListenerPlugin with WorldEditCommands with Cubes {
   )
 
   val commands = List(
-    pos1, // to set the first  corner of your lawn
-    pos2, // to set the second corner of your lawn
+    Command("/pos1",  "Set the first position") (p => setFirstPosition(p, p.loc)),
+    Command("/pos2",  "Set the second position")(p => setSecondPosition(p, p.loc)),
     Command(
       name = "GetOffMyLawn",
       desc = "Kicks everyone off your lawn, and shocks them with lightning")(
-      body = owner => run(owner)(lawn =>
+      body = owner => {
+        val lawn = cube(owner)
         for(p <- lawn.players; if(p != owner)) {
           p.teleportTo(p.world.getHighestBlockAt(p.world(lawn.maxX + 5, 0, lawn.maxZ + 5).loc))
-          p.shockWith(s"'Get off my lawn!!!', said ${owner.name}.")
+          p shockWith s"'Get off my lawn!!!', said ${owner.name}."
         }
-      )
+      }
     )
   )
 }

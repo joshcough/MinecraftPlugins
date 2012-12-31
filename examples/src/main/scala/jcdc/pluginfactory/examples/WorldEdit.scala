@@ -3,7 +3,7 @@ package jcdc.pluginfactory.examples
 import org.bukkit.{Location, Material}
 import org.bukkit.entity.Player
 import Material._
-import jcdc.pluginfactory.{CommandsPlugin, Cube, ListenersPlugin}
+import jcdc.pluginfactory.{Cubes, CommandsPlugin, Cube, ListenersPlugin}
 
 /**
  * Classic WorldEdit plugin, done in Scala.
@@ -26,32 +26,31 @@ import jcdc.pluginfactory.{CommandsPlugin, Cube, ListenersPlugin}
  *
  * Have a look through the code, or navigate the help menu for more info on the commands.
  */
-class WorldEdit extends ListenersPlugin with CommandsPlugin {
+class WorldEdit extends ListenersPlugin with CommandsPlugin with Cubes {
 
-  val corners = collection.mutable.Map[Player, List[Location]]().withDefaultValue(Nil)
   lazy val tasks = new PlayerTasks
   import tasks._
 
   val listeners = List(
-    OnLeftClickBlock ((p, e) => if(p isHoldingA WOOD_AXE) { setFirstPos (p, e.loc); e.cancel }),
-    OnRightClickBlock((p, e) => if(p isHoldingA WOOD_AXE) { setSecondPos(p, e.loc) })
+    OnLeftClickBlock ((p, e) => if(p isHoldingA WOOD_AXE){ setFirstPosition (p, e.loc); e.cancel }),
+    OnRightClickBlock((p, e) => if(p isHoldingA WOOD_AXE){ setSecondPosition(p, e.loc) })
   )
 
   val commands = List(
     Command("wand", "Get a WorldEdit wand.")(_.loc.dropItem(WOOD_AXE)),
     Command("pos1", "Set the first position", location.?){ case (p, loc) =>
-      setFirstPos (p, loc.fold(p.loc)(_(p.world)))
+      setFirstPosition (p, loc.fold(p.loc)(_(p.world)))
     },
     Command("pos2", "Set the second position", location.?){ case (p, loc) =>
-      setSecondPos(p, loc.fold(p.loc)(_(p.world)))
+      setSecondPosition(p, loc.fold(p.loc)(_(p.world)))
     },
     Command("cube-to",  "Set both positions",  location ~ location.?){ case (p, loc1 ~ loc2) =>
-      setFirstPos (p, loc1(p.world))
-      setSecondPos(p, loc2.fold(p.loc)(_(p.world)))
+      setFirstPosition (p, loc1(p.world))
+      setSecondPosition(p, loc2.fold(p.loc)(_(p.world)))
     },
     Command("between",  "Set both positions",  location ~ "-" ~ location){ case (p, loc1 ~_~ loc2) =>
-      setFirstPos (p, loc1(p.world))
-      setSecondPos(p, loc2(p.world))
+      setFirstPosition (p, loc1(p.world))
+      setSecondPosition(p, loc2(p.world))
       p teleport loc1(p.world)
     },
     Command("erase", "Set all the selected blocks to air.")(cube(_).eraseAll),
@@ -127,20 +126,4 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin {
     ),
     Command("goto", "Teleport!", location){ case (you, loc) => you teleport loc(you.world) }
   )
-
-  def cube(p:Player): Cube = corners.get(p).filter(_.size == 2).
-    flipFold(ls => Cube(ls(0), ls(1)))(p bomb "Both corners must be set!")
-
-  def setFirstPos(p:Player,loc: Location): Unit = {
-    corners.update(p, List(loc))
-    p ! s"first corner set to: ${loc.xyz}"
-  }
-
-  def setSecondPos(p:Player,loc2: Location): Unit = corners(p) match {
-    case loc1 :: _ =>
-      corners += (p -> List(loc1, loc2))
-      p ! s"second corner set to: ${loc2.xyz}"
-    case Nil =>
-      p ! "set corner one first! (with a left click)"
-  }
 }

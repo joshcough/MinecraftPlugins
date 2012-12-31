@@ -37,6 +37,8 @@ trait CommandPlugin extends CommandsPlugin {
   def commands = List(command)
 }
 
+object CommandsPlugin extends CommandsPlugin{ val commands = Nil }
+
 /**
  * A trait that greatly simplifies creating Bukkit commands.
  * There are many examples in the examples folder that

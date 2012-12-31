@@ -10,7 +10,9 @@ import scala.collection.JavaConversions._
  * for various plugins. I wanted to put them all into one location,
  * so that they could be reused elsewhere.
  */
-trait CommonCommands extends CommandsPlugin {
+trait CommonCommands {
+
+  import CommandsPlugin._
 
   // some simple useful commands
   val goto = Command("goto", "Teleport to a player.", player or location){
@@ -31,30 +33,4 @@ trait CommonCommands extends CommandsPlugin {
   }
 
   val allCommonCommands = List(goto, timeCommand, day, night, gm, gms, gmc, kill)
-}
-
-/**
- * Some common world editing commands that I found myself writing over and over
- * again for various plugins. I wanted to put them all into one location, so that
- * they could be reused elsewhere.
- */
-trait WorldEditCommands extends CommandsPlugin with Cubes {
-  // some common world editing commands
-  val wand  = Command("/wand",  "Get a WorldEdit wand.")  (_.loc.dropItem(WOOD_AXE))
-  val pos1  = Command("/pos1",  "Set the first position") (p => setFirstPosition(p, p.loc))
-  val pos2  = Command("/pos2",  "Set the second position")(p => setSecondPosition(p, p.loc))
-  val erase = Command("/erase", "Set all the selected blocks to air.")((run(_)(_.eraseAll)))
-  val set   = Command(
-    name = "/set",
-    desc = "Set all the selected blocks to the given material type.",
-    args = material)(
-    body =  { case (p, m) => run(p)(_ setAll m) }
-  )
-  val change = Command(
-    name = "/change",
-    desc = "Change all the selected blocks of the first material type to the second material type.",
-    args = material ~ material)(
-    body = { case (p, oldM ~ newM) => run(p)(_.changeAll(oldM, newM)) }
-  )
-  val allWorldEditingCommands = List(wand, pos1, pos2, erase, set, change)
 }

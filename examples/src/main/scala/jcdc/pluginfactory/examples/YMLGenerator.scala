@@ -26,7 +26,6 @@ object YMLGenerator {
     new ZombieApocalypse,
     new WarpPlugin,
     new WorldEdit,
-    new WorldEditCubes,
     new YellowBrickRoad)
 
   def main(args: Array[String]): Unit =

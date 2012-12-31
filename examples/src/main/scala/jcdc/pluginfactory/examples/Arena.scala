@@ -42,10 +42,10 @@ class Arena extends ListenersPlugin with CommandsPlugin with Cubes {
       name = "make-arena",
       desc = "Set the walls and floor to the given material type.",
       args = material)(
-      body = { case (p, m) => run(p){ cube =>
-        for(b <- cube.blocks)
-          if(cube.onWall(b) or cube.onFloor(b)) b changeTo m else b changeTo AIR
-      }}
+      body = { case (p, m) =>
+        val c = cube(p)
+        for(b <- c.blocks) if(c.onWall(b) or c.onFloor(b)) b changeTo m else b changeTo AIR
+      }
     )
   )
 

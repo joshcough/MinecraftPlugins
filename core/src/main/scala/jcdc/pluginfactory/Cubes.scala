@@ -5,21 +5,25 @@ import org.bukkit.Location
 import org.bukkit.entity.Player
 
 trait Cubes {
-  val positions = collection.mutable.Map[Player, (Location, Option[Location])]()
+  val corners = collection.mutable.Map[Player, List[Location]]()
 
-  def setFirstPosition(p: Player, loc: Location) {
-    positions.update(p, loc -> None)
-    p ! s"first position set to: ${loc.xyz}"
+  def cube(p:Player): Cube = corners.get(p).filter(_.size == 2).
+    flipFold(ls => Cube(ls(0), ls(1)))(p bomb "Both corners must be set!")
+
+  def setFirstPosition(p:Player,loc: Location): Unit = {
+    corners += (p -> List(loc))
+    p ! s"first corner set to: ${loc.xyz}"
   }
-  def setSecondPosition(p: Player, loc: Location) {
-    positions.get(p).map(_._1).fold(p ! "You must set position 1 first!")(l => {
-      positions.update(p, l -> Some(loc))
-      p ! s"second position set to: ${loc.xyz}"
-    })
+
+  def setSecondPosition(p:Player,loc2: Location): Unit = corners(p) match {
+    case loc1 :: _ =>
+      corners += (p -> List(loc1, loc2))
+      p ! s"second corner set to: ${loc2.xyz}"
+    case Nil =>
+      p ! "set corner one first! (with a left click)"
   }
-  def cube(p: Player): Option[Cube] = positions.get(p).flatMap(lol => lol._2.map(Cube(lol._1, _)))
-  def run(p: Player)(f: Cube => Unit) = cube(p).fold(p ! "Both positions must be set!")(f)
-  def cubes: collection.Map[Player, Cube] = positions.filter(_._2._2.isDefined).mapValues {
-    case (l1, ol2) => Cube(l1, ol2.get)
+
+  def cubes: collection.Map[Player, Cube] = corners.filter(kv => kv._2.size == 2).mapValues{
+    case List(l1, l2) => Cube(l1, l2)
   }
 }
