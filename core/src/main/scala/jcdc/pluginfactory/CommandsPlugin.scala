@@ -82,7 +82,7 @@ trait CommandsPlugin extends ScalaPlugin with MinecraftParsers {
     name: String,
     description: String,
     argsDescription: Option[String],
-    body: (Player, BukkitCommand, List[String]) => Unit)
+    body: (Player, List[String]) => Unit)
 
   def commands: List[Command]
 
@@ -115,10 +115,10 @@ trait CommandsPlugin extends ScalaPlugin with MinecraftParsers {
   def Command[T](name: String, desc: String, args: Parser[T])
                 (body: ((Player, T)) => Unit): Command = new Command(
     name = name, description = desc, argsDescription = Some(args.describe),
-    body = (p: Player, c: BukkitCommand, argsList: List[String]) =>
+    body = (p: Player, argsList: List[String]) =>
       (args <~ eof)(argsList) match {
         case Success(t,_) => body(p -> t)
-        case Failure(msg) => p !* (RED(msg), RED(c.getDescription), RED(c.getUsage))
+        case Failure(msg) => p !* (RED(msg), RED(desc), RED(s"/name ${args.describe}"))
       }
   )
 
@@ -147,11 +147,11 @@ trait CommandsPlugin extends ScalaPlugin with MinecraftParsers {
                          commandName: String, args: Array[String]) = {
     println(s"$name handling $commandName [${args.mkString(",")}]")
     val p = sender match { case p: Player => p; case _ => ConsolePlayer.player }
-    (for (c <- commandsMap.get(cmd.getName.toLowerCase)) yield
-      try { c.body(p, cmd, args.toList); true }
+    (for (c <- commandsMap.get(commandName.toLowerCase)) yield
+      try { c.body(p, args.toList); true }
       catch { case e: Exception =>
         p ! RED(e.getMessage + "\n" + e.getStackTraceString)
-        e.printStackTrace
+        logError(e)
         false
       }).getOrElse(true)
   }
@@ -171,8 +171,8 @@ trait CommandsPlugin extends ScalaPlugin with MinecraftParsers {
    * If not, then the user is given an error message.
    */
   def OpOnly(c: Command): Command =
-    c.copy(body=(p: Player, bc: BukkitCommand, args: List[String]) =>
-      if (p.isOp) c.body(p, bc, args) else p ! RED(s"You must be an op to run /${c.name}")
+    c.copy(body=(p: Player, args: List[String]) =>
+      if (p.isOp) c.body(p, args) else p ! RED(s"You must be an op to run /${c.name}")
     )
 
   /**

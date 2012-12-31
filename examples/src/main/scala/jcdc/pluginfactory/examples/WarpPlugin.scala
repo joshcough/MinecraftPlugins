@@ -20,7 +20,7 @@ class WarpPlugin extends CommandsPlugin with SingleClassDBPlugin[Warp] {
 
   val dbClass = classOf[Warp]
 
-  def warpToken = anyString.named("warp-name")
+  def warpToken = anyStringAs("warp-name")
 
   val commands = List(
 

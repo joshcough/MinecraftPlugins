@@ -81,6 +81,20 @@ case class Cube(l1: Location, l2: Location) {
     )
 
   /**
+   * The 8 corners of this Cube.
+   */
+  def corners: List[Block] = List(
+    world(maxX, minY, maxZ),
+    world(maxX, minY, minZ),
+    world(minX, minY, maxZ),
+    world(minX, minY, minZ),
+    world(maxX, maxY, maxZ),
+    world(maxX, maxY, minZ),
+    world(minX, maxY, maxZ),
+    world(minX, maxY, minZ)
+  )
+  
+  /**
    * A Stream containing the floor, ceiling and walls of this cube.
    */
   def shell: Stream[Block] = (floor.blocks #::: ceiling.blocks #::: walls).distinct

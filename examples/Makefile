@@ -3,8 +3,6 @@ all: compile arena ban-arrows block-changer block-changer-gold curse-ban farmer 
 demo: clean-plugins compile block-changer block-changer-gold mpc plugin-commander warp-plugin world-edit
 mlp: clean-plugins compile mpc world-edit minelang-plugin
 we: compile world-edit
-we-quick: world-edit
-mlp-quick: minelang-plugin
 test: compile run-tests
 
 perms: clean-plugins compile permissions-test

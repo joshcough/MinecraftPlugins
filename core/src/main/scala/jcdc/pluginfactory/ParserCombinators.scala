@@ -85,14 +85,15 @@ trait ParserCombinators extends ScalaEnrichment {
      * if the result fails the predicate.
      */
     def filterWith(f: T => Boolean)(errMsg: String): Parser[T] =
-      flatMap(t => if(f(t)) success(t) else failure(errMsg + ": " + t))
+      (flatMap(t => if(f(t)) success(t) else failure(errMsg + ": " + t))) named describe
 
     /**
      * Creates a new parser that chains two parsers together (this, and p2).
      * The second parser works on the remaining input after the first parser is ran.
      * If they both succeed, a compound result is returned: ~[T,U]
      */
-    def ~[U](p2: => Parser[U]): Parser[T ~ U] = for(t <- self; u <- p2) yield new ~(t, u)
+    def ~[U](p2: => Parser[U]): Parser[T ~ U] =
+      (for(t <- self; u <- p2) yield new ~(t, u)) named s"${self.describe} s${p2.describe}"
 
     /**
      * Creates a new parser that will succeed if either this, or p2 succeed.
@@ -121,7 +122,7 @@ trait ParserCombinators extends ScalaEnrichment {
      * The results are returned in a list.
      * If zero parse successfully, Nil is returned.
      */
-    def * : Parser[List[T]] = ((this+) | success(List[T]())).named(describe + "*")
+    def * : Parser[List[T]] = ((this.+) | success(List[T]())).named(describe + "*")
 
     /**
      * Return a new parser that will parse one or more of whatever this parser parses.
@@ -130,7 +131,7 @@ trait ParserCombinators extends ScalaEnrichment {
      * @return
      */
     def + : Parser[List[T]] =
-      ((this ~ (this *)) ^^ { case t ~ ts => t :: ts }).named(describe + "+")
+      ((this ~ this.*) ^^ { case t ~ ts => t :: ts }).named(describe + "+")
 
     /**
      * Return a new parser that will attempt to parse input (T), and returns an Option[T]
@@ -166,7 +167,7 @@ trait ParserCombinators extends ScalaEnrichment {
     /**
      * Rename this parser the given string.
      */
-    def named(name: String) = new Parser[T] {
+    def named(name: => String) = new Parser[T] {
       def apply(args: List[String]) = self(args)
       def describe: String = name
     }
@@ -202,7 +203,7 @@ trait ParserCombinators extends ScalaEnrichment {
    * Convert a String into a Parser that accepts only that String as valid input.
    */
   implicit def stringToParser(s: String): Parser[String] =
-    anyString.filterWith(_ == s)(s"expected: $s") named s
+    anyStringAs(s).filterWith(_ == s)(s"expected: $s") named s
 
   /**
    * Create a parser from an operation that parses a String and returns Option[T].
@@ -210,8 +211,8 @@ trait ParserCombinators extends ScalaEnrichment {
    * If the parsing operation returns Some(t), then the t is the result.
    */
   def maybe[T](name: String)(f: String => Option[T]): Parser[T] = (for {
-    s <- anyString; res <- f(s).fold[Parser[T]](failure(s"invalid $name: $s"))(success(_))
-  } yield res) named name
+    s <- anyStringAs(name); res <- f(s).fold[Parser[T]](failure(s"invalid $name: $s"))(success(_))
+  } yield res)
 
   /**
    * Create a parser from an operation that may fail (with an exception).
@@ -219,7 +220,20 @@ trait ParserCombinators extends ScalaEnrichment {
    * If an exception is thrown, it is caught, and the parser fails.
    */
   def attempt[T](name: String)(f: String => T): Parser[T] =
-    (anyString named name).flatMap(s => Try(success(f(s))).getOrElse(failure(s"invalid $name: $s")))
+    anyStringAs(name).flatMap(s => Try(success(f(s))).getOrElse(failure(s"invalid $name: $s")))
+
+  /**
+   * A parser that succeeds as long as there is
+   * at least one string remaining in the input.
+   * @param name the description for this parser
+   */
+  def anyStringAs(name: String): Parser[String] = new Parser[String] {
+    def apply(args: List[String]) = args match {
+      case Nil => Failure(s"expected $name, but got nothing")
+      case x :: xs => Success(x, xs)
+    }
+    def describe = name
+  }
 
   /**
    * Create a parser that succeeds only if there is no input remaining to be parsed.
@@ -251,13 +265,7 @@ trait ParserCombinators extends ScalaEnrichment {
    * A parser that succeeds as long as there is
    * at least one string remaining in the input.
    */
-  val anyString: Parser[String] = new Parser[String] {
-    def apply(args: List[String]) = args match {
-      case Nil => Failure(s"expected input, but got nothing")
-      case x :: xs => Success(x, xs)
-    }
-    def describe = "string"
-  }
+  val anyString: Parser[String] = anyStringAs("string")
 
   /**
    * A parser that consumes the rest of the input, return it all back in one string.
@@ -279,7 +287,7 @@ trait ParserCombinators extends ScalaEnrichment {
   val boolOrFalse: Parser[Boolean] = bool | success(false)
 
   // file parsers
-  val file   : Parser[File] = anyString ^^ (new File(_))
+  val file   : Parser[File] = anyStringAs("file") ^^ (new File(_))
   val newFile: Parser[File] = attempt("new-file"){ s => val f = new File(s); f.createNewFile; f }
   val existingFile     : Parser[File] = file.filter(_.exists) named "existing-file"
   val existingOrNewFile: Parser[File] = existingFile | newFile
@@ -307,3 +315,11 @@ trait ParserCombinators extends ScalaEnrichment {
 //    }
 //    def describe = s"slurp until: $c"
 //  }
+
+
+
+//at jcdc.pluginfactory.ParserCombinators$Parser$class.$tilde(ParserCombinators.scala:96)
+//at jcdc.pluginfactory.ParserCombinators$$anon$9.$tilde(ParserCombinators.scala:230)
+//at jcdc.pluginfactory.ParserCombinators$Parser$class.$plus(ParserCombinators.scala:134)
+//at jcdc.pluginfactory.ParserCombinators$$anon$9.$plus(ParserCombinators.scala:230)
+//at jcdc.pluginfactory.ParserCombinators$Parser$class.$times(ParserCombinators.scala:125)

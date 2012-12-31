@@ -105,10 +105,18 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin with Cubes {
       }
     ),
     Command(
-      name = "haunted-house",
-      desc = "create a really scary, living haunted house!")(
-      body = p => p.scheduleSyncRepeatingTask(initialDelay = 0, period = 20){
-        cube(p).shell.foreach(_ changeTo (if(randomBoolen) REDSTONE_LAMP_ON else REDSTONE_LAMP_OFF))
+      name = "random-house",
+      desc = "make all the blocks in your house change at random!",
+      args = material ~ material.+)(
+      body = { case (p, initialMaterial ~ materials) =>
+        val c = cube(p)
+        val allMaterials = (initialMaterial :: materials).toArray
+        p.scheduleSyncRepeatingTask(initialDelay = 0, period = 20){
+          c.shell.foreach(_ changeTo (allMaterials((math.random * allMaterials.size).toInt)))
+        }
+        p.scheduleSyncRepeatingTask(initialDelay = 0, period = 10){
+          c.shrink(1, 1, 1).corners.foreach(_ changeTo TORCH)
+        }
       }
     ),
     Command(

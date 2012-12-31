@@ -39,7 +39,7 @@ class MultiPlayerCommands extends CommandsPlugin {
       case (p, e ~ n) => p.loc.spawnN(e, n.fold(1)(id))
     },
 
-    Command("ban",      "Ban some players.", anyString+){ case (you, them) =>
+    Command("ban",      "Ban some players.", anyString.named("player").+){ case (you, them) =>
       server.findOnlinePlayers (them) foreach { _ ban s"{you.name} doesn't like you." }
       server.findOfflinePlayers(them) foreach { _ setBanned true }
     },
