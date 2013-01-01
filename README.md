@@ -3,10 +3,13 @@
 This project contains an API for building Minecraft Plugins in Scala.
 It is currently made up of several sub-projects, but the most important ones to know about are:
 
-  * microexample - A first example of how to create a plugin in Scala.
-  * examples     - Several more example plugins using the core API
-  * core         - The core API
-  
+  * core             - The core API
+  * microexample     - A first example of how to create a plugin in Scala.
+  * examples         - Several more example plugins using the core API
+  * scala-lib-plugin - Provides a Bukkit plugin that provides the Scala API to other plugins at runtime.
+
+# Why?
+
 There are several reasons for building this API, but the three that pop to mind immediately are:
 
   * To show how easy it is to put better/cleaner APIs on top of existing Java APIs.
