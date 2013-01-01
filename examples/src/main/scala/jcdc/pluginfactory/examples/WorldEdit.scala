@@ -166,6 +166,7 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin with Cubes {
         Cube(p.world(x + b, y, z + b).loc, p.world(x - b, y - depth, z - b).loc).eraseAll
       }
     ),
-    Command("goto", "Teleport!", location){ case (you, loc) => you teleport loc(you.world) }
+    Command("goto", "Teleport!", location){ case (you, loc) => you teleport loc(you.world) },
+    Command("paste", "Paste your cube at your current location!"){ p => cube(p).paste(p.loc) }
   )
 }

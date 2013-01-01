@@ -52,6 +52,14 @@ case class Cube(l1: Location, l2: Location) {
   val minY  = math.min(l1.y, l2.y)
   val maxZ  = math.max(l1.z, l2.z)
   val minZ  = math.min(l1.z, l2.z)
+
+  val maxXd  = math.max(l1.xd, l2.xd)
+  val minXd  = math.min(l1.xd, l2.xd)
+  val maxYd  = math.max(l1.yd, l2.yd)
+  val minYd  = math.min(l1.yd, l2.yd)
+  val maxZd  = math.max(l1.zd, l2.zd)
+  val minZd  = math.min(l1.zd, l2.zd)
+
   implicit val world = l1.world
 
   override def toString = s"Cube(l1: ${(maxX,maxY,maxZ)}, l2: ${(minX,minY,minZ)})"
@@ -270,4 +278,17 @@ case class Cube(l1: Location, l2: Location) {
    * get all the players inside this cube at the time of this call.
    */
   def players: Iterator[Player] = world.getPlayers.iterator.filter(contains)
+
+  /**
+   * this is pretty close to map, on a Cube...
+   * @param newL1
+   */
+  def paste(newL1: Location): Unit = {
+    def translate(b: Block): Block =
+      world(
+        b.xd + (newL1.xd - b.xd) + (b.xd - minXd),
+        b.yd + (newL1.yd - b.yd) + (b.yd - minYd),
+        b.zd + (newL1.zd - b.zd) + (b.zd - minZd))
+    blocks.foreach { b => translate(b) update b.materialAndData }
+  }
 }
