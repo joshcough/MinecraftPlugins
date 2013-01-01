@@ -1,9 +1,15 @@
-Provides a library for writing server plugins in Scala. The plugins are vastly simpler to write than
-using the original Bukkit API in Java.
+Provides a library for writing server plugins in Scala. The plugins are vastly simpler to write than using the original Bukkit API in Java.
 
-This is not just providing Scala, but an entire Server Plugin API written in
-Scala as well that cleans things up very nicely, and allows for writing clean, declarative,
-immutable, and fun plugins. The source for the project can be found here:
+**_Update_** - This project now provides two plugins:
+
+  * scala-library-plugin-2.10.0-RC5.jar
+  * scala-plugin-api_2.10-0.2.2.jar
+
+The first plugin provides Scala 2.10.0-RC5, so that plugins that depend on it can have scala on the classpath.
+
+The second is an entire Scala Minecraft Server Plugin API that cleans up the Bukkit API very nicely, and allows for writing clean, declarative, immutable, and fun plugins.
+
+The source for the project can be found here:
 [https://github.com/joshcough/MinecraftPlugins](https://github.com/joshcough/MinecraftPlugins).
 
 ## Examples
