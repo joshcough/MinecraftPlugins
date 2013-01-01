@@ -1,5 +1,10 @@
 # 0.2.2
 
+## Summary
+
+ * split out the scala-library plugin from my own code. that might seem a little funny,
+   but the scala code will change far less than mine, and users don't need to be downloading
+   a 10 meg file every time i make changes.
  * upgraded to Bukkit 1.4.6-R0.3
 
 ## Core Code Changes
