@@ -118,7 +118,7 @@ trait CommandsPlugin extends ScalaPlugin with MinecraftParsers {
     body = (p: Player, argsList: List[String]) =>
       (args <~ eof)(argsList) match {
         case Success(t,_) => body(p -> t)
-        case Failure(msg) => p !* (RED(msg), RED(desc), RED(s"/name ${args.describe}"))
+        case Failure(msg) => p !* (RED(msg), RED(desc), RED(s"/$name ${args.describe}"))
       }
   )
 

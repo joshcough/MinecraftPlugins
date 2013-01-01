@@ -30,6 +30,10 @@ abstract class ScalaPlugin extends JavaPlugin with BukkitEnrichment { scalaPlugi
    */
   def dependencies: List[String] = Nil
 
+  // the ScalaLibPlugin provides Scala at runtime.
+  // the ScalaPluginAPI provides jcdc.pluginfactory.* classes at runtime
+  private val mandatoryDependencies = List("ScalaLibPlugin", "ScalaPluginAPI")
+
   /**
    * A list of all the soft dependencies for this plugin.
    * See http://wiki.bukkit.org/Plugin_YAML for more info
@@ -65,9 +69,7 @@ abstract class ScalaPlugin extends JavaPlugin with BukkitEnrichment { scalaPlugi
     "author: "      + author,
     "version: "     + version,
     "database: "    + (this.dbClasses.size > 0),
-    // the JcdcPluginFactory dependency makes sure Scala, Clojure, and
-    // all of the classes in jcdc.pluginfactory are on the classpath at runtime
-    "depend: ["     + ("JcdcPluginFactory" :: this.dependencies).mkString(", ") + "]",
+    "depend: ["     + (mandatoryDependencies ::: this.dependencies).mkString(", ") + "]",
     "softdepend: [" + this.softDependencies.mkString(", ") + "]"
   ).mkString("\n")
 
@@ -179,4 +181,15 @@ abstract class ScalaPlugin extends JavaPlugin with BukkitEnrichment { scalaPlugi
       }
     }
   }
+}
+
+/**
+ * This plugin and this code is not intended for use.
+ * It is just an empty plugin that is required for turning this library
+ * into a plugin, so that the API and Scala can be on the classpath for
+ * plugins that want to use this API.
+ */
+class ScalaPluginAPI extends org.bukkit.plugin.java.JavaPlugin {
+  override def onEnable  : Unit = {}
+  override def onDisable : Unit = {}
 }

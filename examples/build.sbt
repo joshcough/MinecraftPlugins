@@ -13,18 +13,13 @@ resolvers ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-  "jcdc.pluginfactory" % "jcdc-plugin-factory_2.10" % "0.2.2",
-  "javax.servlet"      % "servlet-api"              % "2.5" % "provided->default",
-  "org.bukkit"         % "craftbukkit"              % "1.4.6-R0.3",
-  // this is only necessary if you want to do some NPC hacking, like in NPCTest.scala
-  "ch.spacebase"       % "NPCCreatures"             % "1.4" from "http://dev.bukkit.org/media/files/584/232/NPCCreatures.jar",
-  "org.scala-lang"     % "jline"                    % "2.10.0-RC5",
-  "org.clojure"        % "clojure"                  % "1.4.0",
-  // TODO: put this back when 2.10 is finally out, i think
-  //"org.scalacheck"  %% "scalacheck"               % "1.10.0" % "test",
-  "org.scalacheck"     % "scalacheck_2.10.0-RC5"    % "1.10.0" % "test"
+  "jcdc.pluginfactory" % "scala-plugin-api_2.10" % "0.2.2",
+  "org.bukkit"         % "craftbukkit"              % "1.4.6-R0.3"
 )
 
+
+// TODO: put this back when 2.10 is finally out, i think
+//"org.scalacheck"  %% "scalacheck"               % "1.10.0" % "test",
 
 //packageBin in Compile <<= (packageBin in Compile) dependsOn run
 //Keys.`package` <<= (Keys.`package` in Compile) dependsOn run

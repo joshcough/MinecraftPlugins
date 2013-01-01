@@ -93,7 +93,7 @@ trait ParserCombinators extends ScalaEnrichment {
      * If they both succeed, a compound result is returned: ~[T,U]
      */
     def ~[U](p2: => Parser[U]): Parser[T ~ U] =
-      (for(t <- self; u <- p2) yield new ~(t, u)) named s"${self.describe} s${p2.describe}"
+      (for(t <- self; u <- p2) yield new ~(t, u)) named s"${self.describe} ${p2.describe}"
 
     /**
      * Creates a new parser that will succeed if either this, or p2 succeed.

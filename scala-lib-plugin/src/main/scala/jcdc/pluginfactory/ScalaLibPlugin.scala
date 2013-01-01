@@ -6,7 +6,7 @@ package jcdc.pluginfactory
  * into a plugin, so that the API and Scala can be on the classpath for
  * plugins that want to use this API.
  */
-class JcdcPluginFactory extends org.bukkit.plugin.java.JavaPlugin {
+class ScalaLibPlugin extends org.bukkit.plugin.java.JavaPlugin {
   override def onEnable  : Unit = {}
   override def onDisable : Unit = {}
 }

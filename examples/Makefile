@@ -1,3 +1,4 @@
+
 all: compile arena ban-arrows block-changer block-changer-gold curse-ban farmer god lightning-arrows mpc no-rain thor tree-delogger warp-plugin world-edit yellow-brick-road zombie-apocalypse
 
 demo: clean-plugins compile block-changer block-changer-gold mpc plugin-commander warp-plugin world-edit
@@ -11,14 +12,16 @@ clean-plugins:
 	cd $(BUKKIT)/plugins; rm -f *.jar
 
 compile:
-	cd ../core; ./bin/publish-local.sh
-	cp ../core/target/scala-plugin-api-2.10.0-RC5-0.2.2.jar $(BUKKIT)/plugins/
+	cd ../core; make publish-local
 	./sbt compile "run-main jcdc.pluginfactory.examples.YMLGenerator"
 
 run-tests:
 	./sbt test
 
-plugin = ./bin/plugin.sh $1 $2
+go:
+	cd $(BUKKIT); java -Xmx512M -Xms256M -jar bukkit.jar nogui
+
+plugin = ./plugin.sh $1 $2
 
 arena:
 	$(call plugin, "arena.yml", "Arena.jar")
