@@ -1,6 +1,6 @@
 package jcdc.pluginfactory.examples
 
-import jcdc.pluginfactory.{Cubes, CommandsPlugin, Cube, ListenersPlugin}
+import jcdc.pluginfactory.{Cube, Cubes, CommandsPlugin, ListenersPlugin}
 import org.bukkit.Material
 import Material._
 
@@ -57,13 +57,13 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin with Cubes {
       name = "set",
       desc = "Set all the selected blocks to the given material type.",
       args = material)(
-      body = { case (p, m) => for(b <- cube(p)) b changeTo m }
+      body = { case (p, m) =>  p ! s"${cube(p) setAll m} blocks updated." }
     ),
     Command(
       name = "change",
       desc = "Change all the selected blocks of the first material type to the second material type.",
       args = material ~ material)(
-      body = { case (p, oldM ~ newM) => for(b <- cube(p); if(b is oldM)) b changeTo newM }
+      body = { case (p, oldM ~ newM) => p ! s"${cube(p).changeAll(oldM, newM)} blocks updated." }
     ),
     Command(
       name = "find",
@@ -96,11 +96,12 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin with Cubes {
         "in a span of N seconds.",
       args = int ~ material ~ material.+)(
       body = { case (p, period ~ initialMaterial ~ materials) =>
+        val c = cube(p)
         val allMaterials = initialMaterial :: materials
         def initialDelay(index: Int) = index * period * 20 / allMaterials.size
         for((m, i) <- allMaterials.zipWithIndex)
           p.scheduleSyncRepeatingTask(initialDelay = initialDelay(i), period = period * 20){
-            cube(p).walls.foreach(_ changeTo m)
+            c.walls.foreach(_ changeTo m)
           }
       }
     ),
@@ -167,6 +168,9 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin with Cubes {
       }
     ),
     Command("goto", "Teleport!", location){ case (you, loc) => you teleport loc(you.world) },
-    Command("paste", "Paste your cube at your current location!"){ p => cube(p).paste(p.loc) }
+    Command("paste", "Paste your cube at your current location!"){ p =>
+      val pasteCount = cube(p).paste(p.loc)
+      p ! s"$pasteCount blocks updated."
+    }
   )
 }

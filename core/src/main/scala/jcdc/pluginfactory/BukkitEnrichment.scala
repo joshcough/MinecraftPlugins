@@ -107,19 +107,19 @@ trait  BukkitEnrichment extends ScalaEnrichment {
     /**
      * drop the item for the current material of this block, and then set this block to AIR
      */
-    def erase: Unit = if(! (b is AIR)) {
-      b.world.dropItem(b.loc, b.itemStack)
+    def erase: Boolean = if(! (b is AIR)) {
+      b.world.dropItem  (b.loc, b.itemStack)
       b.world.playEffect(b.loc, SMOKE, 1)
       changeTo(AIR)
-    }
+    } else false
 
     /**
      * Change this block to the given material.
      */
-    def changeTo(m: Material): Unit = {
+    def changeTo(m: Material): Boolean = {
       try if(! chunk.isLoaded) chunk.load
       catch { case e: Exception => println("unable to load chunk.") }
-      b setType m
+      MaterialAndData(m, None) update b
     }
 
     def itemStack = new ItemStack(b.getType, 1, b.getData)
@@ -396,9 +396,12 @@ trait  BukkitEnrichment extends ScalaEnrichment {
   }
 
   case class MaterialAndData(m: Material, data: Option[Byte]){
-    def update(b: Block): Unit = {
-      b changeTo m
+    def update(b: Block): Boolean = {
+      val oldM    = b.getType
+      val oldData = b.getData
+      b setType m
       data foreach b.setData
+      oldM != m || oldData != data.getOrElse(0)
     }
     def itemStack: ItemStack = data.fold(new ItemStack(m))(new ItemStack(m, 1, 0:Short, _))
   }

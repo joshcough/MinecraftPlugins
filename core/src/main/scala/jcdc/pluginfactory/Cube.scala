@@ -164,14 +164,14 @@ case class Cube(l1: Location, l2: Location) {
   /**
    * Set all the blocks in this Cube to AIR
    */
-  def eraseAll: Unit = blocks.foreach(_.erase)
+  def eraseAll: Int = blocks.count(_.erase)
 
   /**
    * Set all the the blocks in this cube to the new type.
    * @param newM
    */
-  def setAll(newM: Material)       : Unit = setAll(new MaterialAndData(newM, None))
-  def setAll(newM: MaterialAndData): Unit = for(b <- blocks) newM.update(b)
+  def setAll(newM: Material)       : Int = setAll(new MaterialAndData(newM, None))
+  def setAll(newM: MaterialAndData): Int = blocks.count(newM update _)
 
   /**
    * Change all of the blocks in this cube that are of the old material type
@@ -179,10 +179,10 @@ case class Cube(l1: Location, l2: Location) {
    * @param oldM
    * @param newM
    */
-  def changeAll(oldM: Material, newM: Material): Unit =
+  def changeAll(oldM: Material, newM: Material): Int =
     changeAll(oldM, new MaterialAndData(newM, None))
-  def changeAll(oldM: Material, newM: MaterialAndData): Unit =
-    for(b <- blocks; if b is oldM) newM.update(b)
+  def changeAll(oldM: Material, newM: MaterialAndData): Int =
+    blocks.filter(_ is oldM).count(newM update _)
 
   /**
    * A whole pile of operations to change the size of this Cube
@@ -194,9 +194,9 @@ case class Cube(l1: Location, l2: Location) {
       if (max - min <= 1) (max,min)
       else if (max - min <= (less*2)) (midpoint(max, min),midpoint(max, min))
       else (max - less, min + less)
-    val (newMaxX,newMinX) = newMaxMin(maxX, minX,xLess)
-    val (newMaxY,newMinY) = newMaxMin(maxY, minY,yLess)
-    val (newMaxZ,newMinZ) = newMaxMin(maxZ, minZ,zLess)
+    val (newMaxX,newMinX) = newMaxMin(maxX, minX, xLess)
+    val (newMaxY,newMinY) = newMaxMin(maxY, minY, yLess)
+    val (newMaxZ,newMinZ) = newMaxMin(maxZ, minZ, zLess)
     Cube(world(newMaxX, newMaxY, newMaxZ), world(newMinX, newMinY, newMinZ))
   }
 
@@ -283,12 +283,12 @@ case class Cube(l1: Location, l2: Location) {
    * this is pretty close to map, on a Cube...
    * @param newL1
    */
-  def paste(newL1: Location): Unit = {
+  def paste(newL1: Location): Int = {
     def translate(b: Block): Block =
       world(
         b.xd + (newL1.xd - b.xd) + (b.xd - minXd),
         b.yd + (newL1.yd - b.yd) + (b.yd - minYd),
         b.zd + (newL1.zd - b.zd) + (b.zd - minZd))
-    blocks.foreach { b => translate(b) update b.materialAndData }
+    blocks.count(b => b.materialAndData update translate(b))
   }
 }
