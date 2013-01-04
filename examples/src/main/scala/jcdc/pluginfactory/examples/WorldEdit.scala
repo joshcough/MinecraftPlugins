@@ -1,8 +1,9 @@
 package jcdc.pluginfactory.examples
 
-import jcdc.pluginfactory.{Cube, Cubes, CommandsPlugin, ListenersPlugin}
 import org.bukkit.Material
 import Material._
+import jcdc.pluginfactory.{MineCraftCube, Cubes, CommandsPlugin, ListenersPlugin}
+import MineCraftCube._
 
 /**
  * Classic WorldEdit plugin, done in Scala.
@@ -70,7 +71,7 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin with Cubes {
       desc = "Checks if your cube contains any of the given material, and tells where.",
       args = material)(
       body = { case (p, m) =>
-        cube(p).find(_ is m).fold(s"No $m found in your cube!")(b => s"$m found at ${b.loc.xyz}")
+        cube(p).blocks.find(_ is m).fold(s"No $m found in your cube!")(b => s"$m found at ${b.loc.xyz}")
       }
     ),
     Command(
@@ -154,7 +155,8 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin with Cubes {
       args = material)(
       body = { case (p, m) =>
         val c = cube(p)
-        for(b <- cube(p)) if (c.onWall(b) or c.onFloor(b)) b changeTo m else b.erase
+        for(b <- cube(p).blocks) if (c.onWall(b.coor) || c.onFloor(b.coor))
+          b changeTo m else b.erase
       }
     ),
     Command(
@@ -164,7 +166,7 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin with Cubes {
       body = { case (p, radius ~ depth) =>
         val b = radius / 2
         val (x, y, z) = p.loc.xyzd
-        Cube(p.world(x + b, y, z + b).loc, p.world(x - b, y - depth, z - b).loc).eraseAll
+        MineCraftCube(p.world(x + b, y, z + b).loc, p.world(x - b, y - depth, z - b).loc).eraseAll
       }
     ),
     Command("goto", "Teleport!", location){ case (you, loc) => you teleport loc(you.world) },

@@ -26,8 +26,8 @@ object MineLang {
         case ObjectValue(m:Material) => m
         case ObjectValue(s:String) => MinecraftParsers.material(s).fold(sys error _)((m, _) => m)
       }
-    def evalToCube(e:Expr, env:Env): Cube =
-      evalTo(e,env,"cube"){ case ObjectValue(c@Cube(_,_)) => c }
+    def evalToCube(e:Expr, env:Env): MineCraftCube =
+      evalTo(e,env,"cube"){ case ObjectValue(c:MineCraftCube) => c }
 
     val getMaterial = builtIn('material, (exps, env) => {
       eval(exps(0),env) match {
@@ -51,12 +51,12 @@ object MineLang {
       else sys error s"bad location data: ${(xe,ye,ze)}"
     })
     // here are all the cube block mutation functions.
-    def builtInCube(name:Symbol, eval: (List[Expr], Env) => Cube) =
+    def builtInCube(name:Symbol, eval: (List[Expr], Env) => MineCraftCube) =
       (name -> BuiltinFunction(name, (es, env) => { ObjectValue(eval(es,env)) }))
     val setAll = builtInCube(Symbol("cube:set-all"), (exps, env) => {
       val c = evalToCube(exps(0), env)
       val m = evalToMaterial(exps(1), env)
-      for(b <- c) b changeTo m
+      for(b <- c.blocks) b changeTo m
       p ! s"setting all in $c to $m"
       c
     })
@@ -64,7 +64,7 @@ object MineLang {
       val c    = evalToCube(exps(0), env)
       val oldM = evalToMaterial(exps(1),env)
       val newM = evalToMaterial(exps(2),env)
-      for(b <- c; if(b is oldM)) b changeTo newM
+      for(b <- c.blocks; if(b is oldM)) b changeTo newM
       p ! s"changed $oldM in $c to $newM"
       c
     }))
@@ -78,7 +78,7 @@ object MineLang {
     val setFloor = builtInCube(Symbol("cube:set-floor"), ((exps, env) => {
       val c = evalToCube(exps(0), env)
       val m = evalToMaterial(exps(1),env)
-      c.floor.foreach(_ changeTo m)
+      c.floor.toStream.foreach(_ changeTo m)
       p ! s"set floor in $c to: $m"
       c
     }))

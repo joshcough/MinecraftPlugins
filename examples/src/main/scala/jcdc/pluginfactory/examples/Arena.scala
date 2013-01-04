@@ -3,7 +3,8 @@ package jcdc.pluginfactory.examples
 import org.bukkit.Material
 import Material._
 import org.bukkit.event.player.PlayerMoveEvent
-import jcdc.pluginfactory.{CommandsPlugin, Cube, Cubes, ListenersPlugin}
+import jcdc.pluginfactory.{MineCraftCube, Cubes, CommandsPlugin, ListenersPlugin}
+import MineCraftCube._
 
 /**
  * The goal of this plugin was to have combatants enter an arena and
@@ -44,11 +45,13 @@ class Arena extends ListenersPlugin with CommandsPlugin with Cubes {
       args = material)(
       body = { case (p, m) =>
         val c = cube(p)
-        for(b <- c.blocks) if(c.onWall(b) or c.onFloor(b)) b changeTo m else b changeTo AIR
+        for(b <- c.blocks) if(c.onWall(b.coor) || c.onFloor(b.coor)) b changeTo m else b changeTo AIR
       }
     )
   )
 
-  def entering(c: Cube, e: PlayerMoveEvent) = c.contains(e.getTo)   and ! c.contains(e.getFrom)
-  def leaving (c: Cube, e: PlayerMoveEvent) = c.contains(e.getFrom) and ! c.contains(e.getTo)
+  def entering(c: MineCraftCube, e: PlayerMoveEvent) =
+    c.contains(e.getTo)   and ! c.contains(e.getFrom)
+  def leaving (c: MineCraftCube, e: PlayerMoveEvent) =
+    c.contains(e.getFrom) and ! c.contains(e.getTo)
 }

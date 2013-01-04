@@ -1,17 +1,25 @@
 package jcdc.pluginfactory
 
-import org.bukkit.block.Block
-import org.bukkit.entity.Player
-import BukkitEnrichment._
-import org.bukkit.{World, Material, Location}
-import collection.JavaConversions.asScalaIterator
+object Coor {
+  val origin = Coor(0, 0, 0)
+  def apply(x: Int, y: Int, z: Int) = new Coor(x.toDouble, y.toDouble, z.toDouble)
+  def apply(xyz:(Int, Int, Int)) = new Coor(xyz._1, xyz._2, xyz._3)
+}
 
-object Cube{
-  type TLoc = (Int,Int,Int)
-  implicit def toStream(c:Cube): Stream[Block] = c.blocks
-  implicit def toLocation(t:TLoc)(implicit w:World) = w(t._1, t._2, t._3)
-  def apply(c1:TLoc,  c2:TLoc) (implicit w:World): Cube = Cube(toLocation(c1), toLocation(c2))
-  def apply(b1:Block, b2:Block)(implicit w:World): Cube = Cube(b1.loc, b2.loc)
+case class Coor(xd: Double, yd: Double, zd: Double) {
+  val (x, y, z) = (xd.toInt, yd.toInt, zd.toInt)
+  val xyz  = (x, y, z)
+  val xyzd = (xd, yd, zd)
+}
+
+object Cube {
+  def apply[T](c1: Coor, c2: Coor)(fn: Coor => T) = new Cube[T]{
+    val corner1 = c1; val corner2 = c2; val f = fn
+  }
+  def coors(c1:(Int, Int, Int), c2:(Int, Int, Int)) = Cube(Coor(c1), Coor(c2))(identity)
+// TODO: can applicative be implemented?
+//  def pure[T](t: T): Cube[T] = Cube(Coor.origin, Coor.origin)(Function.const(t))
+//  def ap[T,U](fs: List[T => U], ts: List[T]): List[U] = fs.flatMap(f => ts map f)
 }
 
 /**
@@ -39,108 +47,121 @@ object Cube{
  *  y axis is height
  *  z axis is depth
  *
- * @param l1 one corner of the cube
- * @param l2 the other corner
  */
-case class Cube(l1: Location, l2: Location) {
+trait Cube[T] {
+  // @param corner1 one corner of the cube
+  // @param corner2 the other corner
+  val corner1: Coor
+  val corner2: Coor
+  val f: Coor => T
 
-  import Cube._
+  lazy val maxX  = math.max(corner1.x, corner2.x)
+  lazy val minX  = math.min(corner1.x, corner2.x)
+  lazy val maxY  = math.max(corner1.y, corner2.y)
+  lazy val minY  = math.min(corner1.y, corner2.y)
+  lazy val maxZ  = math.max(corner1.z, corner2.z)
+  lazy val minZ  = math.min(corner1.z, corner2.z)
 
-  val maxX  = math.max(l1.x, l2.x)
-  val minX  = math.min(l1.x, l2.x)
-  val maxY  = math.max(l1.y, l2.y)
-  val minY  = math.min(l1.y, l2.y)
-  val maxZ  = math.max(l1.z, l2.z)
-  val minZ  = math.min(l1.z, l2.z)
+  lazy val maxXd  = math.max(corner1.xd, corner2.xd)
+  lazy val minXd  = math.min(corner1.xd, corner2.xd)
+  lazy val maxYd  = math.max(corner1.yd, corner2.yd)
+  lazy val minYd  = math.min(corner1.yd, corner2.yd)
+  lazy val maxZd  = math.max(corner1.zd, corner2.zd)
+  lazy val minZd  = math.min(corner1.zd, corner2.zd)
 
-  val maxXd  = math.max(l1.xd, l2.xd)
-  val minXd  = math.min(l1.xd, l2.xd)
-  val maxYd  = math.max(l1.yd, l2.yd)
-  val minYd  = math.min(l1.yd, l2.yd)
-  val maxZd  = math.max(l1.zd, l2.zd)
-  val minZd  = math.min(l1.zd, l2.zd)
-
-  implicit val world = l1.world
+  def map[U](g: T => U): Cube[U] = Cube(corner1, corner1)(g compose f)
 
   override def toString = s"Cube(l1: ${(maxX,maxY,maxZ)}, l2: ${(minX,minY,minZ)})"
   override def equals(a:Any) = a match {
-    case c@Cube(_,_) =>
-      (maxX,maxY,maxZ) == (c.maxX,c.maxY,c.maxZ) &&
-        (minX,minY,minZ) == (c.minX,c.minY,c.minZ) &&
-        c.world.name == world.name
+    case c:Cube[_] =>
+      (maxX,maxY,maxZ) == (c.maxX,c.maxY,c.maxZ) && (minX,minY,minZ) == (c.minX,c.minY,c.minZ)
     case _ => false
   }
+
   def copy(minX:Int=minX, minY:Int=minY, minZ:Int=minZ,
-           maxX:Int=maxX, maxY:Int=maxY, maxZ:Int=maxZ): Cube =
-    Cube(new Location(world, minX, minY, minZ), new Location(world, maxX, maxY, maxZ))
+           maxX:Int=maxX, maxY:Int=maxY, maxZ:Int=maxZ): Cube[T] =
+    Cube(Coor(minX, minY, minZ), Coor(maxX, maxY, maxZ))(f)
 
   // this must be a def to avoid it memoizing.
-  def blocks = world.between(l1, l2)
+  def toCoorStream: Stream[Coor] = {
+    val ((x1, y1, z1), (x2, y2, z2)) = (corner1.xyz, corner2.xyz)
+    def range(i1: Int, i2: Int) = (if(i1 < i2) i1 to i2 else i2 to i1).toStream
+    for (x <- range(x1,x2); y <- range(y1,y2); z <- range(z1,z2)) yield Coor(x,y,z)
+  }
+
+  def toStream: Stream[T] = toCoorStream map f
+
+  def toZippedStream: Stream[(Coor, T)] = toCoorStream zip toStream
+
   def width  = maxX - minX
   def height = maxY - minY
   def depth  = maxZ - minZ
   def size: BigInt = BigInt(width) * BigInt(height) * BigInt(depth)
 
-  def contains(p: Player)  : Boolean = this.contains(p.loc)
-  def contains(l: Location): Boolean = (
-    l.xd <= maxX and l.xd >= minX and
-      l.yd <= maxY and l.yd >= minY and
-      l.zd <= maxZ and l.zd >= minZ
-    )
+  def contains(c: Coor): Boolean = (
+    c.xd <= maxX && c.xd >= minX &&
+    c.yd <= maxY && c.yd >= minY &&
+    c.zd <= maxZ && c.zd >= minZ
+  )
 
   /**
    * The 8 corners of this Cube.
    */
-  def corners: List[Block] = List(
-    world(maxX, minY, maxZ),
-    world(maxX, minY, minZ),
-    world(minX, minY, maxZ),
-    world(minX, minY, minZ),
-    world(maxX, maxY, maxZ),
-    world(maxX, maxY, minZ),
-    world(minX, maxY, maxZ),
-    world(minX, maxY, minZ)
+  def cornersCoors: List[Coor] = List(
+    Coor(maxX, minY, maxZ),
+    Coor(maxX, minY, minZ),
+    Coor(minX, minY, maxZ),
+    Coor(minX, minY, minZ),
+    Coor(maxX, maxY, maxZ),
+    Coor(maxX, maxY, minZ),
+    Coor(minX, maxY, maxZ),
+    Coor(minX, maxY, minZ)
   )
+
+  def corners: List[T] = cornersCoors map f
   
   /**
    * A Stream containing the floor, ceiling and walls of this cube.
+   * TODO: This distinct is bad here because of T.
+   * TODO: i might just have to get the right blocks myself.
+   * TODO: I think it just involves shrinking Y by 1 on all the walls.
    */
-  def shell: Stream[Block] = (floor.blocks #::: ceiling.blocks #::: walls).distinct
+  def shell: Stream[T] = (floor.toStream #::: ceiling.toStream #::: walls).distinct
 
   /**
    * get the floor of this cube
    * @return a new Cube
    */
-  def floor  = Cube(world(maxX, minY, maxZ), world(minX, minY, minZ))
+  def floor  = Cube(Coor(maxX, minY, maxZ), Coor(minX, minY, minZ))(f)
   def bottom = floor _
 
   /**
-   * Returns true if the given block is on the floor of this cube
-   * @param b
+   * Returns true if the given coordinate is on the floor of this cube
+   * @param c
    * @return
    */
-  def onFloor(b: Block)   = b.y == minY
+  def onFloor(c: Coor)   = c.y == minY
   def onBottom = onFloor _
 
   /**
    * get the ceiling of this cube
    * @return a new Cube
    */
-  def ceiling = Cube(world(maxX, maxY, maxZ), world(minX, maxY, minZ))
+  def ceiling = Cube(Coor(maxX, maxY, maxZ), Coor(minX, maxY, minZ))(f)
   def top     = ceiling _
 
   /**
    * Returns true if the given block is on the ceiling of this cube
-   * @param b
+   * @param c
    * @return
    */
-  def onCeiling(b: Block) = b.y == maxY
+  def onCeiling(c: Coor) = c.y == maxY
   def onTop = onCeiling _
 
-  def northWall: Cube = Cube(world(minX, minY, minZ), world(maxX, maxY, minZ))
-  def southWall: Cube = Cube(world(minX, minY, maxZ), world(maxX, maxY, maxZ))
-  def eastWall : Cube = Cube(world(maxX, minY, minZ), world(maxX, maxY, maxZ))
-  def westWall : Cube = Cube(world(minX, minY, minZ), world(minX, maxY, maxZ))
+  def northWall: Cube[T] = Cube(Coor(minX, minY, minZ), Coor(maxX, maxY, minZ))(f)
+  def southWall: Cube[T] = Cube(Coor(minX, minY, maxZ), Coor(maxX, maxY, maxZ))(f)
+  def eastWall : Cube[T] = Cube(Coor(maxX, minY, minZ), Coor(maxX, maxY, maxZ))(f)
+  def westWall : Cube[T] = Cube(Coor(minX, minY, minZ), Coor(minX, maxY, maxZ))(f)
 
   /**
    * Return a Stream of all the blocks in this cube
@@ -149,9 +170,9 @@ case class Cube(l1: Location, l2: Location) {
    * TODO: can i do this more efficiently?
    * TODO: can i make this return 4 cubes?
    */
-  def walls: Stream[Block] = blocks.filter(onWall)
+  def walls: Stream[T] = toZippedStream.filter{ case (c, t) => onWall(c) }.map(_._2)
 
-  def onWall(b: Block)     = b.x == l1.x or b.x == l2.x or b.z == l1.z or b.z == l2.z
+  def onWall(c: Coor): Boolean = List(corner1.x, corner2.x, corner1.z, corner2.z) contains c
 
   /**
    * Shrink this cube on all sides by one, giving just the insides of the cube
@@ -159,36 +180,13 @@ case class Cube(l1: Location, l2: Location) {
    * TODO: dont shrink if the Cube is too small.
    * @return A new cube
    */
-  def insides = Cube(world(maxX-1, maxY-1, maxZ-1), world(minX+1, minY+1, minZ+1))
-
-  /**
-   * Set all the blocks in this Cube to AIR
-   */
-  def eraseAll: Int = blocks.count(_.erase)
-
-  /**
-   * Set all the the blocks in this cube to the new type.
-   * @param newM
-   */
-  def setAll(newM: Material)       : Int = setAll(new MaterialAndData(newM, None))
-  def setAll(newM: MaterialAndData): Int = blocks.count(newM update _)
-
-  /**
-   * Change all of the blocks in this cube that are of the old material type
-   * to the new material type.
-   * @param oldM
-   * @param newM
-   */
-  def changeAll(oldM: Material, newM: Material): Int =
-    changeAll(oldM, new MaterialAndData(newM, None))
-  def changeAll(oldM: Material, newM: MaterialAndData): Int =
-    blocks.filter(_ is oldM).count(newM update _)
+  def insides = Cube(Coor(maxX-1, maxY-1, maxZ-1), Coor(minX+1, minY+1, minZ+1))(f)
 
   /**
    * A whole pile of operations to change the size of this Cube
    */
 
-  def shrink(xLess:Int, yLess:Int, zLess:Int)  = {
+  def shrink(xLess:Int, yLess:Int, zLess:Int) = {
     def midpoint(max:Int, min:Int): Int = (max-min) / 2
     def newMaxMin(max:Int, min:Int, less:Int): (Int,Int) =
       if (max - min <= 1) (max,min)
@@ -197,14 +195,14 @@ case class Cube(l1: Location, l2: Location) {
     val (newMaxX,newMinX) = newMaxMin(maxX, minX, xLess)
     val (newMaxY,newMinY) = newMaxMin(maxY, minY, yLess)
     val (newMaxZ,newMinZ) = newMaxMin(maxZ, minZ, zLess)
-    Cube(world(newMaxX, newMaxY, newMaxZ), world(newMinX, newMinY, newMinZ))
+    Cube(Coor(newMaxX, newMaxY, newMaxZ), Coor(newMinX, newMinY, newMinZ))(f)
   }
 
   def grow(xMore:Int,yMore:Int,zMore:Int)  = {
     val (newMaxX,newMinX) = (maxX + xMore, minX - xMore)
     val (newMaxY,newMinY) = (maxY + yMore, minY - yMore)
     val (newMaxZ,newMinZ) = (maxZ + zMore, minZ - zMore)
-    Cube(world(newMaxX, newMaxY, newMaxZ), world(newMinX, newMinY, newMinZ))
+    Cube(Coor(newMaxX, newMaxY, newMaxZ), Coor(newMinX, newMinY, newMinZ))(f)
   }
 
   /**
@@ -247,48 +245,29 @@ case class Cube(l1: Location, l2: Location) {
   /**
    * expand by n blocks in all directions  (N,S,E,W,Up,Down)
    */
-  def expand(n:Int)    = grow(n,n,n)
+  def expand(n:Int)   = grow(n,n,n)
 
   /**
    * expand by n blocks upwards only.
    */
-  def expandUp(n:Int)  = growMaxYBy(n)
+  def expandUp(n:Int) = growMaxYBy(n)
 
   /**
    * expand by n blocks N,S,E,W
    */
   def expandXZ(n:Int) = grow(n,0,n)
 
-
   /**
    * A whole pile of operations to change the position of this Cube
    */
 
-  def shiftX      (i:Int)     = growMaxXBy(i).shrinkMinXBy(i)
-  def shiftY      (i:Int)     = growMaxYBy(i).shrinkMinYBy(i)
-  def shiftZ      (i:Int)     = growMaxZBy(i).shrinkMinZBy(i)
-  def shiftNorth  (i:Int)     = shiftZ(-i)
-  def shiftSouth  (i:Int)     = shiftZ( i)
-  def shiftEast   (i:Int)     = shiftX( i)
-  def shiftWest   (i:Int)     = shiftZ(-i)
-  def shiftUp     (i:Int)     = shiftY( i)
-  def shiftDown   (i:Int)     = shiftY(-i)
-
-  /**
-   * get all the players inside this cube at the time of this call.
-   */
-  def players: Iterator[Player] = world.getPlayers.iterator.filter(contains)
-
-  /**
-   * this is pretty close to map, on a Cube...
-   * @param newL1
-   */
-  def paste(newL1: Location): Int = {
-    def translate(b: Block): Block =
-      world(
-        b.xd + (newL1.xd - b.xd) + (b.xd - minXd),
-        b.yd + (newL1.yd - b.yd) + (b.yd - minYd),
-        b.zd + (newL1.zd - b.zd) + (b.zd - minZd))
-    blocks.count(b => b.materialAndData update translate(b))
-  }
+  def shiftX      (i:Int) = growMaxXBy(i).shrinkMinXBy(i)
+  def shiftY      (i:Int) = growMaxYBy(i).shrinkMinYBy(i)
+  def shiftZ      (i:Int) = growMaxZBy(i).shrinkMinZBy(i)
+  def shiftNorth  (i:Int) = shiftZ(-i)
+  def shiftSouth  (i:Int) = shiftZ( i)
+  def shiftEast   (i:Int) = shiftX( i)
+  def shiftWest   (i:Int) = shiftZ(-i)
+  def shiftUp     (i:Int) = shiftY( i)
+  def shiftDown   (i:Int) = shiftY(-i)
 }
