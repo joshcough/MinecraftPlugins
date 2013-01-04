@@ -58,7 +58,7 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin with Cubes {
       setSecondPosition(p, loc2(p.world))
       p teleport loc1(p.world)
     },
-    Command("erase", "Set all the selected blocks to air.")(cube(_).eraseAll),
+    Command("erase", "Set all the selected blocks to air.")(p => change(p, cube(p).eraseAll)),
     Command(
       name = "set",
       desc = "Set all the selected blocks to the given material type.",

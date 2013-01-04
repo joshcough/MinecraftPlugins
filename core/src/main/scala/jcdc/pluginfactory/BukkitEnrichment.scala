@@ -395,6 +395,10 @@ trait  BukkitEnrichment extends ScalaEnrichment {
     val BLACK       = new Color(15)
   }
 
+  object MaterialAndData{
+    val AIR = new MaterialAndData(Material.AIR, None)
+  }
+
   case class MaterialAndData(m: Material, data: Option[Byte]){
     def update(b: Block): Boolean = {
       val oldM    = b.getType

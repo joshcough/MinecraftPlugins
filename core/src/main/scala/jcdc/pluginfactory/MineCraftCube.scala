@@ -33,7 +33,7 @@ object MineCraftCube {
     def forall(bms: Stream[Block], newM: MaterialAndData): Stream[PotentialChange] =
       bms.zip(Stream.continually(newM)).map{ case (b,n) => PotentialChange(b,n) }
 
-    def runAll(bms: Stream[Block], newM: MaterialAndData) = runChanges(forall(bms, newM))
+    def changeAll(bms: Stream[Block], newM: MaterialAndData) = runChanges(forall(bms, newM))
 
     def runChanges(newData: Stream[PotentialChange]): Changes =
       newData.filter(_.run).map(p => (p.b, p.oldM)).toVector
@@ -67,7 +67,7 @@ case class MineCraftCube(loc1: Location, loc2: Location) extends Cube[Block] {
    * Set all the the blocks in this cube to the new type.
    * @param newM
    */
-  def setAll(newM: MaterialAndData): Changes = Changer.runAll(blocks, newM)
+  def setAll(newM: MaterialAndData): Changes = Changer.changeAll(blocks, newM)
 
   /**
    * Change all of the blocks in this cube that are of the old material type
@@ -85,12 +85,12 @@ case class MineCraftCube(loc1: Location, loc2: Location) extends Cube[Block] {
    * @param newM
    */
   def changeAll(oldM: Material, newM: MaterialAndData): Changes =
-    Changer.runAll(blocks.filter(_ is oldM), newM)
+    Changer.changeAll(blocks.filter(_ is oldM), newM)
 
   /**
    * Set all the blocks in this Cube to AIR
    */
-  def eraseAll: Int = toStream.count(_.erase)
+  def eraseAll: Changes = Changer.changeAll(blocks, MaterialAndData.AIR)
 
   /**
    * this is pretty close to map, on a Cube...
@@ -98,9 +98,9 @@ case class MineCraftCube(loc1: Location, loc2: Location) extends Cube[Block] {
    */
   def paste(newL1: Location): Changes = {
     def translate(b: Block): Block = world(
-      b.xd + (newL1.xd - b.xd) + (b.xd - minXd),
-      b.yd + (newL1.yd - b.yd) + (b.yd - minYd),
-      b.zd + (newL1.zd - b.zd) + (b.zd - minZd)
+      b.xd + (newL1.xd - b.xd) + (b.xd - loc1.xd),
+      b.yd + (newL1.yd - b.yd) + (b.yd - loc1.yd),
+      b.zd + (newL1.zd - b.zd) + (b.zd - loc1.zd)
     )
     Changer.runChanges(blocks.map(b => PotentialChange(translate(b), b.materialAndData)))
   }
