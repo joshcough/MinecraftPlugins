@@ -2,7 +2,7 @@ package jcdc.pluginfactory.examples
 
 import org.bukkit.Material
 import Material._
-import jcdc.pluginfactory.{MineCraftCube, Cubes, CommandsPlugin, ListenersPlugin, PlayerState}
+import jcdc.pluginfactory.{MineCraftCube, CubeState, CommandsPlugin, ListenersPlugin, PlayerState}
 import MineCraftCube._
 import org.bukkit.entity.Player
 
@@ -27,13 +27,13 @@ import org.bukkit.entity.Player
  *
  * Have a look through the code, or navigate the help menu for more info on the commands.
  */
-class WorldEdit extends ListenersPlugin with CommandsPlugin with Cubes {
+class WorldEdit extends ListenersPlugin with CommandsPlugin with CubeState {
 
   lazy val tasks = new PlayerTasks
   import tasks._
 
   val changes = new PlayerState[Changes] {
-    override val default = Some(Vector())
+    override val default = Some(Array[Change]())
   }
 
   val listeners = List(
@@ -43,6 +43,7 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin with Cubes {
 
   val commands = List(
     Command("wand", "Get a WorldEdit wand.")(_.loc.dropItem(WOOD_AXE)),
+    Command("goto", "Teleport!", location){ case (you, loc) => you teleport loc(you.world) },
     Command("pos1", "Set the first position", location.?){ case (p, loc) =>
       setFirstPosition (p, loc.fold(p.loc)(_(p.world)))
     },
@@ -58,12 +59,20 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin with Cubes {
       setSecondPosition(p, loc2(p.world))
       p teleport loc1(p.world)
     },
-    Command("erase", "Set all the selected blocks to air.")(p => change(p, cube(p).eraseAll)),
+    Command(
+      name = "find",
+      desc = "Checks if your cube contains any of the given material, and tells where.",
+      args = material)(
+      body = { case (p, m) =>
+        cube(p).blocks.find(_ is m).fold(s"No $m found in your cube!")(b => s"$m found at ${b.loc.xyz}")
+      }
+    ),
+    Command("erase", "Set all the selected blocks to air.")(p => p.commit(cube(p).eraseAll)),
     Command(
       name = "set",
       desc = "Set all the selected blocks to the given material type.",
       args = material)(
-      body = { case (p, m) => change(p, cube(p).setAll(m)) }
+      body = { case (p, m) => p.commit(cube(p).setAll(m)) }
     ),
     Command(
       name = "undo",
@@ -74,44 +83,62 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin with Cubes {
         // but we probably want these to behave like cont-z, cont-shift-z instead.
         // we don't get that behavior just yet.
         // it'll certainly take up more memory... things to consider, anyway.
-        val potentialChanges = changes.getPlayerState(p).toStream.map(PotentialChange.fromChange)
-        change(p, Changer.runChanges(potentialChanges))
+        p.commit(changes(p).map(PotentialChange(_)))
     }),
     Command(
       name = "change",
       desc = "Change all the selected blocks of the first material type to the second material type.",
       args = material ~ material)(
-      body = { case (p, oldM ~ newM) => change(p, cube(p).changeAll(oldM, newM)) }
-    ),
-    Command(
-      name = "find",
-      desc = "Checks if your cube contains any of the given material, and tells where.",
-      args = material)(
-      body = { case (p, m) =>
-        cube(p).blocks.find(_ is m).fold(s"No $m found in your cube!")(b => s"$m found at ${b.loc.xyz}")
-      }
+      body = { case (p, oldM ~ newM) => p.commit(cube(p).changeAll(oldM, newM)) }
     ),
     Command(
       name = "fib-tower",
       desc = "create a tower from the fib numbers",
       args = int ~ material){ case (p, i ~ m) =>
       lazy val fibs: Stream[Int] = 0 #:: 1 #:: fibs.zip(fibs.tail).map{case (i,j) => i+j}
-      for {
+      p.commit(for {
         (startBlock,n) <- p.world.fromX(p.loc).zip(fibs take i)
         towerBlock     <- startBlock.andBlocksAbove take n
-      } towerBlock changeTo m
+      } yield PotentialChange(towerBlock, m))
     },
     Command(
       name = "walls",
       desc = "Create walls with the given material type.",
       args = material)(
-      body = { case (p, m) => cube(p).walls.foreach(_ changeTo m) }
+      body = { case (p, m) => p.commit(cube(p).walls.map(PotentialChange(_, m))) }
     ),
+    Command(
+      name = "empty-tower",
+      desc = "Create walls and floor with the given material type, and set everything inside to air.",
+      args = material)(
+      body = { case (p, m) =>
+        val c = cube(p)
+        p.commit(
+          for(b <- cube(p).blocks) yield PotentialChange(b,
+            if (c.onWall(b.coor) || c.onFloor(b.coor)) m else AIR)
+        )
+      }
+    ),
+    Command(
+      name = "dig",
+      desc = "Dig",
+      args = oddNum ~ int)(
+      body = { case (p, radius ~ depth) =>
+        val b = radius / 2
+        val (x, y, z) = p.loc.xyzd
+        p.commit(
+          MineCraftCube(p.world(x + b, y, z + b).loc, p.world(x - b, y - depth, z - b).loc).eraseAll
+        )
+      }
+    ),
+    Command("paste", "Paste your cube at your current location!"){ p =>
+      p.commit( cube(p).paste(p.loc))
+    },
     Command(
       name = "cycle-walls",
       desc =
         "Create walls, and cycle the walls material between the given materials, " +
-        "in a span of N seconds.",
+          "in a span of N seconds.",
       args = int ~ material ~ material.+)(
       body = { case (p, period ~ initialMaterial ~ materials) =>
         val c = cube(p)
@@ -165,35 +192,14 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin with Cubes {
             if(ascending) hb changeTo m else hb.blockBelow changeTo AIR
           }
       }
-    ),
-    Command(
-      name = "empty-tower",
-      desc = "Create walls and floor with the given material type, and set everything inside to air.",
-      args = material)(
-      body = { case (p, m) =>
-        val c = cube(p)
-        for(b <- cube(p).blocks) if (c.onWall(b.coor) || c.onFloor(b.coor))
-          b changeTo m else b.erase
-      }
-    ),
-    Command(
-      name = "dig",
-      desc = "Dig",
-      args = oddNum ~ int)(
-      body = { case (p, radius ~ depth) =>
-        val b = radius / 2
-        val (x, y, z) = p.loc.xyzd
-        MineCraftCube(p.world(x + b, y, z + b).loc, p.world(x - b, y - depth, z - b).loc).eraseAll
-      }
-    ),
-    Command("goto", "Teleport!", location){ case (you, loc) => you teleport loc(you.world) },
-    Command("paste", "Paste your cube at your current location!"){ p =>
-      change(p, cube(p).paste(p.loc))
-    }
+    )
   )
 
-  def change(p: Player, cs: Changes) = {
-    changes.setPlayerState(p, cs)
-    p ! s"${changes.getPlayerState(p)} blocks updated."
+  implicit class RichPlayerWithChanges(p: Player){
+    def commit(cs: Changes): Unit = {
+      changes += (p, cs)
+      p ! s"${changes(p)} blocks updated."
+    }
+    def commit(ps: Seq[PotentialChange]): Unit = commit(Changer runChanges ps)
   }
 }

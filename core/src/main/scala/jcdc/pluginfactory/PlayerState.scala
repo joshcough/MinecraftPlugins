@@ -13,7 +13,7 @@ trait PlayerState[T] {
    */
   val default: Option[T] = None
 
-  private lazy val state = default.fold(
+  lazy val state = default.fold(
     collection.mutable.Map[Player, T]())(t =>
     collection.mutable.Map[Player, T]().withDefaultValue(t))
 
@@ -24,6 +24,13 @@ trait PlayerState[T] {
   def getPlayerState     (p: Player): T          = state(p)
 
   /**
+   * Same as getPlayerState
+   * @param p
+   * @return
+   */
+  def apply(p: Player): T = state(p)
+
+  /**
    * Get the state for the player, if it exists.
    */
   def getPlayerStateMaybe(p: Player): Option[T]  = state.get(p)
@@ -31,7 +38,14 @@ trait PlayerState[T] {
   /**
    * Set the state for the given player
    */
-  def setPlayerState     (p: Player, t: T): Unit = state += (p -> t)
+  def setPlayerState(p: Player, t: T): T = { state += (p -> t); t }
+
+  /**
+   * Same as setPlayerState
+   * @param pt
+   * @return
+   */
+  def += (pt: (Player, T)): T = setPlayerState(pt._1, pt._2)
 
   /**
    * Delete the state for the given player,
@@ -42,6 +56,14 @@ trait PlayerState[T] {
     state -= p
     t
   }
+
+  /**
+   * Same as deletePlayerState
+   * @param p
+   * @return
+   */
+  def -= (p: Player): T = deletePlayerState(p)
+
 
   /**
    * Delete the state for the given player,

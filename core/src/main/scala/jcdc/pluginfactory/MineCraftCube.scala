@@ -15,13 +15,11 @@ object MineCraftCube {
   }
   def apply(b1: Block, b2: Block): MineCraftCube = new MineCraftCube(b1.loc, b2.loc)
 
-  type BandM = (Block, MaterialAndData)
-  type Changes = Vector[Change]
-
-  type Change = (Block, MaterialAndData)
+  case class Change(b: Block, oldM: MaterialAndData)
 
   object PotentialChange {
-    def fromChange(c: Change) = new PotentialChange(c._1, c._2)
+    def apply(c: Change) = new PotentialChange(c.b, c.oldM)
+    def apply(b: Block, m: Material) = new PotentialChange(b, m.andData)
   }
 
   case class PotentialChange(b: Block, newM: MaterialAndData){
@@ -29,14 +27,16 @@ object MineCraftCube {
     def run: Boolean = newM update b
   }
 
+  type Changes = Array[Change]
+  type PotentialChanges = Stream[PotentialChange]
+
   object Changer {
-    def forall(bms: Stream[Block], newM: MaterialAndData): Stream[PotentialChange] =
+    def changeAll(bms: Stream[Block], newM: MaterialAndData) = runChanges(
       bms.zip(Stream.continually(newM)).map{ case (b,n) => PotentialChange(b,n) }
+    )
 
-    def changeAll(bms: Stream[Block], newM: MaterialAndData) = runChanges(forall(bms, newM))
-
-    def runChanges(newData: Stream[PotentialChange]): Changes =
-      newData.filter(_.run).map(p => (p.b, p.oldM)).toVector
+    def runChanges(newData: Seq[PotentialChange]): Changes =
+      newData.filter(_.run).map(p => Change(p.b, p.oldM)).toArray
   }
 }
 

@@ -3,7 +3,7 @@ package jcdc.pluginfactory.examples
 import org.bukkit.Material
 import Material._
 import org.bukkit.event.player.PlayerMoveEvent
-import jcdc.pluginfactory.{MineCraftCube, Cubes, CommandsPlugin, ListenersPlugin}
+import jcdc.pluginfactory.{MineCraftCube, CubeState, CommandsPlugin, ListenersPlugin}
 import MineCraftCube._
 
 /**
@@ -15,7 +15,7 @@ import MineCraftCube._
  * be a good start for a Trap plugin, or any other kind of thing
  * you might want to do when a player enters a particular area.
  */
-class Arena extends ListenersPlugin with CommandsPlugin with Cubes {
+class Arena extends ListenersPlugin with CommandsPlugin with CubeState {
 
   val listeners = List(
     // classic world-edit style corner setters

@@ -4,11 +4,16 @@ import BukkitEnrichment._
 import org.bukkit.Location
 import org.bukkit.entity.Player
 
-trait Cubes {
-  val corners = collection.mutable.Map[Player, List[Location]]()
+trait CubeState {
 
-  def cube(p:Player): MineCraftCube = corners.get(p).filter(_.size == 2).
-    flipFold(ls => MineCraftCube(ls(0), ls(1)))(p bomb "Both corners must be set!")
+  val corners = new PlayerState[List[Location]] {
+    override val default = Some(Nil)
+  }
+
+  def cube(p:Player): MineCraftCube = corners(p) match {
+    case List(c1, c2) => MineCraftCube(c1, c2)
+    case _ => p bomb "Both corners must be set!"
+  }
 
   def setFirstPosition(p:Player,loc: Location): Unit = {
     corners += (p -> List(loc))
@@ -24,7 +29,7 @@ trait Cubes {
   }
 
   def cubes: collection.Map[Player, MineCraftCube] =
-    corners.filter(kv => kv._2.size == 2).mapValues{
+    corners.state.filter(kv => kv._2.size == 2).mapValues {
       case List(l1, l2) => MineCraftCube(l1, l2)
     }
 }

@@ -155,13 +155,13 @@ abstract class ScalaPlugin extends JavaPlugin with BukkitEnrichment { scalaPlugi
 
   def cancelTask(t: Task) = scheduler cancelTask t.id
 
-  case class PlayerTasks(cancelOnExit: Boolean = true) extends PlayerState[Seq[Task]] {
+  case class PlayerTasks(cancelOnExit: Boolean = true) extends PlayerState[Seq[Task]] { self =>
     override val default: Option[Seq[Task]] = Some(Nil)
 
     registerListener(Listeners.OnPlayerQuit((p, _) => if(cancelOnExit) p.cancelAll))
 
     implicit class PlayerWithTaskFunctions(p:Player){
-      private def addTask(t: Task): Task = { setPlayerState(p, (getPlayerState(p) :+ t)); t }
+      private def addTask(t: Task): Task = { self += (p -> (self(p) :+ t)); t }
 
       def scheduleSyncTask(task: => Unit): Task = addTask(scalaPlugin.scheduleSyncTask(task))
 
@@ -170,7 +170,7 @@ abstract class ScalaPlugin extends JavaPlugin with BukkitEnrichment { scalaPlugi
 
       def cancelTask(t: Task): Unit = {
         scheduler cancelTask t.id
-        setPlayerState(p, getPlayerState(p).filter(_ != t))
+        self += (p -> self(p).filter(_ != t))
       }
       def cancelAll: Unit = {
         logInfo(s"canceling all tasks for: $p")

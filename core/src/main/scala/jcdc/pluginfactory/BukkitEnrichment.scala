@@ -36,7 +36,7 @@ object BukkitEnrichment extends BukkitEnrichment
  * has access to everything here. If there were a number of implicit conversions, things
  * could potentially get ugly fast.
  */
-trait  BukkitEnrichment extends ScalaEnrichment {
+trait BukkitEnrichment extends ScalaEnrichment {
 
   /**
    * Add a whole pile of awesomeness to Block.
@@ -131,7 +131,7 @@ trait  BukkitEnrichment extends ScalaEnrichment {
    */
   implicit class RichMaterial(m: Material){
     def itemStack = new ItemStack(m, 1)
-    def materialAndData = MaterialAndData(m, None)
+    def andData = MaterialAndData(m, None)
   }
 
   /**
@@ -395,7 +395,7 @@ trait  BukkitEnrichment extends ScalaEnrichment {
     val BLACK       = new Color(15)
   }
 
-  object MaterialAndData{
+  object MaterialAndData {
     val AIR = new MaterialAndData(Material.AIR, None)
   }
 

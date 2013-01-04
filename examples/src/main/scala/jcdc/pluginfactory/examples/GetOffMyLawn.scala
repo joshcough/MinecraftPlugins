@@ -1,7 +1,7 @@
 package jcdc.pluginfactory.examples
 
 import org.bukkit.event.player.PlayerMoveEvent
-import jcdc.pluginfactory.{CommandsPlugin, MineCraftCube, Cubes, ListenerPlugin}
+import jcdc.pluginfactory.{CommandsPlugin, MineCraftCube, CubeState, ListenerPlugin}
 
 /**
  * Notifies you any time someone comes onto your lawn,
@@ -9,7 +9,7 @@ import jcdc.pluginfactory.{CommandsPlugin, MineCraftCube, Cubes, ListenerPlugin}
  *
  * Very similar in functionality to the Arena plugin in this same directory.
  */
-class GetOffMyLawn extends ListenerPlugin with CommandsPlugin with Cubes {
+class GetOffMyLawn extends ListenerPlugin with CommandsPlugin with CubeState {
 
   def movingOntoLawn(e:PlayerMoveEvent, lawn: MineCraftCube) =
     lawn.contains(e.getTo) && ! lawn.contains(e.getFrom)
