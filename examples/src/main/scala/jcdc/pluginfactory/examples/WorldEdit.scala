@@ -2,8 +2,9 @@ package jcdc.pluginfactory.examples
 
 import org.bukkit.Material
 import Material._
-import jcdc.pluginfactory.{MineCraftCube, Cubes, CommandsPlugin, ListenersPlugin}
+import jcdc.pluginfactory.{MineCraftCube, Cubes, CommandsPlugin, ListenersPlugin, PlayerState}
 import MineCraftCube._
+import org.bukkit.entity.Player
 
 /**
  * Classic WorldEdit plugin, done in Scala.
@@ -30,6 +31,10 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin with Cubes {
 
   lazy val tasks = new PlayerTasks
   import tasks._
+
+  val changes = new PlayerState[Changes] {
+    override val default = Some(Vector())
+  }
 
   val listeners = List(
     OnLeftClickBlock ((p, e) => if(p isHoldingA WOOD_AXE){ setFirstPosition (p, e.loc); e.cancel }),
@@ -58,13 +63,25 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin with Cubes {
       name = "set",
       desc = "Set all the selected blocks to the given material type.",
       args = material)(
-      body = { case (p, m) =>  p ! s"${cube(p) setAll m} blocks updated." }
+      body = { case (p, m) => change(p, cube(p).setAll(m)) }
     ),
+    Command(
+      name = "undo",
+      desc = "undo the last thing you did!")(
+      body = { p =>
+        // TODO: undo puts itself 'on top' of the undo stack
+        // so if you undo again, it is like redo.
+        // but we probably want these to behave like cont-z, cont-shift-z instead.
+        // we don't get that behavior just yet.
+        // it'll certainly take up more memory... things to consider, anyway.
+        val potentialChanges = changes.getPlayerState(p).toStream.map(PotentialChange.fromChange)
+        change(p, Changer.runChanges(potentialChanges))
+    }),
     Command(
       name = "change",
       desc = "Change all the selected blocks of the first material type to the second material type.",
       args = material ~ material)(
-      body = { case (p, oldM ~ newM) => p ! s"${cube(p).changeAll(oldM, newM)} blocks updated." }
+      body = { case (p, oldM ~ newM) => change(p, cube(p).changeAll(oldM, newM)) }
     ),
     Command(
       name = "find",
@@ -171,8 +188,12 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin with Cubes {
     ),
     Command("goto", "Teleport!", location){ case (you, loc) => you teleport loc(you.world) },
     Command("paste", "Paste your cube at your current location!"){ p =>
-      val pasteCount = cube(p).paste(p.loc)
-      p ! s"$pasteCount blocks updated."
+      change(p, cube(p).paste(p.loc))
     }
   )
+
+  def change(p: Player, cs: Changes) = {
+    changes.setPlayerState(p, cs)
+    p ! s"${changes.getPlayerState(p)} blocks updated."
+  }
 }
