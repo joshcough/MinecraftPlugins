@@ -113,9 +113,8 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin with CubeState {
       args = material)(
       body = { case (p, m) =>
         val c = cube(p)
-        p.commit(
-          for(b <- cube(p).blocks) yield PotentialChange(b,
-            if (c.onWall(b.coor) || c.onFloor(b.coor)) m else AIR)
+        p.commit(for(b <- cube(p).blocks) yield PotentialChange(b,
+          if (c.onWall(b.coor) || c.onFloor(b.coor)) m else AIR)
         )
       }
     ),

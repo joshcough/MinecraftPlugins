@@ -355,6 +355,10 @@ trait BukkitEnrichment extends ScalaEnrichment {
 
   implicit class RichPluginManager(pm: PluginManager) {
     def findPlugin(name: String): Option[Plugin] = tryO(pm.getPlugin(name))
+    def enable(plugin: String)      : Unit = findPlugin(plugin).foreach(pm.enablePlugin)
+    def disable(plugin: String)     : Unit = findPlugin(plugin).foreach(pm.disablePlugin)
+    def enableAll(plugins: String*) : Unit = plugins.foreach(enable)
+    def disableAll(plugins: String*): Unit = plugins.foreach(disable)
   }
 
   // arguably, these functions should be someplace else...

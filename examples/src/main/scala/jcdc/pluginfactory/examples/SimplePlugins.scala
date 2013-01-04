@@ -74,6 +74,23 @@ class PluginCommander extends CommandsPlugin {
   )
 }
 
+class NYCDemo extends CommandsPlugin {
+  val commands = List(
+    Command("demo1",  "Enable BlockChangerGold, Disable BlockChanger and WorldEdit"){ p =>
+      pluginManager.enable("BlockChangerGold")
+      pluginManager.disableAll("BlockChanger", "WorldEdit")
+    },
+    Command("demo2",  "Enable BlockChanger, Disable BlockChangerGold and WorldEdit"){ p =>
+      pluginManager.enable("BlockChanger")
+      pluginManager.disableAll("BlockChangerGold", "WorldEdit")
+    },
+    Command("demo3",  "Enable WorldEdit, Disable BlockChanger and BlockChangerGold"){ p =>
+      pluginManager.enable("WorldEdit")
+      pluginManager.disableAll("BlockChanger", "BlockChangerGold")
+    }
+  )
+}
+
 class Thor extends ListeningFor(OnEntityDamageByPlayer { (damagee, thor, _) =>
   if (thor isHoldingA DIAMOND_AXE) damagee.shock
 })
