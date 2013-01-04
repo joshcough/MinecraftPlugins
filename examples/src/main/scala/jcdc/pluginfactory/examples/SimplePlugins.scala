@@ -75,18 +75,16 @@ class PluginCommander extends CommandsPlugin {
 }
 
 class NYCDemo extends CommandsPlugin {
+  val (bcg, bc, we) = ("BlockChangerGold", "BlockChanger", "WorldEdit")
   val commands = List(
-    Command("demo1",  "Enable BlockChangerGold, Disable BlockChanger and WorldEdit"){ p =>
-      pluginManager.enable("BlockChangerGold")
-      pluginManager.disableAll("BlockChanger", "WorldEdit")
+    Command("demo1",  s"Enable $bcg, Disable $bc and $we"){ p =>
+      pluginManager.enable(bcg); pluginManager.disableAll(bc, we)
     },
-    Command("demo2",  "Enable BlockChanger, Disable BlockChangerGold and WorldEdit"){ p =>
-      pluginManager.enable("BlockChanger")
-      pluginManager.disableAll("BlockChangerGold", "WorldEdit")
+    Command("demo2",  s"Enable $bc, Disable $bcg and $we"){ p =>
+      pluginManager.enable(bc); pluginManager.disableAll(bcg, we)
     },
-    Command("demo3",  "Enable WorldEdit, Disable BlockChanger and BlockChangerGold"){ p =>
-      pluginManager.enable("WorldEdit")
-      pluginManager.disableAll("BlockChanger", "BlockChangerGold")
+    Command("demo3",  s"Enable $we, Disable $bc and $bcg"){ p =>
+      pluginManager.enable(we); pluginManager.disableAll(bcg, bc)
     }
   )
 }

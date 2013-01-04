@@ -18,7 +18,7 @@ object YMLGenerator {
     new Farmer,
     new God,
     new NoRain,
-    //    new NPCTest,
+    //new NPCTest,
     new NYCDemo,
     new PermissionsTest,
     new PluginCommander,
