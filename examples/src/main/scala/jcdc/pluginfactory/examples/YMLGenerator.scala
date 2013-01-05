@@ -19,7 +19,6 @@ object YMLGenerator {
     new God,
     new NoRain,
     //new NPCTest,
-    new NYCDemo,
     new PermissionsTest,
     new PluginCommander,
     new Thor,

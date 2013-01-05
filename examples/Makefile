@@ -1,9 +1,9 @@
 
 all: compile arena ban-arrows block-changer block-changer-gold curse-ban farmer god lightning-arrows mpc no-rain thor tree-delogger warp-plugin world-edit yellow-brick-road zombie-apocalypse
 
-demo: clean-plugins compile block-changer block-changer-gold mpc plugin-commander warp-plugin world-edit
 mlp: clean-plugins compile mpc world-edit minelang-plugin
 we: compile world-edit
+weq: compile-examples world-edit
 test: compile run-tests
 
 perms: clean-plugins compile permissions-test
@@ -11,9 +11,14 @@ perms: clean-plugins compile permissions-test
 clean-plugins:
 	cd $(BUKKIT)/plugins; rm -f *.jar
 
-compile:
+compile-core:
 	cd ../core; make publish-local
 	./sbt compile "run-main jcdc.pluginfactory.examples.YMLGenerator"
+
+compile-examples:
+	./sbt compile "run-main jcdc.pluginfactory.examples.YMLGenerator"
+
+compile: compile-core compile-examples
 
 run-tests:
 	./sbt test
@@ -58,6 +63,9 @@ minelang-plugin:
 
 no-rain:
 	$(call plugin, "norain.yml", "NoRain.jar")
+
+nyc-demo:
+	$(call plugin, "nycdemo.yml", "NYCDemo.jar")
 
 permissions-test:
 	$(call plugin, "permissionstest.yml", "PermissionsTest.jar")

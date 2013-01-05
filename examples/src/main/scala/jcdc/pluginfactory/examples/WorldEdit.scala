@@ -131,7 +131,7 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin with CubeState {
       }
     ),
     Command("paste", "Paste your cube at your current location!"){ p =>
-      p.commit( cube(p).paste(p.loc))
+      p.commit(cube(p).paste(p.loc))
     },
     Command(
       name = "cycle-walls",
@@ -197,7 +197,7 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin with CubeState {
   implicit class RichPlayerWithChanges(p: Player){
     def commit(cs: Changes): Unit = {
       changes += (p, cs)
-      p ! s"${changes(p)} blocks updated."
+      p ! s"${changes(p).size} blocks updated."
     }
     def commit(ps: Seq[PotentialChange]): Unit = commit(Changer runChanges ps)
   }

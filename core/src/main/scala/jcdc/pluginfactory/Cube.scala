@@ -17,7 +17,7 @@ object Cube {
     val corner1 = c1; val corner2 = c2; val f = fn
   }
   def coors(c1:(Int, Int, Int), c2:(Int, Int, Int)) = Cube(Coor(c1), Coor(c2))(identity)
-// TODO: can applicative be implemented?
+// TODO: can applicative be implemented?, yes, but like ZipList, not like below.
 //  def pure[T](t: T): Cube[T] = Cube(Coor.origin, Coor.origin)(Function.const(t))
 //  def ap[T,U](fs: List[T => U], ts: List[T]): List[U] = fs.flatMap(f => ts map f)
 }
@@ -170,9 +170,11 @@ trait Cube[T] {
    * TODO: can i do this more efficiently?
    * TODO: can i make this return 4 cubes?
    */
-  def walls: Stream[T] = toZippedStream.filter{ case (c, t) => onWall(c) }.map(_._2)
+  def walls: Stream[T] = toZippedStream.filter(t => onWall(t._1)).map(_._2)
 
-  def onWall(c: Coor): Boolean = List(corner1.x, corner2.x, corner1.z, corner2.z) contains c
+  def onWall(c: Coor) = 
+    c.x == corner1.x || c.x == corner2.x || 
+    c.z == corner1.z || c.z == corner2.z
 
   /**
    * Shrink this cube on all sides by one, giving just the insides of the cube
