@@ -4,7 +4,7 @@ version := "0.1"
 
 organization := "jcdc.pluginfactory"
 
-scalaVersion := "2.10.0-RC5"
+scalaVersion := "2.10.0"
 
 resolvers += Resolver.sonatypeRepo("snapshots")
 

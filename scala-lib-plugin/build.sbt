@@ -1,10 +1,10 @@
 name := "Scala Library Plugin"
 
-version := "2.10.0-RC5"
+version := "2.10.0"
 
 organization := "jcdc.pluginfactory"
 
-scalaVersion := "2.10.0-RC5"
+scalaVersion := "2.10.0"
 
 resolvers += "Bukkit" at "http://repo.bukkit.org/content/repositories/releases"
 
