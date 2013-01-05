@@ -23,8 +23,8 @@ class WorldEditDemo extends ListenersPlugin with CommandsPlugin {
       body = { case (p, m) => for(b <- cube(p)) b changeTo m }
     ),
     Command(
-      name = "change",
-      desc = "Change all the selected blocks of the first material type to the second material type.",
+      name = "replace",
+      desc = "Replace all the selected blocks of the first material type to the second material type.",
       args = material ~ material)(
       body = { case (p, oldM ~ newM) => for(b <- cube(p); if(b is oldM)) b changeTo newM }
     )

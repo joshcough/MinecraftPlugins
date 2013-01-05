@@ -86,8 +86,8 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin with CubeState {
         p.commit(changes(p).map(PotentialChange(_)))
     }),
     Command(
-      name = "change",
-      desc = "Change all the selected blocks of the first material type to the second material type.",
+      name = "replace",
+      desc = "Replace all the selected blocks of the first material type to the second material type.",
       args = material ~ material)(
       body = { case (p, oldM ~ newM) => p.commit(cube(p).changeAll(oldM, newM)) }
     ),
