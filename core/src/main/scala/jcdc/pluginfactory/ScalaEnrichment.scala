@@ -82,6 +82,7 @@ trait ScalaEnrichment {
   implicit class RichBoolean(b1:Boolean) {
     def or (b2: => Boolean) = b1 || b2
     def and(b2: => Boolean) = b1 && b2
+    def toOption[T](t: => T) = if (b1) Some(t) else None
   }
 
   /**

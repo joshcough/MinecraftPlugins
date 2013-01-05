@@ -15,7 +15,9 @@ object MineCraftCube {
   }
   def apply(b1: Block, b2: Block): MineCraftCube = new MineCraftCube(b1.loc, b2.loc)
 
-  case class Change(b: Block, oldM: MaterialAndData)
+  case class Change(b: Block, oldM: MaterialAndData){
+    override def toString = s"Change(b:${b.loc.xyz} m:${oldM.m.name})"
+  }
 
   object PotentialChange {
     def apply(c: Change) = new PotentialChange(c.b, c.oldM)
@@ -27,7 +29,10 @@ object MineCraftCube {
     def run: Boolean = newM update b
   }
 
-  type Changes = Array[Change]
+  case class Changes(cs:Array[Change]){
+    override def toString = cs.toList.mkString(",")
+    def size = cs.length
+  }
   type PotentialChanges = Stream[PotentialChange]
 
   object Changer {
@@ -36,7 +41,7 @@ object MineCraftCube {
     )
 
     def runChanges(newData: Seq[PotentialChange]): Changes =
-      newData.filter(_.run).map(p => Change(p.b, p.oldM)).toArray
+      Changes(newData.filter(_.run).map(p => Change(p.b, p.oldM)).toArray)
   }
 }
 

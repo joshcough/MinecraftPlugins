@@ -2,7 +2,9 @@ package jcdc.pluginfactory.examples
 
 import org.bukkit.Material
 import Material._
-import jcdc.pluginfactory.{MineCraftCube, CubeState, CommandsPlugin, ListenersPlugin, PlayerState}
+import jcdc.pluginfactory.{
+  MineCraftCube, CubeState, CommandsPlugin, ListenersPlugin, UndoState
+}
 import MineCraftCube._
 import org.bukkit.entity.Player
 
@@ -32,9 +34,7 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin with CubeState {
   lazy val tasks = new PlayerTasks
   import tasks._
 
-  val changes = new PlayerState[Changes] {
-    override val default = Some(Array[Change]())
-  }
+  val undoManager = new UndoManager[Player, Changes]
 
   val listeners = List(
     OnLeftClickBlock ((p, e) => if(p isHoldingA WOOD_AXE){ setFirstPosition (p, e.loc); e.cancel }),
@@ -43,13 +43,30 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin with CubeState {
 
   val commands = List(
     Command("wand", "Get a WorldEdit wand.")(_.loc.dropItem(WOOD_AXE)),
-    Command("goto", "Teleport!", location){ case (you, loc) => you teleport loc(you.world) },
     Command("pos1", "Set the first position", location.?){ case (p, loc) =>
       setFirstPosition (p, loc.fold(p.loc)(_(p.world)))
     },
     Command("pos2", "Set the second position", location.?){ case (p, loc) =>
       setSecondPosition(p, loc.fold(p.loc)(_(p.world)))
     },
+    Command(
+      name = "set",
+      desc = "Set all the selected blocks to the given material type.",
+      args = material)(
+      body = { case (p, m) => p.newChange(cube(p).setAll(m)) }
+    ),
+    Command(
+      name = "replace",
+      desc = "Replace all the selected blocks of the first material type to the second material type.",
+      args = material ~ material)(
+      body = { case (p, oldM ~ newM) => p.newChange(cube(p).changeAll(oldM, newM)) }
+    ),
+    Command(name = "undo", desc = "undo!")(body = p => p.undo),
+    Command(name = "redo", desc = "redo!")(body = p => p.redo),
+    Command("paste", "Paste your cube at your current location!"){ p =>
+      p.newChange(cube(p).paste(p.loc))
+    },
+    Command("goto", "Teleport!", location){ case (you, loc) => you teleport loc(you.world) },
     Command("cube-to",  "Set both positions",  location ~ location.?){ case (p, loc1 ~ loc2) =>
       setFirstPosition (p, loc1(p.world))
       setSecondPosition(p, loc2.fold(p.loc)(_(p.world)))
@@ -67,36 +84,14 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin with CubeState {
         cube(p).blocks.find(_ is m).fold(s"No $m found in your cube!")(b => s"$m found at ${b.loc.xyz}")
       }
     ),
-    Command("erase", "Set all the selected blocks to air.")(p => p.commit(cube(p).eraseAll)),
-    Command(
-      name = "set",
-      desc = "Set all the selected blocks to the given material type.",
-      args = material)(
-      body = { case (p, m) => p.commit(cube(p).setAll(m)) }
-    ),
-    Command(
-      name = "undo",
-      desc = "undo the last thing you did!")(
-      body = { p =>
-        // TODO: undo puts itself 'on top' of the undo stack
-        // so if you undo again, it is like redo.
-        // but we probably want these to behave like cont-z, cont-shift-z instead.
-        // we don't get that behavior just yet.
-        // it'll certainly take up more memory... things to consider, anyway.
-        p.commit(changes(p).map(PotentialChange(_)))
-    }),
-    Command(
-      name = "replace",
-      desc = "Replace all the selected blocks of the first material type to the second material type.",
-      args = material ~ material)(
-      body = { case (p, oldM ~ newM) => p.commit(cube(p).changeAll(oldM, newM)) }
-    ),
+    Command("erase", "Set all the selected blocks to air.")(p => p.newChange(cube(p).eraseAll)),
+
     Command(
       name = "fib-tower",
       desc = "create a tower from the fib numbers",
       args = int ~ material){ case (p, i ~ m) =>
       lazy val fibs: Stream[Int] = 0 #:: 1 #:: fibs.zip(fibs.tail).map{case (i,j) => i+j}
-      p.commit(for {
+      p.newChange(for {
         (startBlock,n) <- p.world.fromX(p.loc).zip(fibs take i)
         towerBlock     <- startBlock.andBlocksAbove take n
       } yield PotentialChange(towerBlock, m))
@@ -105,7 +100,7 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin with CubeState {
       name = "walls",
       desc = "Create walls with the given material type.",
       args = material)(
-      body = { case (p, m) => p.commit(cube(p).walls.map(PotentialChange(_, m))) }
+      body = { case (p, m) => p.newChange(cube(p).walls.map(PotentialChange(_, m))) }
     ),
     Command(
       name = "empty-tower",
@@ -113,7 +108,7 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin with CubeState {
       args = material)(
       body = { case (p, m) =>
         val c = cube(p)
-        p.commit(for(b <- cube(p).blocks) yield PotentialChange(b,
+        p.newChange(for(b <- cube(p).blocks) yield PotentialChange(b,
           if (c.onWall(b.coor) || c.onFloor(b.coor)) m else AIR)
         )
       }
@@ -125,19 +120,16 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin with CubeState {
       body = { case (p, radius ~ depth) =>
         val b = radius / 2
         val (x, y, z) = p.loc.xyzd
-        p.commit(
+        p.newChange(
           MineCraftCube(p.world(x + b, y, z + b).loc, p.world(x - b, y - depth, z - b).loc).eraseAll
         )
       }
     ),
-    Command("paste", "Paste your cube at your current location!"){ p =>
-      p.commit(cube(p).paste(p.loc))
-    },
     Command(
       name = "cycle-walls",
       desc =
         "Create walls, and cycle the walls material between the given materials, " +
-          "in a span of N seconds.",
+        "in a span of N seconds.",
       args = int ~ material ~ material.+)(
       body = { case (p, period ~ initialMaterial ~ materials) =>
         val c = cube(p)
@@ -194,11 +186,22 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin with CubeState {
     )
   )
 
+  class UndoManager[P, C] {
+    import collection.mutable.Map
+    val initialState = UndoState[C]()
+    val state = Map[P, UndoState[C]]().withDefaultValue(initialState)
+    def newChange(p: P, c: C): C = { state += (p -> state(p).newChange(c)); c }
+    def undo(p: P)(f: C => C): Unit = run(p, state(p).undo(f))
+    def redo(p: P)(f: C => C): Unit = run(p, state(p).redo(f))
+    def run(p: P, o:(Option[(C, UndoState[C])])) = o.foreach { case (cs, ns) => state += (p -> ns) }
+  }
+
   implicit class RichPlayerWithChanges(p: Player){
-    def commit(cs: Changes): Unit = {
-      changes += (p, cs)
-      p ! s"${changes(p).size} blocks updated."
-    }
-    def commit(ps: Seq[PotentialChange]): Unit = commit(Changer runChanges ps)
+    def newChange(cs: Changes): Unit = updated(undoManager.newChange(p, cs))
+    def newChange(ps: Seq[PotentialChange]): Unit = newChange(Changer runChanges ps)
+    def undo: Unit = undoManager.undo(p)(rerun)
+    def redo: Unit = undoManager.redo(p)(rerun)
+    def rerun(cs: Changes) = updated(Changer runChanges cs.cs.map(PotentialChange(_)))
+    def updated(cs: Changes): Changes = { p ! s"${cs.size} blocks updated."; cs }
   }
 }
