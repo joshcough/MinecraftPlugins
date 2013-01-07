@@ -11,9 +11,9 @@ perms: clean-plugins compile permissions-test
 clean-plugins:
 	cd $(BUKKIT)/plugins; rm -f *.jar
 
+core: compile-core
 compile-core:
-	cd ../core; make publish-local
-	./sbt compile "run-main jcdc.pluginfactory.examples.YMLGenerator"
+	cd ../core; make package
 
 compile-examples:
 	./sbt compile "run-main jcdc.pluginfactory.examples.YMLGenerator"

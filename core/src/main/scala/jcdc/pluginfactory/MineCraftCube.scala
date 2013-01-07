@@ -43,6 +43,7 @@ object MineCraftCube {
   case class Changes(cs:Array[Change]){
     override def toString = cs.toList.mkString(",")
     def size = cs.length
+    def ++(cs: Changes) = Changes(this.cs ++ cs.cs)
   }
   type PotentialChanges = Stream[PotentialChange]
 
@@ -129,6 +130,11 @@ case class MineCraftCube(loc1: Location, loc2: Location) extends Cube[Block] {
     }
   )
 
+  def mirrorXChanges: Changes = Changer.runChanges(
+    mirrorX.toStream.toList.map { case (oldB, newB) =>
+      PotentialChange(newB, oldB.materialAndData)
+    }
+  )
 
   def mirrorYChanges: Changes = Changer.runChanges(
     mirrorY.toStream.toList.map { case (oldB, newB) =>
@@ -136,10 +142,13 @@ case class MineCraftCube(loc1: Location, loc2: Location) extends Cube[Block] {
     }
   )
 
-//  def mirrorYChanges: Changes = Changer.runSwaps(
-//    mirrorY.toStream.map { case (oldB, newB) => PotentialSwap(oldB, newB) }
-//  )
-//
+  def mirrorZChanges: Changes = Changer.runChanges(
+    mirrorZ.toStream.toList.map { case (oldB, newB) =>
+      PotentialChange(newB, oldB.materialAndData)
+    }
+  )
+
+
 //  /**
 //   *
 //   * @param newL1

@@ -1,3 +1,8 @@
+package:
+	echo "building scala code"
+	./sbt package
+	cp target/scala-2.10/scala-plugin-api_2.10-0.2.2.jar $(BUKKIT)/plugins
+
 publish-local:
 	echo "building scala code"
 	./sbt publish-local
