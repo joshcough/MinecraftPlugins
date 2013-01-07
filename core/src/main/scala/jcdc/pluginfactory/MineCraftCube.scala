@@ -107,6 +107,12 @@ case class MineCraftCube(loc1: Location, loc2: Location) extends Cube[Block] {
     }
   )
 
+  def mirrorYChanges: Changes = Changer.runChanges(
+    mirrorY.toStream.toList.map { case (oldB, newB) =>
+      PotentialChange(newB, oldB.materialAndData)
+    }
+  )
+
 //  /**
 //   *
 //   * @param newL1

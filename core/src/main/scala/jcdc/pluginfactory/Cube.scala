@@ -71,7 +71,7 @@ trait Cube[T] { self =>
   lazy val minZd  = math.min(corner1.zd, corner2.zd)
 
   def map[U](g: T => U): Cube[U] = Cube(corner1, corner1)(g compose f)
-  def mapCoor(f: Coor => T): Cube[T] = Cube(corner1, corner2)(f)
+  def mapCoor[U](f: Coor => U): Cube[U] = Cube(corner1, corner2)(f)
 
   override def toString = s"Cube(l1: ${(maxX,maxY,maxZ)}, l2: ${(minX,minY,minZ)})"
   override def equals(a:Any) = a match {
@@ -320,15 +320,15 @@ trait Cube[T] { self =>
     Cube(newC1, newC2){ c => (f(translateBack(c)), f(c)) }
   }
 
-//  /**
-//   * mirror X algo: minX + (maxX - x)
-//   * 9 -> 1     minX + (maxX - x) = 0 + (10 - 9) = 0 + 1 = 1
-//   * 8 -> 2     minX + (maxX - x) = 0 + (10 - 8) = 0 + 2 = 2
-//   * 5 -> 5     minX + (maxX - x) = 0 + (10 - 5) = 0 + 5 = 5
-//   * 4 -> 6     minX + (maxX - x) = 0 + (10 - 4) = 0 + 6 = 6
-//   * 0 -> 10    minX + (maxX - x) = 0 + (10 - 0) = 0 + 10 = 10
-//   */
-//  def mirrorX: Cube[T] = mapCoor(c => f(Coor(minX + (maxX - c.x), c.y, c.z)))
-//  def mirrorY: Cube[T] = mapCoor(c => f(Coor(c.x, minY + (maxY - c.y), c.z)))
-//  def mirrorZ: Cube[T] = mapCoor(c => f(Coor(c.x, c.y, minZ + (maxZ - c.z))))
+  /**
+   * mirror X algo: minX + (maxX - x)
+   * 9 -> 1     minX + (maxX - x) = 0 + (10 - 9) = 0 + 1 = 1
+   * 8 -> 2     minX + (maxX - x) = 0 + (10 - 8) = 0 + 2 = 2
+   * 5 -> 5     minX + (maxX - x) = 0 + (10 - 5) = 0 + 5 = 5
+   * 4 -> 6     minX + (maxX - x) = 0 + (10 - 4) = 0 + 6 = 6
+   * 0 -> 10    minX + (maxX - x) = 0 + (10 - 0) = 0 + 10 = 10
+   */
+  def mirrorX: Cube[(T, T)] = mapCoor(c => (f(c), f(Coor(minX + (maxX - c.x), c.y, c.z))))
+  def mirrorY: Cube[(T, T)] = mapCoor(c => (f(c), f(Coor(c.x, minY + (maxY - c.y), c.z))))
+  def mirrorZ: Cube[(T, T)] = mapCoor(c => (f(c), f(Coor(c.x, c.y, minZ + (maxZ - c.z)))))
 }
