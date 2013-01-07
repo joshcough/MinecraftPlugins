@@ -34,7 +34,7 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin with CubeState {
   lazy val tasks = new PlayerTasks
   import tasks._
 
-  val undoManager = new UndoManager[Player, Changes]
+  val undoManager = new UndoManager[Player, Changes, Changes]
 
   val listeners = List(
     OnLeftClickBlock ((p, e) => if(p isHoldingA WOOD_AXE){ setFirstPosition (p, e.loc); e.cancel }),
@@ -107,9 +107,8 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin with CubeState {
       desc = "Create walls and floor with the given material type, and set everything inside to air.",
       args = material)(
       body = { case (p, m) =>
-        val c = cube(p)
         p.newChange(for(b <- cube(p).blocks) yield PotentialChange(b,
-          if (c.onWall(b.coor) || c.onFloor(b.coor)) m else AIR)
+          if (cube(p).onWall(b.coor) || cube(p).onFloor(b.coor)) m else AIR)
         )
       }
     ),
@@ -186,14 +185,13 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin with CubeState {
     )
   )
 
-  class UndoManager[P, C] {
+  class UndoManager[P, T, U] {
     import collection.mutable.Map
-    val initialState = UndoState[C]()
-    val state = Map[P, UndoState[C]]().withDefaultValue(initialState)
-    def newChange(p: P, c: C): C = { state += (p -> state(p).newChange(c)); c }
-    def undo(p: P)(f: C => C): Unit = run(p, state(p).undo(f))
-    def redo(p: P)(f: C => C): Unit = run(p, state(p).redo(f))
-    def run(p: P, o:(Option[(C, UndoState[C])])) = o.foreach { case (cs, ns) => state += (p -> ns) }
+    val initialState = UndoState[T, U]()
+    val state = Map[P, UndoState[T, U]]().withDefaultValue(initialState)
+    def newChange(p: P, c: T): T = { state += (p -> state(p).newChange(c)); c }
+    def undo(p: P)(f: T => U): Unit = state(p).undo(f).foreach { ns => state += (p -> ns) }
+    def redo(p: P)(f: U => T): Unit = state(p).redo(f).foreach { ns => state += (p -> ns) }
   }
 
   implicit class RichPlayerWithChanges(p: Player){

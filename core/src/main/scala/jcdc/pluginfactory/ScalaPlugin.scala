@@ -174,7 +174,7 @@ abstract class ScalaPlugin extends JavaPlugin with BukkitEnrichment { scalaPlugi
       }
       def cancelAll: Unit = {
         logInfo(s"canceling all tasks for: $p")
-        deletePlayerState(p) foreach { t =>
+        (self -= p) foreach { t =>
           logInfo(s"canceling: $t")
           scheduler cancelTask t.id
         }

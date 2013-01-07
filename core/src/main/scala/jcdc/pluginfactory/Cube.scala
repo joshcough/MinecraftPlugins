@@ -3,10 +3,11 @@ package jcdc.pluginfactory
 object Coor {
   val origin = Coor(0, 0, 0)
   def apply(x: Int, y: Int, z: Int) = new Coor(x.toDouble, y.toDouble, z.toDouble)
-  def apply(xyz:(Int, Int, Int)) = new Coor(xyz._1, xyz._2, xyz._3)
+  def apply(xyz: (Int, Int, Int))   = new Coor(xyz._1, xyz._2, xyz._3)
 }
 
 case class Coor(xd: Double, yd: Double, zd: Double) {
+  override def toString = xyz.toString
   val (x, y, z) = (xd.toInt, yd.toInt, zd.toInt)
   val xyz  = (x, y, z)
   val xyzd = (xd, yd, zd)
@@ -48,7 +49,7 @@ object Cube {
  *  z axis is depth
  *
  */
-trait Cube[T] {
+trait Cube[T] { self =>
   // @param corner1 one corner of the cube
   // @param corner2 the other corner
   val corner1: Coor
@@ -70,6 +71,7 @@ trait Cube[T] {
   lazy val minZd  = math.min(corner1.zd, corner2.zd)
 
   def map[U](g: T => U): Cube[U] = Cube(corner1, corner1)(g compose f)
+  def mapCoor(f: Coor => T): Cube[T] = Cube(corner1, corner2)(f)
 
   override def toString = s"Cube(l1: ${(maxX,maxY,maxZ)}, l2: ${(minX,minY,minZ)})"
   override def equals(a:Any) = a match {
@@ -84,13 +86,23 @@ trait Cube[T] {
 
   // this must be a def to avoid it memoizing.
   def toCoorStream: Stream[Coor] = {
-    val ((x1, y1, z1), (x2, y2, z2)) = (corner1.xyz, corner2.xyz)
-    def range(i1: Int, i2: Int) = (if(i1 < i2) i1 to i2 else i2 to i1).toStream
-    for (x <- range(x1,x2); y <- range(y1,y2); z <- range(z1,z2)) yield Coor(x,y,z)
+    for {
+      x <- (minX to maxX).toStream
+      y <- (minY to maxY).toStream
+      z <- (minZ to maxZ).toStream
+    } yield Coor(x,y,z)
   }
 
+  /**
+   *
+   * @return
+   */
   def toStream: Stream[T] = toCoorStream map f
 
+  /**
+   *
+   * @return
+   */
   def toZippedStream: Stream[(Coor, T)] = toCoorStream zip toStream
 
   def width  = maxX - minX
@@ -98,6 +110,11 @@ trait Cube[T] {
   def depth  = maxZ - minZ
   def size: BigInt = BigInt(width) * BigInt(height) * BigInt(depth)
 
+  /**
+   *
+   * @param c
+   * @return
+   */
   def contains(c: Coor): Boolean = (
     c.xd <= maxX && c.xd >= minX &&
     c.yd <= maxY && c.yd >= minY &&
@@ -118,6 +135,10 @@ trait Cube[T] {
     Coor(minX, maxY, minZ)
   )
 
+  /**
+   *
+   * @return
+   */
   def corners: List[T] = cornersCoors map f
   
   /**
@@ -172,6 +193,11 @@ trait Cube[T] {
    */
   def walls: Stream[T] = toZippedStream.filter(t => onWall(t._1)).map(_._2)
 
+  /**
+   *
+   * @param c
+   * @return
+   */
   def onWall(c: Coor) = 
     c.x == corner1.x || c.x == corner2.x || 
     c.z == corner1.z || c.z == corner2.z
@@ -200,6 +226,13 @@ trait Cube[T] {
     Cube(Coor(newMaxX, newMaxY, newMaxZ), Coor(newMinX, newMinY, newMinZ))(f)
   }
 
+  /**
+   *
+   * @param xMore
+   * @param yMore
+   * @param zMore
+   * @return
+   */
   def grow(xMore:Int,yMore:Int,zMore:Int)  = {
     val (newMaxX,newMinX) = (maxX + xMore, minX - xMore)
     val (newMaxY,newMinY) = (maxY + yMore, minY - yMore)
@@ -272,4 +305,30 @@ trait Cube[T] {
   def shiftWest   (i:Int) = shiftZ(-i)
   def shiftUp     (i:Int) = shiftY( i)
   def shiftDown   (i:Int) = shiftY(-i)
+
+  /**
+   * This seems the same as zip...
+   * @param newC1
+   * @return
+   */
+  def paste(newC1: Coor): Cube[(T, T)] = {
+    val xDiff = newC1.x - corner1.x
+    val yDiff = newC1.y - corner1.y
+    val zDiff = newC1.z - corner1.z
+    val newC2 = Coor(corner2.x + xDiff, corner2.y + yDiff, corner2.z + zDiff)
+    def translateBack(b: Coor): Coor = Coor(b.x - xDiff, b.y - yDiff, b.z - zDiff)
+    Cube(newC1, newC2){ c => (f(translateBack(c)), f(c)) }
+  }
+
+//  /**
+//   * mirror X algo: minX + (maxX - x)
+//   * 9 -> 1     minX + (maxX - x) = 0 + (10 - 9) = 0 + 1 = 1
+//   * 8 -> 2     minX + (maxX - x) = 0 + (10 - 8) = 0 + 2 = 2
+//   * 5 -> 5     minX + (maxX - x) = 0 + (10 - 5) = 0 + 5 = 5
+//   * 4 -> 6     minX + (maxX - x) = 0 + (10 - 4) = 0 + 6 = 6
+//   * 0 -> 10    minX + (maxX - x) = 0 + (10 - 0) = 0 + 10 = 10
+//   */
+//  def mirrorX: Cube[T] = mapCoor(c => f(Coor(minX + (maxX - c.x), c.y, c.z)))
+//  def mirrorY: Cube[T] = mapCoor(c => f(Coor(c.x, minY + (maxY - c.y), c.z)))
+//  def mirrorZ: Cube[T] = mapCoor(c => f(Coor(c.x, c.y, minZ + (maxZ - c.z))))
 }

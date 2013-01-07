@@ -101,12 +101,20 @@ case class MineCraftCube(loc1: Location, loc2: Location) extends Cube[Block] {
    * this is pretty close to map, on a Cube...
    * @param newL1
    */
-  def paste(newL1: Location): Changes = {
-    def translate(b: Block): Block = world(
-      b.xd + (newL1.xd - b.xd) + (b.xd - loc1.xd),
-      b.yd + (newL1.yd - b.yd) + (b.yd - loc1.yd),
-      b.zd + (newL1.zd - b.zd) + (b.zd - loc1.zd)
-    )
-    Changer.runChanges(blocks.map(b => PotentialChange(translate(b), b.materialAndData)))
-  }
+  def paste(newL1: Location): Changes = Changer.runChanges(
+    paste(newL1.coor).toStream.map { case (oldB, newB) =>
+      PotentialChange(newB, oldB.materialAndData)
+    }
+  )
+
+//  /**
+//   *
+//   * @param newL1
+//   * @return
+//   */
+//  def pasteMirrorY(newL1: Location): Changes = Changer.runChanges(
+//    paste(newL1.coor).mirrorY.toStream.map { case (oldB, newB) =>
+//      PotentialChange(newB, oldB.materialAndData)
+//    }
+//  )
 }

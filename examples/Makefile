@@ -24,7 +24,7 @@ run-tests:
 	./sbt test
 
 go:
-	cd $(BUKKIT); java -Xmx512M -Xms256M -jar bukkit.jar nogui
+	cd $(BUKKIT); java -Xmx2048M -Xms512M -jar bukkit.jar nogui
 
 plugin = ./plugin.sh $1 $2
 

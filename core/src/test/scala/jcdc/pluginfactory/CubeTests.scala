@@ -30,3 +30,48 @@ object CubeTests extends Properties("Cube Tests") with TestHelpers {
     c.size > c.shrink(1,1,1).size
   }})
 }
+//
+//object CubeMirroringTests extends Properties("Cube Mirroring Tests") with TestHelpers {
+//
+//  val cx = Cube.coors((0,0,0),(3,0,0))
+//  val cy = Cube.coors((0,0,0),(0,3,0))
+//  val cz = Cube.coors((0,0,0),(0,0,3))
+//
+//  def toList(c: Cube[Coor]) = c.toStream.toList.map(_.xyz)
+//
+//  test("normal")  { toList(cx)         ?= List((0,0,0),(1,0,0),(2,0,0),(3,0,0)) }
+//  test("mirrorX") { toList(cx.mirrorX) ?= List((3,0,0),(2,0,0),(1,0,0),(0,0,0)) }
+//  test("mirrorY") { toList(cy.mirrorY) ?= List((0,3,0),(0,2,0),(0,1,0),(0,0,0)) }
+//  test("mirrorZ") { toList(cz.mirrorZ) ?= List((0,0,3),(0,0,2),(0,0,1),(0,0,0)) }
+//
+//  test("paste y") {
+//    cy.paste(Coor(5, 0, 0)).toStream.toList.map(_._2).map(_.xyz) ?= List(
+//      (5,0,0),(5,1,0),(5,2,0),(5,3,0)
+//    )
+//  }
+//
+//  test("paste y twice") {
+//    cy.paste(Coor(0, 10, 0)).paste(Coor(0, 20, 0)).toStream.toList.map(_._2._2).map(_.xyz) ?= List(
+//      (0,20,0),(0,21,0),(0,22,0),(0,23,0)
+//    )
+//  }
+//
+//  test("paste then mirror y") {
+//    cy.paste(Coor(0, 10, 0)).mirrorY.toStream.toList.map(_._2).map(_.xyz) ?= List(
+//      (0,13,0),(0,12,0),(0,11,0),(0,10,0)
+//    )
+//  }
+//
+//  /**
+//   * TODO: this fails!
+//   * I would think that mirror then paste would be the same as paste then mirror...
+//   */
+//  test("mirror then paste y") {
+//    val mp = cy.mirrorY.paste(Coor(0, 10, 0))
+//    println(s"mp: $mp")
+//
+//    mp.toStream.toList.map(_._2).map(_.xyz) ?= List(
+//      (0,13,0),(0,12,0),(0,11,0),(0,10,0)
+//    )
+//  }
+//}
