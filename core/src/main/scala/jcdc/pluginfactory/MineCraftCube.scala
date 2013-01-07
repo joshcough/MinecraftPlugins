@@ -29,16 +29,16 @@ object MineCraftCube {
     def run: Boolean = newM update b
   }
 
-  case class PotentialSwap(b1: Block, b2: Block){
-    def run: Seq[Change] = {
-      val oldB1M = b1.materialAndData
-      val oldB2M = b2.materialAndData
-      List(
-        oldB1M.update(b2).toOption(Change(b2, oldB2M)),
-        oldB2M.update(b1).toOption(Change(b1, oldB1M))
-      ).flatten
-    }
-  }
+//  case class PotentialSwap(b1: Block, b2: Block){
+//    def run: Seq[Change] = {
+//      val oldB1M = b1.materialAndData
+//      val oldB2M = b2.materialAndData
+//      List(
+//        oldB1M.update(b2).toOption(Change(b2, oldB2M)),
+//        oldB2M.update(b1).toOption(Change(b1, oldB1M))
+//      ).flatten
+//    }
+//  }
 
   case class Changes(cs:Array[Change]){
     override def toString = cs.toList.mkString(",")
@@ -54,7 +54,7 @@ object MineCraftCube {
     def runChanges(newData: Seq[PotentialChange]): Changes =
       Changes(newData.filter(_.run).map(p => Change(p.b, p.oldM)).toArray)
 
-    def runSwaps(swaps: Seq[PotentialSwap]): Changes = Changes(swaps.flatMap(_.run).toArray)
+//    def runSwaps(swaps: Seq[PotentialSwap]): Changes = Changes(swaps.flatMap(_.run).toArray)
   }
 }
 
@@ -129,10 +129,17 @@ case class MineCraftCube(loc1: Location, loc2: Location) extends Cube[Block] {
     }
   )
 
-  def mirrorYChanges: Changes = Changer.runSwaps(
-    mirrorY.toStream.map { case (oldB, newB) => PotentialSwap(oldB, newB) }
+
+  def mirrorYChanges: Changes = Changer.runChanges(
+    mirrorY.toStream.toList.map { case (oldB, newB) =>
+      PotentialChange(newB, oldB.materialAndData)
+    }
   )
 
+//  def mirrorYChanges: Changes = Changer.runSwaps(
+//    mirrorY.toStream.map { case (oldB, newB) => PotentialSwap(oldB, newB) }
+//  )
+//
 //  /**
 //   *
 //   * @param newL1
