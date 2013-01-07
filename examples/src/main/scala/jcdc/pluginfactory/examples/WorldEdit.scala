@@ -61,10 +61,22 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin with CubeState {
       args = material ~ material)(
       body = { case (p, oldM ~ newM) => p.newChange(cube(p).changeAll(oldM, newM)) }
     ),
-    Command(name = "undo", desc = "undo!")(body = p => p.undo),
-    Command(name = "redo", desc = "redo!")(body = p => p.redo),
+    Command(
+      name = "undo",
+      desc = "undo!",
+      args = ("on" or "off") or eof)(
+      body = {
+        case (p, Left(Left("on")))   => undoManager.turnOn
+        case (p, Left(Right("off"))) => undoManager.turnOff
+        case (p, _)                  => if(undoManager.on) p.undo else p ! "undo is off!"
+      }
+    ),
+    Command(name = "redo", desc = "redo!")(body = p => if(undoManager.on) p.redo else p ! "undo is off!"),
     Command("paste", "Paste your cube at your current location!"){ p =>
       p.newChange(cube(p).paste(p.loc))
+    },
+    Command("move", "Move your cube to your current location!"){ p =>
+      p.newChange(cube(p).move(p.loc))
     },
     Command("flip", "Flip your cube upside down!"){ p => p.newChange(cube(p).mirrorYChanges) },
     Command("goto", "Teleport!", location){ case (you, loc) => you teleport loc(you.world) },
@@ -187,6 +199,9 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin with CubeState {
   )
 
   class UndoManager[P, T, U] {
+    var on = true
+    def turnOn{ on = true }
+    def turnOff{ on = false; state.clear() }
     import collection.mutable.Map
     val initialState = UndoState[T, U]()
     val state = Map[P, UndoState[T, U]]().withDefaultValue(initialState)
