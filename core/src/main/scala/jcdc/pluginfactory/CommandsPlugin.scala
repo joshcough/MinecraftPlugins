@@ -150,7 +150,7 @@ trait CommandsPlugin extends ScalaPlugin with MinecraftParsers {
     (for (c <- commandsMap.get(commandName.toLowerCase)) yield
       try { c.body(p, args.toList); true }
       catch { case e: Exception =>
-        p ! RED(e.getMessage + "\n" + e.getStackTraceString)
+        p ! RED(e.getMessage)
         logError(e)
         false
       }).getOrElse(true)
