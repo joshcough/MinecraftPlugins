@@ -311,13 +311,13 @@ trait Cube[T] { self =>
    * @param newC1
    * @return
    */
-  def paste(newC1: Coor): Cube[(T, T)] = {
+  def paste(newC1: Coor): Cube[T] = {
     val xDiff = newC1.x - corner1.x
     val yDiff = newC1.y - corner1.y
     val zDiff = newC1.z - corner1.z
     val newC2 = Coor(corner2.x + xDiff, corner2.y + yDiff, corner2.z + zDiff)
     def translateBack(b: Coor): Coor = Coor(b.x - xDiff, b.y - yDiff, b.z - zDiff)
-    Cube(newC1, newC2){ c => (f(translateBack(c)), f(c)) }
+    Cube(newC1, newC2){ c => f(translateBack(c)) }
   }
 
   /**
@@ -328,7 +328,7 @@ trait Cube[T] { self =>
    * 4 -> 6     minX + (maxX - x) = 0 + (10 - 4) = 0 + 6 = 6
    * 0 -> 10    minX + (maxX - x) = 0 + (10 - 0) = 0 + 10 = 10
    */
-  def mirrorX: Cube[(T, T)] = mapCoor(c => (f(c), f(Coor(minX + (maxX - c.x), c.y, c.z))))
-  def mirrorY: Cube[(T, T)] = mapCoor(c => (f(c), f(Coor(c.x, minY + (maxY - c.y), c.z))))
-  def mirrorZ: Cube[(T, T)] = mapCoor(c => (f(c), f(Coor(c.x, c.y, minZ + (maxZ - c.z)))))
+  def mirrorX: Cube[T] = mapCoor(c => f(Coor(minX + (maxX - c.x), c.y, c.z)))
+  def mirrorY: Cube[T] = mapCoor(c => f(Coor(c.x, minY + (maxY - c.y), c.z)))
+  def mirrorZ: Cube[T] = mapCoor(c => f(Coor(c.x, c.y, minZ + (maxZ - c.z))))
 }

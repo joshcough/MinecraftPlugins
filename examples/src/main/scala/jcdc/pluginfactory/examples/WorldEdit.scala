@@ -82,6 +82,9 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin with CubeState {
     Command("flipxz", "Flip x and z"){ p =>
       p.newChange(cube(p).mirrorXChanges ++ cube(p).mirrorZChanges)
     },
+    Command("paste-mirror-y", "paste your cube somewhere, but flipped upside down!"){ p =>
+      p.newChange(cube(p).pasteMirrorY(p.loc))
+    },
     Command("goto", "Teleport!", location){ case (you, loc) => you teleport loc(you.world) },
     Command("cube-to",  "Set both positions",  location ~ location.?){ case (p, loc1 ~ loc2) =>
       setFirstPosition (p, loc1(p.world))

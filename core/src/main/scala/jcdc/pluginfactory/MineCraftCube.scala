@@ -115,39 +115,46 @@ case class MineCraftCube(loc1: Location, loc2: Location) extends Cube[Block] {
    * this is pretty close to map, on a Cube...
    * @param newL1
    */
-  def paste(newL1: Location): Changes = Changer.runChanges(
-    paste(newL1.coor).toStream.map { case (oldB, newB) =>
-      PotentialChange(newB, oldB.materialAndData)
+  def paste(newL1: Location): Changes = Changer.runChanges({
+    val p = this.paste(newL1.coor)
+    p.toCoorStream.zip(p.toStream).map { case (orig, news) =>
+      PotentialChange(news, world(orig.x, orig.y, orig.z).materialAndData)
     }
-  )
+  })
 
   /**
    * @param newL1
    */
   def move(newL1: Location): Changes = Changer.runChanges(
-    paste(newL1.coor).toStream.flatMap { case (oldB, newB) =>
-      Stream(PotentialChange(newB, oldB.materialAndData), PotentialChange(oldB, Material.AIR))
+    this.toStream.zip(paste(newL1.coor).toStream).flatMap { case (orig, news) =>
+      Stream(PotentialChange(news, orig.materialAndData), PotentialChange(orig, Material.AIR))
     }
   )
 
   def mirrorXChanges: Changes = Changer.runChanges(
-    mirrorX.toStream.toList.map { case (oldB, newB) =>
-      PotentialChange(newB, oldB.materialAndData)
+    mirrorX.toCoorStream.zip(mirrorX.toStream).toArray.map { case (orig, news) =>
+      PotentialChange(news, world(orig.x, orig.y, orig.z).materialAndData)
     }
   )
 
   def mirrorYChanges: Changes = Changer.runChanges(
-    mirrorY.toStream.toList.map { case (oldB, newB) =>
-      PotentialChange(newB, oldB.materialAndData)
+    mirrorY.toCoorStream.zip(mirrorY.toStream).toArray.map { case (orig, news) =>
+      PotentialChange(news, world(orig.x, orig.y, orig.z).materialAndData)
     }
   )
 
   def mirrorZChanges: Changes = Changer.runChanges(
-    mirrorZ.toStream.toList.map { case (oldB, newB) =>
-      PotentialChange(newB, oldB.materialAndData)
+    mirrorZ.toCoorStream.zip(mirrorZ.toStream).toArray.map { case (orig, news) =>
+      PotentialChange(news, world(orig.x, orig.y, orig.z).materialAndData)
     }
   )
 
+  def pasteMirrorY(newL1: Location): Changes = Changer.runChanges({
+    val pm = paste(newL1.coor).mirrorY
+    pm.toCoorStream.zip(pm.toStream).map {case (orig, news) =>
+      PotentialChange(news, world(orig.x, orig.y, orig.z).materialAndData)
+    }
+  })
 
 //  /**
 //   *
