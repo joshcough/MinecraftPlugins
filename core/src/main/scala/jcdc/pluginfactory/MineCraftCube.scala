@@ -3,10 +3,19 @@ package jcdc.pluginfactory
 import org.bukkit.block.Block
 import org.bukkit.entity.Player
 import BukkitEnrichment._
-import org.bukkit.{Material, Location}
+import org.bukkit.{World, Material, Location}
 import collection.JavaConversions.asScalaIterator
 
 object MineCraftCube {
+
+  implicit class RichCoor(c: Coor){
+    def block(implicit w: World): Block = w(c.xd, c.yd, c.zd)
+  }
+
+  implicit class RichCube(c: Cube[Block]){
+    def mc(implicit w: World): MineCraftCube = MineCraftCube(c.corner1.block, c.corner2.block)
+  }
+
   implicit class LocationToCoor(l: Location){
     def coor = Coor(l.xd, l.yd, l.zd)
   }
@@ -67,7 +76,7 @@ case class MineCraftCube(loc1: Location, loc2: Location) extends Cube[Block] {
   val corner2 = loc2.coor
   val f = (c: Coor) => loc1.world(c.xd, c.yd, c.zd)
 
-  val world = loc1.world
+  implicit val world = loc1.world
   def players: Iterator[Player] = world.getPlayers.iterator.filter(contains)
 
   def blocks = toStream
@@ -111,16 +120,15 @@ case class MineCraftCube(loc1: Location, loc2: Location) extends Cube[Block] {
    */
   def eraseAll: Changes = Changer.changeAll(blocks, MaterialAndData.AIR)
 
-  /**
-   * this is pretty close to map, on a Cube...
-   * @param newL1
-   */
-  def paste(newL1: Location): Changes = Changer.runChanges({
-    val p = this.paste(newL1.coor)
-    p.toCoorStream.zip(p.toStream).map { case (orig, news) =>
-      PotentialChange(news, world(orig.x, orig.y, orig.z).materialAndData)
-    }
-  })
+  private def run(c: Cube[Block]) =
+    c.toZippedStream.map(t => (PotentialChange(world(t._1.x, t._1.y, t._1.z), t._2.materialAndData)))
+
+  def paste(newL1: Location): Changes = Changer.runChanges({run(this.paste(newL1.coor))})
+  def mirrorXChanges: Changes = Changer.runChanges(run(mirrorX))
+  def mirrorYChanges: Changes = Changer.runChanges(run(mirrorY))
+  def mirrorZChanges: Changes = Changer.runChanges(run(mirrorZ))
+  def pasteMirrorY(newL1: Location): Changes =
+    Changer.runChanges({run(this.paste(newL1.coor).mirrorY)})
 
   /**
    * @param newL1
@@ -130,40 +138,4 @@ case class MineCraftCube(loc1: Location, loc2: Location) extends Cube[Block] {
       Stream(PotentialChange(news, orig.materialAndData), PotentialChange(orig, Material.AIR))
     }
   )
-
-  def mirrorXChanges: Changes = Changer.runChanges(
-    mirrorX.toCoorStream.zip(mirrorX.toStream).toArray.map { case (orig, news) =>
-      PotentialChange(news, world(orig.x, orig.y, orig.z).materialAndData)
-    }
-  )
-
-  def mirrorYChanges: Changes = Changer.runChanges(
-    mirrorY.toCoorStream.zip(mirrorY.toStream).toArray.map { case (orig, news) =>
-      PotentialChange(news, world(orig.x, orig.y, orig.z).materialAndData)
-    }
-  )
-
-  def mirrorZChanges: Changes = Changer.runChanges(
-    mirrorZ.toCoorStream.zip(mirrorZ.toStream).toArray.map { case (orig, news) =>
-      PotentialChange(news, world(orig.x, orig.y, orig.z).materialAndData)
-    }
-  )
-
-  def pasteMirrorY(newL1: Location): Changes = Changer.runChanges({
-    val pm = paste(newL1.coor).mirrorY
-    pm.toCoorStream.zip(pm.toStream).map {case (orig, news) =>
-      PotentialChange(news, world(orig.x, orig.y, orig.z).materialAndData)
-    }
-  })
-
-//  /**
-//   *
-//   * @param newL1
-//   * @return
-//   */
-//  def pasteMirrorY(newL1: Location): Changes = Changer.runChanges(
-//    paste(newL1.coor).mirrorY.toStream.map { case (oldB, newB) =>
-//      PotentialChange(newB, oldB.materialAndData)
-//    }
-//  )
 }

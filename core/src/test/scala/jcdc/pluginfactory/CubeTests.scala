@@ -38,40 +38,35 @@ object CubeMirroringTests extends Properties("Cube Mirroring Tests") with TestHe
   val cz = Cube.coors((0,0,0),(0,0,3))
 
   def toList(c: Cube[Coor]) = c.toStream.toList.map(_.xyz)
+  def run(c: Cube[Coor]) = c.toZippedStream.toList.map( t => (t._1.xyz, t._2.xyz) )
 
-//  test("normal x")  { toList(cx)       ?= List((0,0,0),(1,0,0),(2,0,0),(3,0,0)) }
-//  test("normal y")  { toList(cy)       ?= List((0,0,0),(0,1,0),(0,2,0),(0,3,0)) }
-//  test("mirrorX") { toList(cx.mirrorX) ?= List((3,0,0),(2,0,0),(1,0,0),(0,0,0)) }
-//  test("mirrorY") { toList(cy.mirrorY) ?= List((0,3,0),(0,2,0),(0,1,0),(0,0,0)) }
-//  test("mirrorZ") { toList(cz.mirrorZ) ?= List((0,0,3),(0,0,2),(0,0,1),(0,0,0)) }
+  test("normal x") { toList(cx)         ?= List((0,0,0),(1,0,0),(2,0,0),(3,0,0)) }
+  test("normal y") { toList(cy)         ?= List((0,0,0),(0,1,0),(0,2,0),(0,3,0)) }
+  test("mirrorX")  { toList(cx.mirrorX) ?= List((3,0,0),(2,0,0),(1,0,0),(0,0,0)) }
+  test("mirrorY")  { toList(cy.mirrorY) ?= List((0,3,0),(0,2,0),(0,1,0),(0,0,0)) }
+  test("mirrorZ")  { toList(cz.mirrorZ) ?= List((0,0,3),(0,0,2),(0,0,1),(0,0,0)) }
 
   test("paste y") {
-    cy.paste(Coor(5, 0, 0)).toStream.toList.map(_.xyz) ?= List(
-      (0,0,0),(0,1,0),(0,2,0),(0,3,0)
-    )
-  }
-
-  test("paste y, get coordinates") {
-    cy.paste(Coor(5, 0, 0)).toCoorStream.toList.map(_.xyz) ?= List(
-      (5,0,0),(5,1,0),(5,2,0),(5,3,0)
+    run(cy.paste(Coor(5, 0, 0))) ?= List(
+      ((5,0,0),(0,0,0)), ((5,1,0),(0,1,0)), ((5,2,0),(0,2,0)), ((5,3,0),(0,3,0))
     )
   }
 
   test("paste y twice") {
-    cy.paste(Coor(0, 10, 0)).paste(Coor(0, 20, 0)).toCoorStream.toList.map(_.xyz) ?= List(
-      (0,20,0),(0,21,0),(0,22,0),(0,23,0)
+    run(cy.paste(Coor(0, 10, 0)).paste(Coor(0, 20, 0))) ?= List(
+      ((0,20,0),(0,0,0)), ((0,21,0),(0,1,0)), ((0,22,0),(0,2,0)), ((0,23,0),(0,3,0))
     )
   }
 
   test("paste then mirror y") {
-    cy.paste(Coor(0, 10, 0)).mirrorY.toStream.toList.map(_.xyz) ?= List(
-      (0,3,0),(0,2,0),(0,1,0),(0,0,0)
+    run(cy.paste(Coor(0, 10, 0)).mirrorY) ?= List(
+      ((0,10,0),(0,3,0)), ((0,11,0),(0,2,0)), ((0,12,0),(0,1,0)), ((0,13,0),(0,0,0))
     )
   }
 
   test("mirror then paste y") {
-    cy.mirrorY.paste(Coor(0, 10, 0)).toStream.toList.map(_.xyz) ?= List(
-      (0,3,0),(0,2,0),(0,1,0),(0,0,0)
+    run(cy.mirrorY.paste(Coor(0, 10, 0))) ?= List(
+      ((0,10,0),(0,3,0)), ((0,11,0),(0,2,0)), ((0,12,0),(0,1,0)), ((0,13,0),(0,0,0))
     )
   }
 }
