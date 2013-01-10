@@ -3,7 +3,8 @@ package jcdc.pluginfactory.examples
 import org.bukkit.Material
 import Material._
 import org.bukkit.event.player.PlayerMoveEvent
-import jcdc.pluginfactory.{MineCraftCube, CubeState, CommandsPlugin, ListenersPlugin}
+import org.bukkit.block.Block
+import jcdc.pluginfactory.{Cube, CubeState, CommandsPlugin, ListenersPlugin, MineCraftCube}
 import MineCraftCube._
 
 /**
@@ -45,13 +46,13 @@ class Arena extends ListenersPlugin with CommandsPlugin with CubeState {
       args = material)(
       body = { case (p, m) =>
         val c = cube(p)
-        for(b <- c.blocks) if(c.onWall(b.coor) || c.onFloor(b.coor)) b changeTo m else b changeTo AIR
+        for(b <- c.toStream) if(c.onWall(b.coor) || c.onFloor(b.coor)) b changeTo m else b changeTo AIR
       }
     )
   )
 
-  def entering(c: MineCraftCube, e: PlayerMoveEvent) =
-    c.contains(e.getTo)   and ! c.contains(e.getFrom)
-  def leaving (c: MineCraftCube, e: PlayerMoveEvent) =
-    c.contains(e.getFrom) and ! c.contains(e.getTo)
+  def entering(c: Cube[Block], e: PlayerMoveEvent) =
+    c.contains(e.getTo.coor)   and ! c.contains(e.getFrom.coor)
+  def leaving (c: Cube[Block], e: PlayerMoveEvent) =
+    c.contains(e.getFrom.coor) and ! c.contains(e.getTo.coor)
 }

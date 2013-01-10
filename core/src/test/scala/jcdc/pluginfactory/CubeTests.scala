@@ -47,25 +47,25 @@ object CubeMirroringTests extends Properties("Cube Mirroring Tests") with TestHe
   test("mirrorZ")  { toList(cz.mirrorZ) ?= List((0,0,3),(0,0,2),(0,0,1),(0,0,0)) }
 
   test("paste y") {
-    run(cy.paste(Coor(5, 0, 0))) ?= List(
+    run(cy.translateTo(Coor(5, 0, 0))) ?= List(
       ((5,0,0),(0,0,0)), ((5,1,0),(0,1,0)), ((5,2,0),(0,2,0)), ((5,3,0),(0,3,0))
     )
   }
 
   test("paste y twice") {
-    run(cy.paste(Coor(0, 10, 0)).paste(Coor(0, 20, 0))) ?= List(
+    run(cy.translateTo(Coor(0, 10, 0)).translateTo(Coor(0, 20, 0))) ?= List(
       ((0,20,0),(0,0,0)), ((0,21,0),(0,1,0)), ((0,22,0),(0,2,0)), ((0,23,0),(0,3,0))
     )
   }
 
   test("paste then mirror y") {
-    run(cy.paste(Coor(0, 10, 0)).mirrorY) ?= List(
+    run(cy.translateTo(Coor(0, 10, 0)).mirrorY) ?= List(
       ((0,10,0),(0,3,0)), ((0,11,0),(0,2,0)), ((0,12,0),(0,1,0)), ((0,13,0),(0,0,0))
     )
   }
 
   test("mirror then paste y") {
-    run(cy.mirrorY.paste(Coor(0, 10, 0))) ?= List(
+    run(cy.mirrorY.translateTo(Coor(0, 10, 0))) ?= List(
       ((0,10,0),(0,3,0)), ((0,11,0),(0,2,0)), ((0,12,0),(0,1,0)), ((0,13,0),(0,0,0))
     )
   }

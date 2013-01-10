@@ -1,7 +1,10 @@
 package jcdc.pluginfactory.examples
 
 import org.bukkit.event.player.PlayerMoveEvent
-import jcdc.pluginfactory.{CommandsPlugin, MineCraftCube, CubeState, ListenerPlugin}
+import jcdc.pluginfactory.{Cube, CubeState, CommandsPlugin, ListenerPlugin, MineCraftCube}
+import org.bukkit.block.Block
+import MineCraftCube._
+
 
 /**
  * Notifies you any time someone comes onto your lawn,
@@ -11,8 +14,8 @@ import jcdc.pluginfactory.{CommandsPlugin, MineCraftCube, CubeState, ListenerPlu
  */
 class GetOffMyLawn extends ListenerPlugin with CommandsPlugin with CubeState {
 
-  def movingOntoLawn(e:PlayerMoveEvent, lawn: MineCraftCube) =
-    lawn.contains(e.getTo) && ! lawn.contains(e.getFrom)
+  def movingOntoLawn(e:PlayerMoveEvent, lawn: Cube[Block]) =
+    lawn.contains(e.getTo.coor) && ! lawn.contains(e.getFrom.coor)
 
   val listener = OnPlayerMove((p, e) =>
     for ((owner, lawn) <- cubes; if (p != owner && movingOntoLawn(e, lawn)))

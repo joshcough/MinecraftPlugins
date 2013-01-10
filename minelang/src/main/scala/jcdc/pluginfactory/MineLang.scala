@@ -6,6 +6,7 @@ import ClojureInScala._
   import AST._
   import Parser._
   import Interpreter._
+import org.bukkit.block.Block
 
 object MineLangRepl {
   def main(args:Array[String]): Unit = new Repl(MineLang.mineLangSession(TestServer.player)).run
@@ -26,8 +27,8 @@ object MineLang {
         case ObjectValue(m:Material) => m
         case ObjectValue(s:String) => MinecraftParsers.material(s).fold(sys error _)((m, _) => m)
       }
-    def evalToCube(e:Expr, env:Env): MineCraftCube =
-      evalTo(e,env,"cube"){ case ObjectValue(c:MineCraftCube) => c }
+    def evalToCube(e:Expr, env:Env): Cube[Block] =
+      evalTo(e,env,"cube"){ case ObjectValue(c:Cube[Block]) => c }
 
     val getMaterial = builtIn('material, (exps, env) => {
       eval(exps(0),env) match {
@@ -51,12 +52,12 @@ object MineLang {
       else sys error s"bad location data: ${(xe,ye,ze)}"
     })
     // here are all the cube block mutation functions.
-    def builtInCube(name:Symbol, eval: (List[Expr], Env) => MineCraftCube) =
+    def builtInCube(name:Symbol, eval: (List[Expr], Env) => Cube[Block]) =
       (name -> BuiltinFunction(name, (es, env) => { ObjectValue(eval(es,env)) }))
     val setAll = builtInCube(Symbol("cube:set-all"), (exps, env) => {
       val c = evalToCube(exps(0), env)
       val m = evalToMaterial(exps(1), env)
-      for(b <- c.blocks) b changeTo m
+      for(b <- c.toStream) b changeTo m
       p ! s"setting all in $c to $m"
       c
     })
@@ -64,7 +65,7 @@ object MineLang {
       val c    = evalToCube(exps(0), env)
       val oldM = evalToMaterial(exps(1),env)
       val newM = evalToMaterial(exps(2),env)
-      for(b <- c.blocks; if(b is oldM)) b changeTo newM
+      for(b <- c.toStream; if(b is oldM)) b changeTo newM
       p ! s"changed $oldM in $c to $newM"
       c
     }))

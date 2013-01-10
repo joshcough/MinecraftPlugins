@@ -70,6 +70,8 @@ trait Cube[T] { self =>
   lazy val maxZd  = math.max(corner1.zd, corner2.zd)
   lazy val minZd  = math.min(corner1.zd, corner2.zd)
 
+  def apply(c: Coor): T = f(c)
+
   def map[U](g: T => U): Cube[U] = Cube(corner1, corner1)(g compose f)
   def mapCoor[U](f: Coor => U): Cube[U] = Cube(corner1, corner2)(f)
 
@@ -311,7 +313,7 @@ trait Cube[T] { self =>
    * @param newC1
    * @return
    */
-  def paste(newC1: Coor): Cube[T] = {
+  def translateTo(newC1: Coor): Cube[T] = {
     val xDiff = newC1.x - corner1.x
     val yDiff = newC1.y - corner1.y
     val zDiff = newC1.z - corner1.z

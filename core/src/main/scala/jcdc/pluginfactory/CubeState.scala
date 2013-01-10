@@ -2,6 +2,7 @@ package jcdc.pluginfactory
 
 import BukkitEnrichment._
 import org.bukkit.Location
+import org.bukkit.block.Block
 import org.bukkit.entity.Player
 
 trait CubeState {
@@ -10,7 +11,7 @@ trait CubeState {
     override val default = Some(Nil)
   }
 
-  def cube(p:Player): MineCraftCube = corners(p) match {
+  def cube(p:Player): Cube[Block] = corners(p) match {
     case List(c1, c2) => MineCraftCube(c1, c2)
     case _ => p bomb "Both corners must be set!"
   }
@@ -28,7 +29,7 @@ trait CubeState {
       p ! "set corner one first! (with a left click)"
   }
 
-  def cubes: collection.Map[Player, MineCraftCube] =
+  def cubes: collection.Map[Player, Cube[Block]] =
     corners.state.filter(kv => kv._2.size == 2).mapValues {
       case List(l1, l2) => MineCraftCube(l1, l2)
     }
