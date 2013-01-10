@@ -14,7 +14,7 @@ object MineLangTests extends Properties("MinecraftParserTests") with BukkitEnric
   val mineLangDir = new File("../minelang")
   val expandMc = mineLangDir.child("expand.mc")
   parseDefsTest("expand defs parse", expandMc, 0)
-  evalTest("expand", expandMc.slurp, MineCraftCube(TestServer.world(12,3,12), TestServer.world(-2,3,-2)))
+  evalTest("expand", expandMc.slurp, TestServer.world(12,3,12).cubeTo(TestServer.world(-2,3,-2)))
 
   val factorialDefs = mineLangDir.child("factorial.mc")
   parseDefsTest("factorial defs parse", factorialDefs, 2)

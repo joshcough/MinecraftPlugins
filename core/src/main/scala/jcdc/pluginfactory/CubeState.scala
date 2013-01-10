@@ -12,7 +12,7 @@ trait CubeState {
   }
 
   def cube(p:Player): Cube[Block] = corners(p) match {
-    case List(c1, c2) => MineCraftCube(c1, c2)
+    case List(c1, c2) => c1 cubeTo c2
     case _ => p bomb "Both corners must be set!"
   }
 
@@ -31,6 +31,6 @@ trait CubeState {
 
   def cubes: collection.Map[Player, Cube[Block]] =
     corners.state.filter(kv => kv._2.size == 2).mapValues {
-      case List(l1, l2) => MineCraftCube(l1, l2)
+      case List(l1, l2) => l1 cubeTo l2
     }
 }

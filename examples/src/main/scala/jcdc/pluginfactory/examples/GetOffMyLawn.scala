@@ -1,10 +1,8 @@
 package jcdc.pluginfactory.examples
 
 import org.bukkit.event.player.PlayerMoveEvent
-import jcdc.pluginfactory.{Cube, CubeState, CommandsPlugin, ListenerPlugin, MineCraftCube}
+import jcdc.pluginfactory.{Cube, CubeState, CommandsPlugin, ListenerPlugin}
 import org.bukkit.block.Block
-import MineCraftCube._
-
 
 /**
  * Notifies you any time someone comes onto your lawn,

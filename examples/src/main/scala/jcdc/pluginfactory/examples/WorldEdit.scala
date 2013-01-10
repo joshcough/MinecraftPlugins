@@ -4,12 +4,7 @@ import org.bukkit.Material
 import org.bukkit.block.Block
 import org.bukkit.entity.Player
 import Material._
-import jcdc.pluginfactory.{
-  Cube, CubeState, CommandsPlugin, ListenersPlugin, MineCraftCube, UndoState
-}
-import MineCraftCube._
-
-//GIANT TODO: force some of the streams in mirroring!
+import jcdc.pluginfactory.{Cube, CubeState, CommandsPlugin, ListenersPlugin, UndoState}
 
 /**
  * Classic WorldEdit plugin, done in Scala.
@@ -64,7 +59,7 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin with CubeState {
       name = "replace",
       desc = "Replace all the selected blocks of the first material type to the second material type.",
       args = material ~ material)(
-      body = { case (p, oldM ~ newM) => p.newChange(changeAll(cube(p), oldM, newM)) }
+      body = { case (p, oldM ~ newM) => p.newChange(changeAll(cube(p), oldM, newM.andData)) }
     ),
     Command(
       name = "undo",
@@ -144,7 +139,7 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin with CubeState {
         val b = radius / 2
         val (x, y, z) = p.loc.xyzd
         p.newChange(
-          eraseAll(MineCraftCube(p.world(x + b, y, z + b).loc, p.world(x - b, y - depth, z - b).loc))
+          eraseAll(p.world(x + b, y, z + b).cubeTo(p.world(x - b, y - depth, z - b)))
         )
       }
     ),
@@ -231,6 +226,9 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin with CubeState {
     def updated(cs: Changes): Changes = { p ! s"${cs.size} blocks updated."; cs }
   }
 
+  // GIANT TODO
+  // GIANT TODO: force some of the streams in mirroring!
+  // GIANT TODO
   object Changer {
 
     case class Change(b: Block, oldM: MaterialAndData){
@@ -267,9 +265,6 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin with CubeState {
     def changeAll(bms: Stream[Block], newM: MaterialAndData) = runChanges(
       bms.zip(Stream.continually(newM)).map{ case (b,n) => PotentialChange(b,n) }
     )
-
-    def changeAll(c: Cube[Block], oldM: Material, newM: Material): Changes =
-      changeAll(c, oldM, new MaterialAndData(newM, None))
 
     def changeAll(c: Cube[Block], oldM: Material, newM: MaterialAndData): Changes =
       changeAll(c.blocks.filter(_ is oldM), newM)

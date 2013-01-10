@@ -124,6 +124,13 @@ trait BukkitEnrichment extends ScalaEnrichment {
 
     def itemStack = new ItemStack(b.getType, 1, b.getData)
     def materialAndData = MaterialAndData(b.getType, Some(b.getData))
+
+    def coor = Coor(b.xd, b.yd, b.zd)
+
+    /**
+     * Returns a Cube of all of the blocks between two locations of the world.
+     */
+    def cubeTo(b2: Block): Cube[Block] = b.loc.cubeTo(b2.loc)
   }
 
   /**
@@ -187,20 +194,6 @@ trait BukkitEnrichment extends ScalaEnrichment {
     def blockAt(x: Double, y: Double, z: Double): Block = new Location(w, x, y, z).getBlock
 
     /**
-     * Returns a Stream of all of the blocks between two locations of the world.
-     * These blocks may or have completely disjoint x, y, and z coordinates (forming a cube),
-     * but nonetheless, a linear Stream is still returned that iterates over the blocks
-     * in 3D space.
-     * @param loc1 the first corner of the world
-     * @param loc2 the other corner of the world
-     */
-    def between(loc1:Location, loc2: Location): Stream[Block] = {
-      val ((x1, y1, z1), (x2, y2, z2)) = (loc1.xyz, loc2.xyz)
-      def range(i1: Int, i2: Int) = (if(i1 < i2) i1 to i2 else i2 to i1).toStream
-      for (x <- range(x1,x2); y <- range(y1,y2); z <- range(z1,z2)) yield w(x,y,z)
-    }
-
-    /**
      * Returns an infinite Stream[Block] that increases positively in X (or EAST)
      * starting at the given Location.
      */
@@ -224,6 +217,22 @@ trait BukkitEnrichment extends ScalaEnrichment {
     def spawnN(entityType: EntityType, n: Int): Unit = for (i <- 1 to n) spawn(entityType)
     def dropItem(stack: ItemStack): Unit = loc.world.dropItem(loc, stack)
     def dropItem(m: Material): Unit = dropItem(m.itemStack)
+    def coor = Coor(loc.xd, loc.yd, loc.zd)
+    /**
+     * Returns a Cube of all of the blocks between two locations of the world.
+     */
+    def cubeTo(loc2: Location): Cube[Block] =
+      Cube[Block](loc.coor, loc2.coor)((c: Coor) => loc.world(c.xd, c.yd, c.zd))
+  }
+
+  implicit class RichCubeOfBlocks(c: Cube[Block]) {
+    import collection.JavaConversions.asScalaIterator
+    def world = c(Coor(0,0,0)).world
+    def blocks = c.toStream
+    def blocksAndMaterials = blocks.map(b => (b, b.materialAndData))
+    def players: Iterator[Player] = world.getPlayers.iterator.filter(contains)
+    def contains(p: Player)  : Boolean = c.contains(p.loc.coor)
+    def contains(l: Location): Boolean = c.contains(l.coor)
   }
 
   /**
@@ -413,14 +422,4 @@ trait BukkitEnrichment extends ScalaEnrichment {
     }
     def itemStack: ItemStack = data.fold(new ItemStack(m))(new ItemStack(m, 1, 0:Short, _))
   }
-
-  // old, now unused implicit conversions. it seems like they might be used in commented out
-  // code though, like NetLogoPlugin, so im going to keep them around for now.
-
-  //  implicit def materialAndDataToItemStack(m:MaterialAndData) = m.itemStack
-  //  implicit def itemStackToMaterialAndData(is:ItemStack) = MaterialAndData(is.getType,
-  // i'm not sure if this check is really needed, but i guess it doesnt hurt...
-  //    if(is.getData.getData < (0:Byte)) None else Some(is.getData.getData)
-  //  )
-  //
 }

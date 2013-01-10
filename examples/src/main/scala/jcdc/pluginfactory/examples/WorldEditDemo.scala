@@ -30,9 +30,9 @@ class WorldEditDemo extends ListenersPlugin with CommandsPlugin {
     )
   )
 
-  def cube(p:Player):Iterator[Block] = corners(p).filter(_.length == 2) match {
-    case List(loc1, loc2) => p.world.between(loc1, loc2).iterator
-    case _                => p ! "Both corners must be set!"; Iterator[Block]()
+  def cube(p:Player):Stream[Block] = corners(p).filter(_.length == 2) match {
+    case List(loc1, loc2) => loc1.cubeTo(loc2).blocks
+    case _                => p ! "Both corners must be set!"; Stream[Block]()
   }
 
   def setFirstPos(p:Player,loc: Location): Unit = {
