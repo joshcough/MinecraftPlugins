@@ -53,7 +53,7 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin with CubeState {
       name = "set",
       desc = "Set all the selected blocks to the given material type.",
       args = material)(
-      body = { case (p, m) => p.newChange(setAll(cube(p), (m))) }
+      body = { case (p, m) => p.newChange(setAll(cube(p), m)) }
     ),
     Command(
       name = "replace",
@@ -64,7 +64,7 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin with CubeState {
     Command(
       name = "undo",
       desc = "undo!",
-      args = ("on" or "off") or eof)(
+      args = "on" or "off" or eof)(
       body = {
         case (p, Left(Left("on")))   => undoManager.turnOn
         case (p, Left(Right("off"))) => undoManager.turnOff
@@ -75,15 +75,17 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin with CubeState {
     Command("paste", "Paste your cube at your current location!"){ p =>
       p.newChange(cube(p).translateTo(p.loc.coor))
     },
-//    Command("move", "Move your cube to your current location!"){ p =>
-//      p.newChange(cube(p).move(p.loc)) //paste(newL1) ++ setAll(Material.AIR)
-//    },
-    Command("flip", "Flip your cube upside down!"){ p => p.newChange(cube(p).mirrorY) },
+    Command("move", "Move your cube to your current location!"){ p =>
+      p.newChange(
+        translateAll(cube(p).translateTo(p.loc.coor)) ++ setAll(cube(p), Material.AIR)
+      )
+    },
+    Command("flip", "Flip your cube upside down!"){ p => p.newChange(cube(p).mirrorY, force = true) },
     Command("flipxz", "Flip x and z"){ p =>
-      p.newChange(cube(p).mirrorX.mirrorZ)
+      p.newChange(cube(p).mirrorX.mirrorZ, force = true)
     },
     Command("paste-mirror-y", "paste your cube somewhere, but flipped upside down!"){ p =>
-      p.newChange(cube(p).translateTo(p.loc.coor).mirrorY)
+      p.newChange(cube(p).translateTo(p.loc.coor).mirrorY, force = true)
     },
     Command("goto", "Teleport!", location){ case (you, loc) => you teleport loc(you.world) },
     Command("cube-to",  "Set both positions",  location ~ location.?){ case (p, loc1 ~ loc2) =>
@@ -104,7 +106,6 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin with CubeState {
       }
     ),
     Command("erase", "Set all the selected blocks to air.")(p => p.newChange(eraseAll(cube(p)))),
-
     Command(
       name = "fib-tower",
       desc = "create a tower from the fib numbers",
@@ -138,9 +139,7 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin with CubeState {
       body = { case (p, radius ~ depth) =>
         val b = radius / 2
         val (x, y, z) = p.loc.xyzd
-        p.newChange(
-          eraseAll(p.world(x + b, y, z + b).cubeTo(p.world(x - b, y - depth, z - b)))
-        )
+        p.newChange(eraseAll(p.world(x + b, y, z + b).cubeTo(p.world(x - b, y - depth, z - b))))
       }
     ),
     Command(
@@ -204,26 +203,32 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin with CubeState {
     )
   )
 
-  class UndoManager[P, T, U] {
+  /**
+   *
+   * @tparam A
+   * @tparam U
+   * @tparam R
+   */
+  class UndoManager[A, U, R] {
     var on = true
-    def turnOn{ on = true }
+    def turnOn { on = true }
     def turnOff{ on = false; state.clear() }
     import collection.mutable.Map
-    val initialState = UndoState[T, U]()
-    val state = Map[P, UndoState[T, U]]().withDefaultValue(initialState)
-    def newChange(p: P, c: T): T = { state += (p -> state(p).newChange(c)); c }
-    def undo(p: P)(f: T => U): Unit = state(p).undo(f).foreach { ns => state += (p -> ns) }
-    def redo(p: P)(f: U => T): Unit = state(p).redo(f).foreach { ns => state += (p -> ns) }
+    val initialState = UndoState[U, R]()
+    val state = Map[A, UndoState[U, R]]().withDefaultValue(initialState)
+    def newChange(a: A, u: U): U = { state += (a -> state(a).newChange(u)); u }
+    def undo(p: A)(f: U => R): Unit = state(p).undo(f).foreach { ns => state += (p -> ns) }
+    def redo(p: A)(f: R => U): Unit = state(p).redo(f).foreach { ns => state += (p -> ns) }
   }
 
   implicit class RichPlayerWithChanges(p: Player){
-    def newChange(cs: Changes): Unit = updated(undoManager.newChange(p, cs))
+    def newChange(cs: Changes): Unit = notifyChange(undoManager.newChange(p, cs))
     def newChange(ps: Seq[PotentialChange]): Unit = newChange(runChanges(ps))
-    def newChange(ps: Cube[Block]): Unit = newChange(runChanges(Changer run ps))
+    def newChange(c: Cube[Block], force: Boolean = false): Unit = newChange(translateAll(c, force))
     def undo: Unit = undoManager.undo(p)(rerun)
     def redo: Unit = undoManager.redo(p)(rerun)
-    def rerun(cs: Changes) = updated(runChanges(cs.cs.map(PotentialChange(_))))
-    def updated(cs: Changes): Changes = { p ! s"${cs.size} blocks updated."; cs }
+    def rerun(cs: Changes) = notifyChange(runChanges(cs.cs.map(PotentialChange(_))))
+    def notifyChange(cs: Changes): Changes = { p ! s"${cs.size} blocks updated."; cs }
   }
 
   // GIANT TODO
@@ -231,6 +236,11 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin with CubeState {
   // GIANT TODO
   object Changer {
 
+    /**
+     * Represents a change that actually took place in the world.
+     * @param b The block that was changed.
+     * @param oldM The blocks previous material before it was changed
+     */
     case class Change(b: Block, oldM: MaterialAndData){
       override def toString = s"Change(b:${b.loc.xyz} m:${oldM.m.name})"
     }
@@ -240,11 +250,20 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin with CubeState {
       def apply(b: Block, m: Material) = new PotentialChange(b, m.andData)
     }
 
+    /**
+     * Represents a change that might happen in the world at some later time.
+     * @param b
+     * @param newM
+     */
     case class PotentialChange(b: Block, newM: MaterialAndData){
       val oldM = b.materialAndData
       def run: Boolean = newM update b
     }
 
+    /**
+     * Represents a number of changes that actually took place in the world.
+     * @param cs
+     */
     case class Changes(cs:Array[Change]){
       override def toString = cs.toList.mkString(",")
       def size = cs.length
@@ -253,23 +272,53 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin with CubeState {
 
     type PotentialChanges = Stream[PotentialChange]
 
+    /**
+     * Actually execute some PotentialChanges,
+     * handing back a Seq of all the changes that really took place.
+     * (A potential change might not happen, if for example, you try to change AIR to AIR.)
+     * @param newData
+     * @return
+     */
     def runChanges(newData: Seq[PotentialChange]): Changes =
       Changes(newData.filter(_.run).map(p => Change(p.b, p.oldM)).toArray)
 
-    def run(c: Cube[Block]): Stream[PotentialChange] =
-      c.toZippedStream.map(t => (PotentialChange(c.world(t._1.x, t._1.y, t._1.z), t._2.materialAndData)))
+    /**
+     * TODO: document me!
+     */
+    def getTransformationChanges(cube: Cube[Block],
+                                 force: Boolean = false): Stream[PotentialChange] = {
+      val s = cube.toZippedStream.map{ case (c,b) =>
+        PotentialChange(cube.world(c.x, c.y, c.z), b.materialAndData)
+      }
+      if(force) s.force else s
+    }
 
-    def setAll(c: Cube[Block], newM: Material): Changes = setAll(c, new MaterialAndData(newM, None))
-    def setAll(c: Cube[Block], newM: MaterialAndData): Changes = changeAll(c.blocks, newM)
+    def translateAll(cube: Cube[Block], force: Boolean = false): Changes = 
+      runChanges(getTransformationChanges(cube, force))
 
-    def changeAll(bms: Stream[Block], newM: MaterialAndData) = runChanges(
+    /**
+     * Set all the blocks in this cube to the given Material
+     */
+    def setAll(c: Cube[Block], newM: Material): Changes = setAll(c.blocks, newM.andData)
+
+    /**
+     * Set all the blocks in this stream to the given Material
+     */
+    def setAll(bms: Stream[Block], newM: MaterialAndData) = runChanges(
       bms.zip(Stream.continually(newM)).map{ case (b,n) => PotentialChange(b,n) }
     )
 
+    /**
+     * Change all the blocks of the old material type to the new material type.
+     */
     def changeAll(c: Cube[Block], oldM: Material, newM: MaterialAndData): Changes =
-      changeAll(c.blocks.filter(_ is oldM), newM)
+      setAll(c.blocks.filter(_ is oldM), newM)
 
-    def eraseAll(c: Cube[Block]): Changes = changeAll(c.blocks, MaterialAndData.AIR)
+    /**
+     * Set all the blocks in this cube to air
+     * TODO: this really could be removed...
+     */
+    def eraseAll(c: Cube[Block]): Changes = setAll(c.blocks, MaterialAndData.AIR)
   }
 }
 

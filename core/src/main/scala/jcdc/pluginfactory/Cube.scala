@@ -1,7 +1,15 @@
 package jcdc.pluginfactory
 
+
+trait P { def apply(c: Coor): Int }
+  case object X extends P { def apply(c: Coor): Int = c.x }
+  case object Y extends P { def apply(c: Coor): Int = c.y }
+  case object Z extends P { def apply(c: Coor): Int = c.z }
+
 object Coor {
   val origin = Coor(0, 0, 0)
+  val max = Coor(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE)
+  val min = Coor(Integer.MIN_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE)
   def apply(x: Int, y: Int, z: Int) = new Coor(x.toDouble, y.toDouble, z.toDouble)
   def apply(xyz: (Int, Int, Int))   = new Coor(xyz._1, xyz._2, xyz._3)
 }
@@ -14,13 +22,20 @@ case class Coor(xd: Double, yd: Double, zd: Double) {
 }
 
 object Cube {
-  def apply[T](c1: Coor, c2: Coor)(fn: Coor => T) = new Cube[T]{
+  def apply[T](c1: Coor, c2: Coor)(fn: Coor => T): Cube[T] = new Cube[T]{
     val corner1 = c1; val corner2 = c2; val f = fn
   }
+  def apply[T](c1:(Int, Int, Int), c2:(Int, Int, Int))(fn: Coor => T): Cube[T] =
+    Cube(Coor(c1), Coor(c2))(fn)
   def coors(c1:(Int, Int, Int), c2:(Int, Int, Int)) = Cube(Coor(c1), Coor(c2))(identity)
-// TODO: can applicative be implemented?, yes, but like ZipList, not like below.
-//  def pure[T](t: T): Cube[T] = Cube(Coor.origin, Coor.origin)(Function.const(t))
-//  def ap[T,U](fs: List[T => U], ts: List[T]): List[U] = fs.flatMap(f => ts map f)
+
+  def pure[T](t: T): Cube[T] = Cube(Coor.max, Coor.min)(Function.const(t))
+  def ap[T,U](fs: Cube[T => U], c: Cube[T]): Cube[U] = {
+    Cube(
+      Coor(math.min(fs.maxXd, c.maxXd), math.min(fs.maxYd, c.maxYd), math.min(fs.maxZd, c.maxZd)),
+      Coor(math.max(fs.minXd, c.minXd), math.max(fs.minYd, c.minYd), math.max(fs.minZd, c.minZd))
+    )(coor => fs(coor)(c(coor)))
+  }
 }
 
 /**
@@ -50,8 +65,7 @@ object Cube {
  *
  */
 trait Cube[T] { self =>
-  // @param corner1 one corner of the cube
-  // @param corner2 the other corner
+
   val corner1: Coor
   val corner2: Coor
   val f: Coor => T
@@ -107,10 +121,10 @@ trait Cube[T] { self =>
    */
   def toZippedStream: Stream[(Coor, T)] = toCoorStream zip toStream
 
-  def width  = maxX - minX
-  def height = maxY - minY
-  def depth  = maxZ - minZ
-  def size: BigInt = BigInt(width) * BigInt(height) * BigInt(depth)
+  def width : Long = maxX.toLong - minX.toLong + 1L
+  def height: Long = maxY.toLong - minY.toLong + 1L
+  def depth : Long = maxZ.toLong - minZ.toLong + 1L
+  def size  : BigInt = BigInt(width) * BigInt(height) * BigInt(depth)
 
   /**
    *
@@ -200,9 +214,7 @@ trait Cube[T] { self =>
    * @param c
    * @return
    */
-  def onWall(c: Coor) = 
-    c.x == corner1.x || c.x == corner2.x || 
-    c.z == corner1.z || c.z == corner2.z
+  def onWall(c: Coor) = c.x == corner1.x || c.x == corner2.x || c.z == corner1.z || c.z == corner2.z
 
   /**
    * Shrink this cube on all sides by one, giving just the insides of the cube
@@ -298,9 +310,11 @@ trait Cube[T] { self =>
    * A whole pile of operations to change the position of this Cube
    */
 
-  def shiftX      (i:Int) = growMaxXBy(i).shrinkMinXBy(i)
-  def shiftY      (i:Int) = growMaxYBy(i).shrinkMinYBy(i)
-  def shiftZ      (i:Int) = growMaxZBy(i).shrinkMinZBy(i)
+  // TODO: these have to be more than just mapCoor...
+  // TODO: they have to change corner1 and corner2!
+  def shiftX      (i:Int) = mapCoor(c => f(c.copy(xd = c.xd + i.toDouble)))
+  def shiftY      (i:Int) = mapCoor(c => f(c.copy(yd = c.yd + i.toDouble)))
+  def shiftZ      (i:Int) = mapCoor(c => f(c.copy(zd = c.zd + i.toDouble)))
   def shiftNorth  (i:Int) = shiftZ(-i)
   def shiftSouth  (i:Int) = shiftZ( i)
   def shiftEast   (i:Int) = shiftX( i)
@@ -309,7 +323,9 @@ trait Cube[T] { self =>
   def shiftDown   (i:Int) = shiftY(-i)
 
   /**
-   * This seems the same as zip...
+   * Translate this cube to the new position.
+   * Shifts this cubes first corner to the newC1, and
+   * shifts all other blocks by the same offsets.
    * @param newC1
    * @return
    */
@@ -330,7 +346,7 @@ trait Cube[T] { self =>
    * 4 -> 6     minX + (maxX - x) = 0 + (10 - 4) = 0 + 6 = 6
    * 0 -> 10    minX + (maxX - x) = 0 + (10 - 0) = 0 + 10 = 10
    */
-  def mirrorX: Cube[T] = mapCoor(c => f(Coor(minX + (maxX - c.x), c.y, c.z)))
-  def mirrorY: Cube[T] = mapCoor(c => f(Coor(c.x, minY + (maxY - c.y), c.z)))
-  def mirrorZ: Cube[T] = mapCoor(c => f(Coor(c.x, c.y, minZ + (maxZ - c.z))))
+  def mirrorX: Cube[T] = mapCoor(c => f(Coor(minX + maxX - c.x, c.y, c.z)))
+  def mirrorY: Cube[T] = mapCoor(c => f(Coor(c.x, minY + maxY - c.y, c.z)))
+  def mirrorZ: Cube[T] = mapCoor(c => f(Coor(c.x, c.y, minZ + maxZ - c.z)))
 }

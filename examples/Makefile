@@ -13,7 +13,7 @@ clean-plugins:
 
 core: compile-core
 compile-core:
-	cd ../core; make package
+	cd ../core; make publish-local
 
 compile-examples:
 	./sbt compile "run-main jcdc.pluginfactory.examples.YMLGenerator"

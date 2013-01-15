@@ -11,7 +11,7 @@ class WorldEditDemo extends ListenersPlugin with CommandsPlugin {
   val corners = collection.mutable.Map[Player, List[Location]]().withDefaultValue(Nil)
 
   val listeners = List(
-    OnLeftClickBlock((p, e)  => if (p isHoldingA WOOD_AXE) { setFirstPos (p, e.loc); e.cancel }),
+    OnLeftClickBlock ((p, e) => if (p isHoldingA WOOD_AXE) { setFirstPos (p, e.loc); e.cancel }),
     OnRightClickBlock((p, e) => if (p isHoldingA WOOD_AXE) { setSecondPos(p, e.loc) })
   )
 
