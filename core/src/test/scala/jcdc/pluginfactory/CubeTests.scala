@@ -5,6 +5,7 @@ import org.scalacheck.Prop._
 import Gen._
 import Arbitrary.arbitrary
 import Cube._
+import ScalaEnrichment.id
 
 /**
  * Generate cubes, possibly up to the maximum sized cube.
@@ -34,6 +35,7 @@ trait SmallCubeGenerators { self: Properties =>
 }
 
 abstract class CubeTestBase(name: String) extends Properties(name) with TestHelpers {
+  def idCube(p1: Point, p2: Point) = Cube(p1, p2)(id)
   def toList(c: Cube[Point]) = c.toStream.toList
   def run(c: Cube[Point]) = c.toZippedStream.toList
 }
@@ -73,8 +75,8 @@ object SmallCubeTestsAwesome extends CubeTestBase("Cube Tests Awesome") with Sma
  */
 object LiteralCubeTests extends CubeTestBase("Cube Tests") {
 
-  val c0 = Cube.coors((0,0,0),(0,0,0))
-  val c = Cube.coors((0,0,0),(10,10,10))
+  val c0 = idCube((0,0,0),(0,0,0))
+  val c = idCube((0,0,0),(10,10,10))
 
   trait P { def apply(c: Point): Int }
   case object X extends P { def apply(c: Point): Int = c.x }
@@ -90,26 +92,26 @@ object LiteralCubeTests extends CubeTestBase("Cube Tests") {
 
   test("size 0"){ c0.size ?= 1 }
 
-  test("simple")   { c             ?= Cube.coors((0,0,0),(10,10,10)) }
-  test("shift up") { c.shiftUp (1) ?= Cube.coors((0,1,0),(10,11,10)) }
-  test("shift x")  { c.shiftX  (5) ?= Cube.coors((5,0,0),(15,10,10)) }
-  test("shift z")  { c.shiftZ  (9) ?= Cube.coors((0,0,9),(10,10,19)) }
-  test("expand")   { c.expand  (1) ?= Cube.coors((-1,-1,-1),(11,11,11)) }
-  test("expandXY") { c.expandXZ(1) ?= Cube.coors((-1,0,-1),(11,10,11)) }
+  test("simple")   { c             ?= idCube((0,0,0),(10,10,10)) }
+  test("shift up") { c.shiftUp (1) ?= idCube((0,1,0),(10,11,10)) }
+  test("shift x")  { c.shiftX  (5) ?= idCube((5,0,0),(15,10,10)) }
+  test("shift z")  { c.shiftZ  (9) ?= idCube((0,0,9),(10,10,19)) }
+  test("expand")   { c.expand  (1) ?= idCube((-1,-1,-1),(11,11,11)) }
+  test("expandXY") { c.expandXZ(1) ?= idCube((-1,0,-1),(11,10,11)) }
 
   test("shrink all the way") {
-    c.shrink(5,5,5)       ?= Cube.coors((5,5,5),(5,5,5))
-    c.shrink(100,100,100) ?= Cube.coors((5,5,5),(5,5,5))
-    Cube.coors((0,0,0),(11,11,11)).shrink(6,6,6) ?= Cube.coors((5,5,5),(5,5,5))
+    c.shrink(5,5,5)       ?= idCube((5,5,5),(5,5,5))
+    c.shrink(100,100,100) ?= idCube((5,5,5),(5,5,5))
+    idCube((0,0,0),(11,11,11)).shrink(6,6,6) ?= idCube((5,5,5),(5,5,5))
   }
 
-  test("shrink more") { c.shrink(2,3,4) ?= Cube.coors((2,3,4),(8,7,6)) }
+  test("shrink more") { c.shrink(2,3,4) ?= idCube((2,3,4),(8,7,6)) }
 
-  test("grow") { c.grow(2,3,4) ?= Cube.coors((-2,-3,-4),(12,13,14)) }
+  test("grow") { c.grow(2,3,4) ?= idCube((-2,-3,-4),(12,13,14)) }
 
   // the max - min check here makes sure we don't wrap around to a negative int.
   test("shrink")(forAll{ (max:Int,min:Int) => (max >= min && max - min > 1) ==> {
-    val c = Cube.coors((max,max,max), (min,min,min))
+    val c = idCube((max,max,max), (min,min,min))
     c.size > c.shrink(1,1,1).size
   }})
 }
@@ -119,9 +121,9 @@ object LiteralCubeTests extends CubeTestBase("Cube Tests") {
  */
 object LiteralCubeMirroringTests extends CubeTestBase("Cube Mirroring Tests") {
 
-  val cx = Cube.coors((0,0,0),(3,0,0))
-  val cy = Cube.coors((0,0,0),(0,3,0))
-  val cz = Cube.coors((0,0,0),(0,0,3))
+  val cx = idCube((0,0,0),(3,0,0))
+  val cy = idCube((0,0,0),(0,3,0))
+  val cz = idCube((0,0,0),(0,0,3))
 
   test("normal x") { toList(cx)         ?= List((0,0,0),(1,0,0),(2,0,0),(3,0,0)) }
   test("normal y") { toList(cy)         ?= List((0,0,0),(0,1,0),(0,2,0),(0,3,0)) }

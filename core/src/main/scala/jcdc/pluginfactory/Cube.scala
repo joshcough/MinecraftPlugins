@@ -12,14 +12,12 @@ object Cube {
   val maxPoint = (Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE)
   val minPoint = (Integer.MIN_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE)
 
-  def coors(c1: Point, c2: Point) = Cube(c1, c2)(identity)
+  // applicative functor stuff.
   def pure[T](t: T): Cube[T] = Cube(maxPoint, minPoint)(Function.const(t))
-  def ap[T,U](fs: Cube[T => U], c: Cube[T]): Cube[U] = {
-    Cube(
-      (math.min(fs.maxX, c.maxX), math.min(fs.maxY, c.maxY), math.min(fs.maxZ, c.maxZ)),
-      (math.max(fs.minX, c.minX), math.max(fs.minY, c.minY), math.max(fs.minZ, c.minZ))
-    )(coor => fs(coor)(c(coor)))
-  }
+  def ap[T,U](fs: Cube[T => U], c: Cube[T]): Cube[U] = Cube(
+    (math.min(fs.maxX, c.maxX), math.min(fs.maxY, c.maxY), math.min(fs.maxZ, c.maxZ)),
+    (math.max(fs.minX, c.minX), math.max(fs.minY, c.minY), math.max(fs.minZ, c.minZ))
+  )(coor => fs(coor)(c(coor)))
 }
 
 import Cube._
