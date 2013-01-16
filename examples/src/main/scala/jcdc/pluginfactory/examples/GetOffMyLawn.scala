@@ -13,7 +13,7 @@ import org.bukkit.block.Block
 class GetOffMyLawn extends ListenerPlugin with CommandsPlugin with CubeState {
 
   def movingOntoLawn(e:PlayerMoveEvent, lawn: Cube[Block]) =
-    lawn.contains(e.getTo.coor) && ! lawn.contains(e.getFrom.coor)
+    lawn.contains(e.getTo.point) && ! lawn.contains(e.getFrom.point)
 
   val listener = OnPlayerMove((p, e) =>
     for ((owner, lawn) <- cubes; if (p != owner && movingOntoLawn(e, lawn)))

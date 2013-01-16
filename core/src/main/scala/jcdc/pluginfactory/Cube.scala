@@ -1,42 +1,28 @@
 package jcdc.pluginfactory
 
-
-trait P { def apply(c: Coor): Int }
-  case object X extends P { def apply(c: Coor): Int = c.x }
-  case object Y extends P { def apply(c: Coor): Int = c.y }
-  case object Z extends P { def apply(c: Coor): Int = c.z }
-
-object Coor {
-  val origin = Coor(0, 0, 0)
-  val max = Coor(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE)
-  val min = Coor(Integer.MIN_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE)
-  def apply(x: Int, y: Int, z: Int) = new Coor(x.toDouble, y.toDouble, z.toDouble)
-  def apply(xyz: (Int, Int, Int))   = new Coor(xyz._1, xyz._2, xyz._3)
-}
-
-case class Coor(xd: Double, yd: Double, zd: Double) {
-  override def toString = xyz.toString
-  val (x, y, z) = (xd.toInt, yd.toInt, zd.toInt)
-  val xyz  = (x, y, z)
-  val xyzd = (xd, yd, zd)
-}
-
 object Cube {
-  def apply[T](c1: Coor, c2: Coor)(fn: Coor => T): Cube[T] = new Cube[T]{
-    val corner1 = c1; val corner2 = c2; val f = fn
-  }
-  def apply[T](c1:(Int, Int, Int), c2:(Int, Int, Int))(fn: Coor => T): Cube[T] =
-    Cube(Coor(c1), Coor(c2))(fn)
-  def coors(c1:(Int, Int, Int), c2:(Int, Int, Int)) = Cube(Coor(c1), Coor(c2))(identity)
+  type Point = (Int, Int, Int)
 
-  def pure[T](t: T): Cube[T] = Cube(Coor.max, Coor.min)(Function.const(t))
+  implicit class RichPoint(p: Point){
+    val x = p._1; val y = p._2; val z = p._3
+    def adjust(x: Int = x, y: Int = y, z: Int = z): Point = (x, y, z)
+  }
+
+  val origin   = (0, 0, 0)
+  val maxPoint = (Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE)
+  val minPoint = (Integer.MIN_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE)
+
+  def coors(c1: Point, c2: Point) = Cube(c1, c2)(identity)
+  def pure[T](t: T): Cube[T] = Cube(maxPoint, minPoint)(Function.const(t))
   def ap[T,U](fs: Cube[T => U], c: Cube[T]): Cube[U] = {
     Cube(
-      Coor(math.min(fs.maxXd, c.maxXd), math.min(fs.maxYd, c.maxYd), math.min(fs.maxZd, c.maxZd)),
-      Coor(math.max(fs.minXd, c.minXd), math.max(fs.minYd, c.minYd), math.max(fs.minZd, c.minZd))
+      (math.min(fs.maxX, c.maxX), math.min(fs.maxY, c.maxY), math.min(fs.maxZ, c.maxZ)),
+      (math.max(fs.minX, c.minX), math.max(fs.minY, c.minY), math.max(fs.minZ, c.minZ))
     )(coor => fs(coor)(c(coor)))
   }
 }
+
+import Cube._
 
 /**
  * Awesome class for manipulating all blocks in a 3D cube between two corners of the world.
@@ -64,11 +50,7 @@ object Cube {
  *  z axis is depth
  *
  */
-trait Cube[T] { self =>
-
-  val corner1: Coor
-  val corner2: Coor
-  val f: Coor => T
+case class Cube[T](corner1: Point, corner2: Point)(f: Point => T) { self =>
 
   lazy val maxX  = math.max(corner1.x, corner2.x)
   lazy val minX  = math.min(corner1.x, corner2.x)
@@ -77,17 +59,10 @@ trait Cube[T] { self =>
   lazy val maxZ  = math.max(corner1.z, corner2.z)
   lazy val minZ  = math.min(corner1.z, corner2.z)
 
-  lazy val maxXd  = math.max(corner1.xd, corner2.xd)
-  lazy val minXd  = math.min(corner1.xd, corner2.xd)
-  lazy val maxYd  = math.max(corner1.yd, corner2.yd)
-  lazy val minYd  = math.min(corner1.yd, corner2.yd)
-  lazy val maxZd  = math.max(corner1.zd, corner2.zd)
-  lazy val minZd  = math.min(corner1.zd, corner2.zd)
-
-  def apply(c: Coor): T = f(c)
+  def apply(c: Point): T = f(c)
 
   def map[U](g: T => U): Cube[U] = Cube(corner1, corner1)(g compose f)
-  def mapCoor[U](f: Coor => U): Cube[U] = Cube(corner1, corner2)(f)
+  def mapCoor[U](f: Point => U): Cube[U] = Cube(corner1, corner2)(f)
 
   override def toString = s"Cube(l1: ${(maxX,maxY,maxZ)}, l2: ${(minX,minY,minZ)})"
   override def equals(a:Any) = a match {
@@ -98,15 +73,15 @@ trait Cube[T] { self =>
 
   def copy(minX:Int=minX, minY:Int=minY, minZ:Int=minZ,
            maxX:Int=maxX, maxY:Int=maxY, maxZ:Int=maxZ): Cube[T] =
-    Cube(Coor(minX, minY, minZ), Coor(maxX, maxY, maxZ))(f)
+    Cube((minX, minY, minZ), (maxX, maxY, maxZ))(f)
 
   // this must be a def to avoid it memoizing.
-  def toCoorStream: Stream[Coor] = {
+  def toCoorStream: Stream[Point] = {
     for {
       x <- (minX to maxX).toStream
       y <- (minY to maxY).toStream
       z <- (minZ to maxZ).toStream
-    } yield Coor(x,y,z)
+    } yield (x,y,z)
   }
 
   /**
@@ -119,7 +94,7 @@ trait Cube[T] { self =>
    *
    * @return
    */
-  def toZippedStream: Stream[(Coor, T)] = toCoorStream zip toStream
+  def toZippedStream: Stream[(Point, T)] = toCoorStream zip toStream
 
   def width : Long = maxX.toLong - minX.toLong + 1L
   def height: Long = maxY.toLong - minY.toLong + 1L
@@ -131,24 +106,24 @@ trait Cube[T] { self =>
    * @param c
    * @return
    */
-  def contains(c: Coor): Boolean = (
-    c.xd <= maxX && c.xd >= minX &&
-    c.yd <= maxY && c.yd >= minY &&
-    c.zd <= maxZ && c.zd >= minZ
+  def contains(c: Point): Boolean = (
+    c.x <= maxX && c.x >= minX &&
+    c.y <= maxY && c.y >= minY &&
+    c.z <= maxZ && c.z >= minZ
   )
 
   /**
    * The 8 corners of this Cube.
    */
-  def cornersCoors: List[Coor] = List(
-    Coor(maxX, minY, maxZ),
-    Coor(maxX, minY, minZ),
-    Coor(minX, minY, maxZ),
-    Coor(minX, minY, minZ),
-    Coor(maxX, maxY, maxZ),
-    Coor(maxX, maxY, minZ),
-    Coor(minX, maxY, maxZ),
-    Coor(minX, maxY, minZ)
+  def cornersCoors: List[Point] = List(
+    (maxX, minY, maxZ),
+    (maxX, minY, minZ),
+    (minX, minY, maxZ),
+    (minX, minY, minZ),
+    (maxX, maxY, maxZ),
+    (maxX, maxY, minZ),
+    (minX, maxY, maxZ),
+    (minX, maxY, minZ)
   )
 
   /**
@@ -169,7 +144,7 @@ trait Cube[T] { self =>
    * get the floor of this cube
    * @return a new Cube
    */
-  def floor  = Cube(Coor(maxX, minY, maxZ), Coor(minX, minY, minZ))(f)
+  def floor  = Cube((maxX, minY, maxZ), (minX, minY, minZ))(f)
   def bottom = floor _
 
   /**
@@ -177,14 +152,14 @@ trait Cube[T] { self =>
    * @param c
    * @return
    */
-  def onFloor(c: Coor)   = c.y == minY
+  def onFloor(c: Point)   = c.y == minY
   def onBottom = onFloor _
 
   /**
    * get the ceiling of this cube
    * @return a new Cube
    */
-  def ceiling = Cube(Coor(maxX, maxY, maxZ), Coor(minX, maxY, minZ))(f)
+  def ceiling = Cube((maxX, maxY, maxZ), (minX, maxY, minZ))(f)
   def top     = ceiling _
 
   /**
@@ -192,13 +167,13 @@ trait Cube[T] { self =>
    * @param c
    * @return
    */
-  def onCeiling(c: Coor) = c.y == maxY
+  def onCeiling(c: Point) = c.y == maxY
   def onTop = onCeiling _
 
-  def northWall: Cube[T] = Cube(Coor(minX, minY, minZ), Coor(maxX, maxY, minZ))(f)
-  def southWall: Cube[T] = Cube(Coor(minX, minY, maxZ), Coor(maxX, maxY, maxZ))(f)
-  def eastWall : Cube[T] = Cube(Coor(maxX, minY, minZ), Coor(maxX, maxY, maxZ))(f)
-  def westWall : Cube[T] = Cube(Coor(minX, minY, minZ), Coor(minX, maxY, maxZ))(f)
+  def northWall: Cube[T] = Cube((minX, minY, minZ), (maxX, maxY, minZ))(f)
+  def southWall: Cube[T] = Cube((minX, minY, maxZ), (maxX, maxY, maxZ))(f)
+  def eastWall : Cube[T] = Cube((maxX, minY, minZ), (maxX, maxY, maxZ))(f)
+  def westWall : Cube[T] = Cube((minX, minY, minZ), (minX, maxY, maxZ))(f)
 
   /**
    * Return a Stream of all the blocks in this cube
@@ -214,7 +189,7 @@ trait Cube[T] { self =>
    * @param c
    * @return
    */
-  def onWall(c: Coor) = c.x == corner1.x || c.x == corner2.x || c.z == corner1.z || c.z == corner2.z
+  def onWall(c: Point) = c.x == corner1.x || c.x == corner2.x || c.z == corner1.z || c.z == corner2.z
 
   /**
    * Shrink this cube on all sides by one, giving just the insides of the cube
@@ -222,7 +197,7 @@ trait Cube[T] { self =>
    * TODO: dont shrink if the Cube is too small.
    * @return A new cube
    */
-  def insides = Cube(Coor(maxX-1, maxY-1, maxZ-1), Coor(minX+1, minY+1, minZ+1))(f)
+  def insides = Cube((maxX-1, maxY-1, maxZ-1), (minX+1, minY+1, minZ+1))(f)
 
   /**
    * A whole pile of operations to change the size of this Cube
@@ -237,7 +212,7 @@ trait Cube[T] { self =>
     val (newMaxX,newMinX) = newMaxMin(maxX, minX, xLess)
     val (newMaxY,newMinY) = newMaxMin(maxY, minY, yLess)
     val (newMaxZ,newMinZ) = newMaxMin(maxZ, minZ, zLess)
-    Cube(Coor(newMaxX, newMaxY, newMaxZ), Coor(newMinX, newMinY, newMinZ))(f)
+    Cube((newMaxX, newMaxY, newMaxZ), (newMinX, newMinY, newMinZ))(f)
   }
 
   /**
@@ -251,7 +226,7 @@ trait Cube[T] { self =>
     val (newMaxX,newMinX) = (maxX + xMore, minX - xMore)
     val (newMaxY,newMinY) = (maxY + yMore, minY - yMore)
     val (newMaxZ,newMinZ) = (maxZ + zMore, minZ - zMore)
-    Cube(Coor(newMaxX, newMaxY, newMaxZ), Coor(newMinX, newMinY, newMinZ))(f)
+    Cube((newMaxX, newMaxY, newMaxZ), (newMinX, newMinY, newMinZ))(f)
   }
 
   /**
@@ -312,9 +287,9 @@ trait Cube[T] { self =>
 
   // TODO: these have to be more than just mapCoor...
   // TODO: they have to change corner1 and corner2!
-  def shiftX      (i:Int) = mapCoor(c => f(c.copy(xd = c.xd + i.toDouble)))
-  def shiftY      (i:Int) = mapCoor(c => f(c.copy(yd = c.yd + i.toDouble)))
-  def shiftZ      (i:Int) = mapCoor(c => f(c.copy(zd = c.zd + i.toDouble)))
+  def shiftX      (i:Int) = mapCoor(c => f(c.adjust(x = c.x + i)))
+  def shiftY      (i:Int) = mapCoor(c => f(c.adjust(y = c.y + i)))
+  def shiftZ      (i:Int) = mapCoor(c => f(c.adjust(z = c.z + i)))
   def shiftNorth  (i:Int) = shiftZ(-i)
   def shiftSouth  (i:Int) = shiftZ( i)
   def shiftEast   (i:Int) = shiftX( i)
@@ -329,12 +304,12 @@ trait Cube[T] { self =>
    * @param newC1
    * @return
    */
-  def translateTo(newC1: Coor): Cube[T] = {
+  def translateTo(newC1: Point): Cube[T] = {
     val xDiff = newC1.x - corner1.x
     val yDiff = newC1.y - corner1.y
     val zDiff = newC1.z - corner1.z
-    val newC2 = Coor(corner2.x + xDiff, corner2.y + yDiff, corner2.z + zDiff)
-    def translateBack(b: Coor): Coor = Coor(b.x - xDiff, b.y - yDiff, b.z - zDiff)
+    val newC2 = (corner2.x + xDiff, corner2.y + yDiff, corner2.z + zDiff)
+    def translateBack(b: Point): Point = (b.x - xDiff, b.y - yDiff, b.z - zDiff)
     Cube(newC1, newC2){ c => f(translateBack(c)) }
   }
 
@@ -346,7 +321,7 @@ trait Cube[T] { self =>
    * 4 -> 6     minX + (maxX - x) = 0 + (10 - 4) = 0 + 6 = 6
    * 0 -> 10    minX + (maxX - x) = 0 + (10 - 0) = 0 + 10 = 10
    */
-  def mirrorX: Cube[T] = mapCoor(c => f(Coor(minX + maxX - c.x, c.y, c.z)))
-  def mirrorY: Cube[T] = mapCoor(c => f(Coor(c.x, minY + maxY - c.y, c.z)))
-  def mirrorZ: Cube[T] = mapCoor(c => f(Coor(c.x, c.y, minZ + maxZ - c.z)))
+  def mirrorX: Cube[T] = mapCoor(c => f((minX + maxX - c.x, c.y, c.z)))
+  def mirrorY: Cube[T] = mapCoor(c => f((c.x, minY + maxY - c.y, c.z)))
+  def mirrorZ: Cube[T] = mapCoor(c => f((c.x, c.y, minZ + maxZ - c.z)))
 }

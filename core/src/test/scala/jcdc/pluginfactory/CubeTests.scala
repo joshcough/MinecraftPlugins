@@ -4,15 +4,16 @@ import org.scalacheck._
 import org.scalacheck.Prop._
 import Gen._
 import Arbitrary.arbitrary
+import Cube._
 
 /**
  * Generate cubes, possibly up to the maximum sized cube.
  */
 trait CubeGenerators {
-  type C = Cube[Coor]
-  implicit val genCoor: Gen[Coor] = for {
+  type C = Cube[Point]
+  implicit val genCoor = for {
     x <- arbitrary[Int]; y <- arbitrary[Int]; z <- arbitrary[Int]
-  } yield Coor(x, y, z)
+  } yield (x, y, z)
   implicit val genCube: Gen[C] = for { c1 <- genCoor; c2 <- genCoor } yield Cube(c1, c2)(identity)
   implicit val cubes = Arbitrary(genCube)
 }
@@ -23,18 +24,18 @@ trait CubeGenerators {
  *   min x, y, and z no less than -50
  */
 trait SmallCubeGenerators { self: Properties =>
-  type C = Cube[Coor]
+  type C = Cube[Point]
   val smallInteger = Gen.choose(-50,50)
   val genSmallCube: Gen[C] = for {
     x1 <- smallInteger; y1 <- smallInteger; z1 <- smallInteger
     x2 <- smallInteger; y2 <- smallInteger; z2 <- smallInteger
-  } yield Cube(Coor(x1, y1, z1), Coor(x2, y2, z2))(identity)
+  } yield Cube((x1, y1, z1), (x2, y2, z2))(identity)
   implicit val smallCubes = Arbitrary(genSmallCube)
 }
 
-class CubeTestBase(name: String) extends Properties(name) with TestHelpers{
-  def toList(c: Cube[Coor]) = c.toStream.toList.map(_.xyz)
-  def run(c: Cube[Coor]) = c.toZippedStream.toList.map( t => (t._1.xyz, t._2.xyz) )
+abstract class CubeTestBase(name: String) extends Properties(name) with TestHelpers {
+  def toList(c: Cube[Point]) = c.toStream.toList
+  def run(c: Cube[Point]) = c.toZippedStream.toList
 }
 
 /**
@@ -54,7 +55,7 @@ object CubeTestsAwesome extends CubeTestBase("Cube Tests Awesome") with CubeGene
 object SmallCubeTestsAwesome extends CubeTestBase("Cube Tests Awesome") with SmallCubeGenerators {
 
   test("paste then mirror y same as mirror y then paste")(forAll{ (c:C) =>
-    run(c.translateTo(Coor(0, 10, 0)).mirrorY) ?= run(c.mirrorY.translateTo(Coor(0, 10, 0)))
+    run(c.translateTo((0, 10, 0)).mirrorY) ?= run(c.mirrorY.translateTo((0, 10, 0)))
   })
 
   test("mirror x y z, same as mirror z y x")(forAll{ (c:C) =>
@@ -75,11 +76,16 @@ object LiteralCubeTests extends CubeTestBase("Cube Tests") {
   val c0 = Cube.coors((0,0,0),(0,0,0))
   val c = Cube.coors((0,0,0),(10,10,10))
 
+  trait P { def apply(c: Point): Int }
+  case object X extends P { def apply(c: Point): Int = c.x }
+  case object Y extends P { def apply(c: Point): Int = c.y }
+  case object Z extends P { def apply(c: Point): Int = c.z }
+
   test("ap") {
     Cube.ap(
       Cube((0,0,0),(0,0,0))(c => (p:P) => p(c)),
       Cube[P]((0,0,0),(0,0,0))(c => X)
-    )(Coor(0,0,0)) ?= 0
+    )((0,0,0)) ?= 0
   }
 
   test("size 0"){ c0.size ?= 1 }
@@ -124,25 +130,25 @@ object LiteralCubeMirroringTests extends CubeTestBase("Cube Mirroring Tests") {
   test("mirrorZ")  { toList(cz.mirrorZ) ?= List((0,0,3),(0,0,2),(0,0,1),(0,0,0)) }
 
   test("paste y") {
-    run(cy.translateTo(Coor(5, 0, 0))) ?= List(
+    run(cy.translateTo((5, 0, 0))) ?= List(
       ((5,0,0),(0,0,0)), ((5,1,0),(0,1,0)), ((5,2,0),(0,2,0)), ((5,3,0),(0,3,0))
     )
   }
 
   test("paste y twice") {
-    run(cy.translateTo(Coor(0, 10, 0)).translateTo(Coor(0, 20, 0))) ?= List(
+    run(cy.translateTo((0, 10, 0)).translateTo((0, 20, 0))) ?= List(
       ((0,20,0),(0,0,0)), ((0,21,0),(0,1,0)), ((0,22,0),(0,2,0)), ((0,23,0),(0,3,0))
     )
   }
 
   test("paste then mirror y") {
-    run(cy.translateTo(Coor(0, 10, 0)).mirrorY) ?= List(
+    run(cy.translateTo((0, 10, 0)).mirrorY) ?= List(
       ((0,10,0),(0,3,0)), ((0,11,0),(0,2,0)), ((0,12,0),(0,1,0)), ((0,13,0),(0,0,0))
     )
   }
 
   test("mirror then paste y") {
-    run(cy.mirrorY.translateTo(Coor(0, 10, 0))) ?= List(
+    run(cy.mirrorY.translateTo((0, 10, 0))) ?= List(
       ((0,10,0),(0,3,0)), ((0,11,0),(0,2,0)), ((0,12,0),(0,1,0)), ((0,13,0),(0,0,0))
     )
   }

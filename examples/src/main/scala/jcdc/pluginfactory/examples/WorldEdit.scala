@@ -5,6 +5,7 @@ import org.bukkit.block.Block
 import org.bukkit.entity.Player
 import Material._
 import jcdc.pluginfactory.{Cube, CubeState, CommandsPlugin, ListenersPlugin, UndoState}
+import Cube._
 
 /**
  * Classic WorldEdit plugin, done in Scala.
@@ -73,11 +74,11 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin with CubeState {
     ),
     Command(name = "redo", desc = "redo!")(body = p => if(undoManager.on) p.redo else p ! "undo is off!"),
     Command("paste", "Paste your cube at your current location!"){ p =>
-      p.newChange(cube(p).translateTo(p.loc.coor))
+      p.newChange(cube(p).translateTo(p.loc.point))
     },
     Command("move", "Move your cube to your current location!"){ p =>
       p.newChange(
-        translateAll(cube(p).translateTo(p.loc.coor)) ++ setAll(cube(p), Material.AIR)
+        translateAll(cube(p).translateTo(p.loc.point)) ++ setAll(cube(p), Material.AIR)
       )
     },
     Command("flip", "Flip your cube upside down!"){ p => p.newChange(cube(p).mirrorY, force = true) },
@@ -85,7 +86,7 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin with CubeState {
       p.newChange(cube(p).mirrorX.mirrorZ, force = true)
     },
     Command("paste-mirror-y", "paste your cube somewhere, but flipped upside down!"){ p =>
-      p.newChange(cube(p).translateTo(p.loc.coor).mirrorY, force = true)
+      p.newChange(cube(p).translateTo(p.loc.point).mirrorY, force = true)
     },
     Command("goto", "Teleport!", location){ case (you, loc) => you teleport loc(you.world) },
     Command("cube-to",  "Set both positions",  location ~ location.?){ case (p, loc1 ~ loc2) =>
@@ -128,7 +129,7 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin with CubeState {
       args = material)(
       body = { case (p, m) =>
         p.newChange(for(b <- cube(p).blocks) yield PotentialChange(b,
-          if (cube(p).onWall(b.coor) || cube(p).onFloor(b.coor)) m else AIR)
+          if (cube(p).onWall(b.point) || cube(p).onFloor(b.point)) m else AIR)
         )
       }
     ),

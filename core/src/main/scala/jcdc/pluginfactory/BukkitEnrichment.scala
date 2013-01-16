@@ -13,6 +13,7 @@ import Material._
 import org.bukkit.entity.{LivingEntity, Entity, EntityType, Player}
 import org.bukkit.event.player.PlayerInteractEvent
 import util.Try
+import Cube._
 
 
 object BukkitEnrichment extends BukkitEnrichment
@@ -125,7 +126,7 @@ trait BukkitEnrichment extends ScalaEnrichment {
     def itemStack = new ItemStack(b.getType, 1, b.getData)
     def materialAndData = MaterialAndData(b.getType, Some(b.getData))
 
-    def coor = Coor(b.xd, b.yd, b.zd)
+    def point: Point = (b.x, b.y, b.z)
 
     /**
      * Returns a Cube of all of the blocks between two locations of the world.
@@ -217,22 +218,22 @@ trait BukkitEnrichment extends ScalaEnrichment {
     def spawnN(entityType: EntityType, n: Int): Unit = for (i <- 1 to n) spawn(entityType)
     def dropItem(stack: ItemStack): Unit = loc.world.dropItem(loc, stack)
     def dropItem(m: Material): Unit = dropItem(m.itemStack)
-    def coor = Coor(loc.xd, loc.yd, loc.zd)
+    def point: Point = (loc.x, loc.y, loc.z)
     /**
      * Returns a Cube of all of the blocks between two locations of the world.
      */
     def cubeTo(loc2: Location): Cube[Block] =
-      Cube[Block](loc.coor, loc2.coor)((c: Coor) => loc.world(c.xd, c.yd, c.zd))
+      Cube[Block](loc.point, loc2.point)((p: Point) => loc.world(p.x, p.y, p.z))
   }
 
   implicit class RichCubeOfBlocks(c: Cube[Block]) {
     import collection.JavaConversions.asScalaIterator
-    def world = c(Coor(0,0,0)).world
+    def world = c((0,0,0)).world
     def blocks = c.toStream
     def blocksAndMaterials = blocks.map(b => (b, b.materialAndData))
     def players: Iterator[Player] = world.getPlayers.iterator.filter(contains)
-    def contains(p: Player)  : Boolean = c.contains(p.loc.coor)
-    def contains(l: Location): Boolean = c.contains(l.coor)
+    def contains(p: Player)  : Boolean = c.contains(p.loc.point)
+    def contains(l: Location): Boolean = c.contains(l.point)
   }
 
   /**

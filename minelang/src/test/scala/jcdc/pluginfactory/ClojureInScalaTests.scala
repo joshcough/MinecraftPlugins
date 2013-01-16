@@ -4,7 +4,7 @@ import org.scalacheck.Properties
 import org.scalacheck.Prop.secure
 import ClojureInScala._
 
-case class Point(x:Int, y:Int){
+case class Point2D(x:Int, y:Int){
   def this(x:java.lang.Integer, y:java.lang.Integer, z:Unit) = this(x, y)
   override def toString = s"($x,$y)"
   def invoke1(i:java.lang.Integer) = "6"
@@ -18,19 +18,19 @@ case class Point(x:Int, y:Int){
 
 object ClojureInScalaTests extends Properties("MinecraftParserTests") with BukkitEnrichment with TestHelpers {
 
-  evalTest("constructorCall1", "(new jcdc.pluginfactory.Point 5 6)",                Point(5,6))
-  evalTest("constructorCall2", "(new jcdc.pluginfactory.Point 5 6 nil)",            Point(5,6))
-  evalTest("instanceCall0",    "(.toString (new jcdc.pluginfactory.Point 5 6))",    "(5,6)")
-  evalTest("instanceCall1",    "(.invoke1 (new jcdc.pluginfactory.Point 5 6) 0)",   "6")
-  evalTest("instanceCall2",    "(.invoke2 (new jcdc.pluginfactory.Point 5 6) 0)",   "6")
-  evalTest("instanceCall3",    "(.invoke3 (new jcdc.pluginfactory.Point 5 6) 0 0)", "6")
+  evalTest("constructorCall1", "(new jcdc.pluginfactory.Point2D 5 6)",                Point2D(5,6))
+  evalTest("constructorCall2", "(new jcdc.pluginfactory.Point2D 5 6 nil)",            Point2D(5,6))
+  evalTest("instanceCall0",    "(.toString (new jcdc.pluginfactory.Point2D 5 6))",    "(5,6)")
+  evalTest("instanceCall1",    "(.invoke1 (new jcdc.pluginfactory.Point2D 5 6) 0)",   "6")
+  evalTest("instanceCall2",    "(.invoke2 (new jcdc.pluginfactory.Point2D 5 6) 0)",   "6")
+  evalTest("instanceCall3",    "(.invoke3 (new jcdc.pluginfactory.Point2D 5 6) 0 0)", "6")
   // TODO: this passes in java 6, but fails in 7!
   evalTest("staticCall1",      "(java.lang.String/valueOf 5)",                      "5")
   evalTest("staticField1",     "java.lang.Math/PI",                                 Math.PI)
   evalTest("lamTest",          "((lam (x) x) 7)",                                   7)
-  evalTest("invokeWithFun1a",  "(.invokeFun1a (new jcdc.pluginfactory.Point 5 6) (lam (x) x))",         7)
-  evalTest("invokeWithFun1b",  "(.invokeFun1b (new jcdc.pluginfactory.Point 5 6) (lam (x) (+ x x)))",   16)
-  evalTest("invokeWithFun2a",  "(.invokeFun2a (new jcdc.pluginfactory.Point 5 6) (lam (x y) (* 9 8)))", 72)
+  evalTest("invokeWithFun1a",  "(.invokeFun1a (new jcdc.pluginfactory.Point2D 5 6) (lam (x) x))",         7)
+  evalTest("invokeWithFun1b",  "(.invokeFun1b (new jcdc.pluginfactory.Point2D 5 6) (lam (x) (+ x x)))",   16)
+  evalTest("invokeWithFun2a",  "(.invokeFun2a (new jcdc.pluginfactory.Point2D 5 6) (lam (x y) (* 9 8)))", 72)
   evalTest("let1 test",        "(let (a 5) a)",                       5)
   evalTest("let2 test",        "(let (a 5) (+ a a))",                 10)
   evalTest("letNested test",   "(let (a 5) (let (a 10) 10))",         10)

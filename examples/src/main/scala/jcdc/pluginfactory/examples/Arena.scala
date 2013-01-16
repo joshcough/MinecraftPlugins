@@ -45,13 +45,14 @@ class Arena extends ListenersPlugin with CommandsPlugin with CubeState {
       args = material)(
       body = { case (p, m) =>
         val c = cube(p)
-        for(b <- c.toStream) if(c.onWall(b.coor) || c.onFloor(b.coor)) b changeTo m else b changeTo AIR
+        for(b <- c.toStream) if(c.onWall(b.point) || c.onFloor(b.point))
+          b changeTo m else b changeTo AIR
       }
     )
   )
 
   def entering(c: Cube[Block], e: PlayerMoveEvent) =
-    c.contains(e.getTo.coor)   and ! c.contains(e.getFrom.coor)
+    c.contains(e.getTo.point)   and ! c.contains(e.getFrom.point)
   def leaving (c: Cube[Block], e: PlayerMoveEvent) =
-    c.contains(e.getFrom.coor) and ! c.contains(e.getTo.coor)
+    c.contains(e.getFrom.point) and ! c.contains(e.getTo.point)
 }
