@@ -8,7 +8,7 @@
 ## Core Code Changes
 
  * Extensive Cube API additions
-   * changed Cube to be polymorphic
+   * Changed Cube to be polymorphic
    * Got rid of Coor, and now just have a type alias Point = (Int, Int, Int)
    * Added Applicative Functor for Cube
    * Made shift operations be transformations on cubes.
