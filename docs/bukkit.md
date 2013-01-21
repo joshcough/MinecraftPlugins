@@ -3,7 +3,7 @@ Provides a library for writing server plugins in Scala. The plugins are vastly s
 **_Update_** - This project now provides two plugins:
 
   * scala-library-plugin-2.10.0.jar
-  * scala-plugin-api_2.10-0.2.2.jar
+  * scala-plugin-api_2.10-0.3.0.jar
 
 The first plugin provides Scala 2.10.0, so that plugins that depend on it can have scala on the classpath.
 

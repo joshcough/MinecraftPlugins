@@ -1,6 +1,6 @@
 name := "JCDC Plugin Factory Examples"
 
-version := "0.2.2"
+version := "0.3.0"
 
 organization := "jcdc.pluginfactory"
 
@@ -13,7 +13,7 @@ resolvers ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-  "jcdc.pluginfactory" % "scala-plugin-api_2.10" % "0.2.2",
+  "jcdc.pluginfactory" % "scala-plugin-api_2.10" % "0.3.0",
   "org.bukkit"         % "craftbukkit"              % "1.4.7-R0.1"
 )
 

@@ -1,3 +1,35 @@
+# 0.3.0
+
+## Summary
+
+ * Upgraded to Bukkit 1.4.7-R0.1
+ * Upgraded to Scala 2.10.0
+
+## Core Code Changes
+
+ * Extensive Cube API additions
+   * changed Cube to be polymorphic
+   * Got rid of Coor, and now just have a type alias Point = (Int, Int, Int)
+   * Added Applicative Functor for Cube
+   * Made shift operations be transformations on cubes.
+   * Removed MinecraftCube, and placed its functions elsewhere.
+    renamed Cube to CubeState,
+   * Added some operators to PlayerState
+
+## Bug Fixes/Example/Other Code Changes
+
+ * World Edit changes
+   * Implemented undo and redo, and made all commands work with it.
+   * Properly reporting the number of blocks changed.
+   * Implemented paste. It is monumental.
+   * Renamed the /change command to /replace
+   * Implemented flip and flipxy, which are both really fun.
+   * Added ability to turn undo on and off.
+   * Fixed the walls and move commands, they were broken
+   * Fixed minor bug in #blocks-changed reporting
+ * Fixed bugs in cube size code
+ * Added scalacheck generators for cubes, and added lots of nice commutativity and other tests.
+
 # 0.2.2
 
 ## Summary
@@ -5,7 +37,7 @@
  * split out the scala-library plugin from my own code. that might seem a little funny,
    but the scala code will change far less than mine, and users don't need to be downloading
    a 10 meg file every time i make changes.
- * upgraded to Bukkit 1.4.7-R0.1
+ * upgraded to Bukkit 1.4.6-R0.3
 
 ## Core Code Changes
 
