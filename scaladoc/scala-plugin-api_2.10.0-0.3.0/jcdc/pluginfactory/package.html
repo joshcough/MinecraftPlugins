@@ -1,0 +1,454 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html>
+        <head>
+          <title>pluginfactory - jcdc.pluginfactory</title>
+          <meta name="description" content="pluginfactory - jcdc.pluginfactory" />
+          <meta name="keywords" content="pluginfactory jcdc.pluginfactory" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../lib/template.js"></script>
+      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
+      
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../index.html';
+            var hash = 'jcdc.pluginfactory.package';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="value">
+      <div id="definition">
+        <img src="../../lib/package_big.png" />
+        <p id="owner"><a href="../package.html" class="extype" name="jcdc">jcdc</a></p>
+        <h1>pluginfactory</h1>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <span class="name">pluginfactory</span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        
+        
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        
+
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="jcdc.pluginfactory.BukkitEnrichment" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="BukkitEnrichmentextendsScalaEnrichment"></a>
+      <a id="BukkitEnrichment:BukkitEnrichment"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="BukkitEnrichment.html"><span class="name">BukkitEnrichment</span></a><span class="result"> extends <a href="ScalaEnrichment.html" class="extype" name="jcdc.pluginfactory.ScalaEnrichment">ScalaEnrichment</a></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Adds piles of missing functions to Bukkit classes.</p>
+    </li><li name="jcdc.pluginfactory.CommandPlugin" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="CommandPluginextendsScalaPluginwithCommandsPlugin"></a>
+      <a id="CommandPlugin:CommandPlugin"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="CommandPlugin.html"><span class="name">CommandPlugin</span></a><span class="result"> extends <a href="ScalaPlugin.html" class="extype" name="jcdc.pluginfactory.ScalaPlugin">ScalaPlugin</a> with <a href="CommandsPlugin.html" class="extype" name="jcdc.pluginfactory.CommandsPlugin">CommandsPlugin</a></span>
+      </span>
+      </h4>
+      <p class="comment cmt">A trait that allows a plugin to have one command, very easily.</p>
+    </li><li name="jcdc.pluginfactory.CommandsPlugin" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="CommandsPluginextendsScalaPluginwithMinecraftParsers"></a>
+      <a id="CommandsPlugin:CommandsPlugin"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="CommandsPlugin.html"><span class="name">CommandsPlugin</span></a><span class="result"> extends <a href="ScalaPlugin.html" class="extype" name="jcdc.pluginfactory.ScalaPlugin">ScalaPlugin</a> with <a href="MinecraftParsers.html" class="extype" name="jcdc.pluginfactory.MinecraftParsers">MinecraftParsers</a></span>
+      </span>
+      </h4>
+      <p class="comment cmt">A trait that greatly simplifies creating Bukkit commands.</p>
+    </li><li name="jcdc.pluginfactory.CommonCommands" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="CommonCommandsextendsObject"></a>
+      <a id="CommonCommands:CommonCommands"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="CommonCommands.html"><span class="name">CommonCommands</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Some common commands that I found myself writing over and over again
+for various plugins.</p>
+    </li><li name="jcdc.pluginfactory.Cube" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Cube[T]extendsProductwithSerializable"></a>
+      <a id="Cube[T]:Cube[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Cube.html"><span class="name">Cube</span></a><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="corner1">corner1: (<span class="extype" name="scala.Int">Int</span>, <span class="extype" name="scala.Int">Int</span>, <span class="extype" name="scala.Int">Int</span>)</span>, <span name="corner2">corner2: (<span class="extype" name="scala.Int">Int</span>, <span class="extype" name="scala.Int">Int</span>, <span class="extype" name="scala.Int">Int</span>)</span>)</span><span class="params">(<span name="f">f: ((<span class="extype" name="scala.Int">Int</span>, <span class="extype" name="scala.Int">Int</span>, <span class="extype" name="scala.Int">Int</span>)) ⇒ <span class="extype" name="jcdc.pluginfactory.Cube.T">T</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Awesome class for manipulating all blocks in a 3D cube between two corners of the world.</p>
+    </li><li name="jcdc.pluginfactory.CubeState" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="CubeStateextendsObject"></a>
+      <a id="CubeState:CubeState"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="CubeState.html"><span class="name">CubeState</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="jcdc.pluginfactory.DB" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="DB[T]extendsProductwithSerializable"></a>
+      <a id="DB[T]:DB[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="DB.html"><span class="name">DB</span></a><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="db">db: <span class="extype" name="com.avaje.ebean.EbeanServer">EbeanServer</span></span>, <span name="c">c: <span class="extype" name="scala.Predef.Class">Class</span>[<span class="extype" name="jcdc.pluginfactory.DB.T">T</span>]</span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="jcdc.pluginfactory.ListenerPlugin" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="ListenerPluginextendsScalaPluginwithListenersPlugin"></a>
+      <a id="ListenerPlugin:ListenerPlugin"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="ListenerPlugin.html"><span class="name">ListenerPlugin</span></a><span class="result"> extends <a href="ScalaPlugin.html" class="extype" name="jcdc.pluginfactory.ScalaPlugin">ScalaPlugin</a> with <a href="ListenersPlugin.html" class="extype" name="jcdc.pluginfactory.ListenersPlugin">ListenersPlugin</a></span>
+      </span>
+      </h4>
+      <p class="comment cmt">A trait that supports exactly one listener.</p>
+    </li><li name="jcdc.pluginfactory.Listeners" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="ListenersextendsBukkitEnrichment"></a>
+      <a id="Listeners:Listeners"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="Listeners.html"><span class="name">Listeners</span></a><span class="result"> extends <a href="BukkitEnrichment.html" class="extype" name="jcdc.pluginfactory.BukkitEnrichment">BukkitEnrichment</a></span>
+      </span>
+      </h4>
+      <p class="comment cmt">This trait supports many convenience wrappers for creating Listeners with
+higher order functions.</p>
+    </li><li name="jcdc.pluginfactory.ListenersPlugin" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="ListenersPluginextendsScalaPluginwithListeners"></a>
+      <a id="ListenersPlugin:ListenersPlugin"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="ListenersPlugin.html"><span class="name">ListenersPlugin</span></a><span class="result"> extends <a href="ScalaPlugin.html" class="extype" name="jcdc.pluginfactory.ScalaPlugin">ScalaPlugin</a> with <a href="Listeners.html" class="extype" name="jcdc.pluginfactory.Listeners">Listeners</a></span>
+      </span>
+      </h4>
+      <p class="comment cmt">A trait that can have many Listeners.</p>
+    </li><li name="jcdc.pluginfactory.MinecraftParsers" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="MinecraftParsersextendsScalaPluginwithParserCombinators"></a>
+      <a id="MinecraftParsers:MinecraftParsers"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="MinecraftParsers.html"><span class="name">MinecraftParsers</span></a><span class="result"> extends <a href="ScalaPlugin.html" class="extype" name="jcdc.pluginfactory.ScalaPlugin">ScalaPlugin</a> with <a href="ParserCombinators.html" class="extype" name="jcdc.pluginfactory.ParserCombinators">ParserCombinators</a></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Parsers for all sorts of useful things in Minecraft.</p>
+    </li><li name="jcdc.pluginfactory.ParserCombinators" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="ParserCombinatorsextendsScalaEnrichment"></a>
+      <a id="ParserCombinators:ParserCombinators"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="ParserCombinators.html"><span class="name">ParserCombinators</span></a><span class="result"> extends <a href="ScalaEnrichment.html" class="extype" name="jcdc.pluginfactory.ScalaEnrichment">ScalaEnrichment</a></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Simple (relatively naive) parser combinator library.</p>
+    </li><li name="jcdc.pluginfactory.PlayerState" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="PlayerState[T]extendsObject"></a>
+      <a id="PlayerState[T]:PlayerState[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="PlayerState.html"><span class="name">PlayerState</span></a><span class="tparams">[<span name="T">T</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Wrapper functions around a collection.</p>
+    </li><li name="jcdc.pluginfactory.ScalaEnrichment" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="ScalaEnrichmentextendsObject"></a>
+      <a id="ScalaEnrichment:ScalaEnrichment"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="ScalaEnrichment.html"><span class="name">ScalaEnrichment</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Adds a bunch of missing functions to Scala classes.</p>
+    </li><li name="jcdc.pluginfactory.ScalaPlugin" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="ScalaPluginextendsJavaPluginwithBukkitEnrichment"></a>
+      <a id="ScalaPlugin:ScalaPlugin"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="ScalaPlugin.html"><span class="name">ScalaPlugin</span></a><span class="result"> extends <span class="extype" name="org.bukkit.plugin.java.JavaPlugin">JavaPlugin</span> with <a href="BukkitEnrichment.html" class="extype" name="jcdc.pluginfactory.BukkitEnrichment">BukkitEnrichment</a></span>
+      </span>
+      </h4>
+      <p class="comment cmt">The base class that helps make writing Bukkit plugins vastly easier.</p>
+    </li><li name="jcdc.pluginfactory.ScalaPluginAPI" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ScalaPluginAPIextendsJavaPlugin"></a>
+      <a id="ScalaPluginAPI:ScalaPluginAPI"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="ScalaPluginAPI.html"><span class="name">ScalaPluginAPI</span></a><span class="result"> extends <span class="extype" name="org.bukkit.plugin.java.JavaPlugin">JavaPlugin</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">This plugin and this code is not intended for use.</p>
+    </li><li name="jcdc.pluginfactory.SingleClassDBPlugin" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="SingleClassDBPlugin[T]extendsScalaPlugin"></a>
+      <a id="SingleClassDBPlugin[T]:SingleClassDBPlugin[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="SingleClassDBPlugin.html"><span class="name">SingleClassDBPlugin</span></a><span class="tparams">[<span name="T">T</span>]</span><span class="result"> extends <a href="ScalaPlugin.html" class="extype" name="jcdc.pluginfactory.ScalaPlugin">ScalaPlugin</a></span>
+      </span>
+      </h4>
+      
+    </li><li name="jcdc.pluginfactory.UndoState" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="UndoState[T,U]extendsProductwithSerializable"></a>
+      <a id="UndoState[T,U]:UndoState[T,U]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="UndoState.html"><span class="name">UndoState</span></a><span class="tparams">[<span name="T">T</span>, <span name="U">U</span>]</span><span class="params">(<span name="undoStack">undoStack: <span class="extype" name="scala.collection.immutable.Stack">Stack</span>[<span class="extype" name="jcdc.pluginfactory.UndoState.T">T</span>] = <span class="defval" name="scala.collection.immutable.Stack.apply[Nothing]()">...</span></span>, <span name="redoStack">redoStack: <span class="extype" name="scala.collection.immutable.Stack">Stack</span>[<span class="extype" name="jcdc.pluginfactory.UndoState.U">U</span>] = <span class="defval" name="scala.collection.immutable.Stack.apply[Nothing]()">...</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      
+    </li></ol>
+            </div>
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="jcdc.pluginfactory.BukkitEnrichment" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="BukkitEnrichment"></a>
+      <a id="BukkitEnrichment:BukkitEnrichment"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="BukkitEnrichment$.html"><span class="name">BukkitEnrichment</span></a><span class="result"> extends <a href="BukkitEnrichment.html" class="extype" name="jcdc.pluginfactory.BukkitEnrichment">BukkitEnrichment</a></span>
+      </span>
+      </h4>
+      
+    </li><li name="jcdc.pluginfactory.CommandsPlugin" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="CommandsPlugin"></a>
+      <a id="CommandsPlugin:CommandsPlugin"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="CommandsPlugin$.html"><span class="name">CommandsPlugin</span></a><span class="result"> extends <a href="ScalaPlugin.html" class="extype" name="jcdc.pluginfactory.ScalaPlugin">ScalaPlugin</a> with <a href="CommandsPlugin.html" class="extype" name="jcdc.pluginfactory.CommandsPlugin">CommandsPlugin</a></span>
+      </span>
+      </h4>
+      
+    </li><li name="jcdc.pluginfactory.Cube" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Cube"></a>
+      <a id="Cube:Cube"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Cube$.html"><span class="name">Cube</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="jcdc.pluginfactory.Listeners" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Listeners"></a>
+      <a id="Listeners:Listeners"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Listeners$.html"><span class="name">Listeners</span></a><span class="result"> extends <a href="Listeners.html" class="extype" name="jcdc.pluginfactory.Listeners">Listeners</a></span>
+      </span>
+      </h4>
+      
+    </li><li name="jcdc.pluginfactory.MinecraftParsers" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="MinecraftParsers"></a>
+      <a id="MinecraftParsers:MinecraftParsers"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="MinecraftParsers$.html"><span class="name">MinecraftParsers</span></a><span class="result"> extends <a href="ScalaPlugin.html" class="extype" name="jcdc.pluginfactory.ScalaPlugin">ScalaPlugin</a> with <a href="MinecraftParsers.html" class="extype" name="jcdc.pluginfactory.MinecraftParsers">MinecraftParsers</a></span>
+      </span>
+      </h4>
+      
+    </li><li name="jcdc.pluginfactory.ParserCombinators" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ParserCombinators"></a>
+      <a id="ParserCombinators:ParserCombinators"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="ParserCombinators$.html"><span class="name">ParserCombinators</span></a><span class="result"> extends <a href="ParserCombinators.html" class="extype" name="jcdc.pluginfactory.ParserCombinators">ParserCombinators</a></span>
+      </span>
+      </h4>
+      
+    </li><li name="jcdc.pluginfactory.ScalaEnrichment" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ScalaEnrichment"></a>
+      <a id="ScalaEnrichment:ScalaEnrichment"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="ScalaEnrichment$.html"><span class="name">ScalaEnrichment</span></a><span class="result"> extends <a href="ScalaEnrichment.html" class="extype" name="jcdc.pluginfactory.ScalaEnrichment">ScalaEnrichment</a></span>
+      </span>
+      </h4>
+      
+    </li><li name="jcdc.pluginfactory.TestServer" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="TestServer"></a>
+      <a id="TestServer:TestServer"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="TestServer$.html"><span class="name">TestServer</span></a>
+      </span>
+      </h4>
+      <p class="comment cmt">Code used for testing purposes.</p>
+    </li><li name="jcdc.pluginfactory.betterjava" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="betterjava"></a>
+      <a id="betterjava:betterjava"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a href="betterjava/package.html"><span class="name">betterjava</span></a>
+      </span>
+      </h4>
+      
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+
+
+    </body>
+      </html>
