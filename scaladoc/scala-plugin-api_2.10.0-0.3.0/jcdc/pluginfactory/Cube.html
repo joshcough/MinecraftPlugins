@@ -1,0 +1,1459 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html>
+        <head>
+          <title>Cube - jcdc.pluginfactory.Cube</title>
+          <meta name="description" content="Cube - jcdc.pluginfactory.Cube" />
+          <meta name="keywords" content="Cube jcdc.pluginfactory.Cube" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../lib/template.js"></script>
+      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
+      
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../index.html';
+            var hash = 'jcdc.pluginfactory.Cube';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="type">
+      <div id="definition">
+        <a href="Cube$.html" title="Go to companion"><img src="../../lib/class_to_object_big.png" /></a>
+        <p id="owner"><a href="../package.html" class="extype" name="jcdc">jcdc</a>.<a href="package.html" class="extype" name="jcdc.pluginfactory">pluginfactory</a></p>
+        <h1><a href="Cube$.html" title="Go to companion">Cube</a></h1>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">Cube</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="corner1">corner1: (<span class="extype" name="scala.Int">Int</span>, <span class="extype" name="scala.Int">Int</span>, <span class="extype" name="scala.Int">Int</span>)</span>, <span name="corner2">corner2: (<span class="extype" name="scala.Int">Int</span>, <span class="extype" name="scala.Int">Int</span>, <span class="extype" name="scala.Int">Int</span>)</span>)</span><span class="params">(<span name="f">f: ((<span class="extype" name="scala.Int">Int</span>, <span class="extype" name="scala.Int">Int</span>, <span class="extype" name="scala.Int">Int</span>)) ⇒ <span class="extype" name="jcdc.pluginfactory.Cube.T">T</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Awesome class for manipulating all blocks in a 3D cube between two corners of the world.
+The minecraft world looks like this:</p><p>         (minZ)
+          -Z
+           N</p><p> (-X)  W       E (+X)
+(minX)          (maxX)
+           S
+          +Z
+         (maxZ)</p><p> y increases going up towards the clouds
+ y decreases going down towards the bottom (or core) of the world.</p><p> north: z goes down
+ south: z goes up
+ east: x goes up
+ west: x goes down
+ x axis is width
+ y axis is height
+ z axis is depth</p></div><dl class="attributes block"> <dt>Self Type</dt><dd><a href="" class="extype" name="jcdc.pluginfactory.Cube">Cube</a>[<span class="extype" name="jcdc.pluginfactory.Cube.T">T</span>]</dd></dl><div class="toggleContainer block">
+          <span class="toggle">Linear Supertypes</span>
+          <div class="superTypes hiddenContent"><span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+        </div></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        <div id="order">
+              <span class="filtertype">Ordering</span>
+              <ol>
+                
+                <li class="alpha in"><span>Alphabetic</span></li>
+                <li class="inherit out"><span>By inheritance</span></li>
+              </ol>
+            </div>
+        <div id="ancestors">
+                <span class="filtertype">Inherited<br />
+                </span>
+                <ol id="linearization">
+                  <li class="in" name="jcdc.pluginfactory.Cube"><span>Cube</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.Product"><span>Product</span></li><li class="in" name="scala.Equals"><span>Equals</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                </ol>
+              </div><div id="ancestors">
+            <span class="filtertype"></span>
+            <ol>
+              <li class="hideall out"><span>Hide All</span></li>
+              <li class="showall in"><span>Show all</span></li>
+            </ol>
+            <a href="http://docs.scala-lang.org/overviews/scaladoc/usage.html#members" target="_blank">Learn more about member selection</a>
+          </div>
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        <div id="constructors" class="members">
+              <h3>Instance Constructors</h3>
+              <ol><li name="jcdc.pluginfactory.Cube#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="&lt;init&gt;(corner1:(Int,Int,Int),corner2:(Int,Int,Int))(f:((Int,Int,Int))=&gt;T):jcdc.pluginfactory.Cube[T]"></a>
+      <a id="&lt;init&gt;:Cube[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">new</span>
+      </span>
+      <span class="symbol">
+        <span class="name">Cube</span><span class="params">(<span name="corner1">corner1: (<span class="extype" name="scala.Int">Int</span>, <span class="extype" name="scala.Int">Int</span>, <span class="extype" name="scala.Int">Int</span>)</span>, <span name="corner2">corner2: (<span class="extype" name="scala.Int">Int</span>, <span class="extype" name="scala.Int">Int</span>, <span class="extype" name="scala.Int">Int</span>)</span>)</span><span class="params">(<span name="f">f: ((<span class="extype" name="scala.Int">Int</span>, <span class="extype" name="scala.Int">Int</span>, <span class="extype" name="scala.Int">Int</span>)) ⇒ <span class="extype" name="jcdc.pluginfactory.Cube.T">T</span></span>)</span>
+      </span>
+      </h4>
+      
+    </li></ol>
+            </div>
+
+        
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="scala.AnyRef#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="!=(x$1:AnyRef):Boolean"></a>
+      <a id="!=(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.Any#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="!=(x$1:Any):Boolean"></a>
+      <a id="!=(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="scala.AnyRef###" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="##():Int"></a>
+      <a id="##():Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $hash$hash" class="name">##</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="==(x$1:AnyRef):Boolean"></a>
+      <a id="==(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.Any#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="==(x$1:Any):Boolean"></a>
+      <a id="==(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="jcdc.pluginfactory.Cube#apply" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="apply(c:(Int,Int,Int)):T"></a>
+      <a id="apply((Int,Int,Int)):T"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">apply</span><span class="params">(<span name="c">c: (<span class="extype" name="scala.Int">Int</span>, <span class="extype" name="scala.Int">Int</span>, <span class="extype" name="scala.Int">Int</span>)</span>)</span><span class="result">: <span class="extype" name="jcdc.pluginfactory.Cube.T">T</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="asInstanceOf[T0]:T0"></a>
+      <a id="asInstanceOf[T0]:T0"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">asInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Any.asInstanceOf.T0">T0</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="jcdc.pluginfactory.Cube#bottom" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="bottom:()=&gt;jcdc.pluginfactory.Cube[T]"></a>
+      <a id="bottom:()⇒Cube[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">bottom</span><span class="result">: () ⇒ <a href="" class="extype" name="jcdc.pluginfactory.Cube">Cube</a>[<span class="extype" name="jcdc.pluginfactory.Cube.T">T</span>]</span>
+      </span>
+      </h4>
+      
+    </li><li name="jcdc.pluginfactory.Cube#ceiling" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ceiling:jcdc.pluginfactory.Cube[T]"></a>
+      <a id="ceiling:Cube[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ceiling</span><span class="result">: <a href="" class="extype" name="jcdc.pluginfactory.Cube">Cube</a>[<span class="extype" name="jcdc.pluginfactory.Cube.T">T</span>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">get the ceiling of this cube</p><div class="fullcomment"><div class="comment cmt"><p>get the ceiling of this cube</p></div><dl class="paramcmts block"><dt>returns</dt><dd class="cmt"><p>a new Cube
+</p></dd></dl></div>
+    </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="clone():Object"></a>
+      <a id="clone():AnyRef"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<span class="extype" name="java.lang">java.lang</span>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">()</span>
+              
+        </dd></dl></div>
+    </li><li name="jcdc.pluginfactory.Cube#contains" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="contains(c:(Int,Int,Int)):Boolean"></a>
+      <a id="contains((Int,Int,Int)):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">contains</span><span class="params">(<span name="c">c: (<span class="extype" name="scala.Int">Int</span>, <span class="extype" name="scala.Int">Int</span>, <span class="extype" name="scala.Int">Int</span>)</span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">c</dt><dd class="cmt"></dd><dt>returns</dt><dd class="cmt"><p>
+</p></dd></dl></div>
+    </li><li name="jcdc.pluginfactory.Cube#copy" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="copy(minX:Int,minY:Int,minZ:Int,maxX:Int,maxY:Int,maxZ:Int):jcdc.pluginfactory.Cube[T]"></a>
+      <a id="copy(Int,Int,Int,Int,Int,Int):Cube[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">copy</span><span class="params">(<span name="minX">minX: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">minX</span></span>, <span name="minY">minY: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">minY</span></span>, <span name="minZ">minZ: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">minZ</span></span>, <span name="maxX">maxX: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">maxX</span></span>, <span name="maxY">maxY: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">maxY</span></span>, <span name="maxZ">maxZ: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">maxZ</span></span>)</span><span class="result">: <a href="" class="extype" name="jcdc.pluginfactory.Cube">Cube</a>[<span class="extype" name="jcdc.pluginfactory.Cube.T">T</span>]</span>
+      </span>
+      </h4>
+      
+    </li><li name="jcdc.pluginfactory.Cube#corner1" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="corner1:(Int,Int,Int)"></a>
+      <a id="corner1:(Int,Int,Int)"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">corner1</span><span class="result">: (<span class="extype" name="scala.Int">Int</span>, <span class="extype" name="scala.Int">Int</span>, <span class="extype" name="scala.Int">Int</span>)</span>
+      </span>
+      </h4>
+      
+    </li><li name="jcdc.pluginfactory.Cube#corner2" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="corner2:(Int,Int,Int)"></a>
+      <a id="corner2:(Int,Int,Int)"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">corner2</span><span class="result">: (<span class="extype" name="scala.Int">Int</span>, <span class="extype" name="scala.Int">Int</span>, <span class="extype" name="scala.Int">Int</span>)</span>
+      </span>
+      </h4>
+      
+    </li><li name="jcdc.pluginfactory.Cube#corners" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="corners:List[T]"></a>
+      <a id="corners:List[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">corners</span><span class="result">: <span class="extype" name="scala.List">List</span>[<span class="extype" name="jcdc.pluginfactory.Cube.T">T</span>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt>returns</dt><dd class="cmt"><p>
+</p></dd></dl></div>
+    </li><li name="jcdc.pluginfactory.Cube#cornersCoors" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="cornersCoors:List[(Int,Int,Int)]"></a>
+      <a id="cornersCoors:List[(Int,Int,Int)]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">cornersCoors</span><span class="result">: <span class="extype" name="scala.List">List</span>[(<span class="extype" name="scala.Int">Int</span>, <span class="extype" name="scala.Int">Int</span>, <span class="extype" name="scala.Int">Int</span>)]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">The 8 corners of this Cube.</p>
+    </li><li name="jcdc.pluginfactory.Cube#depth" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="depth:Long"></a>
+      <a id="depth:Long"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">depth</span><span class="result">: <span class="extype" name="scala.Long">Long</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="jcdc.pluginfactory.Cube#eastWall" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="eastWall:jcdc.pluginfactory.Cube[T]"></a>
+      <a id="eastWall:Cube[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">eastWall</span><span class="result">: <a href="" class="extype" name="jcdc.pluginfactory.Cube">Cube</a>[<span class="extype" name="jcdc.pluginfactory.Cube.T">T</span>]</span>
+      </span>
+      </h4>
+      
+    </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="eq(x$1:AnyRef):Boolean"></a>
+      <a id="eq(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="jcdc.pluginfactory.Cube#equals" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="equals(a:Any):Boolean"></a>
+      <a id="equals(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">equals</span><span class="params">(<span name="a">a: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="jcdc.pluginfactory.Cube">Cube</a> → Equals → AnyRef → Any</dd></dl></div>
+    </li><li name="jcdc.pluginfactory.Cube#expand" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="expand(n:Int):jcdc.pluginfactory.Cube[T]"></a>
+      <a id="expand(Int):Cube[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">expand</span><span class="params">(<span name="n">n: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <a href="" class="extype" name="jcdc.pluginfactory.Cube">Cube</a>[<span class="extype" name="jcdc.pluginfactory.Cube.T">T</span>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">expand by n blocks in all directions  (N,S,E,W,Up,Down)
+</p>
+    </li><li name="jcdc.pluginfactory.Cube#expandUp" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="expandUp(n:Int):jcdc.pluginfactory.Cube[T]"></a>
+      <a id="expandUp(Int):Cube[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">expandUp</span><span class="params">(<span name="n">n: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <a href="" class="extype" name="jcdc.pluginfactory.Cube">Cube</a>[<span class="extype" name="jcdc.pluginfactory.Cube.T">T</span>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">expand by n blocks upwards only.</p>
+    </li><li name="jcdc.pluginfactory.Cube#expandX" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="expandX(i:Int):jcdc.pluginfactory.Cube[T]"></a>
+      <a id="expandX(Int):Cube[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">expandX</span><span class="params">(<span name="i">i: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <a href="" class="extype" name="jcdc.pluginfactory.Cube">Cube</a>[<span class="extype" name="jcdc.pluginfactory.Cube.T">T</span>]</span>
+      </span>
+      </h4>
+      
+    </li><li name="jcdc.pluginfactory.Cube#expandXZ" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="expandXZ(n:Int):jcdc.pluginfactory.Cube[T]"></a>
+      <a id="expandXZ(Int):Cube[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">expandXZ</span><span class="params">(<span name="n">n: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <a href="" class="extype" name="jcdc.pluginfactory.Cube">Cube</a>[<span class="extype" name="jcdc.pluginfactory.Cube.T">T</span>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">expand by n blocks N,S,E,W
+</p>
+    </li><li name="jcdc.pluginfactory.Cube#expandY" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="expandY(i:Int):jcdc.pluginfactory.Cube[T]"></a>
+      <a id="expandY(Int):Cube[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">expandY</span><span class="params">(<span name="i">i: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <a href="" class="extype" name="jcdc.pluginfactory.Cube">Cube</a>[<span class="extype" name="jcdc.pluginfactory.Cube.T">T</span>]</span>
+      </span>
+      </h4>
+      
+    </li><li name="jcdc.pluginfactory.Cube#expandZ" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="expandZ(i:Int):jcdc.pluginfactory.Cube[T]"></a>
+      <a id="expandZ(Int):Cube[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">expandZ</span><span class="params">(<span name="i">i: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <a href="" class="extype" name="jcdc.pluginfactory.Cube">Cube</a>[<span class="extype" name="jcdc.pluginfactory.Cube.T">T</span>]</span>
+      </span>
+      </h4>
+      
+    </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="finalize():Unit"></a>
+      <a id="finalize():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">finalize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<span class="extype" name="java.lang">java.lang</span>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">()</span>
+              
+        </dd></dl></div>
+    </li><li name="jcdc.pluginfactory.Cube#floor" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="floor:jcdc.pluginfactory.Cube[T]"></a>
+      <a id="floor:Cube[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">floor</span><span class="result">: <a href="" class="extype" name="jcdc.pluginfactory.Cube">Cube</a>[<span class="extype" name="jcdc.pluginfactory.Cube.T">T</span>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">get the floor of this cube</p><div class="fullcomment"><div class="comment cmt"><p>get the floor of this cube</p></div><dl class="paramcmts block"><dt>returns</dt><dd class="cmt"><p>a new Cube
+</p></dd></dl></div>
+    </li><li name="scala.AnyRef#getClass" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getClass():Class[_]"></a>
+      <a id="getClass():Class[_]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getClass</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.Class">Class</span>[_]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="jcdc.pluginfactory.Cube#grow" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="grow(xMore:Int,yMore:Int,zMore:Int):jcdc.pluginfactory.Cube[T]"></a>
+      <a id="grow(Int,Int,Int):Cube[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">grow</span><span class="params">(<span name="xMore">xMore: <span class="extype" name="scala.Int">Int</span></span>, <span name="yMore">yMore: <span class="extype" name="scala.Int">Int</span></span>, <span name="zMore">zMore: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <a href="" class="extype" name="jcdc.pluginfactory.Cube">Cube</a>[<span class="extype" name="jcdc.pluginfactory.Cube.T">T</span>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">xMore</dt><dd class="cmt"></dd><dt class="param">yMore</dt><dd class="cmt"></dd><dt class="param">zMore</dt><dd class="cmt"></dd><dt>returns</dt><dd class="cmt"><p>
+</p></dd></dl></div>
+    </li><li name="jcdc.pluginfactory.Cube#growDown" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="growDown(extra:Int):jcdc.pluginfactory.Cube[T]"></a>
+      <a id="growDown(Int):Cube[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">growDown</span><span class="params">(<span name="extra">extra: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <a href="" class="extype" name="jcdc.pluginfactory.Cube">Cube</a>[<span class="extype" name="jcdc.pluginfactory.Cube.T">T</span>]</span>
+      </span>
+      </h4>
+      
+    </li><li name="jcdc.pluginfactory.Cube#growMaxXBy" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="growMaxXBy(extra:Int):jcdc.pluginfactory.Cube[T]"></a>
+      <a id="growMaxXBy(Int):Cube[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">growMaxXBy</span><span class="params">(<span name="extra">extra: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <a href="" class="extype" name="jcdc.pluginfactory.Cube">Cube</a>[<span class="extype" name="jcdc.pluginfactory.Cube.T">T</span>]</span>
+      </span>
+      </h4>
+      
+    </li><li name="jcdc.pluginfactory.Cube#growMaxYBy" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="growMaxYBy(extra:Int):jcdc.pluginfactory.Cube[T]"></a>
+      <a id="growMaxYBy(Int):Cube[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">growMaxYBy</span><span class="params">(<span name="extra">extra: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <a href="" class="extype" name="jcdc.pluginfactory.Cube">Cube</a>[<span class="extype" name="jcdc.pluginfactory.Cube.T">T</span>]</span>
+      </span>
+      </h4>
+      
+    </li><li name="jcdc.pluginfactory.Cube#growMaxZBy" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="growMaxZBy(extra:Int):jcdc.pluginfactory.Cube[T]"></a>
+      <a id="growMaxZBy(Int):Cube[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">growMaxZBy</span><span class="params">(<span name="extra">extra: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <a href="" class="extype" name="jcdc.pluginfactory.Cube">Cube</a>[<span class="extype" name="jcdc.pluginfactory.Cube.T">T</span>]</span>
+      </span>
+      </h4>
+      
+    </li><li name="jcdc.pluginfactory.Cube#growMinXBy" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="growMinXBy(extra:Int):jcdc.pluginfactory.Cube[T]"></a>
+      <a id="growMinXBy(Int):Cube[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">growMinXBy</span><span class="params">(<span name="extra">extra: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <a href="" class="extype" name="jcdc.pluginfactory.Cube">Cube</a>[<span class="extype" name="jcdc.pluginfactory.Cube.T">T</span>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">All grow operations make the cube bigger
+Min (X,Y or Z) becomes min (X,Y or Z) - extra
+Max (X,Y or Z) becomes min (X,Y or Z) + extra</p><div class="fullcomment"><div class="comment cmt"><p>All grow operations make the cube bigger
+Min (X,Y or Z) becomes min (X,Y or Z) - extra
+Max (X,Y or Z) becomes min (X,Y or Z) + extra</p></div><dl class="paramcmts block"><dt>returns</dt><dd class="cmt"><p>a new Cube
+</p></dd></dl></div>
+    </li><li name="jcdc.pluginfactory.Cube#growMinYBy" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="growMinYBy(extra:Int):jcdc.pluginfactory.Cube[T]"></a>
+      <a id="growMinYBy(Int):Cube[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">growMinYBy</span><span class="params">(<span name="extra">extra: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <a href="" class="extype" name="jcdc.pluginfactory.Cube">Cube</a>[<span class="extype" name="jcdc.pluginfactory.Cube.T">T</span>]</span>
+      </span>
+      </h4>
+      
+    </li><li name="jcdc.pluginfactory.Cube#growMinZBy" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="growMinZBy(extra:Int):jcdc.pluginfactory.Cube[T]"></a>
+      <a id="growMinZBy(Int):Cube[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">growMinZBy</span><span class="params">(<span name="extra">extra: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <a href="" class="extype" name="jcdc.pluginfactory.Cube">Cube</a>[<span class="extype" name="jcdc.pluginfactory.Cube.T">T</span>]</span>
+      </span>
+      </h4>
+      
+    </li><li name="jcdc.pluginfactory.Cube#growUp" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="growUp(extra:Int):jcdc.pluginfactory.Cube[T]"></a>
+      <a id="growUp(Int):Cube[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">growUp</span><span class="params">(<span name="extra">extra: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <a href="" class="extype" name="jcdc.pluginfactory.Cube">Cube</a>[<span class="extype" name="jcdc.pluginfactory.Cube.T">T</span>]</span>
+      </span>
+      </h4>
+      
+    </li><li name="jcdc.pluginfactory.Cube#height" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="height:Long"></a>
+      <a id="height:Long"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">height</span><span class="result">: <span class="extype" name="scala.Long">Long</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="jcdc.pluginfactory.Cube#insides" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="insides:jcdc.pluginfactory.Cube[T]"></a>
+      <a id="insides:Cube[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">insides</span><span class="result">: <a href="" class="extype" name="jcdc.pluginfactory.Cube">Cube</a>[<span class="extype" name="jcdc.pluginfactory.Cube.T">T</span>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Shrink this cube on all sides by one, giving just the insides of the cube
+You can also think about this as this cube without its ceiling, floor, and 4 walls
+TODO: dont shrink if the Cube is too small.</p><div class="fullcomment"><div class="comment cmt"><p>Shrink this cube on all sides by one, giving just the insides of the cube
+You can also think about this as this cube without its ceiling, floor, and 4 walls
+TODO: dont shrink if the Cube is too small.</p></div><dl class="paramcmts block"><dt>returns</dt><dd class="cmt"><p>A new cube
+</p></dd></dl></div>
+    </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="isInstanceOf[T0]:Boolean"></a>
+      <a id="isInstanceOf[T0]:Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">isInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="jcdc.pluginfactory.Cube#map" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="map[U](g:T=&gt;U):jcdc.pluginfactory.Cube[U]"></a>
+      <a id="map[U]((T)⇒U):Cube[U]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">map</span><span class="tparams">[<span name="U">U</span>]</span><span class="params">(<span name="g">g: (<span class="extype" name="jcdc.pluginfactory.Cube.T">T</span>) ⇒ <span class="extype" name="jcdc.pluginfactory.Cube.map.U">U</span></span>)</span><span class="result">: <a href="" class="extype" name="jcdc.pluginfactory.Cube">Cube</a>[<span class="extype" name="jcdc.pluginfactory.Cube.map.U">U</span>]</span>
+      </span>
+      </h4>
+      
+    </li><li name="jcdc.pluginfactory.Cube#mapCoor" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="mapCoor[U](f:((Int,Int,Int))=&gt;U):jcdc.pluginfactory.Cube[U]"></a>
+      <a id="mapCoor[U](((Int,Int,Int))⇒U):Cube[U]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">mapCoor</span><span class="tparams">[<span name="U">U</span>]</span><span class="params">(<span name="f">f: ((<span class="extype" name="scala.Int">Int</span>, <span class="extype" name="scala.Int">Int</span>, <span class="extype" name="scala.Int">Int</span>)) ⇒ <span class="extype" name="jcdc.pluginfactory.Cube.mapCoor.U">U</span></span>)</span><span class="result">: <a href="" class="extype" name="jcdc.pluginfactory.Cube">Cube</a>[<span class="extype" name="jcdc.pluginfactory.Cube.mapCoor.U">U</span>]</span>
+      </span>
+      </h4>
+      
+    </li><li name="jcdc.pluginfactory.Cube#maxX" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="maxX:Int"></a>
+      <a id="maxX:Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">lazy val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">maxX</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="jcdc.pluginfactory.Cube#maxY" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="maxY:Int"></a>
+      <a id="maxY:Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">lazy val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">maxY</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="jcdc.pluginfactory.Cube#maxZ" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="maxZ:Int"></a>
+      <a id="maxZ:Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">lazy val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">maxZ</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="jcdc.pluginfactory.Cube#minX" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="minX:Int"></a>
+      <a id="minX:Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">lazy val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">minX</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="jcdc.pluginfactory.Cube#minY" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="minY:Int"></a>
+      <a id="minY:Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">lazy val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">minY</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="jcdc.pluginfactory.Cube#minZ" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="minZ:Int"></a>
+      <a id="minZ:Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">lazy val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">minZ</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="jcdc.pluginfactory.Cube#mirrorX" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="mirrorX:jcdc.pluginfactory.Cube[T]"></a>
+      <a id="mirrorX:Cube[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">mirrorX</span><span class="result">: <a href="" class="extype" name="jcdc.pluginfactory.Cube">Cube</a>[<span class="extype" name="jcdc.pluginfactory.Cube.T">T</span>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">mirror X algo: minX + (maxX - x)
+9 -&gt; 1     minX + (maxX - x) = 0 + (10 - 9) = 0 + 1 = 1
+8 -&gt; 2     minX + (maxX - x) = 0 + (10 - 8) = 0 + 2 = 2
+5 -&gt; 5     minX + (maxX - x) = 0 + (10 - 5) = 0 + 5 = 5
+4 -&gt; 6     minX + (maxX - x) = 0 + (10 - 4) = 0 + 6 = 6
+0 -&gt; 10    minX + (maxX - x) = 0 + (10 - 0) = 0 + 10 = 10
+</p>
+    </li><li name="jcdc.pluginfactory.Cube#mirrorY" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="mirrorY:jcdc.pluginfactory.Cube[T]"></a>
+      <a id="mirrorY:Cube[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">mirrorY</span><span class="result">: <a href="" class="extype" name="jcdc.pluginfactory.Cube">Cube</a>[<span class="extype" name="jcdc.pluginfactory.Cube.T">T</span>]</span>
+      </span>
+      </h4>
+      
+    </li><li name="jcdc.pluginfactory.Cube#mirrorZ" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="mirrorZ:jcdc.pluginfactory.Cube[T]"></a>
+      <a id="mirrorZ:Cube[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">mirrorZ</span><span class="result">: <a href="" class="extype" name="jcdc.pluginfactory.Cube">Cube</a>[<span class="extype" name="jcdc.pluginfactory.Cube.T">T</span>]</span>
+      </span>
+      </h4>
+      
+    </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ne(x$1:AnyRef):Boolean"></a>
+      <a id="ne(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="jcdc.pluginfactory.Cube#northWall" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="northWall:jcdc.pluginfactory.Cube[T]"></a>
+      <a id="northWall:Cube[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">northWall</span><span class="result">: <a href="" class="extype" name="jcdc.pluginfactory.Cube">Cube</a>[<span class="extype" name="jcdc.pluginfactory.Cube.T">T</span>]</span>
+      </span>
+      </h4>
+      
+    </li><li name="scala.AnyRef#notify" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="notify():Unit"></a>
+      <a id="notify():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">notify</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#notifyAll" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="notifyAll():Unit"></a>
+      <a id="notifyAll():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">notifyAll</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="jcdc.pluginfactory.Cube#onBottom" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="onBottom:((Int,Int,Int))=&gt;Boolean"></a>
+      <a id="onBottom:((Int,Int,Int))⇒Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">onBottom</span><span class="result">: ((<span class="extype" name="scala.Int">Int</span>, <span class="extype" name="scala.Int">Int</span>, <span class="extype" name="scala.Int">Int</span>)) ⇒ <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="jcdc.pluginfactory.Cube#onCeiling" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="onCeiling(c:(Int,Int,Int)):Boolean"></a>
+      <a id="onCeiling((Int,Int,Int)):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">onCeiling</span><span class="params">(<span name="c">c: (<span class="extype" name="scala.Int">Int</span>, <span class="extype" name="scala.Int">Int</span>, <span class="extype" name="scala.Int">Int</span>)</span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Returns true if the given block is on the ceiling of this cube</p><div class="fullcomment"><div class="comment cmt"><p>Returns true if the given block is on the ceiling of this cube</p></div><dl class="paramcmts block"><dt class="param">c</dt><dd class="cmt"></dd><dt>returns</dt><dd class="cmt"><p>
+</p></dd></dl></div>
+    </li><li name="jcdc.pluginfactory.Cube#onFloor" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="onFloor(c:(Int,Int,Int)):Boolean"></a>
+      <a id="onFloor((Int,Int,Int)):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">onFloor</span><span class="params">(<span name="c">c: (<span class="extype" name="scala.Int">Int</span>, <span class="extype" name="scala.Int">Int</span>, <span class="extype" name="scala.Int">Int</span>)</span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Returns true if the given coordinate is on the floor of this cube</p><div class="fullcomment"><div class="comment cmt"><p>Returns true if the given coordinate is on the floor of this cube</p></div><dl class="paramcmts block"><dt class="param">c</dt><dd class="cmt"></dd><dt>returns</dt><dd class="cmt"><p>
+</p></dd></dl></div>
+    </li><li name="jcdc.pluginfactory.Cube#onTop" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="onTop:((Int,Int,Int))=&gt;Boolean"></a>
+      <a id="onTop:((Int,Int,Int))⇒Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">onTop</span><span class="result">: ((<span class="extype" name="scala.Int">Int</span>, <span class="extype" name="scala.Int">Int</span>, <span class="extype" name="scala.Int">Int</span>)) ⇒ <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="jcdc.pluginfactory.Cube#onWall" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="onWall(c:(Int,Int,Int)):Boolean"></a>
+      <a id="onWall((Int,Int,Int)):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">onWall</span><span class="params">(<span name="c">c: (<span class="extype" name="scala.Int">Int</span>, <span class="extype" name="scala.Int">Int</span>, <span class="extype" name="scala.Int">Int</span>)</span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">c</dt><dd class="cmt"></dd><dt>returns</dt><dd class="cmt"><p>
+</p></dd></dl></div>
+    </li><li name="jcdc.pluginfactory.Cube#shell" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="shell:Stream[T]"></a>
+      <a id="shell:Stream[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">shell</span><span class="result">: <span class="extype" name="scala.Stream">Stream</span>[<span class="extype" name="jcdc.pluginfactory.Cube.T">T</span>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">A Stream containing the floor, ceiling and walls of this cube.</p><div class="fullcomment"><div class="comment cmt"><p>A Stream containing the floor, ceiling and walls of this cube.
+TODO: This distinct is bad here because of T.
+TODO: i might just have to get the right blocks myself.
+TODO: I think it just involves shrinking Y by 1 on all the walls.
+</p></div></div>
+    </li><li name="jcdc.pluginfactory.Cube#shiftDown" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="shiftDown(i:Int):jcdc.pluginfactory.Cube[T]"></a>
+      <a id="shiftDown(Int):Cube[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">shiftDown</span><span class="params">(<span name="i">i: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <a href="" class="extype" name="jcdc.pluginfactory.Cube">Cube</a>[<span class="extype" name="jcdc.pluginfactory.Cube.T">T</span>]</span>
+      </span>
+      </h4>
+      
+    </li><li name="jcdc.pluginfactory.Cube#shiftEast" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="shiftEast(i:Int):jcdc.pluginfactory.Cube[T]"></a>
+      <a id="shiftEast(Int):Cube[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">shiftEast</span><span class="params">(<span name="i">i: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <a href="" class="extype" name="jcdc.pluginfactory.Cube">Cube</a>[<span class="extype" name="jcdc.pluginfactory.Cube.T">T</span>]</span>
+      </span>
+      </h4>
+      
+    </li><li name="jcdc.pluginfactory.Cube#shiftNorth" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="shiftNorth(i:Int):jcdc.pluginfactory.Cube[T]"></a>
+      <a id="shiftNorth(Int):Cube[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">shiftNorth</span><span class="params">(<span name="i">i: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <a href="" class="extype" name="jcdc.pluginfactory.Cube">Cube</a>[<span class="extype" name="jcdc.pluginfactory.Cube.T">T</span>]</span>
+      </span>
+      </h4>
+      
+    </li><li name="jcdc.pluginfactory.Cube#shiftSouth" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="shiftSouth(i:Int):jcdc.pluginfactory.Cube[T]"></a>
+      <a id="shiftSouth(Int):Cube[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">shiftSouth</span><span class="params">(<span name="i">i: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <a href="" class="extype" name="jcdc.pluginfactory.Cube">Cube</a>[<span class="extype" name="jcdc.pluginfactory.Cube.T">T</span>]</span>
+      </span>
+      </h4>
+      
+    </li><li name="jcdc.pluginfactory.Cube#shiftUp" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="shiftUp(i:Int):jcdc.pluginfactory.Cube[T]"></a>
+      <a id="shiftUp(Int):Cube[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">shiftUp</span><span class="params">(<span name="i">i: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <a href="" class="extype" name="jcdc.pluginfactory.Cube">Cube</a>[<span class="extype" name="jcdc.pluginfactory.Cube.T">T</span>]</span>
+      </span>
+      </h4>
+      
+    </li><li name="jcdc.pluginfactory.Cube#shiftWest" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="shiftWest(i:Int):jcdc.pluginfactory.Cube[T]"></a>
+      <a id="shiftWest(Int):Cube[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">shiftWest</span><span class="params">(<span name="i">i: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <a href="" class="extype" name="jcdc.pluginfactory.Cube">Cube</a>[<span class="extype" name="jcdc.pluginfactory.Cube.T">T</span>]</span>
+      </span>
+      </h4>
+      
+    </li><li name="jcdc.pluginfactory.Cube#shiftX" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="shiftX(i:Int):jcdc.pluginfactory.Cube[T]"></a>
+      <a id="shiftX(Int):Cube[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">shiftX</span><span class="params">(<span name="i">i: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <a href="" class="extype" name="jcdc.pluginfactory.Cube">Cube</a>[<span class="extype" name="jcdc.pluginfactory.Cube.T">T</span>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">A whole pile of operations to change the position of this Cube
+</p>
+    </li><li name="jcdc.pluginfactory.Cube#shiftY" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="shiftY(i:Int):jcdc.pluginfactory.Cube[T]"></a>
+      <a id="shiftY(Int):Cube[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">shiftY</span><span class="params">(<span name="i">i: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <a href="" class="extype" name="jcdc.pluginfactory.Cube">Cube</a>[<span class="extype" name="jcdc.pluginfactory.Cube.T">T</span>]</span>
+      </span>
+      </h4>
+      
+    </li><li name="jcdc.pluginfactory.Cube#shiftZ" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="shiftZ(i:Int):jcdc.pluginfactory.Cube[T]"></a>
+      <a id="shiftZ(Int):Cube[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">shiftZ</span><span class="params">(<span name="i">i: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <a href="" class="extype" name="jcdc.pluginfactory.Cube">Cube</a>[<span class="extype" name="jcdc.pluginfactory.Cube.T">T</span>]</span>
+      </span>
+      </h4>
+      
+    </li><li name="jcdc.pluginfactory.Cube#shrink" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="shrink(xLess:Int,yLess:Int,zLess:Int):jcdc.pluginfactory.Cube[T]"></a>
+      <a id="shrink(Int,Int,Int):Cube[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">shrink</span><span class="params">(<span name="xLess">xLess: <span class="extype" name="scala.Int">Int</span></span>, <span name="yLess">yLess: <span class="extype" name="scala.Int">Int</span></span>, <span name="zLess">zLess: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <a href="" class="extype" name="jcdc.pluginfactory.Cube">Cube</a>[<span class="extype" name="jcdc.pluginfactory.Cube.T">T</span>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Conceptually, shrinking a cube by 1 means 'shrink the cube on ALL sides by 1'
+Shrinking a 5x5x5 cube by 1 gives you back a 3x3x3 cube.</p><div class="fullcomment"><div class="comment cmt"><p>Conceptually, shrinking a cube by 1 means 'shrink the cube on ALL sides by 1'
+Shrinking a 5x5x5 cube by 1 gives you back a 3x3x3 cube.
+Shrinking a 3x3x3 cube by 1 gives you back a 1x1x1 cube.
+A 1x1x1 cube can't shrink any further.</p><p>A 2x2x2 cube will not shrink! It would be arbitrary to choose
+whether the shrink the max, or grow the min, and I've decided
+to just not shrink it at all in that case.
+You can still do this with the other shrink and grow functions on Cube though.</p><p>Shinking a cube by 1 means passing xLess=1, yLess=1, xLess=1</p><p>Hopefully obviously, this means you can just shrink x, or y, or z
+by passing in 0 for the other values.</p><p>Shrinking a 5x5x5 cube with xLess=1 will give back a 3x5x5 cube.</p><p>I don't recommend passing in negative values to try to grow.
+That isn't tested.
+</p></div><dl class="paramcmts block"><dt class="param">xLess</dt><dd class="cmt"></dd><dt class="param">yLess</dt><dd class="cmt"></dd><dt class="param">zLess</dt><dd class="cmt"></dd><dt>returns</dt><dd class="cmt"><p>
+</p></dd></dl></div>
+    </li><li name="jcdc.pluginfactory.Cube#shrinkMaxXBy" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="shrinkMaxXBy(less:Int):jcdc.pluginfactory.Cube[T]"></a>
+      <a id="shrinkMaxXBy(Int):Cube[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">shrinkMaxXBy</span><span class="params">(<span name="less">less: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <a href="" class="extype" name="jcdc.pluginfactory.Cube">Cube</a>[<span class="extype" name="jcdc.pluginfactory.Cube.T">T</span>]</span>
+      </span>
+      </h4>
+      
+    </li><li name="jcdc.pluginfactory.Cube#shrinkMaxYBy" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="shrinkMaxYBy(less:Int):jcdc.pluginfactory.Cube[T]"></a>
+      <a id="shrinkMaxYBy(Int):Cube[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">shrinkMaxYBy</span><span class="params">(<span name="less">less: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <a href="" class="extype" name="jcdc.pluginfactory.Cube">Cube</a>[<span class="extype" name="jcdc.pluginfactory.Cube.T">T</span>]</span>
+      </span>
+      </h4>
+      
+    </li><li name="jcdc.pluginfactory.Cube#shrinkMaxZBy" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="shrinkMaxZBy(less:Int):jcdc.pluginfactory.Cube[T]"></a>
+      <a id="shrinkMaxZBy(Int):Cube[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">shrinkMaxZBy</span><span class="params">(<span name="less">less: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <a href="" class="extype" name="jcdc.pluginfactory.Cube">Cube</a>[<span class="extype" name="jcdc.pluginfactory.Cube.T">T</span>]</span>
+      </span>
+      </h4>
+      
+    </li><li name="jcdc.pluginfactory.Cube#shrinkMinXBy" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="shrinkMinXBy(less:Int):jcdc.pluginfactory.Cube[T]"></a>
+      <a id="shrinkMinXBy(Int):Cube[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">shrinkMinXBy</span><span class="params">(<span name="less">less: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <a href="" class="extype" name="jcdc.pluginfactory.Cube">Cube</a>[<span class="extype" name="jcdc.pluginfactory.Cube.T">T</span>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">All shrink operations make the cube smaller
+TODO: But, you can't shrink smaller than a 1x1x1 cube.</p><div class="fullcomment"><div class="comment cmt"><p>All shrink operations make the cube smaller
+TODO: But, you can't shrink smaller than a 1x1x1 cube.
+Min (X,Y or Z) becomes min (X,Y or Z) - extra
+Max (X,Y or Z) becomes min (X,Y or Z) + extra</p></div><dl class="paramcmts block"><dt>returns</dt><dd class="cmt"><p>a new Cube
+</p></dd></dl></div>
+    </li><li name="jcdc.pluginfactory.Cube#shrinkMinYBy" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="shrinkMinYBy(less:Int):jcdc.pluginfactory.Cube[T]"></a>
+      <a id="shrinkMinYBy(Int):Cube[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">shrinkMinYBy</span><span class="params">(<span name="less">less: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <a href="" class="extype" name="jcdc.pluginfactory.Cube">Cube</a>[<span class="extype" name="jcdc.pluginfactory.Cube.T">T</span>]</span>
+      </span>
+      </h4>
+      
+    </li><li name="jcdc.pluginfactory.Cube#shrinkMinZBy" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="shrinkMinZBy(less:Int):jcdc.pluginfactory.Cube[T]"></a>
+      <a id="shrinkMinZBy(Int):Cube[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">shrinkMinZBy</span><span class="params">(<span name="less">less: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <a href="" class="extype" name="jcdc.pluginfactory.Cube">Cube</a>[<span class="extype" name="jcdc.pluginfactory.Cube.T">T</span>]</span>
+      </span>
+      </h4>
+      
+    </li><li name="jcdc.pluginfactory.Cube#shrinkXZ" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="shrinkXZ(n:Int):jcdc.pluginfactory.Cube[T]"></a>
+      <a id="shrinkXZ(Int):Cube[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">shrinkXZ</span><span class="params">(<span name="n">n: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <a href="" class="extype" name="jcdc.pluginfactory.Cube">Cube</a>[<span class="extype" name="jcdc.pluginfactory.Cube.T">T</span>]</span>
+      </span>
+      </h4>
+      
+    </li><li name="jcdc.pluginfactory.Cube#size" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="size:BigInt"></a>
+      <a id="size:BigInt"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">size</span><span class="result">: <span class="extype" name="scala.BigInt">BigInt</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="jcdc.pluginfactory.Cube#southWall" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="southWall:jcdc.pluginfactory.Cube[T]"></a>
+      <a id="southWall:Cube[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">southWall</span><span class="result">: <a href="" class="extype" name="jcdc.pluginfactory.Cube">Cube</a>[<span class="extype" name="jcdc.pluginfactory.Cube.T">T</span>]</span>
+      </span>
+      </h4>
+      
+    </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
+      <a id="synchronized[T0](⇒T0):T0"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">synchronized</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="params">(<span name="arg0">arg0: ⇒ <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>)</span><span class="result">: <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="jcdc.pluginfactory.Cube#toCoorStream" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="toCoorStream:Stream[(Int,Int,Int)]"></a>
+      <a id="toCoorStream:Stream[(Int,Int,Int)]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">toCoorStream</span><span class="result">: <span class="extype" name="scala.Stream">Stream</span>[(<span class="extype" name="scala.Int">Int</span>, <span class="extype" name="scala.Int">Int</span>, <span class="extype" name="scala.Int">Int</span>)]</span>
+      </span>
+      </h4>
+      
+    </li><li name="jcdc.pluginfactory.Cube#toStream" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="toStream:Stream[T]"></a>
+      <a id="toStream:Stream[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">toStream</span><span class="result">: <span class="extype" name="scala.Stream">Stream</span>[<span class="extype" name="jcdc.pluginfactory.Cube.T">T</span>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt>returns</dt><dd class="cmt"><p>
+</p></dd></dl></div>
+    </li><li name="jcdc.pluginfactory.Cube#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="toString():String"></a>
+      <a id="toString():String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">toString</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="jcdc.pluginfactory.Cube">Cube</a> → AnyRef → Any</dd></dl></div>
+    </li><li name="jcdc.pluginfactory.Cube#toZippedStream" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="toZippedStream:Stream[((Int,Int,Int),T)]"></a>
+      <a id="toZippedStream:Stream[((Int,Int,Int),T)]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">toZippedStream</span><span class="result">: <span class="extype" name="scala.Stream">Stream</span>[((<span class="extype" name="scala.Int">Int</span>, <span class="extype" name="scala.Int">Int</span>, <span class="extype" name="scala.Int">Int</span>), <span class="extype" name="jcdc.pluginfactory.Cube.T">T</span>)]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt>returns</dt><dd class="cmt"><p>
+</p></dd></dl></div>
+    </li><li name="jcdc.pluginfactory.Cube#top" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="top:()=&gt;jcdc.pluginfactory.Cube[T]"></a>
+      <a id="top:()⇒Cube[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">top</span><span class="result">: () ⇒ <a href="" class="extype" name="jcdc.pluginfactory.Cube">Cube</a>[<span class="extype" name="jcdc.pluginfactory.Cube.T">T</span>]</span>
+      </span>
+      </h4>
+      
+    </li><li name="jcdc.pluginfactory.Cube#translateTo" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="translateTo(newC1:(Int,Int,Int)):jcdc.pluginfactory.Cube[T]"></a>
+      <a id="translateTo((Int,Int,Int)):Cube[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">translateTo</span><span class="params">(<span name="newC1">newC1: (<span class="extype" name="scala.Int">Int</span>, <span class="extype" name="scala.Int">Int</span>, <span class="extype" name="scala.Int">Int</span>)</span>)</span><span class="result">: <a href="" class="extype" name="jcdc.pluginfactory.Cube">Cube</a>[<span class="extype" name="jcdc.pluginfactory.Cube.T">T</span>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Translate this cube to the new position.</p><div class="fullcomment"><div class="comment cmt"><p>Translate this cube to the new position.
+Shifts this cubes first corner to the newC1, and
+shifts all other blocks by the same offsets.</p></div><dl class="paramcmts block"><dt class="param">newC1</dt><dd class="cmt"></dd><dt>returns</dt><dd class="cmt"><p>
+</p></dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait():Unit"></a>
+      <a id="wait():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">()</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait(x$1:Long,x$2:Int):Unit"></a>
+      <a id="wait(Long,Int):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>, <span name="arg1">arg1: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">()</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait(x$1:Long):Unit"></a>
+      <a id="wait(Long):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">()</span>
+              
+        </dd></dl></div>
+    </li><li name="jcdc.pluginfactory.Cube#walls" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="walls:Stream[T]"></a>
+      <a id="walls:Stream[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">walls</span><span class="result">: <span class="extype" name="scala.Stream">Stream</span>[<span class="extype" name="jcdc.pluginfactory.Cube.T">T</span>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Return a Stream of all the blocks in this cube
+the order of the blocks in the stream is not particularly meaningful
+and shouldnt be relied on.</p><div class="fullcomment"><div class="comment cmt"><p>Return a Stream of all the blocks in this cube
+the order of the blocks in the stream is not particularly meaningful
+and shouldnt be relied on.
+TODO: can i do this more efficiently?
+TODO: can i make this return 4 cubes?
+</p></div></div>
+    </li><li name="jcdc.pluginfactory.Cube#westWall" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="westWall:jcdc.pluginfactory.Cube[T]"></a>
+      <a id="westWall:Cube[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">westWall</span><span class="result">: <a href="" class="extype" name="jcdc.pluginfactory.Cube">Cube</a>[<span class="extype" name="jcdc.pluginfactory.Cube.T">T</span>]</span>
+      </span>
+      </h4>
+      
+    </li><li name="jcdc.pluginfactory.Cube#width" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="width:Long"></a>
+      <a id="width:Long"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">width</span><span class="result">: <span class="extype" name="scala.Long">Long</span></span>
+      </span>
+      </h4>
+      
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        <div class="parent" name="scala.Serializable">
+              <h3>Inherited from <span class="extype" name="scala.Serializable">Serializable</span></h3>
+            </div><div class="parent" name="java.io.Serializable">
+              <h3>Inherited from <span class="extype" name="java.io.Serializable">Serializable</span></h3>
+            </div><div class="parent" name="scala.Product">
+              <h3>Inherited from <span class="extype" name="scala.Product">Product</span></h3>
+            </div><div class="parent" name="scala.Equals">
+              <h3>Inherited from <span class="extype" name="scala.Equals">Equals</span></h3>
+            </div><div class="parent" name="scala.AnyRef">
+              <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
+            </div><div class="parent" name="scala.Any">
+              <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>
+            </div>
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+
+
+    </body>
+      </html>

@@ -1,0 +1,1638 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html>
+        <head>
+          <title>ScalaPlugin - jcdc.pluginfactory.ScalaPlugin</title>
+          <meta name="description" content="ScalaPlugin - jcdc.pluginfactory.ScalaPlugin" />
+          <meta name="keywords" content="ScalaPlugin jcdc.pluginfactory.ScalaPlugin" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../lib/template.js"></script>
+      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
+      
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../index.html';
+            var hash = 'jcdc.pluginfactory.ScalaPlugin';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="type">
+      <div id="definition">
+        <img src="../../lib/class_big.png" />
+        <p id="owner"><a href="../package.html" class="extype" name="jcdc">jcdc</a>.<a href="package.html" class="extype" name="jcdc.pluginfactory">pluginfactory</a></p>
+        <h1>ScalaPlugin</h1>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ScalaPlugin</span><span class="result"> extends <span class="extype" name="org.bukkit.plugin.java.JavaPlugin">JavaPlugin</span> with <a href="BukkitEnrichment.html" class="extype" name="jcdc.pluginfactory.BukkitEnrichment">BukkitEnrichment</a></span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>The base class that helps make writing Bukkit plugins vastly easier.
+However, it's unlikely that you'll subclass ScalaPlugin directly. It's
+far more likely that you'll subclass jcdc.pluginfactory.CommandsPlugin,
+jcdc.pluginfactory.ListenersPlugin, or both.
+</p></div><dl class="attributes block"> <dt>Self Type</dt><dd><a href="" class="extype" name="jcdc.pluginfactory.ScalaPlugin">ScalaPlugin</a></dd></dl><div class="toggleContainer block">
+          <span class="toggle">Linear Supertypes</span>
+          <div class="superTypes hiddenContent"><a href="BukkitEnrichment.html" class="extype" name="jcdc.pluginfactory.BukkitEnrichment">BukkitEnrichment</a>, <a href="ScalaEnrichment.html" class="extype" name="jcdc.pluginfactory.ScalaEnrichment">ScalaEnrichment</a>, <span class="extype" name="org.bukkit.plugin.java.JavaPlugin">JavaPlugin</span>, <span class="extype" name="org.bukkit.plugin.PluginBase">PluginBase</span>, <span class="extype" name="org.bukkit.plugin.Plugin">Plugin</span>, <span class="extype" name="org.bukkit.command.TabExecutor">TabExecutor</span>, <span class="extype" name="org.bukkit.command.CommandExecutor">CommandExecutor</span>, <span class="extype" name="org.bukkit.command.TabCompleter">TabCompleter</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+        </div><div class="toggleContainer block">
+          <span class="toggle">Known Subclasses</span>
+          <div class="subClasses hiddenContent"><a href="CommandPlugin.html" class="extype" name="jcdc.pluginfactory.CommandPlugin">CommandPlugin</a>, <a href="CommandsPlugin.html" class="extype" name="jcdc.pluginfactory.CommandsPlugin">CommandsPlugin</a>, <a href="CommandsPlugin$.html" class="extype" name="jcdc.pluginfactory.CommandsPlugin">CommandsPlugin</a>, <a href="ListenerPlugin.html" class="extype" name="jcdc.pluginfactory.ListenerPlugin">ListenerPlugin</a>, <a href="ListenersPlugin.html" class="extype" name="jcdc.pluginfactory.ListenersPlugin">ListenersPlugin</a>, <a href="Listeners$ListeningFor.html" class="extype" name="jcdc.pluginfactory.Listeners.ListeningFor">ListeningFor</a>, <a href="MinecraftParsers.html" class="extype" name="jcdc.pluginfactory.MinecraftParsers">MinecraftParsers</a>, <a href="MinecraftParsers$.html" class="extype" name="jcdc.pluginfactory.MinecraftParsers">MinecraftParsers</a>, <a href="SingleClassDBPlugin.html" class="extype" name="jcdc.pluginfactory.SingleClassDBPlugin">SingleClassDBPlugin</a></div>
+        </div></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        <div id="order">
+              <span class="filtertype">Ordering</span>
+              <ol>
+                
+                <li class="alpha in"><span>Alphabetic</span></li>
+                <li class="inherit out"><span>By inheritance</span></li>
+              </ol>
+            </div>
+        <div id="ancestors">
+                <span class="filtertype">Inherited<br />
+                </span>
+                <ol id="linearization">
+                  <li class="in" name="jcdc.pluginfactory.ScalaPlugin"><span>ScalaPlugin</span></li><li class="in" name="jcdc.pluginfactory.BukkitEnrichment"><span>BukkitEnrichment</span></li><li class="in" name="jcdc.pluginfactory.ScalaEnrichment"><span>ScalaEnrichment</span></li><li class="in" name="org.bukkit.plugin.java.JavaPlugin"><span>JavaPlugin</span></li><li class="in" name="org.bukkit.plugin.PluginBase"><span>PluginBase</span></li><li class="in" name="org.bukkit.plugin.Plugin"><span>Plugin</span></li><li class="in" name="org.bukkit.command.TabExecutor"><span>TabExecutor</span></li><li class="in" name="org.bukkit.command.CommandExecutor"><span>CommandExecutor</span></li><li class="in" name="org.bukkit.command.TabCompleter"><span>TabCompleter</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                </ol>
+              </div><div id="ancestors">
+            <span class="filtertype"></span>
+            <ol>
+              <li class="hideall out"><span>Hide All</span></li>
+              <li class="showall in"><span>Show all</span></li>
+            </ol>
+            <a href="http://docs.scala-lang.org/overviews/scaladoc/usage.html#members" target="_blank">Learn more about member selection</a>
+          </div>
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        <div id="constructors" class="members">
+              <h3>Instance Constructors</h3>
+              <ol><li name="jcdc.pluginfactory.ScalaPlugin#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="&lt;init&gt;():jcdc.pluginfactory.ScalaPlugin"></a>
+      <a id="&lt;init&gt;:ScalaPlugin"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">new</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ScalaPlugin</span><span class="params">()</span>
+      </span>
+      </h4>
+      
+    </li></ol>
+            </div>
+
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="jcdc.pluginfactory.BukkitEnrichment.Color" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ColorextendsProductwithSerializable"></a>
+      <a id="Color:Color"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">sealed </span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="BukkitEnrichment$Color.html"><span class="name">Color</span></a><span class="params">(<span name="data">data: <span class="extype" name="scala.Byte">Byte</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="BukkitEnrichment.html" class="extype" name="jcdc.pluginfactory.BukkitEnrichment">BukkitEnrichment</a></dd></dl></div>
+    </li><li name="jcdc.pluginfactory.BukkitEnrichment.MaterialAndData" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="MaterialAndDataextendsProductwithSerializable"></a>
+      <a id="MaterialAndData:MaterialAndData"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="BukkitEnrichment$MaterialAndData.html"><span class="name">MaterialAndData</span></a><span class="params">(<span name="m">m: <span class="extype" name="org.bukkit.Material">Material</span></span>, <span name="data">data: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Byte">Byte</span>]</span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="BukkitEnrichment.html" class="extype" name="jcdc.pluginfactory.BukkitEnrichment">BukkitEnrichment</a></dd></dl></div>
+    </li><li name="jcdc.pluginfactory.ScalaPlugin.PlayerTasks" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="PlayerTasksextendsPlayerState[Seq[ScalaPlugin.this.Task]]withProductwithSerializable"></a>
+      <a id="PlayerTasks:PlayerTasks"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="ScalaPlugin$PlayerTasks.html"><span class="name">PlayerTasks</span></a><span class="params">(<span name="cancelOnExit">cancelOnExit: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">true</span></span>)</span><span class="result"> extends <a href="PlayerState.html" class="extype" name="jcdc.pluginfactory.PlayerState">PlayerState</a>[<span class="extype" name="scala.Seq">Seq</span>[<a href="ScalaPlugin$Task.html" class="extype" name="jcdc.pluginfactory.ScalaPlugin.Task">Task</a>]] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="jcdc.pluginfactory.BukkitEnrichment.RichBlock" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RichBlockextendsObject"></a>
+      <a id="RichBlock:RichBlock"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="BukkitEnrichment$RichBlock.html"><span class="name">RichBlock</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Add a whole pile of awesomeness to Block.</p>
+    </li><li name="jcdc.pluginfactory.ScalaEnrichment.RichBoolean" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RichBooleanextendsObject"></a>
+      <a id="RichBoolean:RichBoolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="ScalaEnrichment$RichBoolean.html"><span class="name">RichBoolean</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Adds and and or functions to Booleans.</p>
+    </li><li name="jcdc.pluginfactory.BukkitEnrichment.RichCancellable" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RichCancellableextendsObject"></a>
+      <a id="RichCancellable:RichCancellable"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="BukkitEnrichment$RichCancellable.html"><span class="name">RichCancellable</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Add some awesomeness to Cancellable.</p>
+    </li><li name="jcdc.pluginfactory.BukkitEnrichment.RichColor" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="RichColorextendsObject"></a>
+      <a id="RichColor:RichColor"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="BukkitEnrichment$RichColor.html"><span class="name">RichColor</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="BukkitEnrichment.html" class="extype" name="jcdc.pluginfactory.BukkitEnrichment">BukkitEnrichment</a></dd></dl></div>
+    </li><li name="jcdc.pluginfactory.BukkitEnrichment.RichCubeOfBlocks" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="RichCubeOfBlocksextendsObject"></a>
+      <a id="RichCubeOfBlocks:RichCubeOfBlocks"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="BukkitEnrichment$RichCubeOfBlocks.html"><span class="name">RichCubeOfBlocks</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="BukkitEnrichment.html" class="extype" name="jcdc.pluginfactory.BukkitEnrichment">BukkitEnrichment</a></dd></dl></div>
+    </li><li name="jcdc.pluginfactory.BukkitEnrichment.RichEntity" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RichEntityextendsObject"></a>
+      <a id="RichEntity:RichEntity"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="BukkitEnrichment$RichEntity.html"><span class="name">RichEntity</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Add a bunch of awesomeness to Entity.</p>
+    </li><li name="jcdc.pluginfactory.BukkitEnrichment.RichEntityDamageByEntityEvent" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RichEntityDamageByEntityEventextendsObject"></a>
+      <a id="RichEntityDamageByEntityEvent:RichEntityDamageByEntityEvent"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="BukkitEnrichment$RichEntityDamageByEntityEvent.html"><span class="name">RichEntityDamageByEntityEvent</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Add some awesomeness to EntityDamageByEntityEvent.</p>
+    </li><li name="jcdc.pluginfactory.ScalaEnrichment.RichFile" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RichFileextendsObject"></a>
+      <a id="RichFile:RichFile"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="ScalaEnrichment$RichFile.html"><span class="name">RichFile</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Add some fun functions to File.</p>
+    </li><li name="jcdc.pluginfactory.ScalaEnrichment.RichFunction1" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RichFunction1[A,B,R]extendsObject"></a>
+      <a id="RichFunction1[A,B,R]:RichFunction1[A,B,R]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="ScalaEnrichment$RichFunction1.html"><span class="name">RichFunction1</span></a><span class="tparams">[<span name="A">A</span>, <span name="B">B</span>, <span name="R">R</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Enrich a Function1.</p>
+    </li><li name="jcdc.pluginfactory.ScalaEnrichment.RichFunction1Function1" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RichFunction1Function1[A,B,R]extendsObject"></a>
+      <a id="RichFunction1Function1[A,B,R]:RichFunction1Function1[A,B,R]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="ScalaEnrichment$RichFunction1Function1.html"><span class="name">RichFunction1Function1</span></a><span class="tparams">[<span name="A">A</span>, <span name="B">B</span>, <span name="R">R</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Enrich a Function1 that returns a Function1.</p>
+    </li><li name="jcdc.pluginfactory.ScalaEnrichment.RichFunction2" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RichFunction2[A,B,R]extendsObject"></a>
+      <a id="RichFunction2[A,B,R]:RichFunction2[A,B,R]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="ScalaEnrichment$RichFunction2.html"><span class="name">RichFunction2</span></a><span class="tparams">[<span name="A">A</span>, <span name="B">B</span>, <span name="R">R</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Enrich a Function2
+</p>
+    </li><li name="jcdc.pluginfactory.ScalaEnrichment.RichInt" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RichIntextendsObject"></a>
+      <a id="RichInt:RichInt"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="ScalaEnrichment$RichInt.html"><span class="name">RichInt</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Adds isEven, isOdd to Ints.</p>
+    </li><li name="jcdc.pluginfactory.BukkitEnrichment.RichItemStack" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RichItemStackextendsObject"></a>
+      <a id="RichItemStack:RichItemStack"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="BukkitEnrichment$RichItemStack.html"><span class="name">RichItemStack</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Add some awesomeness to ItemStack.</p>
+    </li><li name="jcdc.pluginfactory.BukkitEnrichment.RichLivingEntity" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RichLivingEntityextendsObject"></a>
+      <a id="RichLivingEntity:RichLivingEntity"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="BukkitEnrichment$RichLivingEntity.html"><span class="name">RichLivingEntity</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Add some awesomeness to LivingEntity.</p>
+    </li><li name="jcdc.pluginfactory.BukkitEnrichment.RichLocation" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RichLocationextendsObject"></a>
+      <a id="RichLocation:RichLocation"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="BukkitEnrichment$RichLocation.html"><span class="name">RichLocation</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Add a whole pile of awesomeness to Location.</p>
+    </li><li name="jcdc.pluginfactory.BukkitEnrichment.RichMaterial" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RichMaterialextendsObject"></a>
+      <a id="RichMaterial:RichMaterial"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="BukkitEnrichment$RichMaterial.html"><span class="name">RichMaterial</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Add some awesomeness to Material.</p>
+    </li><li name="jcdc.pluginfactory.ScalaEnrichment.RichOption" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RichOption[T]extendsObject"></a>
+      <a id="RichOption[T]:RichOption[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="ScalaEnrichment$RichOption.html"><span class="name">RichOption</span></a><span class="tparams">[<span name="T">T</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Enrich an Option
+</p>
+    </li><li name="jcdc.pluginfactory.BukkitEnrichment.RichPlayer" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RichPlayerextendsObject"></a>
+      <a id="RichPlayer:RichPlayer"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="BukkitEnrichment$RichPlayer.html"><span class="name">RichPlayer</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Add a whole pile of awesomeness to Player.</p>
+    </li><li name="jcdc.pluginfactory.BukkitEnrichment.RichPlayerInteractEvent" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RichPlayerInteractEventextendsObject"></a>
+      <a id="RichPlayerInteractEvent:RichPlayerInteractEvent"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="BukkitEnrichment$RichPlayerInteractEvent.html"><span class="name">RichPlayerInteractEvent</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Add some awesomeness to PlayerInteractEvent.</p>
+    </li><li name="jcdc.pluginfactory.BukkitEnrichment.RichPluginManager" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="RichPluginManagerextendsObject"></a>
+      <a id="RichPluginManager:RichPluginManager"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="BukkitEnrichment$RichPluginManager.html"><span class="name">RichPluginManager</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="BukkitEnrichment.html" class="extype" name="jcdc.pluginfactory.BukkitEnrichment">BukkitEnrichment</a></dd></dl></div>
+    </li><li name="jcdc.pluginfactory.BukkitEnrichment.RichServer" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RichServerextendsObject"></a>
+      <a id="RichServer:RichServer"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="BukkitEnrichment$RichServer.html"><span class="name">RichServer</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Add a whole pile of awesomeness to Server.</p>
+    </li><li name="jcdc.pluginfactory.ScalaEnrichment.RichT" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RichT[T]extendsObject"></a>
+      <a id="RichT[T]:RichT[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="ScalaEnrichment$RichT.html"><span class="name">RichT</span></a><span class="tparams">[<span name="T">T</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Allows for F# style pipelining
+x |&gt; f is the same as f(x).</p>
+    </li><li name="jcdc.pluginfactory.BukkitEnrichment.RichWeatherChangeEvent" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RichWeatherChangeEventextendsObject"></a>
+      <a id="RichWeatherChangeEvent:RichWeatherChangeEvent"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="BukkitEnrichment$RichWeatherChangeEvent.html"><span class="name">RichWeatherChangeEvent</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Add some awesomeness to WeatherChangeEvent.</p>
+    </li><li name="jcdc.pluginfactory.BukkitEnrichment.RichWorld" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RichWorldextendsObject"></a>
+      <a id="RichWorld:RichWorld"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="BukkitEnrichment$RichWorld.html"><span class="name">RichWorld</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Add a whole pile of awesomeness to World.</p>
+    </li><li name="jcdc.pluginfactory.ScalaPlugin.Task" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="TaskextendsProductwithSerializable"></a>
+      <a id="Task:Task"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="ScalaPlugin$Task.html"><span class="name">Task</span></a><span class="params">(<span name="id">id: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      
+    </li></ol>
+            </div>
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="scala.AnyRef#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="!=(x$1:AnyRef):Boolean"></a>
+      <a id="!=(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.Any#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="!=(x$1:Any):Boolean"></a>
+      <a id="!=(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="scala.AnyRef###" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="##():Int"></a>
+      <a id="##():Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $hash$hash" class="name">##</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="==(x$1:AnyRef):Boolean"></a>
+      <a id="==(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.Any#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="==(x$1:Any):Boolean"></a>
+      <a id="==(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="jcdc.pluginfactory.BukkitEnrichment.Color" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="Color"></a>
+      <a id="Color:Color"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="BukkitEnrichment$Color$.html"><span class="name">Color</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="BukkitEnrichment.html" class="extype" name="jcdc.pluginfactory.BukkitEnrichment">BukkitEnrichment</a></dd></dl></div>
+    </li><li name="jcdc.pluginfactory.BukkitEnrichment.MaterialAndData" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="MaterialAndData"></a>
+      <a id="MaterialAndData:MaterialAndData"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="BukkitEnrichment$MaterialAndData$.html"><span class="name">MaterialAndData</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="BukkitEnrichment.html" class="extype" name="jcdc.pluginfactory.BukkitEnrichment">BukkitEnrichment</a></dd></dl></div>
+    </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="asInstanceOf[T0]:T0"></a>
+      <a id="asInstanceOf[T0]:T0"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">asInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Any.asInstanceOf.T0">T0</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="jcdc.pluginfactory.ScalaPlugin#broadcast" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="broadcast(message:String):Unit"></a>
+      <a id="broadcast(String):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">broadcast</span><span class="params">(<span name="message">message: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Broadcast a message to the world.</p><div class="fullcomment"><div class="comment cmt"><p>Broadcast a message to the world.
+The name of the plugin is prepended to the given message, like so:
+[plugin-name] - message
+</p></div></div>
+    </li><li name="jcdc.pluginfactory.ScalaEnrichment#byNameToRunnable" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="byNameToRunnable(f:=&gt;Unit):Runnable"></a>
+      <a id="byNameToRunnable(⇒Unit):Runnable"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">byNameToRunnable</span><span class="params">(<span name="f">f: ⇒ <span class="extype" name="scala.Unit">Unit</span></span>)</span><span class="result">: <span class="extype" name="java.lang.Runnable">Runnable</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Implicit conversion to Runnable.</p><div class="fullcomment"><div class="comment cmt"><p>Implicit conversion to Runnable.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ScalaEnrichment.html" class="extype" name="jcdc.pluginfactory.ScalaEnrichment">ScalaEnrichment</a></dd></dl></div>
+    </li><li name="jcdc.pluginfactory.ScalaPlugin#cancelTask" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="cancelTask(t:ScalaPlugin.this.Task):Unit"></a>
+      <a id="cancelTask(Task):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">cancelTask</span><span class="params">(<span name="t">t: <a href="ScalaPlugin$Task.html" class="extype" name="jcdc.pluginfactory.ScalaPlugin.Task">Task</a></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="clone():Object"></a>
+      <a id="clone():AnyRef"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<span class="extype" name="java.lang">java.lang</span>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">()</span>
+              
+        </dd></dl></div>
+    </li><li name="jcdc.pluginfactory.ScalaPlugin#dbClasses" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="dbClasses:List[Class[_]]"></a>
+      <a id="dbClasses:List[Class[_]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">dbClasses</span><span class="result">: <span class="extype" name="scala.List">List</span>[<span class="extype" name="scala.Predef.Class">Class</span>[_]]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Classes that want to use a database should override this def, providing
+all of the Entity classes.</p><div class="fullcomment"><div class="comment cmt"><p>Classes that want to use a database should override this def, providing
+all of the Entity classes. See WarpPlugin in examples.
+</p></div></div>
+    </li><li name="jcdc.pluginfactory.ScalaPlugin#dependencies" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="dependencies:List[String]"></a>
+      <a id="dependencies:List[String]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">dependencies</span><span class="result">: <span class="extype" name="scala.List">List</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">A list of dependencies that this plugin depends on.</p><div class="fullcomment"><div class="comment cmt"><p>A list of dependencies that this plugin depends on.
+JcdcPluginFactory is automatically included, which contains Scala, Clojure, and
+all of the classes in jcdc.pluginfactory.
+See http://wiki.bukkit.org/Plugin_YAML for more info
+</p></div></div>
+    </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="eq(x$1:AnyRef):Boolean"></a>
+      <a id="eq(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="org.bukkit.plugin.PluginBase#equals" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="equals(x$1:Any):Boolean"></a>
+      <a id="equals(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">equals</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>PluginBase → AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="finalize():Unit"></a>
+      <a id="finalize():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">finalize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<span class="extype" name="java.lang">java.lang</span>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">()</span>
+              
+        </dd></dl></div>
+    </li><li name="jcdc.pluginfactory.BukkitEnrichment#findEntity" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="findEntity(name:String):Option[org.bukkit.entity.EntityType]"></a>
+      <a id="findEntity(String):Option[EntityType]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">findEntity</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="org.bukkit.entity.EntityType">EntityType</span>]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="BukkitEnrichment.html" class="extype" name="jcdc.pluginfactory.BukkitEnrichment">BukkitEnrichment</a></dd></dl></div>
+    </li><li name="jcdc.pluginfactory.BukkitEnrichment#findMaterial" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="findMaterial(nameOrId:String):Option[org.bukkit.Material]"></a>
+      <a id="findMaterial(String):Option[Material]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">findMaterial</span><span class="params">(<span name="nameOrId">nameOrId: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="org.bukkit.Material">Material</span>]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="BukkitEnrichment.html" class="extype" name="jcdc.pluginfactory.BukkitEnrichment">BukkitEnrichment</a></dd></dl></div>
+    </li><li name="jcdc.pluginfactory.ScalaPlugin#fire" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="fire(e:org.bukkit.event.Event):Unit"></a>
+      <a id="fire(Event):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">fire</span><span class="params">(<span name="e">e: <span class="extype" name="org.bukkit.event.Event">Event</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="scala.AnyRef#getClass" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getClass():Class[_]"></a>
+      <a id="getClass():Class[_]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getClass</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.Class">Class</span>[_]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="org.bukkit.plugin.java.JavaPlugin#getClassLoader" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getClassLoader():ClassLoader"></a>
+      <a id="getClassLoader():ClassLoader"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getClassLoader</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.ClassLoader">ClassLoader</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<span class="extype" name="org.bukkit.plugin.java">org.bukkit.plugin.java</span>] </dd><dt>Definition Classes</dt><dd>JavaPlugin</dd></dl></div>
+    </li><li name="org.bukkit.plugin.java.JavaPlugin#getCommand" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getCommand(x$1:String):org.bukkit.command.PluginCommand"></a>
+      <a id="getCommand(String):PluginCommand"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getCommand</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="java.lang.String">String</span></span>)</span><span class="result">: <span class="extype" name="org.bukkit.command.PluginCommand">PluginCommand</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>JavaPlugin</dd></dl></div>
+    </li><li name="org.bukkit.plugin.java.JavaPlugin#getConfig" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getConfig():org.bukkit.configuration.file.FileConfiguration"></a>
+      <a id="getConfig():FileConfiguration"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getConfig</span><span class="params">()</span><span class="result">: <span class="extype" name="org.bukkit.configuration.file.FileConfiguration">FileConfiguration</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>JavaPlugin → Plugin</dd></dl></div>
+    </li><li name="org.bukkit.plugin.java.JavaPlugin#getDataFolder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getDataFolder():java.io.File"></a>
+      <a id="getDataFolder():File"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getDataFolder</span><span class="params">()</span><span class="result">: <span class="extype" name="java.io.File">File</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>JavaPlugin → Plugin</dd></dl></div>
+    </li><li name="org.bukkit.plugin.java.JavaPlugin#getDatabase" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getDatabase():com.avaje.ebean.EbeanServer"></a>
+      <a id="getDatabase():EbeanServer"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getDatabase</span><span class="params">()</span><span class="result">: <span class="extype" name="com.avaje.ebean.EbeanServer">EbeanServer</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>JavaPlugin → Plugin</dd></dl></div>
+    </li><li name="jcdc.pluginfactory.ScalaPlugin#getDatabaseClasses" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getDatabaseClasses():java.util.ArrayList[Class[_]]"></a>
+      <a id="getDatabaseClasses():ArrayList[Class[_]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getDatabaseClasses</span><span class="params">()</span><span class="result">: <span class="extype" name="java.util.ArrayList">ArrayList</span>[<span class="extype" name="scala.Predef.Class">Class</span>[_]]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="jcdc.pluginfactory.ScalaPlugin">ScalaPlugin</a> → JavaPlugin</dd></dl></div>
+    </li><li name="org.bukkit.plugin.java.JavaPlugin#getDefaultWorldGenerator" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getDefaultWorldGenerator(x$1:String,x$2:String):org.bukkit.generator.ChunkGenerator"></a>
+      <a id="getDefaultWorldGenerator(String,String):ChunkGenerator"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getDefaultWorldGenerator</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="java.lang.String">String</span></span>, <span name="arg1">arg1: <span class="extype" name="java.lang.String">String</span></span>)</span><span class="result">: <span class="extype" name="org.bukkit.generator.ChunkGenerator">ChunkGenerator</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>JavaPlugin → Plugin</dd></dl></div>
+    </li><li name="org.bukkit.plugin.java.JavaPlugin#getDescription" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getDescription():org.bukkit.plugin.PluginDescriptionFile"></a>
+      <a id="getDescription():PluginDescriptionFile"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getDescription</span><span class="params">()</span><span class="result">: <span class="extype" name="org.bukkit.plugin.PluginDescriptionFile">PluginDescriptionFile</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>JavaPlugin → Plugin</dd></dl></div>
+    </li><li name="org.bukkit.plugin.java.JavaPlugin#getFile" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getFile():java.io.File"></a>
+      <a id="getFile():File"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getFile</span><span class="params">()</span><span class="result">: <span class="extype" name="java.io.File">File</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<span class="extype" name="org.bukkit.plugin.java">org.bukkit.plugin.java</span>] </dd><dt>Definition Classes</dt><dd>JavaPlugin</dd></dl></div>
+    </li><li name="org.bukkit.plugin.java.JavaPlugin#getLogger" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getLogger():java.util.logging.Logger"></a>
+      <a id="getLogger():Logger"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getLogger</span><span class="params">()</span><span class="result">: <span class="extype" name="java.util.logging.Logger">Logger</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>JavaPlugin → Plugin</dd></dl></div>
+    </li><li name="org.bukkit.plugin.PluginBase#getName" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getName():String"></a>
+      <a id="getName():String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getName</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>PluginBase → Plugin</dd></dl></div>
+    </li><li name="org.bukkit.plugin.java.JavaPlugin#getPluginLoader" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getPluginLoader():org.bukkit.plugin.PluginLoader"></a>
+      <a id="getPluginLoader():PluginLoader"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getPluginLoader</span><span class="params">()</span><span class="result">: <span class="extype" name="org.bukkit.plugin.PluginLoader">PluginLoader</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>JavaPlugin → Plugin</dd></dl></div>
+    </li><li name="org.bukkit.plugin.java.JavaPlugin#getResource" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getResource(x$1:String):java.io.InputStream"></a>
+      <a id="getResource(String):InputStream"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getResource</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="java.lang.String">String</span></span>)</span><span class="result">: <span class="extype" name="java.io.InputStream">InputStream</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>JavaPlugin → Plugin</dd></dl></div>
+    </li><li name="org.bukkit.plugin.java.JavaPlugin#getServer" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getServer():org.bukkit.Server"></a>
+      <a id="getServer():Server"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getServer</span><span class="params">()</span><span class="result">: <span class="extype" name="org.bukkit.Server">Server</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>JavaPlugin → Plugin</dd></dl></div>
+    </li><li name="org.bukkit.plugin.PluginBase#hashCode" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="hashCode():Int"></a>
+      <a id="hashCode():Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">hashCode</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>PluginBase → AnyRef → Any</dd></dl></div>
+    </li><li name="jcdc.pluginfactory.ScalaEnrichment#id" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="id[T](t:T):T"></a>
+      <a id="id[T](T):T"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">id</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="t">t: <span class="extype" name="jcdc.pluginfactory.ScalaEnrichment.id.T">T</span></span>)</span><span class="result">: <span class="extype" name="jcdc.pluginfactory.ScalaEnrichment.id.T">T</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Alias for identity.</p><div class="fullcomment"><div class="comment cmt"><p>Alias for identity.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ScalaEnrichment.html" class="extype" name="jcdc.pluginfactory.ScalaEnrichment">ScalaEnrichment</a></dd></dl></div>
+    </li><li name="org.bukkit.plugin.java.JavaPlugin#initialize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="initialize(x$1:org.bukkit.plugin.PluginLoader,x$2:org.bukkit.Server,x$3:org.bukkit.plugin.PluginDescriptionFile,x$4:java.io.File,x$5:java.io.File,x$6:ClassLoader):Unit"></a>
+      <a id="initialize(PluginLoader,Server,PluginDescriptionFile,File,File,ClassLoader):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">initialize</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="org.bukkit.plugin.PluginLoader">PluginLoader</span></span>, <span name="arg1">arg1: <span class="extype" name="org.bukkit.Server">Server</span></span>, <span name="arg2">arg2: <span class="extype" name="org.bukkit.plugin.PluginDescriptionFile">PluginDescriptionFile</span></span>, <span name="arg3">arg3: <span class="extype" name="java.io.File">File</span></span>, <span name="arg4">arg4: <span class="extype" name="java.io.File">File</span></span>, <span name="arg5">arg5: <span class="extype" name="java.lang.ClassLoader">ClassLoader</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<span class="extype" name="org.bukkit.plugin.java">org.bukkit.plugin.java</span>] </dd><dt>Definition Classes</dt><dd>JavaPlugin</dd></dl></div>
+    </li><li name="org.bukkit.plugin.java.JavaPlugin#installDDL" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="installDDL():Unit"></a>
+      <a id="installDDL():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">installDDL</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<span class="extype" name="org.bukkit.plugin.java">org.bukkit.plugin.java</span>] </dd><dt>Definition Classes</dt><dd>JavaPlugin</dd></dl></div>
+    </li><li name="org.bukkit.plugin.java.JavaPlugin#isEnabled" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="isEnabled():Boolean"></a>
+      <a id="isEnabled():Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">isEnabled</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>JavaPlugin → Plugin</dd></dl></div>
+    </li><li name="org.bukkit.plugin.java.JavaPlugin#isInitialized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="isInitialized():Boolean"></a>
+      <a id="isInitialized():Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">isInitialized</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>JavaPlugin</dd></dl></div>
+    </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="isInstanceOf[T0]:Boolean"></a>
+      <a id="isInstanceOf[T0]:Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">isInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="org.bukkit.plugin.java.JavaPlugin#isNaggable" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="isNaggable():Boolean"></a>
+      <a id="isNaggable():Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">isNaggable</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>JavaPlugin → Plugin</dd></dl></div>
+    </li><li name="jcdc.pluginfactory.ScalaPlugin#log" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="log:java.util.logging.Logger"></a>
+      <a id="log:Logger"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">lazy val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">log</span><span class="result">: <span class="extype" name="java.util.logging.Logger">Logger</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="jcdc.pluginfactory.ScalaPlugin#logError" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="logError(e:Throwable):Unit"></a>
+      <a id="logError(Throwable):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">logError</span><span class="params">(<span name="e">e: <span class="extype" name="scala.Throwable">Throwable</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Log the given exception at SEVERE level.</p>
+    </li><li name="jcdc.pluginfactory.ScalaPlugin#logInfo" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="logInfo(message:String):Unit"></a>
+      <a id="logInfo(String):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">logInfo</span><span class="params">(<span name="message">message: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Log the given message at INFO level.</p>
+    </li><li name="jcdc.pluginfactory.ScalaPlugin#logTask" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="logTask[T](message:String)(f:=&gt;T):T"></a>
+      <a id="logTask[T](String)(⇒T):T"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">logTask</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="message">message: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span name="f">f: ⇒ <span class="extype" name="jcdc.pluginfactory.ScalaPlugin.logTask.T">T</span></span>)</span><span class="result">: <span class="extype" name="jcdc.pluginfactory.ScalaPlugin.logTask.T">T</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Log around the given task like so:
+'Starting - message'
+   f
+'Finished - message'
+</p>
+    </li><li name="jcdc.pluginfactory.ScalaPlugin#logWarning" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="logWarning(message:String):Unit"></a>
+      <a id="logWarning(String):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">logWarning</span><span class="params">(<span name="message">message: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Log the given message at INFO level.</p>
+    </li><li name="jcdc.pluginfactory.ScalaPlugin#name" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="name:String"></a>
+      <a id="name:String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">name</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ne(x$1:AnyRef):Boolean"></a>
+      <a id="ne(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#notify" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="notify():Unit"></a>
+      <a id="notify():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">notify</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#notifyAll" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="notifyAll():Unit"></a>
+      <a id="notifyAll():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">notifyAll</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="org.bukkit.plugin.java.JavaPlugin#onCommand" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="onCommand(x$1:org.bukkit.command.CommandSender,x$2:org.bukkit.command.Command,x$3:String,x$4:Array[String]):Boolean"></a>
+      <a id="onCommand(CommandSender,Command,String,Array[String]):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">onCommand</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="org.bukkit.command.CommandSender">CommandSender</span></span>, <span name="arg1">arg1: <span class="extype" name="org.bukkit.command.Command">Command</span></span>, <span name="arg2">arg2: <span class="extype" name="java.lang.String">String</span></span>, <span name="arg3">arg3: <span class="extype" name="scala.Array">Array</span>[<span class="extype" name="java.lang.String">String</span>]</span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>JavaPlugin → CommandExecutor</dd></dl></div>
+    </li><li name="jcdc.pluginfactory.ScalaPlugin#onDisable" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="onDisable():Unit"></a>
+      <a id="onDisable():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">onDisable</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="jcdc.pluginfactory.ScalaPlugin">ScalaPlugin</a> → JavaPlugin → Plugin</dd></dl></div>
+    </li><li name="jcdc.pluginfactory.ScalaPlugin#onEnable" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="onEnable():Unit"></a>
+      <a id="onEnable():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">onEnable</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="jcdc.pluginfactory.ScalaPlugin">ScalaPlugin</a> → JavaPlugin → Plugin</dd></dl></div>
+    </li><li name="org.bukkit.plugin.java.JavaPlugin#onLoad" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="onLoad():Unit"></a>
+      <a id="onLoad():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">onLoad</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>JavaPlugin → Plugin</dd></dl></div>
+    </li><li name="org.bukkit.plugin.java.JavaPlugin#onTabComplete" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="onTabComplete(x$1:org.bukkit.command.CommandSender,x$2:org.bukkit.command.Command,x$3:String,x$4:Array[String]):java.util.List[String]"></a>
+      <a id="onTabComplete(CommandSender,Command,String,Array[String]):List[String]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">onTabComplete</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="org.bukkit.command.CommandSender">CommandSender</span></span>, <span name="arg1">arg1: <span class="extype" name="org.bukkit.command.Command">Command</span></span>, <span name="arg2">arg2: <span class="extype" name="java.lang.String">String</span></span>, <span name="arg3">arg3: <span class="extype" name="scala.Array">Array</span>[<span class="extype" name="java.lang.String">String</span>]</span>)</span><span class="result">: <span class="extype" name="java.util.List">List</span>[<span class="extype" name="java.lang.String">String</span>]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>JavaPlugin → TabCompleter</dd></dl></div>
+    </li><li name="jcdc.pluginfactory.ScalaPlugin#pluginManager" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="pluginManager:org.bukkit.plugin.PluginManager"></a>
+      <a id="pluginManager:PluginManager"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">pluginManager</span><span class="result">: <span class="extype" name="org.bukkit.plugin.PluginManager">PluginManager</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="jcdc.pluginfactory.ScalaEnrichment#randomBoolen" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="randomBoolen:Boolean"></a>
+      <a id="randomBoolen:Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">randomBoolen</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Randomly, return true or false.</p><div class="fullcomment"><div class="comment cmt"><p>Randomly, return true or false.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ScalaEnrichment.html" class="extype" name="jcdc.pluginfactory.ScalaEnrichment">ScalaEnrichment</a></dd></dl></div>
+    </li><li name="jcdc.pluginfactory.ScalaPlugin#registerListener" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="registerListener(listener:org.bukkit.event.Listener):Unit"></a>
+      <a id="registerListener(Listener):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">registerListener</span><span class="params">(<span name="listener">listener: <span class="extype" name="org.bukkit.event.Listener">Listener</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="org.bukkit.plugin.java.JavaPlugin#reloadConfig" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="reloadConfig():Unit"></a>
+      <a id="reloadConfig():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">reloadConfig</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>JavaPlugin → Plugin</dd></dl></div>
+    </li><li name="org.bukkit.plugin.java.JavaPlugin#removeDDL" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="removeDDL():Unit"></a>
+      <a id="removeDDL():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">removeDDL</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<span class="extype" name="org.bukkit.plugin.java">org.bukkit.plugin.java</span>] </dd><dt>Definition Classes</dt><dd>JavaPlugin</dd></dl></div>
+    </li><li name="org.bukkit.plugin.java.JavaPlugin#saveConfig" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="saveConfig():Unit"></a>
+      <a id="saveConfig():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">saveConfig</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>JavaPlugin → Plugin</dd></dl></div>
+    </li><li name="org.bukkit.plugin.java.JavaPlugin#saveDefaultConfig" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="saveDefaultConfig():Unit"></a>
+      <a id="saveDefaultConfig():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">saveDefaultConfig</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>JavaPlugin → Plugin</dd></dl></div>
+    </li><li name="org.bukkit.plugin.java.JavaPlugin#saveResource" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="saveResource(x$1:String,x$2:Boolean):Unit"></a>
+      <a id="saveResource(String,Boolean):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">saveResource</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="java.lang.String">String</span></span>, <span name="arg1">arg1: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>JavaPlugin → Plugin</dd></dl></div>
+    </li><li name="jcdc.pluginfactory.ScalaPlugin#scheduleSyncDelayedTask" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="scheduleSyncDelayedTask(initialDelay:Long)(task:=&gt;Unit):ScalaPlugin.this.Task"></a>
+      <a id="scheduleSyncDelayedTask(Long)(⇒Unit):Task"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">scheduleSyncDelayedTask</span><span class="params">(<span name="initialDelay">initialDelay: <span class="extype" name="scala.Long">Long</span></span>)</span><span class="params">(<span name="task">task: ⇒ <span class="extype" name="scala.Unit">Unit</span></span>)</span><span class="result">: <a href="ScalaPlugin$Task.html" class="extype" name="jcdc.pluginfactory.ScalaPlugin.Task">Task</a></span>
+      </span>
+      </h4>
+      
+    </li><li name="jcdc.pluginfactory.ScalaPlugin#scheduleSyncRepeatingTask" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="scheduleSyncRepeatingTask(initialDelay:Long,period:Long)(task:=&gt;Unit):ScalaPlugin.this.Task"></a>
+      <a id="scheduleSyncRepeatingTask(Long,Long)(⇒Unit):Task"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">scheduleSyncRepeatingTask</span><span class="params">(<span name="initialDelay">initialDelay: <span class="extype" name="scala.Long">Long</span></span>, <span name="period">period: <span class="extype" name="scala.Long">Long</span></span>)</span><span class="params">(<span name="task">task: ⇒ <span class="extype" name="scala.Unit">Unit</span></span>)</span><span class="result">: <a href="ScalaPlugin$Task.html" class="extype" name="jcdc.pluginfactory.ScalaPlugin.Task">Task</a></span>
+      </span>
+      </h4>
+      
+    </li><li name="jcdc.pluginfactory.ScalaPlugin#scheduleSyncRepeatingTask" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="scheduleSyncRepeatingTask(period:Long)(task:=&gt;Unit):ScalaPlugin.this.Task"></a>
+      <a id="scheduleSyncRepeatingTask(Long)(⇒Unit):Task"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">scheduleSyncRepeatingTask</span><span class="params">(<span name="period">period: <span class="extype" name="scala.Long">Long</span></span>)</span><span class="params">(<span name="task">task: ⇒ <span class="extype" name="scala.Unit">Unit</span></span>)</span><span class="result">: <a href="ScalaPlugin$Task.html" class="extype" name="jcdc.pluginfactory.ScalaPlugin.Task">Task</a></span>
+      </span>
+      </h4>
+      
+    </li><li name="jcdc.pluginfactory.ScalaPlugin#scheduleSyncTask" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="scheduleSyncTask(task:=&gt;Unit):ScalaPlugin.this.Task"></a>
+      <a id="scheduleSyncTask(⇒Unit):Task"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">scheduleSyncTask</span><span class="params">(<span name="task">task: ⇒ <span class="extype" name="scala.Unit">Unit</span></span>)</span><span class="result">: <a href="ScalaPlugin$Task.html" class="extype" name="jcdc.pluginfactory.ScalaPlugin.Task">Task</a></span>
+      </span>
+      </h4>
+      
+    </li><li name="jcdc.pluginfactory.ScalaPlugin#server" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="server:org.bukkit.Server"></a>
+      <a id="server:Server"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">server</span><span class="result">: <span class="extype" name="org.bukkit.Server">Server</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="org.bukkit.plugin.java.JavaPlugin#setEnabled" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="setEnabled(x$1:Boolean):Unit"></a>
+      <a id="setEnabled(Boolean):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">setEnabled</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<span class="extype" name="org.bukkit.plugin.java">org.bukkit.plugin.java</span>] </dd><dt>Definition Classes</dt><dd>JavaPlugin</dd></dl></div>
+    </li><li name="org.bukkit.plugin.java.JavaPlugin#setNaggable" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="setNaggable(x$1:Boolean):Unit"></a>
+      <a id="setNaggable(Boolean):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">setNaggable</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>JavaPlugin → Plugin</dd></dl></div>
+    </li><li name="jcdc.pluginfactory.ScalaPlugin#softDependencies" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="softDependencies:List[String]"></a>
+      <a id="softDependencies:List[String]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">softDependencies</span><span class="result">: <span class="extype" name="scala.List">List</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">A list of all the soft dependencies for this plugin.</p><div class="fullcomment"><div class="comment cmt"><p>A list of all the soft dependencies for this plugin.
+See http://wiki.bukkit.org/Plugin_YAML for more info
+</p></div></div>
+    </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
+      <a id="synchronized[T0](⇒T0):T0"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">synchronized</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="params">(<span name="arg0">arg0: ⇒ <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>)</span><span class="result">: <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="org.bukkit.plugin.java.JavaPlugin#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="toString():String"></a>
+      <a id="toString():String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">toString</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>JavaPlugin → AnyRef → Any</dd></dl></div>
+    </li><li name="jcdc.pluginfactory.BukkitEnrichment#tryO" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="tryO[T](f:=&gt;T):Option[T]"></a>
+      <a id="tryO[T](⇒T):Option[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">tryO</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="f">f: ⇒ <span class="extype" name="jcdc.pluginfactory.BukkitEnrichment.tryO.T">T</span></span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="jcdc.pluginfactory.BukkitEnrichment.tryO.T">T</span>]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="BukkitEnrichment.html" class="extype" name="jcdc.pluginfactory.BukkitEnrichment">BukkitEnrichment</a></dd></dl></div>
+    </li><li name="jcdc.pluginfactory.ScalaEnrichment#unit" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="unit:Unit"></a>
+      <a id="unit:Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">unit</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Just unit.</p><div class="fullcomment"><div class="comment cmt"><p>Just unit.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ScalaEnrichment.html" class="extype" name="jcdc.pluginfactory.ScalaEnrichment">ScalaEnrichment</a></dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait():Unit"></a>
+      <a id="wait():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">()</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait(x$1:Long,x$2:Int):Unit"></a>
+      <a id="wait(Long,Int):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>, <span name="arg1">arg1: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">()</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait(x$1:Long):Unit"></a>
+      <a id="wait(Long):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">()</span>
+              
+        </dd></dl></div>
+    </li><li name="jcdc.pluginfactory.ScalaPlugin#writeYML" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="writeYML(author:String,version:String):Unit"></a>
+      <a id="writeYML(String,String):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">writeYML</span><span class="params">(<span name="author">author: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="version">version: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Writes out the yml file.</p><div class="fullcomment"><div class="comment cmt"><p>Writes out the yml file. This is used to build the plugin.</p></div><dl class="paramcmts block"><dt class="param">author</dt><dd class="cmt"><p>the author  of the plugin</p></dd><dt class="param">version</dt><dd class="cmt"><p>the version of the plugin
+</p></dd></dl></div>
+    </li><li name="jcdc.pluginfactory.ScalaPlugin#yml" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="yml(author:String,version:String):String"></a>
+      <a id="yml(String,String):String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">yml</span><span class="params">(<span name="author">author: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="version">version: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Generates the plugin.</p><div class="fullcomment"><div class="comment cmt"><p>Generates the plugin.yml contents for this plugin.
+See http://wiki.bukkit.org/Plugin_YAML for more info</p></div><dl class="paramcmts block"><dt class="param">author</dt><dd class="cmt"><p>the author  of the plugin</p></dd><dt class="param">version</dt><dd class="cmt"><p>the version of the plugin
+</p></dd></dl></div>
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        <div class="parent" name="jcdc.pluginfactory.BukkitEnrichment">
+              <h3>Inherited from <a href="BukkitEnrichment.html" class="extype" name="jcdc.pluginfactory.BukkitEnrichment">BukkitEnrichment</a></h3>
+            </div><div class="parent" name="jcdc.pluginfactory.ScalaEnrichment">
+              <h3>Inherited from <a href="ScalaEnrichment.html" class="extype" name="jcdc.pluginfactory.ScalaEnrichment">ScalaEnrichment</a></h3>
+            </div><div class="parent" name="org.bukkit.plugin.java.JavaPlugin">
+              <h3>Inherited from <span class="extype" name="org.bukkit.plugin.java.JavaPlugin">JavaPlugin</span></h3>
+            </div><div class="parent" name="org.bukkit.plugin.PluginBase">
+              <h3>Inherited from <span class="extype" name="org.bukkit.plugin.PluginBase">PluginBase</span></h3>
+            </div><div class="parent" name="org.bukkit.plugin.Plugin">
+              <h3>Inherited from <span class="extype" name="org.bukkit.plugin.Plugin">Plugin</span></h3>
+            </div><div class="parent" name="org.bukkit.command.TabExecutor">
+              <h3>Inherited from <span class="extype" name="org.bukkit.command.TabExecutor">TabExecutor</span></h3>
+            </div><div class="parent" name="org.bukkit.command.CommandExecutor">
+              <h3>Inherited from <span class="extype" name="org.bukkit.command.CommandExecutor">CommandExecutor</span></h3>
+            </div><div class="parent" name="org.bukkit.command.TabCompleter">
+              <h3>Inherited from <span class="extype" name="org.bukkit.command.TabCompleter">TabCompleter</span></h3>
+            </div><div class="parent" name="scala.AnyRef">
+              <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
+            </div><div class="parent" name="scala.Any">
+              <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>
+            </div>
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+
+
+    </body>
+      </html>
