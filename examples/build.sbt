@@ -14,7 +14,7 @@ resolvers ++= Seq(
 
 libraryDependencies ++= Seq(
   "jcdc.pluginfactory" % "scala-plugin-api_2.10" % "0.2.2",
-  "org.bukkit"         % "craftbukkit"              % "1.4.6-R0.3"
+  "org.bukkit"         % "craftbukkit"              % "1.4.7-R0.1"
 )
 
 //packageBin in Compile <<= (packageBin in Compile) dependsOn run
