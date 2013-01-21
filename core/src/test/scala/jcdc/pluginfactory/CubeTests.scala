@@ -45,7 +45,7 @@ abstract class CubeTestBase(name: String) extends Properties(name) with TestHelp
  * where those properties are simple (O(1), usually), and calculating them doesn't
  * require traversing the whole cube.
  */
-object CubeTestsAwesome extends CubeTestBase("Cube Tests Awesome") with CubeGenerators {
+object BigCubeTests extends CubeTestBase("Cube Tests Awesome") with CubeGenerators {
   test("cubes size > 0")(forAll{ (c:C) => c.size > 0 })
 }
 
@@ -54,7 +54,7 @@ object CubeTestsAwesome extends CubeTestBase("Cube Tests Awesome") with CubeGene
  * where those operations must traverse the cube.
  * That is why we use SmallCubeGenerators, so we don't generate ridiculously huge cubes
  */
-object SmallCubeTestsAwesome extends CubeTestBase("Cube Tests Awesome") with SmallCubeGenerators {
+object SmallCubeTests extends CubeTestBase("Cube Tests Awesome") with SmallCubeGenerators {
 
   test("paste then mirror y same as mirror y then paste")(forAll{ (c:C) =>
     run(c.translateTo((0, 10, 0)).mirrorY) ?= run(c.mirrorY.translateTo((0, 10, 0)))
@@ -64,8 +64,18 @@ object SmallCubeTestsAwesome extends CubeTestBase("Cube Tests Awesome") with Sma
     run(c.mirrorX.mirrorY.mirrorZ) ?= run(c.mirrorZ.mirrorY.mirrorX)
   })
 
-  test("mirror x x, same as identity")(forAll{ (c:C) =>
-    run(c.mirrorX.mirrorX) ?= run(c)
+  test("mirror x x, same as identity")(forAll{ (c:C) => run(c.mirrorX.mirrorX) ?= run(c) })
+
+  test("grow then shrink, same as identity")(forAll{ (c:C) =>
+    run(c.grow(5,6,7).shrink(5,6,7)) ?= run(c)
+  })
+
+  test("shift up, shift down, same as identity")(forAll{ (c:C, i: Int) =>
+    run(c.shiftUp(i).shiftDown(i)) ?= run(c)
+  })
+
+  test("shift by i, shift by -i, same as identity")(forAll{ (c:C, i: Int) =>
+    run(c.shiftX(i).shiftX(-i).shiftY(i).shiftY(-i).shiftZ(i).shiftZ(-i)) ?= run(c)
   })
 }
 
@@ -76,7 +86,7 @@ object SmallCubeTestsAwesome extends CubeTestBase("Cube Tests Awesome") with Sma
 object LiteralCubeTests extends CubeTestBase("Cube Tests") {
 
   val c0 = idCube((0,0,0),(0,0,0))
-  val c = idCube((0,0,0),(10,10,10))
+  val c  = idCube((0,0,0),(10,10,10))
 
   trait P { def apply(c: Point): Int }
   case object X extends P { def apply(c: Point): Int = c.x }
@@ -93,16 +103,13 @@ object LiteralCubeTests extends CubeTestBase("Cube Tests") {
   test("size 0"){ c0.size ?= 1 }
 
   test("simple")   { c             ?= idCube((0,0,0),(10,10,10)) }
-  test("shift up") { c.shiftUp (1) ?= idCube((0,1,0),(10,11,10)) }
-  test("shift x")  { c.shiftX  (5) ?= idCube((5,0,0),(15,10,10)) }
-  test("shift z")  { c.shiftZ  (9) ?= idCube((0,0,9),(10,10,19)) }
   test("expand")   { c.expand  (1) ?= idCube((-1,-1,-1),(11,11,11)) }
   test("expandXY") { c.expandXZ(1) ?= idCube((-1,0,-1),(11,10,11)) }
 
   test("shrink all the way") {
     c.shrink(5,5,5)       ?= idCube((5,5,5),(5,5,5))
     c.shrink(100,100,100) ?= idCube((5,5,5),(5,5,5))
-    idCube((0,0,0),(11,11,11)).shrink(6,6,6) ?= idCube((5,5,5),(5,5,5))
+    idCube((11,11,11),(0,0,0)).shrink(6,6,6) ?= idCube((6,6,6),(5,5,5))
   }
 
   test("shrink more") { c.shrink(2,3,4) ?= idCube((2,3,4),(8,7,6)) }
@@ -153,5 +160,23 @@ object LiteralCubeMirroringTests extends CubeTestBase("Cube Mirroring Tests") {
     run(cy.mirrorY.translateTo((0, 10, 0))) ?= List(
       ((0,10,0),(0,3,0)), ((0,11,0),(0,2,0)), ((0,12,0),(0,1,0)), ((0,13,0),(0,0,0))
     )
+  }
+}
+
+object ShrinkageTests extends CubeTestBase("Past failures for Cubes") {
+  test("cube of size 1 wont shrink.") {
+    idCube((3,0,0), (3,0,0)).shrink(5,0,0) ?= idCube((3,0,0), (3,0,0))
+  }
+  test("cube of size 2 wont shrink.") {
+    idCube((4,0,0), (3,0,0)).shrink(1,0,0) ?= idCube((4,0,0), (3,0,0))
+  }
+  test("shrink test 3") {
+    idCube((6,0,0), (3,0,0)).shrink(5,0,0) ?= idCube((5,0,0), (4,0,0))
+  }
+  test("shrink test 4") {
+    idCube((6,0,0), (3,0,0)).shrink(1,0,0) ?= idCube((5,0,0), (4,0,0))
+  }
+  test("shrink test 5") {
+    idCube((6,0,0), (3,0,0)).shrink(2,0,0) ?= idCube((5,0,0), (4,0,0))
   }
 }

@@ -201,12 +201,38 @@ case class Cube[T](corner1: Point, corner2: Point)(f: Point => T) { self =>
    * A whole pile of operations to change the size of this Cube
    */
 
+  /**
+   * Conceptually, shrinking a cube by 1 means 'shrink the cube on ALL sides by 1'
+   * Shrinking a 5x5x5 cube by 1 gives you back a 3x3x3 cube.
+   * Shrinking a 3x3x3 cube by 1 gives you back a 1x1x1 cube.
+   * A 1x1x1 cube can't shrink any further.
+   *
+   * A 2x2x2 cube will not shrink! It would be arbitrary to choose
+   * whether the shrink the max, or grow the min, and I've decided
+   * to just not shrink it at all in that case.
+   * You can still do this with the other shrink and grow functions on Cube though.
+   *
+   * Shinking a cube by 1 means passing xLess=1, yLess=1, xLess=1
+   *
+   * Hopefully obviously, this means you can just shrink x, or y, or z
+   * by passing in 0 for the other values.
+   *
+   * Shrinking a 5x5x5 cube with xLess=1 will give back a 3x5x5 cube.
+   *
+   * I don't recommend passing in negative values to try to grow.
+   * That isn't tested.
+   *
+   * @param xLess
+   * @param yLess
+   * @param zLess
+   * @return
+   */
   def shrink(xLess:Int, yLess:Int, zLess:Int) = {
-    def midpoint(max:Int, min:Int): Int = (max-min) / 2
+    @scala.annotation.tailrec
     def newMaxMin(max:Int, min:Int, less:Int): (Int,Int) =
-      if (max - min <= 1) (max,min)
-      else if (max - min <= (less*2)) (midpoint(max, min),midpoint(max, min))
-      else (max - less, min + less)
+      if(max - min <= 1) (max,min)
+      else if(less == 0) (max,min)
+      else newMaxMin(max-1, min+1, less-1)
     val (newMaxX,newMinX) = newMaxMin(maxX, minX, xLess)
     val (newMaxY,newMinY) = newMaxMin(maxY, minY, yLess)
     val (newMaxZ,newMinZ) = newMaxMin(maxZ, minZ, zLess)
