@@ -1,8 +1,9 @@
 package jcdc.pluginfactory
 
 import org.squeryl.adapters.DerbyAdapter
-import org.squeryl.PrimitiveTypeMode
-import org.squeryl.{Session, Schema}
+import org.squeryl.{Table, PrimitiveTypeMode, Session, Schema}
+import PrimitiveTypeMode._
+import org.bukkit.entity.Player
 
 object DB {
   Class.forName("org.apache.derby.jdbc.EmbeddedDriver").newInstance()
@@ -31,4 +32,13 @@ trait DBPlugin extends ScalaPlugin {
     initializeDB
     super.onEnable()
   }
+}
+
+trait DBPluginWithCommands extends DBPlugin with CommandsPlugin {
+  def DBCommand(name: String, desc: String)(body: Player => Unit): Command =
+    DBCommand(name, desc, eof){ case (p, _) => body(p) }
+
+  def DBCommand[T](name: String, desc: String, args: Parser[T])
+                   (body: ((Player, T)) => Unit): Command =
+    Command(name, desc, args){ case (p, t) => transaction(body(p, t)) }
 }
