@@ -113,7 +113,7 @@ abstract class ScalaPlugin extends JavaPlugin with BukkitEnrichment { scalaPlugi
   /**
    * Log the given exception at SEVERE level.
    */
-  def logError(e:Throwable): Unit = logMessage(Level.SEVERE, e.getMessage)
+  def logError(e:Throwable): Unit = logMessage(Level.SEVERE, e.getMessage + e.getStackTraceString)
 
   private def logMessage(level: Level, message: String): Unit =
     log.log(level, s"[$name] - $message")

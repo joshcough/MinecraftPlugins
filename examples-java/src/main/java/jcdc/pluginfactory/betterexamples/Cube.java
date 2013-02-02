@@ -1,13 +1,10 @@
 package jcdc.pluginfactory.betterexamples;
 
+import jcdc.pluginfactory.betterjava.*;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import scala.Function1;
-import scala.Option;
-import scala.Tuple2;
-import scala.runtime.AbstractFunction1;
 
 import java.util.Iterator;
 
@@ -71,13 +68,13 @@ public class Cube{
   }
 
   public Void set(final Material m){
-    return iterate(new AbstractFunction1<Block, Void>() {
+    return iterate(new Function1<Block, Void>() {
       public Void apply(Block b) { b.setType(m); return null; }
     });
   }
 
   public Void change(final Material oldM, final Material newM) {
-    return iterate(new AbstractFunction1<Block, Void>() {
+    return iterate(new Function1<Block, Void>() {
       public Void apply(Block b) {
         if(b.getType() == oldM) b.setType(newM);
         return null;
@@ -99,7 +96,7 @@ public class Cube{
     for(Block b: iterable()){
       if(b.getType() == m) return Option.apply(b);
     }
-    return Option.empty();
+    return new None<Block>();
   }
 
 

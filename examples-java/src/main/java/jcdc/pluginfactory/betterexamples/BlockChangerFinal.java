@@ -9,9 +9,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockDamageEvent;
-import scala.Option;
 
-import jcdc.pluginfactory.betterjava.BetterJavaPlugin;
+import jcdc.pluginfactory.betterjava.*;
 import static jcdc.pluginfactory.betterjava.JavaParsers.opt;
 
 public class BlockChangerFinal extends BetterJavaPlugin {

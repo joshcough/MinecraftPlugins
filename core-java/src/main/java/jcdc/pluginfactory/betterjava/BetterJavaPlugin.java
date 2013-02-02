@@ -24,9 +24,11 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
-import scala.Option;
-import scala.runtime.AbstractFunction1;
 
+import javax.persistence.PersistenceException;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.*;
 import java.util.logging.Logger;
@@ -37,28 +39,34 @@ public class BetterJavaPlugin extends JavaPlugin {
   public final Logger logger = Logger.getLogger("Minecraft");
 
   public List<Listener> listeners = new ArrayList<Listener>();
-  public List<Command> commands = new ArrayList<Command>();
+  public List<Command>  commands  = new ArrayList<Command>();
 
   public void onEnable() {
+    super.onEnable();
+    setupDatabase();
     for (Listener l : listeners) { register(l); }
-    info(getDescription().getName() + " version " + getVersion() + " is now enabled.");
+    for(Command c: commands) { info(c.name); }
+    info("version " + getVersion() + " is now enabled.");
   }
 
   public void onDisable() {
+    super.onDisable();
     info(getDescription().getName() + " is now disabled.");
   }
 
   public boolean onCommand(CommandSender sender, org.bukkit.command.Command cmd,
                            String commandLabel, String[] args) {
+    info("in onCommand, command is: " + commandLabel);
     boolean handled = false;
     Player p = sender instanceof Player ? (Player)sender : consolePlayer;
     for(Command c: commands){
+      info("in loop, c.name=" + c.name);
       if(c.name.toLowerCase().equals(commandLabel.toLowerCase())){
-        try{
+        try {
           c.body.parseAndRun(p, args);
           handled = true;
         } catch (Exception e){
-          p.sendMessage(e.getMessage());
+          if(e.getMessage() != null) p.sendMessage(e.getMessage());
           e.printStackTrace();
         }
       }
@@ -66,11 +74,100 @@ public class BetterJavaPlugin extends JavaPlugin {
     return handled;
   }
 
+  public String pluginName(){
+    try{ return this.getDescription().getName(); }
+    catch (Exception e) { return this.getClass().getSimpleName(); }
+  }
+
+  /**
+   * Generates the plugin.yml contents for this plugin.
+   * See http://wiki.bukkit.org/Plugin_YAML for more info
+   * @param author  the author  of the plugin
+   * @param version the version of the plugin
+   **/
+  public String yml(String author, String version){
+    return
+      "name: "      + this.pluginName() + "\n" +
+      "main: "      + this.getClass().getName()  + "\n" +
+      "author: "    + author + "\n" +
+      "version: "   + version + "\n" +
+      "database: "  + (this.getDatabaseClasses().size() > 0) + "\n" +
+      "depend: ["   + mkString(this.dependencies, ", ") + "]\n" +
+      "commands:\n" + commandsYml();
+  }
+
+  private String commandYml(Command c){
+    return
+        "  " + c.name + ":\n" +
+        "    description: " + c.description + "\n" +
+        "    usage: " + "TODO - implement parser descriptions" + "\n";
+  }
+
+  private String commandsYml(){
+    StringBuilder s = new StringBuilder();
+    for(Command c: commands) { s.append(commandYml(c)); }
+    return s.toString();
+  }
+
+  // holy shit.
+  private static <T> String mkString(List<T> list, String separator) {
+    StringBuilder s = new StringBuilder();
+    Iterator<T> it = list.iterator();
+    if (it.hasNext()) { s.append(it.next()); }
+    while (it.hasNext()) { s.append(separator).append(it.next()); }
+    return s.toString();
+  }
+
+    public void writeYML(String author, String version){
+    String ymlContents = this.yml(author, version);
+    writeResourcesFile(this.pluginName().toLowerCase() + ".yml", ymlContents);
+    writeResourcesFile("plugin.yml", ymlContents);
+  }
+
+  private File resources = new java.io.File("./src/main/resources");
+  private void writeResourcesFile(String filename, String contents){
+    resources.mkdir();
+    writeFile(new File(resources, filename), contents);
+  }
+  private void writeFile(File f, String contents){
+    try {
+      FileWriter fw = new FileWriter(f);
+      fw.write(contents);
+      fw.close();
+    } catch (IOException e) { throw new RuntimeException(e); }
+  }
+
+  /**
+   */
+  private List<String> dependencies = new java.util.ArrayList<String>();
+  public void addDependency(String d){ dependencies.add(d); }
+
+  /**
+   * Classes that want to use a database should override this def, providing
+   * all of the Entity classes. See WarpPlugin in examples.
+   */
+  private List<Class<?>> dbClasses = new java.util.ArrayList<Class<?>>();
+  public void addDbClass(Class<?> c){ dbClasses.add(c); }
+  public List<Class<?>> getDatabaseClasses(){ return dbClasses; }
+
+
+  // this is horrible bukkit nonsense that every plugin must do if it wants to use the database.
+  private void setupDatabase(){
+    if(! getDatabaseClasses().isEmpty()){
+      // this somehow forces attempting to initialize the database
+      try { getDatabase().find(getDatabaseClasses().get(0)).findRowCount(); }
+      // and if it throws... that means you haven't yet initialized the db,
+      // and you need to call installDLL...
+      // really, this is just crap. happy to hide it from any users.
+      catch(PersistenceException e) { installDDL(); }
+    }
+  }
+
   public void register(Listener l){
     getServer().getPluginManager().registerEvents(l, this);
   }
 
-  public void info(String message) { logger.info(message); }
+  public void info(String message) { logger.info("[" + pluginName() + "] " + message); }
 
   public String getVersion() { return getDescription().getVersion(); }
 
@@ -170,18 +267,18 @@ public class BetterJavaPlugin extends JavaPlugin {
   }
 
   public Parser<Material> material = token("material",
-    new AbstractFunction1<String, Option<Material>>() {
+    new Function1<String, Option<Material>>() {
       public Option<Material> apply(String s) { return findMaterial(s);};
     }
   );
 
   public Parser<EntityType> entity = token("entity",
-    new AbstractFunction1<String, Option<EntityType>>() {
+    new Function1<String, Option<EntityType>>() {
       public Option<EntityType> apply(String s) { return findEntity(s); };
     }
   );
 
-  public Parser<Player> player = token("player", new AbstractFunction1<String, Option<Player>>() {
+  public Parser<Player> player = token("player", new Function1<String, Option<Player>>() {
     public Option<Player> apply(String s) {
       return Option.apply(getServer().getPlayer(s));
     };

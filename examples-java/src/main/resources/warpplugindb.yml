@@ -1,0 +1,7 @@
+name: WarpPluginDB
+main: jcdc.pluginfactory.db.WarpPluginDB
+author: Josh Cough
+version: 0.3.0
+database: true
+depend: [JavaPluginAPI]
+commands:

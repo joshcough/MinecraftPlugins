@@ -1,14 +1,11 @@
 package jcdc.pluginfactory.betterexamples;
 
-import jcdc.pluginfactory.betterjava.BetterJavaPlugin;
+import jcdc.pluginfactory.betterjava.*;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerInteractEvent;
-import scala.Function1;
-import scala.Tuple2;
-import scala.runtime.AbstractFunction1;
 
 import java.util.*;
 

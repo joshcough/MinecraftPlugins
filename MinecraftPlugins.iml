@@ -17,19 +17,23 @@
       <sourceFolder url="file://$MODULE_DIR$/netlogo/src/main/scala" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/core/src/test/scala" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/examples/src/main/java" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/core/src/main/java" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/examples/src/test/scala" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/core-java/src/main/java" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples/src/main/clojure" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples/src/test/clojure" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/minelang/src/main/scala" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/minelang/src/test/scala" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/microexample/src/main/scala" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/scala-lib-plugin/src/main/scala" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples-java/src/main/java" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/.idea" />
       <excludeFolder url="file://$MODULE_DIR$/bukkit" />
+      <excludeFolder url="file://$MODULE_DIR$/core-java/project" />
+      <excludeFolder url="file://$MODULE_DIR$/core-java/target" />
       <excludeFolder url="file://$MODULE_DIR$/core/bin/target" />
       <excludeFolder url="file://$MODULE_DIR$/core/project" />
       <excludeFolder url="file://$MODULE_DIR$/core/target" />
+      <excludeFolder url="file://$MODULE_DIR$/examples-java/project" />
+      <excludeFolder url="file://$MODULE_DIR$/examples-java/target" />
       <excludeFolder url="file://$MODULE_DIR$/examples/project" />
       <excludeFolder url="file://$MODULE_DIR$/examples/target" />
       <excludeFolder url="file://$MODULE_DIR$/microexample/project" />
@@ -109,6 +113,15 @@
         <SOURCES>
           <root url="jar://$USER_HOME$/.ivy2/cache/org.bukkit/craftbukkit/jars/craftbukkit-1.4.7-R0.1.jar!/" />
         </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.squeryl/squeryl_2.10/jars/squeryl_2.10-0.9.5-SNAPSHOT.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
       </library>
     </orderEntry>
   </component>

@@ -1,0 +1,6 @@
+name: JavaPluginAPI
+main: jcdc.pluginfactory.betterjava.JavaPluginAPI
+author: Josh Cough
+version: 0.3.0
+database: false
+depend: []

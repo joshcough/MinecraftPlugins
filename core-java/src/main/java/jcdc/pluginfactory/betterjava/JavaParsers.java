@@ -1,13 +1,5 @@
 package jcdc.pluginfactory.betterjava;
 
-import scala.*;
-import scala.runtime.AbstractFunction0;
-import scala.runtime.AbstractFunction1;
-import scala.runtime.AbstractFunction2;
-import scala.util.Either;
-import scala.util.Left;
-import scala.util.Right;
-
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -26,9 +18,9 @@ public class JavaParsers {
       return new Parser<U>() {
         public ParseResult<U> parse(List<String> args) {
           p.parse(args).fold(
-              new AbstractFunction1<String, ParseResult<U>>() {
+              new Function1<String, ParseResult<U>>() {
                 public ParseResult<U> apply(String msg) { return new Failure<U>(msg); }
-              }, new AbstractFunction2<T, List<String>, ParseResult<U>>() {
+              }, new Function2<T, List<String>, ParseResult<U>>() {
                 public ParseResult<U> apply(T t, List<String> rest) {
                   return f.apply(t).parse(rest);
                 }
@@ -39,7 +31,7 @@ public class JavaParsers {
       };
     }
     public <T, U> Parser<U> map(final Parser<T> p, final Function1<T, U> f) {
-      return bind(p, new AbstractFunction1<T, Parser<U>>(){
+      return bind(p, new Function1<T, Parser<U>>(){
         public Parser<U> apply(T t) { return unit(f.apply(t)); }
       });
     }
@@ -96,9 +88,9 @@ public class JavaParsers {
     public <U> Parser<Tuple2<T, U>> and(final Parser<U> p2){ return andLazy(constant(p2)); }
 
     public <U> Parser<Tuple2<T, U>> andLazy(final Function0<Parser<U>> p2){
-      return bind(new AbstractFunction1<T, Parser<Tuple2<T, U>>>(){
+      return bind(new Function1<T, Parser<Tuple2<T, U>>>(){
         public Parser<Tuple2<T, U>> apply(final T t) {
-          return p2.apply().map(new AbstractFunction1<U, Tuple2<T, U>>() {
+          return p2.apply().map(new Function1<U, Tuple2<T, U>>() {
             public Tuple2<T, U> apply(U u) { return new Tuple2<T, U>(t, u); }
           });
         }
@@ -106,7 +98,7 @@ public class JavaParsers {
     }
 
     private <T> Function0<T> constant(final T t){
-      return new AbstractFunction0<T>(){ public T apply() { return t; } };
+      return new Function0<T>(){ public T apply() { return t; } };
     };
 
     public Parser<T> or(final Parser<T> p2){ return orLazy(constant(p2)); }
@@ -127,11 +119,11 @@ public class JavaParsers {
     }
 
     public <U> Parser<U> outputting(final U u){
-      return map(new AbstractFunction1<T, U>() { public U apply(T t) { return u; } });
+      return map(new Function1<T, U>() { public U apply(T t) { return u; } });
     }
 
     public Parser<List<T>> star(){
-      return this.plus().orLazy(new AbstractFunction0<Parser<List<T>>>(){
+      return this.plus().orLazy(new Function0<Parser<List<T>>>(){
         public Parser<List<T>> apply() {
           return success((List<T>) (new LinkedList<T>()));
         }
@@ -140,9 +132,9 @@ public class JavaParsers {
 
     public Parser<List<T>> plus(){
       final Parser<T> self = this;
-      return this.andLazy(new AbstractFunction0<Parser<List<T>>>(){
+      return this.andLazy(new Function0<Parser<List<T>>>(){
         public Parser<List<T>> apply() { return self.star(); }
-      }).map(new AbstractFunction1<Tuple2<T, List<T>>, List<T>>() {
+      }).map(new Function1<Tuple2<T, List<T>>, List<T>>() {
         public List<T> apply(Tuple2<T, List<T>> t) {
           LinkedList<T> ts = new LinkedList<T>(t._2());
           ts.addFirst(t._1());
@@ -213,7 +205,7 @@ public class JavaParsers {
     return new Parser<Option<T>>(){
       public ParseResult<Option<T>> parse(List<String> args) {
         ParseResult<T> pr = p.parse(args);
-        if(pr.isFailure()) return new Success<Option<T>>(Option.<T>empty(), args);
+        if(pr.isFailure()) return new Success<Option<T>>(new None<T>(), args);
         else return new Success<Option<T>>(Option.apply(pr.get()), pr.rest());
       }
     };
@@ -232,10 +224,10 @@ public class JavaParsers {
     };
   }
 
-  static public Parser<Integer> integer = token("player", new AbstractFunction1<String, Option<Integer>>() {
+  static public Parser<Integer> integer = token("player", new Function1<String, Option<Integer>>() {
     public Option<Integer> apply(String s) {
       try{ return Option.apply(Integer.parseInt(s)); }
-      catch (Exception e) { return Option.empty(); }
+      catch (Exception e) { return new None<Integer>(); }
     };
   });
 }

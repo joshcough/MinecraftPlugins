@@ -1,0 +1,16 @@
+name: WarpPluginJava
+main: jcdc.pluginfactory.db.WarpPluginJava
+author: Josh Cough
+version: 0.3.0
+database: false
+depend: [WarpPluginDB]
+commands:
+  warps:
+    description: List all warps.
+    usage: TODO - implement parser descriptions
+  warp:
+    description: Warp to the given warp location.
+    usage: TODO - implement parser descriptions
+  set-warp:
+    description: Create a new warp location.
+    usage: TODO - implement parser descriptions

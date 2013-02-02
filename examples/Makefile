@@ -6,6 +6,8 @@ we: compile world-edit
 weq: compile-examples world-edit
 test: compile run-tests
 
+warpq: warp-plugin
+
 perms: clean-plugins compile permissions-test
 
 clean-plugins:
@@ -16,7 +18,7 @@ compile-core:
 	cd ../core; make publish-local
 
 compile-examples:
-	./sbt compile "run-main jcdc.pluginfactory.examples.YMLGenerator"
+	./sbt compile "run-main jcdc.pluginfactory.examples.YMLGenerator" package
 
 compile: compile-core compile-examples
 
@@ -24,7 +26,7 @@ run-tests:
 	./sbt test
 
 go:
-	cd $(BUKKIT); java -Xmx2048M -Xms512M -jar bukkit.jar nogui
+	cd $(BUKKIT); java -Djava.ext.dirs=/Library/Java/Home/lib/ext:lib -Xmx2048M -Xms512M -jar bukkit.jar nogui
 
 plugin = ./plugin.sh $1 $2
 
@@ -42,6 +44,9 @@ block-changer-gold:
 
 curse-ban:
 	$(call plugin, "curseban.yml", "CurseBan.jar")
+
+door-passwords:
+	$(call plugin, "doorpasswords.yml", "DoorPasswords.jar")
 
 farmer:
 	$(call plugin, "farmer.yml", "Farmer.jar")

@@ -1,6 +1,6 @@
 package jcdc.pluginfactory.betterexamples;
 
-import jcdc.pluginfactory.betterjava.BetterJavaPlugin;
+import jcdc.pluginfactory.betterjava.*;
 import static jcdc.pluginfactory.betterjava.JavaParsers.*;
 
 import org.bukkit.GameMode;
@@ -8,9 +8,6 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
-import scala.Option;
-import scala.Tuple2;
-import scala.util.Either;
 
 import java.util.List;
 
@@ -23,9 +20,9 @@ public class MultiPlayerCommands extends BetterJavaPlugin {
           either(player, integer.and(integer).and(opt(integer)))) {
         public void run(Player you,
                         Either<Player, Tuple2<Tuple2<Integer, Integer>, Option<Integer>>> e) {
-          if(e.isLeft()) you.teleport(e.left().get());
+          if(e.isLeft()) you.teleport(e.getLeft());
           else{
-            Tuple2<Tuple2<Integer, Integer>, Option<Integer>> t = e.right().get();
+            Tuple2<Tuple2<Integer, Integer>, Option<Integer>> t = e.getRight();
             int x = t._1()._1();
             if(t._2().isDefined()) teleport(you, x, t._1()._2(), t._2().get());
             else {
@@ -116,11 +113,11 @@ public class MultiPlayerCommands extends BetterJavaPlugin {
       new CommandBody<Either<Tuple2<String, Player>, EntityType>>(
         either(match("player").and(player), entity)) {
         public void run(Player killer, final Either<Tuple2<String, Player>, EntityType> e) {
-          if(e.isLeft()) doTo(killer, e.left().get()._2(), new Runnable() {
-            public void run() { e.left().get()._2().setHealth(0); } }, "killed"
+          if(e.isLeft()) doTo(killer, e.getLeft()._2(), new Runnable() {
+            public void run() { e.getLeft()._2().setHealth(0); } }, "killed"
           );
           else for(Entity en: killer.getWorld().getEntities()){
-            if(en.getType() == e.right().get()) en.remove();
+            if(en.getType() == e.getRight()) en.remove();
           }
         }
     }));
