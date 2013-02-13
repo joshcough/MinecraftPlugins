@@ -33,6 +33,8 @@ trait ScalaEnrichment {
    */
   implicit def byNameToRunnable(f: => Unit) = new Runnable { def run = f }
 
+  def spawn(f: => Unit): Unit = new Thread(f).start()
+
   /**
    * Enrich a Function1.
    */
@@ -99,5 +101,34 @@ trait ScalaEnrichment {
   implicit class RichFile(f:File){
     def child(name:String): File = new File(f, name)
     def slurp: String            = Source.fromFile(f).getLines().mkString("\n")
+    /**
+     * Tries to find a file. If it exists, returns Some(file). If not, None.
+     */
+    def toOption(name:String): Option[File] = {
+      val f = new File(name)
+      if(f.exists) Some(f) else None
+    }
+  }
+
+  implicit class RichInputStream(input: java.io.InputStream) {
+    /**
+     * Read all the data from the given InputStream
+     * and copy it to the given OutputStream.
+     * @return the number of bytes read and sent
+     */
+    def copyTo(output:java.io.OutputStream,
+             defaultBufferSize:Int=(256),
+             closeInputStream:Boolean=true): Long = try {
+      val buffer = new Array[Byte](defaultBufferSize)
+      var count = 0L
+      var n = input.read(buffer)
+      while (n != -1) {
+        output.write(buffer, 0, n)
+        count += n
+        n = input.read(buffer)
+      }
+      count
+    } finally if (closeInputStream) input.close()
+
   }
 }

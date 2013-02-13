@@ -11,9 +11,12 @@ trait CubeState {
     override val default = Some(Nil)
   }
 
-  def cube(p:Player): Cube[Block] = corners(p) match {
-    case List(c1, c2) => c1 cubeTo c2
-    case _ => p bomb "Both corners must be set!"
+  def cube(p:Player): Cube[Block] =
+    cubeMaybe(p).getOrElse(p bomb "Both corners must be set!")
+
+  def cubeMaybe(p:Player): Option[Cube[Block]] = corners(p) match {
+    case List(c1, c2) => Some(c1 cubeTo c2)
+    case _ => None
   }
 
   def setFirstPosition(p:Player,loc: Location): Unit = {

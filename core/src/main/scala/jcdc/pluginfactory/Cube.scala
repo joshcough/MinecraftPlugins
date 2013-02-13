@@ -1,22 +1,19 @@
 package jcdc.pluginfactory
 
+case class Point(x: Int, y: Int, z: Int){
+  def adjust(x: Int = x, y: Int = y, z: Int = z): Point = Point(x, y, z)
+}
+
 object Cube {
-  type Point = (Int, Int, Int)
-
-  implicit class RichPoint(p: Point){
-    val x = p._1; val y = p._2; val z = p._3
-    def adjust(x: Int = x, y: Int = y, z: Int = z): Point = (x, y, z)
-  }
-
-  val origin   = (0, 0, 0)
-  val maxPoint = (Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE)
-  val minPoint = (Integer.MIN_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE)
+  val origin   = Point(0, 0, 0)
+  val maxPoint = Point(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE)
+  val minPoint = Point(Integer.MIN_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE)
 
   // applicative functor stuff.
   def pure[T](t: T): Cube[T] = Cube(maxPoint, minPoint)(Function.const(t))
   def ap[T,U](fs: Cube[T => U], c: Cube[T]): Cube[U] = Cube(
-    (math.min(fs.maxX, c.maxX), math.min(fs.maxY, c.maxY), math.min(fs.maxZ, c.maxZ)),
-    (math.max(fs.minX, c.minX), math.max(fs.minY, c.minY), math.max(fs.minZ, c.minZ))
+    Point(math.min(fs.maxX, c.maxX), math.min(fs.maxY, c.maxY), math.min(fs.maxZ, c.maxZ)),
+    Point(math.max(fs.minX, c.minX), math.max(fs.minY, c.minY), math.max(fs.minZ, c.minZ))
   )(coor => fs(coor)(c(coor)))
 }
 
@@ -71,7 +68,7 @@ case class Cube[T](corner1: Point, corner2: Point)(f: Point => T) { self =>
 
   def copy(minX:Int=minX, minY:Int=minY, minZ:Int=minZ,
            maxX:Int=maxX, maxY:Int=maxY, maxZ:Int=maxZ): Cube[T] =
-    Cube((minX, minY, minZ), (maxX, maxY, maxZ))(f)
+    Cube(Point(minX, minY, minZ), Point(maxX, maxY, maxZ))(f)
 
   // this must be a def to avoid it memoizing.
   def toCoorStream: Stream[Point] = {
@@ -79,7 +76,7 @@ case class Cube[T](corner1: Point, corner2: Point)(f: Point => T) { self =>
       x <- (minX to maxX).toStream
       y <- (minY to maxY).toStream
       z <- (minZ to maxZ).toStream
-    } yield (x,y,z)
+    } yield Point(x,y,z)
   }
 
   /**
@@ -114,14 +111,14 @@ case class Cube[T](corner1: Point, corner2: Point)(f: Point => T) { self =>
    * The 8 corners of this Cube.
    */
   def cornersCoors: List[Point] = List(
-    (maxX, minY, maxZ),
-    (maxX, minY, minZ),
-    (minX, minY, maxZ),
-    (minX, minY, minZ),
-    (maxX, maxY, maxZ),
-    (maxX, maxY, minZ),
-    (minX, maxY, maxZ),
-    (minX, maxY, minZ)
+    Point(maxX, minY, maxZ),
+    Point(maxX, minY, minZ),
+    Point(minX, minY, maxZ),
+    Point(minX, minY, minZ),
+    Point(maxX, maxY, maxZ),
+    Point(maxX, maxY, minZ),
+    Point(minX, maxY, maxZ),
+    Point(minX, maxY, minZ)
   )
 
   /**
@@ -142,7 +139,7 @@ case class Cube[T](corner1: Point, corner2: Point)(f: Point => T) { self =>
    * get the floor of this cube
    * @return a new Cube
    */
-  def floor  = Cube((maxX, minY, maxZ), (minX, minY, minZ))(f)
+  def floor  = Cube(Point(maxX, minY, maxZ), Point(minX, minY, minZ))(f)
   def bottom = floor _
 
   /**
@@ -157,7 +154,7 @@ case class Cube[T](corner1: Point, corner2: Point)(f: Point => T) { self =>
    * get the ceiling of this cube
    * @return a new Cube
    */
-  def ceiling = Cube((maxX, maxY, maxZ), (minX, maxY, minZ))(f)
+  def ceiling = Cube(Point(maxX, maxY, maxZ), Point(minX, maxY, minZ))(f)
   def top     = ceiling _
 
   /**
@@ -168,10 +165,10 @@ case class Cube[T](corner1: Point, corner2: Point)(f: Point => T) { self =>
   def onCeiling(c: Point) = c.y == maxY
   def onTop = onCeiling _
 
-  def northWall: Cube[T] = Cube((minX, minY, minZ), (maxX, maxY, minZ))(f)
-  def southWall: Cube[T] = Cube((minX, minY, maxZ), (maxX, maxY, maxZ))(f)
-  def eastWall : Cube[T] = Cube((maxX, minY, minZ), (maxX, maxY, maxZ))(f)
-  def westWall : Cube[T] = Cube((minX, minY, minZ), (minX, maxY, maxZ))(f)
+  def northWall: Cube[T] = Cube(Point(minX, minY, minZ), Point(maxX, maxY, minZ))(f)
+  def southWall: Cube[T] = Cube(Point(minX, minY, maxZ), Point(maxX, maxY, maxZ))(f)
+  def eastWall : Cube[T] = Cube(Point(maxX, minY, minZ), Point(maxX, maxY, maxZ))(f)
+  def westWall : Cube[T] = Cube(Point(minX, minY, minZ), Point(minX, maxY, maxZ))(f)
 
   /**
    * Return a Stream of all the blocks in this cube
@@ -195,7 +192,7 @@ case class Cube[T](corner1: Point, corner2: Point)(f: Point => T) { self =>
    * TODO: dont shrink if the Cube is too small.
    * @return A new cube
    */
-  def insides = Cube((maxX-1, maxY-1, maxZ-1), (minX+1, minY+1, minZ+1))(f)
+  def insides = Cube(Point(maxX-1, maxY-1, maxZ-1), Point(minX+1, minY+1, minZ+1))(f)
 
   /**
    * A whole pile of operations to change the size of this Cube
@@ -236,7 +233,7 @@ case class Cube[T](corner1: Point, corner2: Point)(f: Point => T) { self =>
     val (newMaxX,newMinX) = newMaxMin(maxX, minX, xLess)
     val (newMaxY,newMinY) = newMaxMin(maxY, minY, yLess)
     val (newMaxZ,newMinZ) = newMaxMin(maxZ, minZ, zLess)
-    Cube((newMaxX, newMaxY, newMaxZ), (newMinX, newMinY, newMinZ))(f)
+    Cube(Point(newMaxX, newMaxY, newMaxZ), Point(newMinX, newMinY, newMinZ))(f)
   }
 
   /**
@@ -250,7 +247,7 @@ case class Cube[T](corner1: Point, corner2: Point)(f: Point => T) { self =>
     val (newMaxX,newMinX) = (maxX + xMore, minX - xMore)
     val (newMaxY,newMinY) = (maxY + yMore, minY - yMore)
     val (newMaxZ,newMinZ) = (maxZ + zMore, minZ - zMore)
-    Cube((newMaxX, newMaxY, newMaxZ), (newMinX, newMinY, newMinZ))(f)
+    Cube(Point(newMaxX, newMaxY, newMaxZ), Point(newMinX, newMinY, newMinZ))(f)
   }
 
   /**
@@ -332,8 +329,8 @@ case class Cube[T](corner1: Point, corner2: Point)(f: Point => T) { self =>
     val xDiff = newC1.x - corner1.x
     val yDiff = newC1.y - corner1.y
     val zDiff = newC1.z - corner1.z
-    val newC2 = (corner2.x + xDiff, corner2.y + yDiff, corner2.z + zDiff)
-    def translateBack(b: Point): Point = (b.x - xDiff, b.y - yDiff, b.z - zDiff)
+    val newC2 = Point(corner2.x + xDiff, corner2.y + yDiff, corner2.z + zDiff)
+    def translateBack(b: Point): Point = Point(b.x - xDiff, b.y - yDiff, b.z - zDiff)
     Cube(newC1, newC2){ c => f(translateBack(c)) }
   }
 
@@ -345,7 +342,7 @@ case class Cube[T](corner1: Point, corner2: Point)(f: Point => T) { self =>
    * 4 -> 6     minX + (maxX - x) = 0 + (10 - 4) = 0 + 6 = 6
    * 0 -> 10    minX + (maxX - x) = 0 + (10 - 0) = 0 + 10 = 10
    */
-  def mirrorX: Cube[T] = mapCoor(c => f((minX + maxX - c.x, c.y, c.z)))
-  def mirrorY: Cube[T] = mapCoor(c => f((c.x, minY + maxY - c.y, c.z)))
-  def mirrorZ: Cube[T] = mapCoor(c => f((c.x, c.y, minZ + maxZ - c.z)))
+  def mirrorX: Cube[T] = mapCoor(c => f(Point(minX + maxX - c.x, c.y, c.z)))
+  def mirrorY: Cube[T] = mapCoor(c => f(Point(c.x, minY + maxY - c.y, c.z)))
+  def mirrorZ: Cube[T] = mapCoor(c => f(Point(c.x, c.y, minZ + maxZ - c.z)))
 }

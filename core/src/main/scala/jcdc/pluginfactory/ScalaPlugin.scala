@@ -19,8 +19,8 @@ abstract class ScalaPlugin extends JavaPlugin with BukkitEnrichment { scalaPlugi
   lazy val log = Logger.getLogger("Minecraft")
 
   // setup stuff
-  override def onEnable() { super.onEnable() ; setupDatabase; logInfo(s"$name enabled!" ) }
-  override def onDisable(){ super.onDisable();                logInfo(s"$name disabled!") }
+  override def onEnable:  Unit = { super.onEnable ; setupDatabase; logInfo(s"$name enabled!" ) }
+  override def onDisable: Unit = { super.onDisable;                logInfo(s"$name disabled!") }
 
   /**
    * A list of dependencies that this plugin depends on.
@@ -39,6 +39,9 @@ abstract class ScalaPlugin extends JavaPlugin with BukkitEnrichment { scalaPlugi
    * See http://wiki.bukkit.org/Plugin_YAML for more info
    */
   def softDependencies: List[String] = Nil
+
+  // TODO: is there a real yml data type i could use?
+  def configs: Map[String, String] = Map()
 
   /**
    * Classes that want to use a database should override this def, providing
@@ -63,34 +66,40 @@ abstract class ScalaPlugin extends JavaPlugin with BukkitEnrichment { scalaPlugi
    * @param author  the author  of the plugin
    * @param version the version of the plugin
    **/
-  def yml(author:String, version: String) = List(
-    "name: "        + this.name,
-    "main: "        + this.getClass.getName,
-    "author: "      + author,
-    "version: "     + version,
-    "database: "    + (this.dbClasses.size > 0),
-    "depend: ["     + (mandatoryDependencies ::: this.dependencies).mkString(", ") + "]",
-    "softdepend: [" + this.softDependencies.mkString(", ") + "]"
+  def yml(author:String, version: String) = (
+    List(
+      "name: "        + this.name,
+      "main: "        + this.getClass.getName,
+      "author: "      + author,
+      "version: "     + version,
+      "database: "    + (this.dbClasses.size > 0),
+      "depend: ["     + (mandatoryDependencies ++ this.dependencies).mkString(", ") + "]",
+      "softdepend: [" + this.softDependencies.mkString(", ") + "]"
+    )
   ).mkString("\n")
 
   /**
-   * Writes out the yml file. This is used to build the plugin.
+   * Writes out the plugin.yml file, and config.yml.
    * @param author  the author  of the plugin
    * @param version the version of the plugin
    */
   def writeYML(author: String, version: String): Unit = {
-    val ymlContents = this.yml(author, version)
     val resources = new java.io.File("./src/main/resources")
     resources.mkdir
 
-    def write(filename:String): Unit = {
+    def write(contents: String, filename:String): Unit = {
       val f = new java.io.FileWriter(new java.io.File(resources, filename))
-      f.write(ymlContents)
+      f.write(contents)
       f.close
     }
 
-    write(s"${this.name.toLowerCase}.yml")
-    write("plugin.yml")
+    val pluginYml = this.yml(author, version)
+    write(pluginYml, s"${this.name.toLowerCase}-plugin.yml")
+    write(pluginYml, "plugin.yml")
+
+    val configYml = configs.toList.map{ case (k, v) => s"$k: $v" }.mkString("\n")
+    write(configYml, s"${this.name.toLowerCase}-config.yml")
+    write(configYml, "config.yml")
   }
 
   /**
@@ -180,6 +189,14 @@ abstract class ScalaPlugin extends JavaPlugin with BukkitEnrichment { scalaPlugi
         }
       }
     }
+  }
+
+  /**
+   * Invokes a command programmatically.
+   */
+  def runCommand(p: Player, commandName: String, args: Seq[String]) = {
+    p ! s"$name running: $commandName ${args.mkString(" ")}"
+    onCommand(p, getCommand(commandName), commandName, args.toArray)
   }
 }
 

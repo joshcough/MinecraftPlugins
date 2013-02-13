@@ -14,11 +14,12 @@ resolvers ++= Seq(
 
 libraryDependencies ++= Seq(
   "jcdc.pluginfactory" % "scala-plugin-api_2.10" % "0.3.0",
-  "org.squeryl"       %% "squeryl"               % "0.9.6-SNAPSHOT",
-  "mysql"              % "mysql-connector-java"  % "5.1.10",
-  "org.apache.derby"   % "derby"                 % "10.7.1.1",
+  //"org.squeryl"       %% "squeryl"               % "0.9.6-SNAPSHOT",
+  //"mysql"              % "mysql-connector-java"  % "5.1.10",
+  //"org.apache.derby"   % "derby"                 % "10.7.1.1",
   "cglib"              % "cglib-nodep"           % "2.2",
-  "org.bukkit"         % "craftbukkit"           % "1.4.7-R0.1"
+  "org.bukkit"         % "craftbukkit"           % "1.4.7-R0.1",
+  "org.scalacheck"    %% "scalacheck"            % "1.10.0" % "test"
 )
 
 //packageBin in Compile <<= (packageBin in Compile) dependsOn run

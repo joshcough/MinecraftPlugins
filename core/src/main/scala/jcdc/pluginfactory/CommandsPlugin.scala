@@ -182,14 +182,6 @@ trait CommandsPlugin extends ScalaPlugin with MinecraftParsers {
     Command(name, desc, player){case (p1,p2) => f(p1, p2)}
 
   /**
-   * Invokes a command programmatically.
-   */
-  def runCommand(p: Player, commandName: String, args: Seq[String]) = {
-    p ! s"$name running: $commandName ${args.mkString(" ")}"
-    onCommand(p, getCommand(commandName), commandName, args.toArray)
-  }
-
-  /**
    * Overriding to add commands into the plugin.yml.
    */
   override def yml(author:String, version: String) = {

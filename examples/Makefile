@@ -18,7 +18,7 @@ compile-core:
 	cd ../core; make publish-local
 
 compile-examples:
-	./sbt compile "run-main jcdc.pluginfactory.examples.YMLGenerator" package
+	./sbt compile
 
 compile: compile-core compile-examples
 
@@ -31,67 +31,70 @@ go:
 plugin = ./plugin.sh $1 $2
 
 arena:
-	$(call plugin, "arena.yml", "Arena.jar")
+	$(call plugin, "arena", "Arena.jar")
 
 ban-arrows:
-	$(call plugin, "banarrows.yml", "BanArrows.jar")
+	$(call plugin, "banarrows", "BanArrows.jar")
 
 block-changer:
-	$(call plugin, "blockchanger.yml", "BlockChanger.jar")
+	$(call plugin, "blockchanger", "BlockChanger.jar")
 
 block-changer-gold:
-	$(call plugin, "blockchangergold.yml", "BlockChangerGold.jar")
+	$(call plugin, "blockchangergold", "BlockChangerGold.jar")
+
+copy-server:
+	$(call plugin, "copyserver", "CopyServer.jar")
 
 curse-ban:
-	$(call plugin, "curseban.yml", "CurseBan.jar")
+	$(call plugin, "curseban", "CurseBan.jar")
 
 door-passwords:
-	$(call plugin, "doorpasswords.yml", "DoorPasswords.jar")
+	$(call plugin, "doorpasswords", "DoorPasswords.jar")
 
 farmer:
-	$(call plugin, "farmer.yml", "Farmer.jar")
+	$(call plugin, "farmer", "Farmer.jar")
 
 god:
-	$(call plugin, "god.yml", "God.jar")
+	$(call plugin, "god", "God.jar")
 
 lawn:
-	$(call plugin, "getoffmylawn.yml", "GetOffMyLawn.jar")
+	$(call plugin, "getoffmylawn", "GetOffMyLawn.jar")
 
 lightning-arrows:
-	$(call plugin, "lightningarrows.yml", "LightningArrows.jar")
+	$(call plugin, "lightningarrows", "LightningArrows.jar")
 
 mpc:
-	$(call plugin, "multiplayercommands.yml", "MultiPlayerCommands.jar")
+	$(call plugin, "multiplayercommands", "MultiPlayerCommands.jar")
 
 minelang-plugin:
-	$(call plugin, "minelangplugin.yml", "MineLangPlugin.jar")
+	$(call plugin, "minelangplugin", "MineLangPlugin.jar")
 
 no-rain:
-	$(call plugin, "norain.yml", "NoRain.jar")
-
-nyc-demo:
-	$(call plugin, "nycdemo.yml", "NYCDemo.jar")
+	$(call plugin, "norain", "NoRain.jar")
 
 permissions-test:
-	$(call plugin, "permissionstest.yml", "PermissionsTest.jar")
+	$(call plugin, "permissionstest", "PermissionsTest.jar")
+
+paste-client:
+	$(call plugin, "pasteclient", "PasteClient.jar")
 
 plugin-commander:
-	$(call plugin, "plugincommander.yml", "PluginCommander.jar")
+	$(call plugin, "plugincommander", "PluginCommander.jar")
 
 thor:
-	$(call plugin, "thor.yml", "Thor.jar")
+	$(call plugin, "thor", "Thor.jar")
 
 tree-delogger:
-	$(call plugin, "treedelogger.yml", "TreeDelogger.jar")
+	$(call plugin, "treedelogger", "TreeDelogger.jar")
 
 warp-plugin:
-	$(call plugin, "warpplugin.yml", "WarpPlugin.jar")
+	$(call plugin, "warpplugin", "WarpPlugin.jar")
 
 world-edit:
-	$(call plugin, "worldedit.yml", "WorldEdit.jar")
+	$(call plugin, "worldedit", "WorldEdit.jar")
 
 yellow-brick-road:
-	$(call plugin, "yellowbrickroad.yml", "YellowBrickRoad.jar")
+	$(call plugin, "yellowbrickroad", "YellowBrickRoad.jar")
 
 zombie-apocalypse: 
-	$(call plugin, "zombieapocalypse.yml", "ZombieApocalyspse.jar")
+	$(call plugin, "zombieapocalypse", "ZombieApocalyspse.jar")

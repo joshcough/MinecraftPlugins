@@ -25,6 +25,7 @@
       <sourceFolder url="file://$MODULE_DIR$/microexample/src/main/scala" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/scala-lib-plugin/src/main/scala" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples-java/src/main/java" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/src/test/scala" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/.idea" />
       <excludeFolder url="file://$MODULE_DIR$/bukkit" />
       <excludeFolder url="file://$MODULE_DIR$/core-java/project" />

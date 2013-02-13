@@ -16,7 +16,22 @@ import util.Try
 import Cube._
 
 
-object BukkitEnrichment extends BukkitEnrichment
+object  BukkitEnrichment extends BukkitEnrichment {
+  object MaterialAndData {
+    val AIR = new MaterialAndData(Material.AIR, None)
+  }
+  case class MaterialAndData(m: Material, data: Option[Byte]){
+    def update(b: Block): Boolean = {
+      val oldM    = b.getType
+      val oldData = b.getData
+      b setType m
+      data foreach b.setData
+      oldM != m || oldData != data.getOrElse(0)
+    }
+    def itemStack: ItemStack = data.fold(new ItemStack(m))(new ItemStack(m, 1, 0:Short, _))
+  }
+}
+
 /**
  * Adds piles of missing functions to Bukkit classes.
  *
@@ -38,6 +53,8 @@ object BukkitEnrichment extends BukkitEnrichment
  * could potentially get ugly fast.
  */
 trait BukkitEnrichment extends ScalaEnrichment {
+
+  import BukkitEnrichment._
 
   /**
    * Add a whole pile of awesomeness to Block.
@@ -126,7 +143,7 @@ trait BukkitEnrichment extends ScalaEnrichment {
     def itemStack = new ItemStack(b.getType, 1, b.getData)
     def materialAndData = MaterialAndData(b.getType, Some(b.getData))
 
-    def point: Point = (b.x, b.y, b.z)
+    def point: Point = Point(b.x, b.y, b.z)
 
     /**
      * Returns a Cube of all of the blocks between two locations of the world.
@@ -191,6 +208,7 @@ trait BukkitEnrichment extends ScalaEnrichment {
     def entities = w.getEntities
     def apply(x: Int,    y: Int,    z: Int)   : Block = blockAt(x.toDouble, y.toDouble, z.toDouble)
     def apply(x: Double, y: Double, z: Double): Block = new Location(w, x, y, z).getBlock
+    def apply(p: Point): Block = this(p.x, p.y, p.z)
     def blockAt(x: Int, y: Int, z: Int): Block = blockAt(x.toDouble, y.toDouble, z.toDouble)
     def blockAt(x: Double, y: Double, z: Double): Block = new Location(w, x, y, z).getBlock
 
@@ -218,7 +236,7 @@ trait BukkitEnrichment extends ScalaEnrichment {
     def spawnN(entityType: EntityType, n: Int): Unit = for (i <- 1 to n) spawn(entityType)
     def dropItem(stack: ItemStack): Unit = loc.world.dropItem(loc, stack)
     def dropItem(m: Material): Unit = dropItem(m.itemStack)
-    def point: Point = (loc.x, loc.y, loc.z)
+    def point: Point = Point(loc.x, loc.y, loc.z)
     /**
      * Returns a Cube of all of the blocks between two locations of the world.
      */
@@ -228,7 +246,7 @@ trait BukkitEnrichment extends ScalaEnrichment {
 
   implicit class RichCubeOfBlocks(c: Cube[Block]) {
     import collection.JavaConversions.asScalaIterator
-    def world = c((0,0,0)).world
+    def world = c(Point(0,0,0)).world
     def blocks = c.toStream
     def blocksAndMaterials = blocks.map(b => (b, b.materialAndData))
     def players: Iterator[Player] = world.getPlayers.iterator.filter(contains)
@@ -408,19 +426,5 @@ trait BukkitEnrichment extends ScalaEnrichment {
     val RED         = new Color(14)
     val BLACK       = new Color(15)
   }
-
-  object MaterialAndData {
-    val AIR = new MaterialAndData(Material.AIR, None)
-  }
-
-  case class MaterialAndData(m: Material, data: Option[Byte]){
-    def update(b: Block): Boolean = {
-      val oldM    = b.getType
-      val oldData = b.getData
-      b setType m
-      data foreach b.setData
-      oldM != m || oldData != data.getOrElse(0)
-    }
-    def itemStack: ItemStack = data.fold(new ItemStack(m))(new ItemStack(m, 1, 0:Short, _))
-  }
 }
+
