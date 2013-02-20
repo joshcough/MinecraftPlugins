@@ -106,6 +106,7 @@ class CopyServer extends CopyPasteCommon {
           val changes = CubeModifier.getTransformationChanges(c).map(pc => toBlockCopy(pc.b))
           CopyData.write(CopyData(c.corner1, c.corner2, c.size.toLong, changes),
             new DataOutputStream(new FileOutputStream(outputFile)))
+          p ! s"saved $name"
         }
         else p sendError "A copy with that name already exists! Use cs:delete to remove it."
     }),
@@ -118,8 +119,10 @@ class CopyServer extends CopyPasteCommon {
       while(true){
         val s: Socket = ss.accept
         spawn {
-          val copyName = new DataInputStream(s.getInputStream).readUTF
-          // TODO: if it doesn't exist, send an error message. (Either[SomeError, CopyData])
+          // read the name of the copy that they want to transfer
+          val copyName = new BufferedReader(new InputStreamReader(s.getInputStream)).readLine()
+          // TODO: if it doesn't exist, send an error message.
+          // maybe use FO, and write (Either[SomeError, CopyData])
           val copyFile = getCopyFile(copyName)
           new FileInputStream(copyFile).copyTo(s.getOutputStream, closeInputStream = false)
           s.getOutputStream.flush
@@ -151,10 +154,12 @@ class PasteClient extends CopyPasteCommon {
       desc = "paste from the contents of a copy file already transfered to this server",
       args = copyName)(
       body = { case (p, (copyId, inputFile)) =>
-        if (! inputFile.exists)
+        if (inputFile.exists){
           CopyData.paste(CopyData.fromFile(inputFile), p.loc)
-        else
-          p sendError "No copy with that name exists!"
+          // TODO: hook into world edit paste and especially undo?
+          p ! s"pasted!"
+        }
+        else p sendError "No copy with that name exists!"
     }),
     Command(
       name = "pc:transfer",
@@ -167,10 +172,16 @@ class PasteClient extends CopyPasteCommon {
         if (! outputFile.exists) {
           // TODO: read Either[SomeError, CopyData] from server
           val s = new Socket(server, port)
-          new DataOutputStream(s.getOutputStream).writeUTF(copyId)
+          // write the name of the copy to be transfered
+          val out = new BufferedWriter(new OutputStreamWriter(s.getOutputStream))
+          out.write(copyId + "\n")
+          out.flush
+          // the read the copy
           CopyData.write(CopyData.read(new DataInputStream(s.getInputStream)),
             new DataOutputStream(new FileOutputStream(outputFile)))
           s.close
+
+          p ! s"$copyName transfered"
         }
         else p sendError "A copy with that name already exists! Use pc:delete to remove it."
     }),
@@ -192,7 +203,7 @@ trait CopyPasteCommon extends CommandsPlugin {
       filterWith(validFileName)(s => s"invalid copy-name: $s").
       map(s => (s, getCopyFile(s.replace(" ", "-"))))
 
-  def validFileName(s: String) = true
+  def validFileName(s: String) = s.trim != "" && ! s.contains(" ")
   def getCopyFile(copyId: String) = new File(this.getDataFolder, copyId + ".copy")
 
   def delete(p: Player, copyId: String, outputFile: File) {
