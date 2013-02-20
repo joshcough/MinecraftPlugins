@@ -25,8 +25,8 @@ trait MinecraftParsers extends ScalaPlugin with ParserCombinators {
     case x ~ z ~ Some(y) => (w:World) => w(x, y, z).loc
     case x ~ z ~ None    => (w:World) => w.getHighestBlockAt(x, z).loc
   }
-  val time    : Parser[Int] =
-    int.filterWith(i => i >= 0 && i <= 24000)("time must be between 0 and 24000")
+  val time    : Parser[Int] = int.named("time").
+    filterWith(i => i >= 0 && i <= 24000)(_ => "time must be between 0 and 24000")
   val length  : Parser[Int] = int.named("length")
   val height  : Parser[Int] = int.named("height")
   val depth   : Parser[Int] = int.named("depth")

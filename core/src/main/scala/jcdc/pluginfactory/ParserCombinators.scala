@@ -78,14 +78,14 @@ trait ParserCombinators extends ScalaEnrichment {
      * then checks to see if its result also passes the given predicate.
      * If it does not, then the parser fails.
      */
-    def filter(f: T => Boolean): Parser[T] = filterWith(f)("invalid " + describe)
+    def filter(f: T => Boolean): Parser[T] = filterWith(f)(_ => "invalid " + describe)
 
     /**
      * Same as filter, but allows for supplying a custom failure message
      * if the result fails the predicate.
      */
-    def filterWith(f: T => Boolean)(errMsg: String): Parser[T] =
-      (flatMap(t => if(f(t)) success(t) else failure(errMsg + ": " + t))) named describe
+    def filterWith(f: T => Boolean)(errMsgF: T => String): Parser[T] =
+      (flatMap(t => if(f(t)) success(t) else failure(errMsgF(t) + ": " + t))) named describe
 
     /**
      * Creates a new parser that chains two parsers together (this, and p2).
@@ -203,7 +203,7 @@ trait ParserCombinators extends ScalaEnrichment {
    * Convert a String into a Parser that accepts only that String as valid input.
    */
   implicit def stringToParser(s: String): Parser[String] =
-    anyStringAs(s).filterWith(_ == s)(s"expected: $s") named s
+    anyStringAs(s).filterWith(_ == s)(_ => s"expected: $s") named s
 
   /**
    * Create a parser from an operation that parses a String and returns Option[T].
@@ -287,7 +287,9 @@ trait ParserCombinators extends ScalaEnrichment {
   val boolOrFalse: Parser[Boolean] = bool | success(false)
 
   // file parsers
-  val file   : Parser[File] = anyStringAs("file") ^^ (new File(_))
+  // TODO: fix so that filenameP only accepts valid file names.
+  val filenameP: Parser[String] = anyStringAs("file")
+  val file   : Parser[File] = filenameP ^^ (new File(_))
   val newFile: Parser[File] = attempt("new-file"){ s => val f = new File(s); f.createNewFile; f }
   val existingFile     : Parser[File] = file.filter(_.exists) named "existing-file"
   val existingOrNewFile: Parser[File] = existingFile | newFile
