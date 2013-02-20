@@ -14,7 +14,7 @@ object CopyData {
     out.writeInt(c.corner2.x); out.writeInt(c.corner2.y); out.writeInt(c.corner2.z)
     out.writeLong(c.size)
     c.data.foreach(b => BlockData.write(b, out))
-    out.flush()
+    out.flush
   }
   def read(din: DataInputStream): CopyData = {
     val cor1 = Point(din.readInt, din.readInt, din.readInt)
@@ -23,6 +23,7 @@ object CopyData {
     val blocks = (0L to size - 1).toStream.map(_ => BlockData.read(din))
     CopyData(cor1, cor2, size, blocks)
   }
+  def fromFile(f: File): CopyData = read(new DataInputStream(new FileInputStream(f)))
   def paste(cd: CopyData, newStart: Location, world: World): Unit = {
     val cdc = new Cube[Point](cd.corner1, cd.corner2)(identity)
     def offsetFromOriginalMin(p: Point) = Point(p.x - cdc.minX, p.y - cdc.minY, p.z - cdc.minZ)
@@ -49,63 +50,128 @@ object CopyServer {
   val defaultPort = 8085
 }
 
-class CopyServer extends CommandsPlugin {
+/**
+ * Allows players to make copies
+ * Stores them locally on the server
+ * And allows other servers to copy them to their server.
+ */
+class CopyServer extends CopyPasteCommon {
+
   override def dependencies: List[String] = List("WorldEdit")
   override def configs: Map[String, String] = Map(
     "server" -> CopyServer.defaultServer,
     "port"   -> CopyServer.defaultPort.toString
   )
-  private def getCopyFile(copyId: Int) = new File(this.getDataFolder, copyId + ".copy")
+
   def commands = List(
-    Command(name = "copy", desc = "save a copy to disk"){ p =>
-      val nextId =
-        getDataFolder.listFiles.map(_.getName.takeWhile(_ != '.').toInt).sorted.lastOption.getOrElse(0)
-      def toBlockCopy(b: Block): BlockData = BlockData(b.x, b.y, b.z, b.getTypeId, b.getData)
-      val we = pluginManager.findPlugin("WorldEdit").get.asInstanceOf[WorldEdit]
-      val c = we.cube(p)
-      val changes = CubeModifier.getTransformationChanges(c).map(pc => toBlockCopy(pc.b))
-      CopyData.write(CopyData(c.corner1, c.corner2, c.size.toLong, changes),
-        new DataOutputStream(new FileOutputStream(getCopyFile(nextId))))
-    }
+    Command(
+      name = "cs:save-cube",
+      desc = "save a copy to disk",
+      args = copyName)(
+      body = { case (p,(name, outputFile)) =>
+        if(! outputFile.exists){
+          def toBlockCopy(b: Block): BlockData = BlockData(b.x, b.y, b.z, b.getTypeId, b.getData)
+          val we = pluginManager.findPlugin("WorldEdit").get.asInstanceOf[WorldEdit]
+          val c  = we.cube(p)
+          val changes = CubeModifier.getTransformationChanges(c).map(pc => toBlockCopy(pc.b))
+          CopyData.write(CopyData(c.corner1, c.corner2, c.size.toLong, changes),
+            new DataOutputStream(new FileOutputStream(outputFile)))
+        }
+        else p sendError "A copy with that name already exists! Use cs:delete to remove it."
+    }),
+    Command(
+      name = "cs:delete",
+      desc = "delete a copy from this server",
+      args = copyName)(
+      body = { case (p, (copyId, f)) => delete(p, copyId, f) }
+    )
   )
   override def onEnable: Unit = {
-    this.getDataFolder.mkdirs()
+    this.getDataFolder.mkdirs
     spawn {
       val ss = new java.net.ServerSocket(getConfig.getInt("port"))
       while(true){
-        val s: Socket = ss.accept()
-        spawn{
-          val copyId   = s.getInputStream.read
-          val copyFile = getCopyFile(copyId)
+        val s: Socket = ss.accept
+        spawn {
+          val copyName = new DataInputStream(s.getInputStream).readUTF
+          // TODO: if it doesn't exist, send an error message. (Either[SomeError, CopyData])
+          val copyFile = getCopyFile(copyName)
           new FileInputStream(copyFile).copyTo(s.getOutputStream, closeInputStream = false)
-          s.getOutputStream.flush()
+          s.getOutputStream.flush
         }
       }
     }
   }
 }
 
-class PasteClient extends CommandsPlugin {
-  val copyId     = int.named("copyId")
+/**
+ * Allows for copying copies from another server to this server
+ * and then pasting them locally.
+ */
+class PasteClient extends CopyPasteCommon {
+
+  override def onEnable: Unit = { this.getDataFolder.mkdirs }
+
   val serverName = anyStringAs("server")
   val port       = int.named("port")
+  val serverInfo: Parser[(String, Int)] = ((serverName ~ port) or serverName).? ^^ {
+    case Some(Left(srvr ~ prt)) => (srvr, prt)
+    case Some(Right(srvr))      => (srvr, CopyServer.defaultPort)
+    case None                   => (CopyServer.defaultServer, CopyServer.defaultPort)
+  }
+
   def commands = List(
-    Command(name = "paste", desc = "paste", args = copyId ~ ((serverName ~ port) or serverName).?){
-      case (p, cid ~ Some(Left(srvr ~ prt))) => paste(p, cid, srvr, prt)
-      case (p, cid ~ Some(Right(srvr)))      => paste(p, cid, srvr)
-      case (p, cid ~ None)                   => paste(p, cid)
-    }
+    Command(
+      name = "pc:paste",
+      desc = "paste from the contents of a copy file already transfered to this server",
+      args = copyName)(
+      body = { case (p, (copyId, inputFile)) =>
+        if (! inputFile.exists)
+          CopyData.paste(CopyData.fromFile(inputFile), p.loc, p.world)
+        else
+          p sendError "No copy with that name exists!"
+    }),
+    Command(
+      name = "pc:transfer",
+      desc = "Transfer a copy from a CopyServer to this server.",
+      args = copyName ~ serverInfo)(
+      body = { case (p, (copyId, outputFile) ~ sp) =>
+        // TODO: figure out what is going on with scala parsing here...
+        val server = sp._1
+        val port   = sp._2
+        if (! outputFile.exists) {
+          // TODO: read Either[SomeError, CopyData] from server
+          val s = new Socket(server, port)
+          new DataOutputStream(s.getOutputStream).writeUTF(copyId)
+          CopyData.write(CopyData.read(new DataInputStream(s.getInputStream)),
+            new DataOutputStream(new FileOutputStream(outputFile)))
+          s.close
+        }
+        else p sendError "A copy with that name already exists! Use pc:delete to remove it."
+    }),
+    Command(
+      name = "pc:delete",
+      desc = "delete a copy from this server",
+      args = copyName)(
+      body = { case (p, (copyId, f)) => delete(p, copyId, f) }
+    )
   )
-  def paste(p: Player, copyId: Int,
-            server: String = CopyServer.defaultServer,
-            port: Int = CopyServer.defaultPort) = {
-    val s = new Socket(server, port)
-    s.getOutputStream.write(copyId)
-    CopyData.paste(CopyData.read(new DataInputStream(s.getInputStream)), p.loc, p.world)
-    s.close()
-//    p ! s"corner1: ${copy.corner1.toString}"
-//    p ! s"corner2: ${copy.corner2.toString}"
-//    p ! s"copy.data.size = ${copy.data.size}"
-//    copy.data.foreach(bc => p ! bc.toString)
+}
+
+trait CopyPasteCommon extends CommandsPlugin {
+  val copyName: Parser[(String, File)] =
+    slurp.named("copy-name").
+      filterWith(validFileName)(s => s"invalid copy-name: $s").
+      map(s => (s, getCopyFile(s.replace(" ", "-"))))
+
+  def validFileName(s: String) = true
+  def getCopyFile(copyId: String) = new File(this.getDataFolder, copyId + ".copy")
+
+  def delete(p: Player, copyId: String, outputFile: File) {
+    if (outputFile.exists){
+      outputFile.delete
+      p ! s"deleted copy: $copyId"
+    }
+    else p sendError "No copy with that name exists!"
   }
 }
