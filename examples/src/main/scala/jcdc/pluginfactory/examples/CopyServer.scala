@@ -5,17 +5,17 @@ import org.bukkit.entity.Player
 import jcdc.pluginfactory.{BukkitEnrichment, CommandsPlugin, Cube, Point}
 import java.io._
 import java.net.Socket
-import org.bukkit.{Location, Material, World}
+import org.bukkit.{Location, Material}
+
+case class CopyData(corner1: Point, corner2: Point, size: Long, data: Stream[BlockData])
+case class BlockData(x: Int, y: Int, z: Int, material: Int, data: Byte)
 
 object CopyData {
   import BukkitEnrichment._
-  def write(c: CopyData, out: DataOutputStream): Unit = {
-    out.writeInt(c.corner1.x); out.writeInt(c.corner1.y); out.writeInt(c.corner1.z)
-    out.writeInt(c.corner2.x); out.writeInt(c.corner2.y); out.writeInt(c.corner2.z)
-    out.writeLong(c.size)
-    c.data.foreach(b => BlockData.write(b, out))
-    out.flush
-  }
+
+  /**
+   * Read a CopyData from a DataInputStream
+   */
   def read(din: DataInputStream): CopyData = {
     val cor1 = Point(din.readInt, din.readInt, din.readInt)
     val cor2 = Point(din.readInt, din.readInt, din.readInt)
@@ -23,8 +23,38 @@ object CopyData {
     val blocks = (0L to size - 1).toStream.map(_ => BlockData.read(din))
     CopyData(cor1, cor2, size, blocks)
   }
+
+  /**
+   * Read a CopyData from a File
+   */
   def fromFile(f: File): CopyData = read(new DataInputStream(new FileInputStream(f)))
-  def paste(cd: CopyData, newStart: Location, world: World): Unit = {
+
+  /**
+   * Write a CopyData to a DataOutputStream
+   * @param c
+   * @param out
+   */
+  def write(c: CopyData, out: DataOutputStream): Unit = {
+    out.writeInt(c.corner1.x); out.writeInt(c.corner1.y); out.writeInt(c.corner1.z)
+    out.writeInt(c.corner2.x); out.writeInt(c.corner2.y); out.writeInt(c.corner2.z)
+    out.writeLong(c.size)
+    c.data.foreach(b => BlockData.write(b, out))
+    out.flush
+  }
+
+  /**
+   * Write a CopyData to a File
+   */
+  def toFile(cd: CopyData, outputFile: File): Unit =
+    write(cd, new DataOutputStream(new FileOutputStream(outputFile)))
+
+  /**
+   * Paste this CopyData into the world, at the given location.
+   * @param cd
+   * @param newStart
+   */
+  def paste(cd: CopyData, newStart: Location): Unit = {
+    val world = newStart.world
     val cdc = new Cube[Point](cd.corner1, cd.corner2)(identity)
     def offsetFromOriginalMin(p: Point) = Point(p.x - cdc.minX, p.y - cdc.minY, p.z - cdc.minZ)
     cd.data.foreach { bd =>
@@ -34,6 +64,7 @@ object CopyData {
     }
   }
 }
+
 case object BlockData {
   def write(b: BlockData, out: DataOutputStream): Unit = {
     out.writeInt(b.x); out.writeInt(b.y); out.writeInt(b.z)
@@ -42,8 +73,6 @@ case object BlockData {
   def read(in: DataInputStream): BlockData =
     BlockData(in.readInt, in.readInt, in.readInt, in.readInt, in.readByte)
 }
-case class CopyData(corner1: Point, corner2: Point, size: Long, data: Stream[BlockData])
-case class BlockData(x: Int, y: Int, z: Int, material: Int, data: Byte)
 
 object CopyServer {
   val defaultServer = "localhost"
@@ -54,6 +83,7 @@ object CopyServer {
  * Allows players to make copies
  * Stores them locally on the server
  * And allows other servers to copy them to their server.
+ * Depends on my Scala WorldEdit, in order to get the Cube data from it.
  */
 class CopyServer extends CopyPasteCommon {
 
@@ -70,7 +100,7 @@ class CopyServer extends CopyPasteCommon {
       args = copyName)(
       body = { case (p,(name, outputFile)) =>
         if(! outputFile.exists){
-          def toBlockCopy(b: Block): BlockData = BlockData(b.x, b.y, b.z, b.getTypeId, b.getData)
+          def toBlockCopy(b: Block) = BlockData(b.x, b.y, b.z, b.getTypeId, b.getData)
           val we = pluginManager.findPlugin("WorldEdit").get.asInstanceOf[WorldEdit]
           val c  = we.cube(p)
           val changes = CubeModifier.getTransformationChanges(c).map(pc => toBlockCopy(pc.b))
@@ -79,12 +109,7 @@ class CopyServer extends CopyPasteCommon {
         }
         else p sendError "A copy with that name already exists! Use cs:delete to remove it."
     }),
-    Command(
-      name = "cs:delete",
-      desc = "delete a copy from this server",
-      args = copyName)(
-      body = { case (p, (copyId, f)) => delete(p, copyId, f) }
-    )
+    deleteCommand("cs")
   )
   override def onEnable: Unit = {
     this.getDataFolder.mkdirs
@@ -127,7 +152,7 @@ class PasteClient extends CopyPasteCommon {
       args = copyName)(
       body = { case (p, (copyId, inputFile)) =>
         if (! inputFile.exists)
-          CopyData.paste(CopyData.fromFile(inputFile), p.loc, p.world)
+          CopyData.paste(CopyData.fromFile(inputFile), p.loc)
         else
           p sendError "No copy with that name exists!"
     }),
@@ -149,16 +174,19 @@ class PasteClient extends CopyPasteCommon {
         }
         else p sendError "A copy with that name already exists! Use pc:delete to remove it."
     }),
-    Command(
-      name = "pc:delete",
-      desc = "delete a copy from this server",
-      args = copyName)(
-      body = { case (p, (copyId, f)) => delete(p, copyId, f) }
-    )
+    deleteCommand("pc")
   )
 }
 
 trait CopyPasteCommon extends CommandsPlugin {
+
+  def deleteCommand(prefix: String) = Command(
+    name = s"$prefix:delete",
+    desc = "delete a copy from this server",
+    args = copyName)(
+    body = { case (p, (copyId, f)) => delete(p, copyId, f) }
+  )
+
   val copyName: Parser[(String, File)] =
     slurp.named("copy-name").
       filterWith(validFileName)(s => s"invalid copy-name: $s").
