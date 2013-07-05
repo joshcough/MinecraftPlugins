@@ -41,7 +41,7 @@ trait ListenerPlugin extends ListenersPlugin {
  */
 trait ListenersPlugin extends ScalaPlugin with Listeners {
   def listeners: List[Listener]
-  override def onEnable(){ super.onEnable(); listeners.foreach(registerListener) }
+  override def onEnable{ super.onEnable(); listeners.foreach(registerListener) }
 }
 
 object Listeners extends Listeners
@@ -77,8 +77,10 @@ trait Listeners extends BukkitEnrichment {
     @EH def on(e:EntityDamageByEntityEvent): Unit = e.getEntity.whenPlayer(f(_, e))
   }
   def OnEntityDamageByPlayer(f: (Entity, Player, EntityDamageByEntityEvent) => Unit) = new Listener {
-    @EH def on(e:EntityDamageByEntityEvent): Unit =
-      if(e.getDamager.isInstanceOf[Player]) f(e.getEntity,e.getDamager.asInstanceOf[Player], e)
+    @EH def on(e:EntityDamageByEntityEvent): Unit = e.getDamager match {
+      case p: Player => f(e.getEntity,p, e)
+      case _ =>
+    }
   }
   def OnPlayerDamage(f: (Player, EntityDamageEvent) => Unit) = new Listener {
     @EH def on(e:EntityDamageEvent): Unit   = e.getEntity.whenPlayer(f(_, e))

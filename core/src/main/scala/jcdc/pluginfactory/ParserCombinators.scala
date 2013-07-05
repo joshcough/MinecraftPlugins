@@ -39,7 +39,7 @@ trait ParserCombinators extends ScalaEnrichment {
     }
     def bind[T, U](p: Parser[T])(f: T => Parser[U]) = new Parser[U] {
       def apply(args: List[String]): ParseResult[U] =
-        p(args).fold[ParseResult[U]](Failure(_))(f(_)(_))
+        p(args).fold[ParseResult[U]](Failure)(f(_)(_))
       def describe = p.describe
     }
     def map[T, U](p: Parser[T])(f: T => U) = bind(p)(t => unit(f(t)))
@@ -85,7 +85,7 @@ trait ParserCombinators extends ScalaEnrichment {
      * if the result fails the predicate.
      */
     def filterWith(f: T => Boolean)(errMsgF: T => String): Parser[T] =
-      (flatMap(t => if(f(t)) success(t) else failure(errMsgF(t) + ": " + t))) named describe
+      flatMap(t => if(f(t)) success(t) else failure(errMsgF(t) + ": " + t)) named describe
 
     /**
      * Creates a new parser that chains two parsers together (this, and p2).
@@ -122,7 +122,7 @@ trait ParserCombinators extends ScalaEnrichment {
      * The results are returned in a list.
      * If zero parse successfully, Nil is returned.
      */
-    def * : Parser[List[T]] = ((this.+) | success(List[T]())).named(describe + "*")
+    def * : Parser[List[T]] = (this.+ | success(List[T]())).named(describe + "*")
 
     /**
      * Return a new parser that will parse one or more of whatever this parser parses.
@@ -210,9 +210,9 @@ trait ParserCombinators extends ScalaEnrichment {
    * If that parsing operation returns None, then the parser fails.
    * If the parsing operation returns Some(t), then the t is the result.
    */
-  def maybe[T](name: String)(f: String => Option[T]): Parser[T] = (for {
-    s <- anyStringAs(name); res <- f(s).fold[Parser[T]](failure(s"invalid $name: $s"))(success(_))
-  } yield res)
+  def maybe[T](name: String)(f: String => Option[T]): Parser[T] = for {
+    s <- anyStringAs(name); res <- f(s).fold[Parser[T]](failure(s"invalid $name: $s"))(success)
+  } yield res
 
   /**
    * Create a parser from an operation that may fail (with an exception).
@@ -317,8 +317,6 @@ trait ParserCombinators extends ScalaEnrichment {
 //    }
 //    def describe = s"slurp until: $c"
 //  }
-
-
 
 //at jcdc.pluginfactory.ParserCombinators$Parser$class.$tilde(ParserCombinators.scala:96)
 //at jcdc.pluginfactory.ParserCombinators$$anon$9.$tilde(ParserCombinators.scala:230)

@@ -19,7 +19,7 @@ trait MinecraftParsers extends ScalaPlugin with ParserCombinators {
   val entity  : Parser[EntityType] = maybe("entity-type")  (findEntity)
   val material: Parser[Material]   = maybe("material-type")(findMaterial)
   val player  : Parser[Player]     = maybe("player-name")  (server.findPlayer)
-  val plugin  : Parser[Plugin]     = maybe("plugin")       (pluginManager findPlugin _)
+  val plugin  : Parser[Plugin]     = maybe("plugin")       (pluginManager.findPlugin)
   val coordinates = int ~ int ~ int.?
   val location: Parser[World => Location] = coordinates ^^ {
     case x ~ z ~ Some(y) => (w:World) => w(x, y, z).loc
@@ -156,8 +156,8 @@ trait CommandsPlugin extends ScalaPlugin with MinecraftParsers {
       }).getOrElse(true)
   }
 
-  override def onEnable() {
-    super.onEnable()
+  override def onEnable {
+    super.onEnable
     commandsMap.foreach { case (name, _) => logInfo("command: " + name) }
   }
 

@@ -66,16 +66,14 @@ abstract class ScalaPlugin extends JavaPlugin with BukkitEnrichment { scalaPlugi
    * @param author  the author  of the plugin
    * @param version the version of the plugin
    **/
-  def yml(author:String, version: String) = (
-    List(
-      "name: "        + this.name,
-      "main: "        + this.getClass.getName,
-      "author: "      + author,
-      "version: "     + version,
-      "database: "    + (this.dbClasses.size > 0),
-      "depend: ["     + (mandatoryDependencies ++ this.dependencies).mkString(", ") + "]",
-      "softdepend: [" + this.softDependencies.mkString(", ") + "]"
-    )
+  def yml(author:String, version: String) = List(
+    "name: "        + this.name,
+    "main: "        + this.getClass.getName,
+    "author: "      + author,
+    "version: "     + version,
+    "database: "    + (this.dbClasses.size > 0),
+    "depend: ["     + (mandatoryDependencies ++ this.dependencies).mkString(", ") + "]",
+    "softdepend: [" + this.softDependencies.mkString(", ") + "]"
   ).mkString("\n")
 
   /**
@@ -115,7 +113,7 @@ abstract class ScalaPlugin extends JavaPlugin with BukkitEnrichment { scalaPlugi
   def logInfo(message:String): Unit = logMessage(Level.INFO, message)
 
   /**
-   * Log the given message at INFO level.
+   * Log the given message at WARNING level.
    */
   def logWarning(message:String): Unit = logMessage(Level.WARNING, message)
 

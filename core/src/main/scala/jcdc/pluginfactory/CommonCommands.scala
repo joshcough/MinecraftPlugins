@@ -1,8 +1,6 @@
 package jcdc.pluginfactory
 
 import org.bukkit.GameMode._
-import org.bukkit.Material
-import Material._
 import scala.collection.JavaConversions._
 
 /**
