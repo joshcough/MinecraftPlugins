@@ -32,6 +32,6 @@ object YMLGenerator {
     new YellowBrickRoad)
 
   def main(args: Array[String]): Unit = {
-    plugins.find(_.name.toLowerCase == args(0)).foreach(_.writeYML("Josh Cough", "0.3.1"))
+    plugins.find(_.name.toLowerCase == args(0)).foreach(_.writeYML("Josh Cough", "0.3.1", "./examples"))
   }
 }

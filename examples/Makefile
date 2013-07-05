@@ -18,12 +18,12 @@ compile-core:
 	cd ../core; make publish-local
 
 compile-examples:
-	./sbt compile
+	cd ..; ./sbt 'project examples' compile
 
 compile: compile-core compile-examples
 
 run-tests:
-	./sbt test
+	cd ..; ./sbt 'project examples' test
 
 go:
 	cd $(BUKKIT); java -Djava.ext.dirs=/Library/Java/Home/lib/ext:lib -Xmx2048M -Xms512M -jar bukkit.jar nogui
