@@ -1,5 +1,9 @@
 package jcdc.pluginfactory
 
+object Point {
+  def apply(xyz: (Int, Int, Int)): Point = new Point(xyz._1, xyz._2, xyz._3)
+}
+
 case class Point(x: Int, y: Int, z: Int){
   def adjust(x: Int = x, y: Int = y, z: Int = z): Point = Point(x, y, z)
 }

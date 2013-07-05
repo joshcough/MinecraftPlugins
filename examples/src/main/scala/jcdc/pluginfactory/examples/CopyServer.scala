@@ -6,6 +6,7 @@ import jcdc.pluginfactory.{BukkitEnrichment, CommandsPlugin, Cube, Point}
 import java.io._
 import java.net.Socket
 import org.bukkit.{Location, Material}
+import jcdc.pluginfactory.examples.CubeModifier.PotentialChange
 
 case class CopyData(corner1: Point, corner2: Point, size: Long, data: Stream[BlockData])
 case class BlockData(x: Int, y: Int, z: Int, material: Int, data: Byte)
@@ -54,13 +55,12 @@ object CopyData {
    * @param newStart
    */
   def paste(cd: CopyData, newStart: Location): Unit = {
-    val world = newStart.world
-    val cdc = new Cube[Point](cd.corner1, cd.corner2)(identity)
-    def offsetFromOriginalMin(p: Point) = Point(p.x - cdc.minX, p.y - cdc.minY, p.z - cdc.minZ)
-    cd.data.foreach { bd =>
-      val offset = offsetFromOriginalMin(Point(bd.x, bd.y, bd.z))
-      val newPoint = Point(newStart.x + offset.x, newStart.y + offset.y, newStart.z + offset.z)
-      MaterialAndData(Material.getMaterial(bd.material), Some(bd.data)) update world(newPoint)
+    val cdc = Cube[Point](cd.corner1, cd.corner2)(identity)
+    cd.data.map { bd =>
+      val offset = Point(bd.x - cdc.minX, bd.y - cdc.minY, bd.z - cdc.minZ)
+      new PotentialChange(
+        newStart.world(Point(newStart.x + offset.x, newStart.y + offset.y, newStart.z + offset.z)),
+        MaterialAndData(Material.getMaterial(bd.material), Some(bd.data)))
     }
   }
 }

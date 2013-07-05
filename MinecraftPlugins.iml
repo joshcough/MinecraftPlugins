@@ -4,7 +4,7 @@
     <facet type="scala" name="Scala">
       <configuration>
         <option name="compilerLibraryLevel" value="Global" />
-        <option name="compilerLibraryName" value="scala-2.10.0" />
+        <option name="compilerLibraryName" value="scala-2.10.2" />
         <option name="optimiseBytecode" value="true" />
       </configuration>
     </facet>
@@ -47,7 +47,7 @@
       <excludeFolder url="file://$MODULE_DIR$/scala-lib-plugin/project" />
       <excludeFolder url="file://$MODULE_DIR$/scala-lib-plugin/target" />
     </content>
-    <orderEntry type="inheritedJdk" />
+    <orderEntry type="jdk" jdkName="1.7" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="servlet-api-2.5" level="project" />
     <orderEntry type="module-library">
@@ -98,16 +98,6 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.scala-lang/scala-library/jars/scala-library-2.10.0.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="library" name="scala-2.10.0" level="application" />
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
           <root url="jar://$USER_HOME$/.ivy2/cache/org.bukkit/craftbukkit/jars/craftbukkit-1.4.7-R0.1.jar!/" />
         </CLASSES>
         <JAVADOC />
@@ -125,6 +115,7 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="library" name="scala-2.10.2" level="application" />
   </component>
 </module>
 
