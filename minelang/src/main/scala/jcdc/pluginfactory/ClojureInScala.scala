@@ -51,7 +51,7 @@ object ClojureInScala {
         val (chars, rest) = data.span( ! List('(', ')', '[', ']', ' ', '\n').contains(_) )
         // if there are any non number characters, this must be a symbol
         if(chars.exists(c => ! Character.isDigit(c))) (Symbol(chars.mkString), rest)
-        else (((if(negate) "-" else "") + (chars.mkString)).toInt, rest)
+        else (((if(negate) "-" else "") + chars.mkString).toInt, rest)
       }
       def readStringLit(data: List[Char], acc: String): (String, List[Char]) = data match {
         case '"' :: tail => (acc, tail)
@@ -71,8 +71,8 @@ object ClojureInScala {
         case '\'' ::  tail => readCharLit(tail)
         case ')'  ::  _    => die("unexpected list terminator")
         case ']'  ::  _    => die("unexpected list terminator")
-        case c    ::  tail if(Character.isDigit(c)) => readNumOrMaybeSymbol(data, negate=false)
-        case '-'  :: c :: tail if(Character.isDigit(c)) => readNumOrMaybeSymbol(c :: tail, negate=true)
+        case c    ::  tail if c.isDigit => readNumOrMaybeSymbol(data, negate=false)
+        case '-'  :: c :: tail if c.isDigit => readNumOrMaybeSymbol(c :: tail, negate=true)
         case _ => readSymbol(data)
       }
     }
@@ -391,14 +391,13 @@ object ClojureInScala {
       cs.size == as.size && cs.zip(as).forall((matches _).tupled)
     }
 
-    def builtIn(name:Symbol, eval: (List[Expr], Env) => Value) =
-      (name -> BuiltinFunction(name, eval))
+    def builtIn(name:Symbol, eval: (List[Expr], Env) => Value) = name -> BuiltinFunction(name, eval)
     def builtInNoArg(name:Symbol, v: => Value) =
-      (name -> BuiltinFunction(name, (es, env) =>
+      name -> BuiltinFunction(name, (es, env) =>
         if(es.size == 0) v else die(s"expected no arguments, but got: $es")
-      ))
+      )
     def builtInNil(name:Symbol, eval: (List[Expr], Env) => Unit) =
-      (name -> BuiltinFunction(name, (es, env) => { ObjectValue(eval(es,env)) }))
+      name -> BuiltinFunction(name, (es, env) => { ObjectValue(eval(es,env)) })
   }
 
   val filesystemStdLibDir = new File("./src/main/resources/clojureinscala")
