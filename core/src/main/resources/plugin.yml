@@ -1,6 +1,6 @@
 name: ScalaPluginAPI
 main: jcdc.pluginfactory.ScalaPluginAPI
 author: Josh Cough
-version: 0.3.0
+version: 0.3.1
 database: false
 depend: [ScalaLibPlugin]

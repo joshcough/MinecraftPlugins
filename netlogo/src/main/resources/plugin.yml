@@ -1,7 +1,7 @@
 name: NetLogoPlugin
 main: jcdc.pluginfactory.NetLogoPlugin
 author: Josh Cough
-version: 0.3.0
+version: 0.3.1
 database: false
 commands:
   goto:

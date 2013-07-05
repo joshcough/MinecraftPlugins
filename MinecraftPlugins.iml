@@ -44,8 +44,10 @@
       <excludeFolder url="file://$MODULE_DIR$/netlogo/bukkit" />
       <excludeFolder url="file://$MODULE_DIR$/netlogo/project" />
       <excludeFolder url="file://$MODULE_DIR$/netlogo/target" />
+      <excludeFolder url="file://$MODULE_DIR$/project/target" />
       <excludeFolder url="file://$MODULE_DIR$/scala-lib-plugin/project" />
       <excludeFolder url="file://$MODULE_DIR$/scala-lib-plugin/target" />
+      <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
     <orderEntry type="jdk" jdkName="1.7" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
@@ -98,17 +100,6 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.bukkit/craftbukkit/jars/craftbukkit-1.4.7-R0.1.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES>
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.bukkit/craftbukkit/jars/craftbukkit-1.4.7-R0.1.jar!/" />
-        </SOURCES>
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
           <root url="jar://$USER_HOME$/.ivy2/cache/org.squeryl/squeryl_2.10/jars/squeryl_2.10-0.9.5-SNAPSHOT.jar!/" />
         </CLASSES>
         <JAVADOC />
@@ -116,6 +107,17 @@
       </library>
     </orderEntry>
     <orderEntry type="library" name="scala-2.10.2" level="application" />
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.bukkit/craftbukkit/jars/craftbukkit-1.5.2-R1.0.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.bukkit/craftbukkit/jars/craftbukkit-1.5.2-R1.0.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
   </component>
 </module>
 

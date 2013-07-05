@@ -5,7 +5,7 @@ test: compile run-tests
 
 compile:
 	cd ../core; ./sbt publish-local; lein uberjar;
-	cp ../core/target/jcdc.pluginfactory-0.3.0-standalone.jar $(BUKKIT)/plugins/
+	cp ../core/target/jcdc.pluginfactory-0.3.1-standalone.jar $(BUKKIT)/plugins/
 	./sbt compile "run-main jcdc.pluginfactory.YMLGenerator"
 
 run-tests:

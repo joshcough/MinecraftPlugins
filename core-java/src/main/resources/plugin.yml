@@ -1,6 +1,6 @@
 name: JavaPluginAPI
 main: jcdc.pluginfactory.betterjava.JavaPluginAPI
 author: Josh Cough
-version: 0.3.0
+version: 0.3.1
 database: false
 depend: []

@@ -23,6 +23,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.util.Vector;
 
 import javax.persistence.PersistenceException;
@@ -329,6 +330,9 @@ public class BetterJavaPlugin extends JavaPlugin {
     public long getPlayerTimeOffset() { return 0; }
     public boolean isPlayerTimeRelative() { return false; }
     public void resetPlayerTime() {}
+    public void setPlayerWeather(WeatherType weatherType) {}
+    public WeatherType getPlayerWeather() { return null; }
+    public void resetPlayerWeather() {}
     public void giveExp(int i) {}
     public void giveExpLevels(int i) {}
     public float getExp() { return 0; }
@@ -350,14 +354,17 @@ public class BetterJavaPlugin extends JavaPlugin {
     public void setAllowFlight(boolean b) {}    
     public void hidePlayer(Player player) {}    
     public void showPlayer(Player player) {}    
-    public boolean canSee(Player player) { return false; }    
-    public boolean isFlying() { return false; }    
+    public boolean canSee(Player player) { return false; }
+    public boolean isOnGround() { return false; }
+    public boolean isFlying() { return false; }
     public void setFlying(boolean b) {}    
     public void setFlySpeed(float v) throws IllegalArgumentException {}    
     public void setWalkSpeed(float v) throws IllegalArgumentException {}    
     public float getFlySpeed() { return 0; }    
     public float getWalkSpeed() { return 0; }
     public void setTexturePack(String s) {}
+    public Scoreboard getScoreboard() { return null; }
+    public void setScoreboard(Scoreboard scoreboard) throws IllegalArgumentException, IllegalStateException {}
     public void sendMessage(String s) {}
     public void sendMessage(String[] strings) {}    
     public Map<String, Object> serialize() { return null; }    
@@ -426,6 +433,10 @@ public class BetterJavaPlugin extends JavaPlugin {
     public EntityEquipment getEquipment() { return null; }
     public void setCanPickupItems(boolean b) {}
     public boolean getCanPickupItems() { return false; }
+    public void setCustomName(String s) {}
+    public String getCustomName() { return null; }
+    public void setCustomNameVisible(boolean b) {}
+    public boolean isCustomNameVisible() { return false; }
     public Location getLocation() { return null; }
     public Location getLocation(Location location) { return getLocation(); }
     public void setVelocity(Vector vector) {}
