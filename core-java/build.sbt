@@ -4,7 +4,7 @@ version := "0.3.0"
 
 organization := "jcdc.pluginfactory"
 
-scalaVersion := "2.10.0"
+scalaVersion := "2.10.2"
 
 resolvers += Resolver.sonatypeRepo("snapshots")
 
@@ -16,5 +16,5 @@ resolvers ++= Seq(
 
 libraryDependencies ++= Seq(
   "javax.servlet"     % "servlet-api"            % "2.5" % "provided->default",
-  "org.bukkit"        % "craftbukkit"            % "1.4.7-R0.1"
+  "org.bukkit"        % "craftbukkit"            % "1.5.2-R1.0"
 )

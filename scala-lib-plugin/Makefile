@@ -3,5 +3,5 @@ all:
 	./sbt publish-local
 	echo "creating release jar"
 	lein uberjar
-	mv target/scala-library-plugin-2.10.0-standalone.jar target/scala-library-plugin-2.10.0.jar
-	cp target/scala-library-plugin-2.10.0.jar $(BUKKIT)/plugins
+	mv target/scala-library-plugin-2.10.2-standalone.jar target/scala-library-plugin-2.10.2.jar
+	cp target/scala-library-plugin-2.10.2.jar $(BUKKIT)/plugins

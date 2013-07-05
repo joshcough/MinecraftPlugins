@@ -430,6 +430,16 @@ trait CommandsPlugin extends ScalaPlugin with MinecraftParsers {
       def setTexturePack(x$1: String): Unit = {}
       def resetMaxHealth(): Unit = {}
       def setMaxHealth(x: Int): Unit = {}
+      def getCustomName(): String = "Server"
+      def isCustomNameVisible(): Boolean = true
+      def setCustomName(x$1: String): Unit = {}
+      def setCustomNameVisible(x$1: Boolean): Unit = {}
+      def getPlayerWeather(): org.bukkit.WeatherType = ???
+      def getScoreboard(): org.bukkit.scoreboard.Scoreboard = ???
+      def isOnGround(): Boolean = false
+      def resetPlayerWeather(): Unit = {}
+      def setPlayerWeather(x$1: org.bukkit.WeatherType): Unit = {}
+      def setScoreboard(x$1: org.bukkit.scoreboard.Scoreboard): Unit = {}
     }
   }
 }

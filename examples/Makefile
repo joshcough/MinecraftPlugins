@@ -48,8 +48,6 @@ copy-server:
 curse-ban:
 	$(call plugin, "curseban", "CurseBan.jar")
 
-door-passwords:
-	$(call plugin, "doorpasswords", "DoorPasswords.jar")
 
 farmer:
 	$(call plugin, "farmer", "Farmer.jar")

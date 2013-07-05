@@ -14,7 +14,7 @@
   :dependencies   [
     [org.clojure/clojure          "1.4.0"]
     [org.bukkit/craftbukkit       "1.4.5-R0.2"]
-    [org.scala-lang/scala-library "2.10.0"],
+    [org.scala-lang/scala-library "2.10.2"],
     ; how do i deal with this guy? - deal with it by downloading it,, and then publishing it to local mvn
     ; "ch.spacebase" % "NPCCreatures" % "1.4" from "http://dev.bukkit.org/media/files/584/232/NPCCreatures.jar",
   ]

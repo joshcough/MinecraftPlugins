@@ -17,7 +17,6 @@ object YMLGenerator {
     new CopyServer,
     new CurseBan,
     new CursePreventer,
-    new DoorPasswords,
     new Farmer,
     new God,
     new NoRain,

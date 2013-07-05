@@ -4,7 +4,7 @@ version := "0.3.0"
 
 organization := "jcdc.pluginfactory"
 
-scalaVersion := "2.10.0"
+scalaVersion := "2.10.2"
 
 resolvers ++= Seq(
   "Sonatype Snapshots" at "http://oss.sonatype.org/content/repositories/snapshots",
@@ -14,5 +14,5 @@ resolvers ++= Seq(
 
 libraryDependencies ++= Seq(
   "jcdc.pluginfactory" % "java-plugin-api_2.10"  % "0.3.0",
-  "org.bukkit"         % "craftbukkit"              % "1.4.7-R0.1"
+  "org.bukkit"         % "craftbukkit"              % "1.5.2-R1.0"
 )

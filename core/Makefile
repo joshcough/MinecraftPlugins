@@ -10,8 +10,8 @@ publish-local:
 
 release-f:
 	echo "copying documentation to pages dir"
-	rm -rf ../../pages/MinecraftPlugins/scaladoc/scala-plugin-api_2.10.0-0.3.0
-	cp -r ./target/scala-2.10/api ../../pages/MinecraftPlugins/scaladoc/scala-plugin-api_2.10.0-0.3.0
+	rm -rf ../../pages/MinecraftPlugins/scaladoc/scala-plugin-api_2.10.2-0.3.0
+	cp -r ./target/scala-2.10/api ../../pages/MinecraftPlugins/scaladoc/scala-plugin-api_2.10.2-0.3.0
 	echo "don't forget:"
 	echo "  * commit the scaladocs after adding a link in scaladoc/index.html"
 	echo "  * upload the release"
