@@ -21,14 +21,17 @@ trait ParserCombinators extends ScalaEnrichment {
 
   trait ParseResult[+T]{
     def get: T
+    def extract[A](pf: PartialFunction[T, A])
     def fold[A](failF: String => A)(sucF: (T,List[String]) => A): A
   }
   case class Failure(message: String) extends ParseResult[Nothing]{
-    def get: Nothing = throw new IllegalStateException("can't get from a failure")
+    def get: Nothing = throw new IllegalStateException(message)
+    def extract[A](pf: PartialFunction[Nothing, A]) = get
     def fold[A](failF: String => A)(sucF: (Nothing,List[String]) => A): A = failF(message)
   }
   case class Success[+T](value: T, rest: List[String]) extends ParseResult[T]{
     def get: T = value
+    def extract[A](pf: PartialFunction[T, A]) = pf(get)
     def fold[A](failF: String => A)(sucF: (T,List[String]) => A): A = sucF(value, rest)
   }
 

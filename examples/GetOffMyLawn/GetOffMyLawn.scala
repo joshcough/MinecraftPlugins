@@ -16,8 +16,8 @@ class GetOffMyLawn extends ListenerPlugin with CommandsPlugin with CubeState {
     lawn.contains(e.getTo.point) && ! lawn.contains(e.getFrom.point)
 
   val listener = OnPlayerMove((p, e) =>
-    for ((owner, lawn) <- cubes; if (p != owner && movingOntoLawn(e, lawn)))
-      owner ! (s"${p.name} is on your lawn!")
+    for ((owner, lawn) <- cubes; if p != owner && movingOntoLawn(e, lawn))
+      owner ! s"${p.name} is on your lawn!"
   )
 
   val commands = List(

@@ -19,7 +19,7 @@ trait MinecraftParsers extends ScalaPlugin with ParserCombinators {
   val entity  : Parser[EntityType] = maybe("entity-type")  (findEntity)
   val material: Parser[Material]   = maybe("material-type")(findMaterial)
   val player  : Parser[Player]     = maybe("player-name")  (server.findPlayer)
-  val plugin  : Parser[Plugin]     = maybe("plugin")       (pluginManager.findPlugin)
+  val plugin  : Parser[Plugin]     = maybe("plugin")       (pluginManager.findPlugin(_))
   val coordinates = int ~ int ~ int.?
   val location: Parser[World => Location] = coordinates ^^ {
     case x ~ z ~ Some(y) => (w:World) => w(x, y, z).loc
@@ -257,7 +257,7 @@ trait CommandsPlugin extends ScalaPlugin with MinecraftParsers {
       def getItemInHand: ItemStack = new ItemStack(Material.AIR)
       override def getDisplayName: String = getServer.getName
       def damage(p1: Int, p2: Entity): Unit = {}
-      def damage(p1: Int): Unit = {}
+      override def damage(p1: Int): Unit = {}
       def getNearbyEntities(p1: Double, p2: Double, p3: Double): java.util.List[Entity] = new java.util.LinkedList[Entity]()
       def isSleepingIgnored: Boolean = true
       def setVelocity(p1: Vector): Unit = {}

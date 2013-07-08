@@ -81,9 +81,9 @@ abstract class ScalaPlugin extends JavaPlugin with BukkitEnrichment { scalaPlugi
    * @param author  the author  of the plugin
    * @param version the version of the plugin
    */
-  def writeYML(author: String, version: String, baseDir: String = "."): Unit = {
-    val resources = new java.io.File(baseDir + "/src/main/resources")
-    resources.mkdir
+  def writeYML(author: String, version: String, outputDir: String): Unit = {
+    val resources = new java.io.File(outputDir)
+    resources.mkdirs
 
     def write(contents: String, filename:String): Unit = {
       val f = new java.io.FileWriter(new java.io.File(resources, filename))

@@ -8,13 +8,6 @@ import org.bukkit.Material
 import Material.GOLD_BLOCK
 
 /**
- * A plugin that changes blocks to gold whenever they are punched.
- */
-class BlockChangerGold extends ListeningFor(OnLeftClickBlock{(p, e) =>
-  e.block changeTo GOLD_BLOCK; e.cancel
-})
-
-/**
  * A more in depth version of BlockChangerGold, that has a command
  * that allows the user to change the type of block they use when
  * they punch blocks, and also allows for block changing to be disabled.

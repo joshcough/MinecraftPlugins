@@ -12,3 +12,6 @@ bukkit/
 .lein-deps-sum
 .lein-failures
 .lein-plugins
+
+examples/BlockChanger/src/
+examples/BlockChangerGold/src/

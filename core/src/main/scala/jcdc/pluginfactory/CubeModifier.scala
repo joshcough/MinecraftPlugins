@@ -1,9 +1,8 @@
-package jcdc.pluginfactory.examples
+package jcdc.pluginfactory
 
 import org.bukkit.block.Block
 import org.bukkit.Material
 import jcdc.pluginfactory.BukkitEnrichment._
-import jcdc.pluginfactory.Cube
 import Cube._
 
 // GIANT TODO

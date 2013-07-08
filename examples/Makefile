@@ -1,26 +1,21 @@
 
-all: compile arena ban-arrows block-changer block-changer-gold curse-ban farmer god lightning-arrows mpc no-rain thor tree-delogger warp-plugin world-edit yellow-brick-road zombie-apocalypse
+all: compile arena ban-arrows block-changer block-changer-gold farmer god lightning-arrows mpc no-rain thor tree-delogger world-edit yellow-brick-road zombie-apocalypse
 
 mlp: clean-plugins compile mpc world-edit minelang-plugin
 we: compile world-edit
-weq: compile-examples world-edit
 test: compile run-tests
 
 warpq: warp-plugin
+
+demo: plugin-commander block-changer-gold block-changer world-edit
 
 perms: clean-plugins compile permissions-test
 
 clean-plugins:
 	cd $(BUKKIT)/plugins; rm -f *.jar
 
-core: compile-core
-compile-core:
+compile:
 	cd ../core; make publish-local
-
-compile-examples:
-	cd ..; ./sbt 'project examples' compile
-
-compile: compile-core compile-examples
 
 run-tests:
 	cd ..; ./sbt 'project examples' test
@@ -31,68 +26,67 @@ go:
 plugin = ./plugin.sh $1 $2
 
 arena:
-	$(call plugin, "arena", "Arena.jar")
+	$(call plugin, "Arena")
 
 ban-arrows:
-	$(call plugin, "banarrows", "BanArrows.jar")
+	$(call plugin, "BanArrows")
 
 block-changer:
-	$(call plugin, "blockchanger", "BlockChanger.jar")
+	$(call plugin, "BlockChanger")
 
 block-changer-gold:
-	$(call plugin, "blockchangergold", "BlockChangerGold.jar")
+	$(call plugin, "BlockChangerGold")
 
-copy-server:
-	$(call plugin, "copyserver", "CopyServer.jar")
+#copy-server:
+#	$(call plugin, "copyserver", "CopyServer.jar")
 
-curse-ban:
-	$(call plugin, "curseban", "CurseBan.jar")
-
+#curse-ban:
+#	$(call plugin, "curseban", "CurseBan.jar")
 
 farmer:
-	$(call plugin, "farmer", "Farmer.jar")
+	$(call plugin, "Farmer")
 
 god:
-	$(call plugin, "god", "God.jar")
+	$(call plugin, "God")
 
 lawn:
-	$(call plugin, "getoffmylawn", "GetOffMyLawn.jar")
+	$(call plugin, "GetOffMyLawn")
 
 lightning-arrows:
-	$(call plugin, "lightningarrows", "LightningArrows.jar")
+	$(call plugin, "LightningArrows")
 
 mpc:
-	$(call plugin, "multiplayercommands", "MultiPlayerCommands.jar")
+	$(call plugin, "MultiPlayerCommands")
 
 minelang-plugin:
-	$(call plugin, "minelangplugin", "MineLangPlugin.jar")
+	$(call plugin, "MineLangPlugin")
 
 no-rain:
-	$(call plugin, "norain", "NoRain.jar")
+	$(call plugin, "NoRain")
 
-permissions-test:
-	$(call plugin, "permissionstest", "PermissionsTest.jar")
+#permissions-test:
+#	$(call plugin, "permissionstest", "PermissionsTest.jar")
 
-paste-client:
-	$(call plugin, "pasteclient", "PasteClient.jar")
+#paste-client:
+#	$(call plugin, "pasteclient", "PasteClient.jar")
 
 plugin-commander:
-	$(call plugin, "plugincommander", "PluginCommander.jar")
+	$(call plugin, "PluginCommander")
 
 thor:
-	$(call plugin, "thor", "Thor.jar")
+	$(call plugin, "Thor")
 
 tree-delogger:
-	$(call plugin, "treedelogger", "TreeDelogger.jar")
+	$(call plugin, "TreeDelogger")
 
-warp-plugin:
-	$(call plugin, "warpplugin", "WarpPlugin.jar")
+#warp-plugin:
+#	$(call plugin, "warpplugin", "WarpPlugin.jar")
 
 world-edit:
-	$(call plugin, "worldedit", "WorldEdit.jar")
+	$(call plugin, "WorldEdit")
 
 yellow-brick-road:
-	$(call plugin, "yellowbrickroad", "YellowBrickRoad.jar")
+	$(call plugin, "YellowBrickRoad")
 
 zombie-apocalypse: 
-	$(call plugin, "zombieapocalypse", "ZombieApocalyspse.jar")
+	$(call plugin, "ZombieApocalypse")

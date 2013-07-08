@@ -150,7 +150,7 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin with CubeState {
       name = "cycle-walls",
       desc =
         "Create walls, and cycle the walls material between the given materials, " +
-        "in a span of N seconds.",
+          "in a span of N seconds.",
       args = int ~ material ~ material.+)(
       body = { case (p, period ~ initialMaterial ~ materials) =>
         val c = cube(p)
