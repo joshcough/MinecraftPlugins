@@ -38,7 +38,7 @@ public class BlockChanger extends JavaPlugin
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args)
     {
-        if(commandLabel.equalsIgnoreCase("BlockChanger")){
+        if(commandLabel.equalsIgnoreCase("bc")){
             if(args.length > 0)
                 id = Integer.parseInt(args[0]);
             else
