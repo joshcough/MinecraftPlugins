@@ -76,7 +76,7 @@ object build extends Build {
     settings = standardSettings ++ Seq[Sett](
       name := "Ermine Plugin API",
       libraryDependencies ++= Seq(
-        "com.clarifi" %% "ermine" % "0.1"
+        "com.clarifi" %% "ermine-legacy" % "0.1"
       )
     ),
     dependencies = Seq(core)
