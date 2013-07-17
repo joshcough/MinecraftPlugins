@@ -1,0 +1,6 @@
+name: ErmineLibPlugin
+main: jcdc.pluginfactory.ErmineLibPlugin
+author: Josh Cough
+version: 0.1
+database: false
+depend: [ScalaLibPlugin]

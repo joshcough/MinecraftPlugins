@@ -70,6 +70,18 @@ object build extends Build {
     dependencies = Seq(coreJava)
   )
 
+  lazy val ermine = Project(
+    id = "ermine-plugins",
+    base = file("ermine"),
+    settings = standardSettings ++ Seq[Sett](
+      name := "Ermine Plugin API",
+      libraryDependencies ++= Seq(
+        "com.clarifi" %% "ermine" % "0.1"
+      )
+    ),
+    dependencies = Seq(core)
+  )
+
   lazy val Arena               = exampleProject("Arena")
   lazy val BanArrows           = exampleProject("BanArrows")
   lazy val BlockChanger        = exampleProject("BlockChanger")

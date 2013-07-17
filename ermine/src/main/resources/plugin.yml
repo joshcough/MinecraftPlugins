@@ -1,0 +1,10 @@
+name: FirstErminePlugin
+main: jcdc.pluginfactory.ermine.FirstErminePlugin
+author: Josh Cough
+version: 0.1.0
+database: false
+depend: [ScalaLibPlugin, ScalaPluginAPI, ErmineLibPlugin]
+commands:
+  hello:
+    description: Say Hello!
+    usage: /hello
