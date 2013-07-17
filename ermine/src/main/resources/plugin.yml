@@ -1,10 +1,10 @@
-name: FirstErminePlugin
-main: jcdc.pluginfactory.ermine.FirstErminePlugin
+name: ErminePlugin
+main: jcdc.pluginfactory.ermine.ErminePlugin
 author: Josh Cough
 version: 0.1.0
 database: false
 depend: [ScalaLibPlugin, ScalaPluginAPI, ErmineLibPlugin]
 commands:
-  hello:
-    description: Say Hello!
-    usage: /hello
+  runErmine:
+    description: Run some ermine function
+    usage: /runErmine module function args...

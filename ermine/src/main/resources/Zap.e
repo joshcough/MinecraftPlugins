@@ -2,9 +2,7 @@ module Hello where
 
 import IO.Unsafe
 
-hello p args = unsafePerformIO (sendMessage p "hello back")
-
-goodbye p args = unsafePerformIO (sendMessage p "see ya")
+zap p args = unsafePerformIO (sendMessage p "ZAP")
 
 foreign
   data "org.bukkit.entity.Player" Player
