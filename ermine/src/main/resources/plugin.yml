@@ -8,3 +8,6 @@ commands:
   runErmine:
     description: Run some ermine function
     usage: /runErmine module function args...
+  registerErmineListener:
+    description: registerErmineListener
+    usage: /registerErmineListener module function args...

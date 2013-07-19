@@ -4,4 +4,4 @@ import IO.Unsafe
 import Minecraft
 
 hello p args = unsafePerformIO (sendMessage p "hello back")
-goodbye p args = unsafePerformIO (sendMessage p "see ya")
+goodbye p args = unsafePerformIO (sendMessage p "see ya!!!!")

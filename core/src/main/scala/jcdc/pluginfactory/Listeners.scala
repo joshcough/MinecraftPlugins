@@ -45,6 +45,7 @@ trait ListenersPlugin extends ScalaPlugin with Listeners {
 }
 
 object Listeners extends Listeners
+object ListenersObject extends Listeners
 
 /**
  * This trait supports many convenience wrappers for creating Listeners with

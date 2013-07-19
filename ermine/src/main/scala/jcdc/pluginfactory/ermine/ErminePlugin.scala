@@ -3,6 +3,7 @@ package jcdc.pluginfactory.ermine
 import com.clarifi.reporting.ermine.{Prim, Fun}
 import com.clarifi.reporting.ermine.session.FilesystemReportsCache
 import jcdc.pluginfactory.CommandsPlugin
+import org.bukkit.event.Listener
 
 class ErminePlugin extends CommandsPlugin {
 
@@ -22,6 +23,16 @@ class ErminePlugin extends CommandsPlugin {
         case Right(f:Fun) => f(Prim(p))(Prim(as))
         case Left(e)      => p.sendError(e.getMessage)
         case bad          => p.sendError(s"something went wrong: $bad")
+      }
+    },
+    Command(
+      name = "registerErmineListener",
+      desc = "Call to Ermine code to get a listener, and register it.",
+      args = module ~ function){ case (p, m ~ f) =>
+      cache.getReport(m, f).toEither match {
+        case Right(p:Prim) => registerListener(p.extract[Listener])
+        case Left(e)       => p.sendError(e.getMessage)
+        case bad           => p.sendError(s"something went wrong: $bad")
       }
     }
   )
