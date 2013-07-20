@@ -275,6 +275,14 @@ trait ParserCombinators extends ScalaEnrichment {
    */
   val slurp: Parser[String] = (anyString.* ^^ (_.mkString(" "))) named "slurp"
 
+  /**
+   * A parser that consumes the rest of the input
+   */
+  val remainingArgs: Parser[List[String]] = new Parser[List[String]] {
+    def apply(args: List[String]) = Success(args, Nil)
+    def describe = "remainingArgs"
+  }
+
   // number parsers
   val int:     Parser[Int]    = attempt("int")   (_.toInt)
   val long:    Parser[Long]   = attempt("long")  (_.toLong)
