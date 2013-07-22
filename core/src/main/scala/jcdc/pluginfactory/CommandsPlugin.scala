@@ -396,7 +396,7 @@ trait CommandsPlugin extends ScalaPlugin with MinecraftParsers {
       def getExhaustion: Float = 0
       def getLocation: Location = origin
       def getLocation(l: org.bukkit.Location): org.bukkit.Location = getLocation
-      def getItemOnCursor: ItemStack = new ItemStack(Material.AIR)
+      override def getItemOnCursor: ItemStack = new ItemStack(Material.AIR)
       def getEyeLocation: Location = origin
       def isSprinting: Boolean = false
       def getSaturation: Float = 0
