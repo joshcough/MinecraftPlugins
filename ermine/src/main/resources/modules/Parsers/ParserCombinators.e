@@ -4,8 +4,8 @@ import Bool
 import Control.Functor
 import Control.Monad
 import Either
-import Function
-import List using (::)
+import Function hiding (|)
+import List hiding or
 import Native.Object using toString
 import Maybe
 import String as String
@@ -47,7 +47,6 @@ bindP = bind parserMonad
 infixl 5 >>=
 (>>=) = bindP
 
-
 infixl 5 ^^
 (^^) = mapP
 
@@ -77,14 +76,16 @@ or (Parser f1 name1) (Parser f2 name2) = Parser f' n' where
                           (Failure m2)     -> Failure (m1 ++_String " or " ++_String m2)
   n' = name1 ++_String " or " ++_String name2
 
+{--
 zeroOrMore p = rename (oneOrMore p | success []) (nameOf p ++_String "*")
 
 oneOrMore p = rename (p & (zeroOrMore p) ^^ f') (nameOf p ++_String "+") where f' (a :& as) = a :: as
 
-maypeP : Parser a -> Parser (Maybe a)
+maybeP : Parser a -> Parser (Maybe a)
 maybeP (Parser f n) = Parser f' n' where
   f' args = fold (f args) (_ -> Success Nothing args) (t rest -> Success (Just t) rest)
   n' = "optional(" ++_String n ++_String ")"
+--}
 
 {--
     /**
