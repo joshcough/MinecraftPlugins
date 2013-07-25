@@ -31,6 +31,7 @@ object build extends Build {
     aggregate = Seq(
       coreJava,
       core,
+      ermine,
       examplesJava,
       Arena,
       BanArrows,
@@ -70,14 +71,16 @@ object build extends Build {
     dependencies = Seq(coreJava)
   )
 
+  val repl = InputKey[Unit]("repl", "Run the Ermine read-eval-print loop")
+
+
   lazy val ermine = Project(
     id = "ermine-plugins",
     base = file("ermine"),
     settings = standardSettings ++ Seq[Sett](
       name := "Ermine Plugin API",
-      libraryDependencies ++= Seq(
-        "com.clarifi" %% "ermine-legacy" % "0.1"
-      )
+      libraryDependencies ++= Seq("com.clarifi" %% "ermine-legacy" % "0.1"),
+      fullRunInputTask(repl, Compile, "com.clarifi.reporting.ermine.session.Console")
     ),
     dependencies = Seq(core)
   )

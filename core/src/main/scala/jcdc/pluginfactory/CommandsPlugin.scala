@@ -82,7 +82,11 @@ trait CommandsPlugin extends ScalaPlugin with MinecraftParsers {
     name: String,
     description: String,
     argsDescription: Option[String],
-    body: (Player, List[String]) => Unit)
+    body: (Player, List[String]) => Unit){
+    def filter(f: Player => Boolean, err: => String) = this.copy(
+      body = (p, args) => if(f(p)) body(p, args) else p.sendError(err)
+    )
+  }
 
   def commands: List[Command]
 
@@ -170,10 +174,7 @@ trait CommandsPlugin extends ScalaPlugin with MinecraftParsers {
    * if the user is an op. If the user is an op, the inner CommandBody is executed.
    * If not, then the user is given an error message.
    */
-  def OpOnly(c: Command): Command =
-    c.copy(body=(p: Player, args: List[String]) =>
-      if (p.isOp) c.body(p, args) else p ! RED(s"You must be an op to run /${c.name}")
-    )
+  def OpOnly(c: Command): Command = c.filter(_.isOp, s"You must be an op to run /${c.name}")
 
   /**
    * Simple combinator for creating commands that take a single Player argument (only).

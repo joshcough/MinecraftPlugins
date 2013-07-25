@@ -1,7 +1,8 @@
-module Minecraft where
+module Minecraft.Minecraft where
 
 import Syntax.IO
 import Native.Function
+import Parsers.ParserCombinators
 
 foreign
   data "org.bukkit.entity.Player" Player
@@ -42,3 +43,15 @@ foreign
 zap p = getWorld p >>= (w -> getLocation p >>= strikeLightning w)
 
 onBlockDamage f = onBlockDamage# (function2 f)
+
+
+{--
+case class Command(
+    name: String,
+    description: String,
+    argsDescription: Option[String],
+    body: (Player, List[String]) => Unit)
+--}
+
+data Command = Command String String (Player -> [String] -> IO ())
+sayHiCommand = Command "hi" "Say hi" (p _ -> sendMessage p "hi")

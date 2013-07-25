@@ -10,7 +10,7 @@ import org.bukkit.entity.Player
 class ErminePlugin extends CommandsPlugin {
 
   // code for running ermine
-  val ermineDir = "/Users/joshcough/work/MinecraftPlugins/ermine/src/main/resources"
+  val ermineDir = "/Users/joshcough/work/MinecraftPlugins/ermine/src/main/resources/modules"
   val cache = new FilesystemReportsCache(List(ermineDir))
   def runIO(r: Runtime) = {
     val g = Global("IO.Unsafe","unsafePerformIO")
