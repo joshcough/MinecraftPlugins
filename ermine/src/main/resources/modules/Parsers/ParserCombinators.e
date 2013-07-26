@@ -4,10 +4,12 @@ import Bool
 import Control.Functor
 import Control.Monad
 import Either
+import Eq
 import Function hiding (|)
 import List hiding or
 import Native.Object using toString
 import Maybe
+import Parse
 import String as String
 
 data Parser a = Parser (List String -> ParseResult a) String
@@ -53,9 +55,11 @@ infixl 5 ^^
 infixl 3 ^^^
 (^^^) p b = mapP (_ -> b) p
 
+filterP : (a -> Bool) -> Parser a -> Parser a
 filterP f p = filterWithP f (_ -> "invalid " ++_String (nameOf p)) p
 
-filterWithP f errorF p = bindP p (a -> (if (f p) (success a) (failure (errorF a))))
+filterWithP : (a -> Bool) -> (a -> String) -> Parser a -> Parser a
+filterWithP f errorF p = bindP p (a -> (if (f a) (success a) (failure (errorF a))))
 
 infixl 5 :&
 data And a b = (:&) a b
@@ -69,7 +73,12 @@ infixl 5 &
 (&) p1 p2 = rename (p1 >>= (a -> mapP (b -> a :& b) p2)) ((nameOf p1) ++_String " " ++_String (nameOf p2))
 
 infixl 5 |
-(|) = or
+(|) : Parser a -> Parser a -> Parser a
+(|) p1 p2 = or p1 p2 ^^ f' where
+  f' : Either a a -> a
+  f' (Left  a) = a
+  f' (Right a) = a
+
 -- TODO: Ermine seems to have a naming issue. i wanted to name x' f',
 -- TODO: but it conflicted with another f' below :(
 or : Parser a -> Parser b -> Parser (Either a b)
@@ -82,10 +91,7 @@ or (Parser f1 name1) (Parser f2 name2) = Parser x' n' where
   n' = name1 ++_String " or " ++_String name2
 
 zeroOrMore : Parser a -> Parser (List a)
-zeroOrMore p =  rename ((oneOrMore p | success []) ^^ f') (nameOf p ++_String "*") where
-  f' : Either (List a) (List a) -> List a
-  f' (Left  as) = as
-  f' (Right as) = as
+zeroOrMore p =  rename (oneOrMore p | success []) (nameOf p ++_String "*") where
 
 oneOrMore  : Parser a -> Parser (List a)
 oneOrMore p = rename ((p & (zeroOrMore p)) ^^ andToList) (nameOf p ++_String "+")
@@ -131,18 +137,34 @@ slurp = rename (zeroOrMore anyString ^^ unwords_String) "slurp"
 remainingArgs: Parser (List String)
 remainingArgs = Parser (flip Success []) "remainingArgs"
 
-{--
-  implicit def stringToParser(s: String): Parser[String] =
-    anyStringAs(s).filterWith(_ == s)(_ => s"expected: $s") named s
+-- TODO: need a show instance for a
+maybeP : String -> (String -> Maybe a) -> Parser a
+maybeP name f = bindP (anyStringAs name) (s -> maybe (failure $ concat_String ["invalid", name, toString s]) (success) (f s))
 
-  /**
-   * Create a parser from an operation that parses a String and returns Option[T].
-   * If that parsing operation returns None, then the parser fails.
-   * If the parsing operation returns Some(t), then the t is the result.
-   */
-  def maybe[T](name: String)(f: String => Option[T]): Parser[T] = for {
-    s <- anyStringAs(name); res <- f(s).fold[Parser[T]](failure(s"invalid $name: $s"))(success)
-  } yield res
+int: Parser Int
+int = maybeP "int" (parseInt 10)
+byte: Parser Byte
+byte = maybeP "byte" (parseByte 10)
+long: Parser Long
+long = maybeP "long" (parseLong 10)
+short: Parser Short
+short = maybeP "short" (parseShort 10)
+double: Parser Double
+double = maybeP "double" parseDouble
+float: Parser Float
+float = maybeP "float" parseFloat
+bool        = maybeP "boolean" parseBool
+boolOrTrue  = bool | success True
+boolOrFalse = bool | success False
+string s = filterWithP ((==) s) (_ -> concat_String ["expected: ", s]) (anyStringAs s)
+
+binary: Parser String
+binary = (oneOrMore (string "0" | string "1")) ^^ concat_String
+
+{--
+  // number parsers
+  val oddNum:  Parser[Int]    = (int named "odd-int" ).filter(_.isOdd)
+  val evenNum: Parser[Int]    = (int named "even-int").filter(_.isEven)
 
   /**
    * Create a parser from an operation that may fail (with an exception).
@@ -152,19 +174,6 @@ remainingArgs = Parser (flip Success []) "remainingArgs"
   def attempt[T](name: String)(f: String => T): Parser[T] =
     anyStringAs(name).flatMap(s => Try(success(f(s))).getOrElse(failure(s"invalid $name: $s")))
 
-  // number parsers
-  val int:     Parser[Int]    = attempt("int")   (_.toInt)
-  val long:    Parser[Long]   = attempt("long")  (_.toLong)
-  val double:  Parser[Double] = attempt("double")(_.toDouble)
-  val short:   Parser[Short]  = attempt("short") (_.toShort)
-  val float:   Parser[Float]  = attempt("float") (_.toFloat)
-  val oddNum:  Parser[Int]    = (int named "odd-int" ).filter(_.isOdd)
-  val evenNum: Parser[Int]    = (int named "even-int").filter(_.isEven)
-  val binary:  Parser[String] = ("1" | "0").+ ^^ (_.mkString)
-  // bool parsers
-  val bool:        Parser[Boolean] = attempt("boolean")(_.toBoolean)
-  val boolOrTrue:  Parser[Boolean] = bool | success(true)
-  val boolOrFalse: Parser[Boolean] = bool | success(false)
 
   // file parsers
   // TODO: fix so that filenameP only accepts valid file names.
