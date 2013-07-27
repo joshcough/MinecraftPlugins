@@ -3,10 +3,11 @@ module Minecraft.Helpers where
 import Control.Monad
 import Function
 import Maybe
+import Minecraft.Native
 import Native.Function
 import Native.Object
+import Num
 import Parse
-import Minecraft.Native
 
 findEntityType : String -> Maybe EntityType
 findEntityType name = orMaybe (liftNull (entityFromName n)) (liftNull (entityValueOf n)) where n = toUpperCase name
@@ -28,3 +29,5 @@ findPlugin pm name = ffiToMaybe (getPlugin# pm name)
 
 getPluginManagerFromPlayer = getPluginManager . getServerFromPlayer
 
+location : World -> Int -> Int -> Int -> Location
+location w x y z = location# w (toDouble x) (toDouble y) (toDouble z)
