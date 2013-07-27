@@ -5,11 +5,13 @@ import Control.Functor
 import Control.Monad
 import Either
 import Eq
+import File
 import Function hiding (|)
 import List hiding or
 import Native.Object using toString
 import Maybe
 import Parse
+import Primitive
 import String as String
 
 data Parser a = Parser (List String -> ParseResult a) String
@@ -63,7 +65,7 @@ filterWithP f errorF p = bindP p (a -> (if (f a) (success a) (failure (errorF a)
 
 infixl 5 :&
 data And a b = (:&) a b
---override def toString = s"($a ~ $b)"
+--TODO: override def toString = s"($a ~ $b)"
 
 andToList : And a (List a) -> List a
 andToList (a :& as) = a :: as
@@ -141,18 +143,24 @@ remainingArgs = Parser (flip Success []) "remainingArgs"
 maybeP : String -> (String -> Maybe a) -> Parser a
 maybeP name f = bindP (anyStringAs name) (s -> maybe (failure $ concat_String ["invalid", name, toString s]) (success) (f s))
 
-int: Parser Int
-int = maybeP "int" (parseInt 10)
-byte: Parser Byte
-byte = maybeP "byte" (parseByte 10)
-long: Parser Long
-long = maybeP "long" (parseLong 10)
-short: Parser Short
-short = maybeP "short" (parseShort 10)
-double: Parser Double
+int    : Parser Int
+int    = maybeP "int" (parseInt 10)
+byte   : Parser Byte
+byte   = maybeP "byte" (parseByte 10)
+long   : Parser Long
+long   = maybeP "long" (parseLong 10)
+short  : Parser Short
+short  = maybeP "short" (parseShort 10)
+double : Parser Double
 double = maybeP "double" parseDouble
-float: Parser Float
-float = maybeP "float" parseFloat
+float  : Parser Float
+float  = maybeP "float" parseFloat
+
+evenInt = filterP even (rename int "even-int")
+oddInt  = filterP odd  (rename int "odd-int")
+even n = n % 2 == 0
+odd = not . even
+
 bool        = maybeP "boolean" parseBool
 boolOrTrue  = bool | success True
 boolOrFalse = bool | success False
@@ -161,49 +169,12 @@ string s = filterWithP ((==) s) (_ -> concat_String ["expected: ", s]) (anyStrin
 binary: Parser String
 binary = (oneOrMore (string "0" | string "1")) ^^ concat_String
 
-{--
-  // number parsers
-  val oddNum:  Parser[Int]    = (int named "odd-int" ).filter(_.isOdd)
-  val evenNum: Parser[Int]    = (int named "even-int").filter(_.isEven)
+-- file parsers
+-- TODO: fix so that filenameP only accepts valid file names.
+filename = anyStringAs "file-name"
+file = filename ^^ file#
+existingFile = rename (filterP fileExists file) "existing-file"
 
-  /**
-   * Create a parser from an operation that may fail (with an exception).
-   * If it does not throw, then the parser succeeds, returning the result.
-   * If an exception is thrown, it is caught, and the parser fails.
-   */
-  def attempt[T](name: String)(f: String => T): Parser[T] =
-    anyStringAs(name).flatMap(s => Try(success(f(s))).getOrElse(failure(s"invalid $name: $s")))
-
-
-  // file parsers
-  // TODO: fix so that filenameP only accepts valid file names.
-  val filenameP: Parser[String] = anyStringAs("file")
-  val file   : Parser[File] = filenameP ^^ (new File(_))
-  val newFile: Parser[File] = attempt("new-file"){ s => val f = new File(s); f.createNewFile; f }
-  val existingFile     : Parser[File] = file.filter(_.exists) named "existing-file"
-  val existingOrNewFile: Parser[File] = existingFile | newFile
-}
-
-// TODO: review these and maybe fix up later
-//  def slurpUntil(delim:Char): Parser[String] = new Parser[String] {
-//    def apply(args: List[String]) = {
-//      val all = args.mkString(" ")
-//      val (l,r) = all.partition(_ != delim)
-//      if(l.isEmpty) Failure(s"didn't find: $delim in: $all")
-//      else Success(l, r.drop(1).split(" ").toList)
-//    }
-//    def describe = s"slurp until: $delim"
-//  }
-//
-//  implicit def charToParser(c:Char): Parser[Char] = matchChar(c)
-//
-//  def matchChar(c:Char): Parser[Char] = new Parser[Char] {
-//    def apply(args: List[String]) = args match {
-//      case Nil => Failure(s"didn't find: $c")
-//      case x :: xs =>
-//        if(x.startsWith(c.toString)) Success(c, x.drop(1) :: xs)
-//        else Failure(s"expected: $c, but got: ${x.take(1)}")
-//    }
-//    def describe = s"slurp until: $c"
-//  }
---}
+-- TODO: add to ermine lib.
+foreign
+  method "exists" fileExists : File -> Bool
