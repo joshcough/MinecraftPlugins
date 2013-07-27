@@ -13,7 +13,7 @@ foreign
   data "org.bukkit.entity.Player" Player
   method "sendMessage" sendMessage : Player -> String -> IO ()
   method "getWorld"    getWorld : Player -> IO World
-  method "getLocation" getLocation : Player -> IO Location
+  method "getLocation" getLocationFromPlayer : Player -> IO Location
   method "getServer"   getServerFromPlayer : Player -> Server
 
   data "org.bukkit.plugin.Plugin" Plugin
@@ -29,6 +29,7 @@ foreign
 
   data "org.bukkit.World" World
   method "strikeLightning" strikeLightning : World -> Location -> IO LightningStrike
+  method "getHighestBlockAt" getHighestBlockAt : World -> Int -> Int -> IO Block
 
   data "org.bukkit.Location" Location
   constructor location# : World -> Double -> Double -> Double -> Location
@@ -45,6 +46,7 @@ foreign
 
   data "org.bukkit.block.Block" Block
   method "setType" setType : Block -> Material -> ()
+  method "getLocation" getLocationFromBlock : Block -> Location
 
   function "jcdc.pluginfactory.ListenersObject" "OnBlockDamage" onBlockDamage# : Function2 Block BlockDamageEvent () -> Listener
 

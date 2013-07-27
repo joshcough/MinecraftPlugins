@@ -3,10 +3,12 @@ module Minecraft.Parsers where
 import Bool
 import Function
 import Maybe
-import Parsers.ParserCombinators
-import Primitive
 import Minecraft.Helpers
 import Minecraft.Native
+import Num
+import Parsers.ParserCombinators
+import Primitive
+import Syntax.IO
 
 -- Minecraft parsers
 gamemode = (string "c" ^^^ creative) | (string "s" ^^^ survival)
@@ -21,10 +23,8 @@ height  = rename int "height"
 depth   = rename int "depth"
 time    = rename p "time" where
   p = filterWithP (i ->  i >= 0 && i <= 24000) (_ -> "time must be between 0 and 24000") int
-location : Parser (World -> Location)
+location : Parser (World -> IO Location)
 location = coordinates ^^ (c -> case c of
-  ((x :& z) :& (Just y)) -> w -> location# w x y z
-  ((x :& z) :& Nothing)  -> w -> _ --TODO: add getHighestBlockAt
+  ((x :& z) :& (Just y)) -> w -> return $ location# w x y z
+  ((x :& z) :& Nothing)  -> w ->  getLocationFromBlock <$> (getHighestBlockAt w (toInt x) (toInt z))
 )
---  case x ~ z ~ Some(y) => (w:World) => w(x, y, z).loc
---  case x ~ z ~ None    => (w:World) => w.getHighestBlockAt(x, z).loc
