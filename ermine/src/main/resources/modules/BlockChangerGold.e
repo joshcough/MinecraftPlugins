@@ -1,7 +1,6 @@
 module BlockChangerGold where
 
-import IO.Unsafe
-import Minecraft
+import Minecraft.Minecraft
 
 change = onBlockDamage (b _ -> setType b diamond)
 

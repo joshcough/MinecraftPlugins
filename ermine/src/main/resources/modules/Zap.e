@@ -1,6 +1,5 @@
-module Hello where
+module Zap where
 
-import IO.Unsafe
-import Minecraft
+import Minecraft.Minecraft
 
 main p args = zap p
