@@ -50,7 +50,7 @@ object build extends Build {
     aggregate = Seq(
       coreJava,
       core,
-      //ermine,
+      ermine,
       examplesJava,
       Arena,
       BanArrows,
