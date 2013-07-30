@@ -28,13 +28,14 @@ object build extends Build {
         println("copying " + f.name + " to bukkit server")
         IO.copyFile(f, new File("bukkit/plugins/" + f.name))
       }
-    }
+    },
+    traceLevel := 10
   )
 
   def pluginYmlSettings(author: String): Seq[Sett] = Seq[Sett](
     mappings in (Compile, packageBin) <+=
-     (streams, name, productDirectories in Compile, dependencyClasspath in Compile, baseDirectory, version, runner) map {
-       (s, name, cp1, cp2, bd, v, r) =>
+     (streams, name, productDirectories in Compile, dependencyClasspath in Compile, baseDirectory, version, compile in Compile, runner) map {
+       (s, name, cp1, cp2, bd, v, _, r) =>
       Run.run(
         "jcdc.pluginfactory.YMLGenerator", (Attributed.blankSeq(cp1) ++ cp2).map(_.data),
         Seq("jcdc.pluginfactory.examples." + name, author, v, bd.getAbsolutePath),
@@ -120,7 +121,7 @@ object build extends Build {
   def exampleProject(exampleProjectName: String) = Project(
     id = exampleProjectName,
     base = file("examples/" + exampleProjectName),
-    settings = standardSettings ++ pluginYmlSettings("Josh Cough") ++ Seq[Sett](
+    settings = standardSettings ++ pluginYmlSettings("JoshCough") ++ Seq[Sett](
       name := exampleProjectName
     ),
     dependencies = Seq(core)

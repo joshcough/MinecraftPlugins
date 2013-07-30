@@ -119,7 +119,7 @@ public class BetterJavaPlugin extends JavaPlugin {
     return s.toString();
   }
 
-    public void writeYML(String author, String version){
+  public void writeYML(String author, String version){
     String ymlContents = this.yml(author, version);
     writeResourcesFile(this.pluginName().toLowerCase() + ".yml", ymlContents);
     writeResourcesFile("plugin.yml", ymlContents);

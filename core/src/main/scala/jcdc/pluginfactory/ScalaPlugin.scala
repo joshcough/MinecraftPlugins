@@ -1,12 +1,12 @@
 package jcdc.pluginfactory
 
 import org.bukkit.Server
+import org.bukkit.entity.Player
 import org.bukkit.event.{Listener, Event}
 import org.bukkit.plugin.java.JavaPlugin
 import util.Try
 import java.util.logging.{Level, Logger}
 import javax.persistence.PersistenceException
-import org.bukkit.entity.Player
 
 /**
  * The base class that helps make writing Bukkit plugins vastly easier.
