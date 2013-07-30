@@ -90,20 +90,13 @@ abstract class ScalaPlugin extends JavaPlugin with BukkitEnrichment { scalaPlugi
   def writeYML(author: String, version: String, outputDir: String = "."): Unit = {
     val resources = new java.io.File(outputDir)
     resources.mkdirs
-
     def write(contents: String, filename:String): Unit = {
       val f = new java.io.FileWriter(new java.io.File(resources, filename))
       f.write(contents)
       f.close
     }
-
-    val pluginYml = this.yml(author, version)
-    write(pluginYml, s"${this.name.toLowerCase}-plugin.yml")
-    write(pluginYml, "plugin.yml")
-
-    val configYml = configs.toList.map{ case (k, v) => s"$k: $v" }.mkString("\n")
-    write(configYml, s"${this.name.toLowerCase}-config.yml")
-    write(configYml, "config.yml")
+    write(yml(author, version), "plugin.yml")
+    write(configs.toList.map{ case (k, v) => s"$k: $v" }.mkString("\n"), "config.yml")
   }
 
   /**
