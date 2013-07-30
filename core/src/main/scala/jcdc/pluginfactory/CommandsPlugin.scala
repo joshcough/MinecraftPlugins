@@ -426,7 +426,7 @@ trait CommandsPlugin extends ScalaPlugin with MinecraftParsers {
       def getCanPickupItems(): Boolean = false
       def getEquipment(): org.bukkit.inventory.EntityEquipment = ???
       def getRemoveWhenFarAway(): Boolean = false
-      def setCanPickupItems(x$1: Boolean): Unit = {}
+      override def setCanPickupItems(x$1: Boolean): Unit = {}
       def setRemoveWhenFarAway(x$1: Boolean): Unit = {}
       def setTexturePack(x$1: String): Unit = {}
       def resetMaxHealth(): Unit = {}

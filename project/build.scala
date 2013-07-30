@@ -21,7 +21,26 @@ object build extends Build {
       "Sonatype Snapshots" at "http://oss.sonatype.org/content/repositories/snapshots",
       "Sonatype Releases"  at "http://oss.sonatype.org/content/repositories/releases",
       "Bukkit"             at "http://repo.bukkit.org/content/repositories/releases"
-    )
+    ),
+    // make publish local also copy jars to my bukkit server :)
+    publishLocal <<= (packagedArtifacts, publishLocal) map { case (r, _) =>
+      r collectFirst { case (Artifact(_,"jar","jar",_, _, _, _), f) =>
+        println("copying " + f.name + " to bukkit server")
+        IO.copyFile(f, new File("bukkit/plugins/" + f.name))
+      }
+    }
+  )
+
+  def pluginYmlSettings(author: String): Seq[Sett] = Seq[Sett](
+    mappings in (Compile, packageBin) <+=
+     (streams, name, productDirectories in Compile, dependencyClasspath in Compile, baseDirectory, version, runner) map {
+       (s, name, cp1, cp2, bd, v, r) =>
+      Run.run(
+        "jcdc.pluginfactory.YMLGenerator", (Attributed.blankSeq(cp1) ++ cp2).map(_.data),
+        Seq("jcdc.pluginfactory.examples." + name, author, v, bd.getAbsolutePath),
+        s.log)(r)
+      bd / "plugin.yml" -> "plugin.yml"
+    }
   )
 
   lazy val scalaMinecraftPlugins = Project(
@@ -101,7 +120,9 @@ object build extends Build {
   def exampleProject(exampleProjectName: String) = Project(
     id = exampleProjectName,
     base = file("examples/" + exampleProjectName),
-    settings = standardSettings ++ Seq[Sett](name := exampleProjectName),
+    settings = standardSettings ++ pluginYmlSettings("Josh Cough") ++ Seq[Sett](
+      name := exampleProjectName
+    ),
     dependencies = Seq(core)
   )
 
