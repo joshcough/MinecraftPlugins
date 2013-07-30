@@ -24,43 +24,26 @@ blocksAbove b = blockAbove b :: blocksAbove (blockAbove b)
 andBlocksAbove b = b :: blocksAbove b
 blocksBelow b = blockBelow b :: blocksBelow (blockBelow b)
 andBlocksBelow b = b :: blocksBelow b
+nthBlockAbove b n = translateY b (y -> y + n)
+nthBlockBelow b n = translateY b (y -> y - n)
+
+neighbors4    b = [blockNorth b, blockSouth b, blockEast b, blockWest b]
+andNeighbors4 b = b :: neighbors4 b
+neighbors8    b = neighbors4 b ++ [blockNorthEast b, blockSouthEast b, blockNorthWest b, blockSouthWest b]
+andNeighbors8 b = b :: neighbors8 b
+neighbors     b = neighbors8 b ++ (andNeighbors8 $ blockBelow b) ++ (andNeighbors8 $ blockAbove b)
+andNeighbors  b = b :: neighbors b
+
 
 private
   wfb = getWorldFromBlock
 
 {--
+
+-- Other crap in the scala stuff not ported over yet
+
     lazy val (xd, yd, zd) = (b.getX.toDouble, b.getY.toDouble, b.getZ.toDouble)
     lazy val chunk        = world.getChunkAt(b)
-
-    // the nth block above b
-    def nthBlockAbove(n:Int) = world(xd, yd + n, zd)
-    // the nth block below b
-    def nthBlockBelow(n:Int) = world(xd, yd - n, zd)
-    // b, and all the blocks above b
-    def andBlocksAbove: Stream[Block] = b #:: blocksAbove
-    // the four blocks north, south, east and west of b
-    def neighbors4: Stream[Block] =
-      blockNorth #:: blockSouth #:: blockEast #:: blockWest #:: Stream.empty
-    // b, and the four blocks north, south, east and west of b
-    def andNeighbors4: Stream[Block] = b #:: neighbors4
-    // the four blocks north, south, east and west of b
-    // and the four blocks northeast, southeast, northwest, and southwest of b
-    def neighbors8   : Stream[Block] = neighbors4 ++ (
-      blockNorthEast #:: blockSouthEast #:: blockNorthWest #:: blockSouthWest #:: Stream.empty
-    )
-    // b and all of b's neighbors8
-    def andNeighbors8: Stream[Block] = b #:: neighbors8
-
-    /**
-     * @return all of b's 26 neighbors in 3D space
-     */
-    def neighbors    : Stream[Block] =
-      neighbors8 ++ (b.blockBelow.andNeighbors8) #::: (b.blockAbove.andNeighbors8)
-
-    /**
-     * @return b, and all of b's 26 neighbors in 3D space
-     */
-    def andNeighbors : Stream[Block] = b #:: neighbors
 
     def is(m:Material)    = b.getType == m
     def isA(m:Material)   = b.getType == m

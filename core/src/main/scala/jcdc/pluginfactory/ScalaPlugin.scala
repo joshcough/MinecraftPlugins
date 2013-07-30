@@ -19,8 +19,14 @@ abstract class ScalaPlugin extends JavaPlugin with BukkitEnrichment { scalaPlugi
   lazy val log = Logger.getLogger("Minecraft")
 
   // setup stuff
-  override def onEnable:  Unit = { super.onEnable ; setupDatabase; logInfo(s"$name enabled!" ) }
-  override def onDisable: Unit = { super.onDisable;                logInfo(s"$name disabled!") }
+  override def onEnable:  Unit = {
+    super.onEnable
+    this.saveDefaultConfig
+    setupDatabase
+    logInfo(s"$name enabled!")
+  }
+
+  override def onDisable: Unit = { super.onDisable; logInfo(s"$name disabled!") }
 
   /**
    * A list of dependencies that this plugin depends on.

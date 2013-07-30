@@ -11,3 +11,6 @@ commands:
   registerErmineListener:
     description: registerErmineListener
     usage: /registerErmineListener module function args...
+  loadErminePlugin:
+    description: Enable an Ermine plugin
+    usage: /loadErminePlugin plugin-name

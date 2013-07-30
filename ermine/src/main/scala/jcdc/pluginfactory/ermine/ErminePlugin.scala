@@ -44,7 +44,20 @@ class ErminePlugin extends CommandsPlugin {
       desc = "Call to Ermine code to get a listener, and register it.",
       args = module ~ function){
         case (p, m ~ f) => runErmine(p, m, f) { case p:Prim => registerListener(p.extract[Listener]) }
-      }
+      },
+    Command(
+      name = "loadErminePlugin",
+      desc = "Enable an Ermine plugin",
+      args = anyStringAs("plugin-name")
+    )(
+      body = { case (p, pluginName) =>
+        val conf = this.getConfig
+        val ps = conf.getStringList("ermine-plugins")
+        println(ps)
+        ps.add(pluginName)
+        conf.set("ermine-plugins", ps)
+        this.saveConfig
+      })
   )
 }
 
