@@ -26,6 +26,7 @@
       <sourceFolder url="file://$MODULE_DIR$/scala-lib-plugin/src/main/scala" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples-java/src/main/java" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples/src/test/scala" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/ermine/src/main/scala" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/.idea" />
       <excludeFolder url="file://$MODULE_DIR$/bukkit" />
       <excludeFolder url="file://$MODULE_DIR$/core-java/project" />
@@ -33,12 +34,13 @@
       <excludeFolder url="file://$MODULE_DIR$/core/bin/target" />
       <excludeFolder url="file://$MODULE_DIR$/core/project" />
       <excludeFolder url="file://$MODULE_DIR$/core/target" />
+      <excludeFolder url="file://$MODULE_DIR$/ermine/target" />
       <excludeFolder url="file://$MODULE_DIR$/examples-java/project" />
       <excludeFolder url="file://$MODULE_DIR$/examples-java/target" />
       <excludeFolder url="file://$MODULE_DIR$/examples/BlockChanger/src" />
-      <excludeFolder url="file://$MODULE_DIR$/examples/BlockChanger/target" />
       <excludeFolder url="file://$MODULE_DIR$/examples/BlockChangerGold/src" />
       <excludeFolder url="file://$MODULE_DIR$/examples/BlockChangerGold/target" />
+      <excludeFolder url="file://$MODULE_DIR$/examples/blockchanger/target" />
       <excludeFolder url="file://$MODULE_DIR$/examples/project" />
       <excludeFolder url="file://$MODULE_DIR$/examples/target" />
       <excludeFolder url="file://$MODULE_DIR$/microexample/project" />
@@ -120,6 +122,15 @@
         <SOURCES>
           <root url="jar://$USER_HOME$/.ivy2/cache/org.bukkit/craftbukkit/jars/craftbukkit-1.5.2-R1.0.jar!/" />
         </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$USER_HOME$/.ivy2/local/com.clarifi/ermine-legacy_2.10/0.1/jars/ermine-legacy_2.10.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
       </library>
     </orderEntry>
   </component>

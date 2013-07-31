@@ -1,12 +1,12 @@
 package jcdc.pluginfactory
 
 import org.bukkit.Server
+import org.bukkit.entity.Player
 import org.bukkit.event.{Listener, Event}
 import org.bukkit.plugin.java.JavaPlugin
 import util.Try
 import java.util.logging.{Level, Logger}
 import javax.persistence.PersistenceException
-import org.bukkit.entity.Player
 
 /**
  * The base class that helps make writing Bukkit plugins vastly easier.
@@ -19,8 +19,14 @@ abstract class ScalaPlugin extends JavaPlugin with BukkitEnrichment { scalaPlugi
   lazy val log = Logger.getLogger("Minecraft")
 
   // setup stuff
-  override def onEnable:  Unit = { super.onEnable ; setupDatabase; logInfo(s"$name enabled!" ) }
-  override def onDisable: Unit = { super.onDisable;                logInfo(s"$name disabled!") }
+  override def onEnable:  Unit = {
+    super.onEnable
+    this.saveDefaultConfig
+    setupDatabase
+    logInfo(s"$name enabled!")
+  }
+
+  override def onDisable: Unit = { super.onDisable; logInfo(s"$name disabled!") }
 
   /**
    * A list of dependencies that this plugin depends on.
@@ -82,22 +88,15 @@ abstract class ScalaPlugin extends JavaPlugin with BukkitEnrichment { scalaPlugi
    * @param version the version of the plugin
    */
   def writeYML(author: String, version: String, outputDir: String = "."): Unit = {
-    val resources = new java.io.File(outputDir + "src/main/resources")
+    val resources = new java.io.File(outputDir)
     resources.mkdirs
-
     def write(contents: String, filename:String): Unit = {
       val f = new java.io.FileWriter(new java.io.File(resources, filename))
       f.write(contents)
       f.close
     }
-
-    val pluginYml = this.yml(author, version)
-    write(pluginYml, s"${this.name.toLowerCase}-plugin.yml")
-    write(pluginYml, "plugin.yml")
-
-    val configYml = configs.toList.map{ case (k, v) => s"$k: $v" }.mkString("\n")
-    write(configYml, s"${this.name.toLowerCase}-config.yml")
-    write(configYml, "config.yml")
+    write(yml(author, version), "plugin.yml")
+    write(configs.toList.map{ case (k, v) => s"$k: $v" }.mkString("\n"), "config.yml")
   }
 
   /**

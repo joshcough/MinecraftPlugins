@@ -10,6 +10,8 @@ object build extends Build {
     organization := "jcdc.pluginfactory",
     version := "0.3.1",
     scalaVersion := "2.10.2",
+    licenses += ("MIT", url("http://opensource.org/licenses/MIT")),
+    publishMavenStyle := true,
     libraryDependencies ++= Seq(
       "javax.servlet"      % "servlet-api"           % "2.5" % "provided->default",
       "org.bukkit"         % "craftbukkit"           % "1.5.2-R1.0",
@@ -18,10 +20,29 @@ object build extends Build {
     ),
     resolvers += Resolver.sonatypeRepo("snapshots"),
     resolvers ++= Seq(
-      "Sonatype Snapshots" at "http://oss.sonatype.org/content/repositories/snapshots",
-      "Sonatype Releases"  at "http://oss.sonatype.org/content/repositories/releases",
-      "Bukkit"             at "http://repo.bukkit.org/content/repositories/releases"
-    )
+      "Bukkit"             at "http://repo.bukkit.org/content/repositories/releases",
+      "joshcough bintray maven" at "http://dl.bintray.com/joshcough/maven/"
+    ),
+    // make publish local also copy jars to my bukkit server :)
+    publishLocal <<= (packagedArtifacts, publishLocal) map { case (r, _) =>
+      r collectFirst { case (Artifact(_,"jar","jar",_, _, _, _), f) =>
+        println("copying " + f.name + " to bukkit server")
+        IO.copyFile(f, new File("bukkit/plugins/" + f.name))
+      }
+    },
+    traceLevel := 10
+  )
+
+  def pluginYmlSettings(author: String): Seq[Sett] = Seq[Sett](
+    resourceGenerators in Compile <+=
+      (resourceManaged in Compile, streams, name, productDirectories in Compile, dependencyClasspath in Compile, version, compile in Compile, runner) map {
+        (dir, s, name, cp1, cp2, v, _, r) =>
+          Run.run(
+            "jcdc.pluginfactory.YMLGenerator", (Attributed.blankSeq(cp1) ++ cp2).map(_.data),
+            Seq("jcdc.pluginfactory.examples." + name, author, v, dir.getAbsolutePath),
+            s.log)(r)
+          Seq(dir / "plugin.yml", dir / "config.yml")
+      }
   )
 
   lazy val scalaMinecraftPlugins = Project(
@@ -31,6 +52,7 @@ object build extends Build {
     aggregate = Seq(
       coreJava,
       core,
+      ermine,
       examplesJava,
       Arena,
       BanArrows,
@@ -100,9 +122,49 @@ object build extends Build {
   def exampleProject(exampleProjectName: String) = Project(
     id = exampleProjectName,
     base = file("examples/" + exampleProjectName),
-    settings = standardSettings ++ Seq[Sett](name := exampleProjectName),
+    settings = standardSettings ++ pluginYmlSettings("JoshCough") ++ Seq[Sett](
+      name := exampleProjectName
+    ),
     dependencies = Seq(core)
   )
+
+  // ErmineCraft stuff below.
+  val repl = InputKey[Unit]("repl", "Run the Ermine read-eval-print loop")
+  val allUnmanagedResourceDirectories = SettingKey[Seq[File]]("all-unmanaged-resource-directories", "unmanaged-resource-directories, transitively.")
+  /** Multiply a setting across Compile, Test, Runtime. */
+  def compileTestRuntime[A](f: Configuration => Setting[A]): SettingsDefinition =
+    seq(f(Compile), f(Test), f(Runtime))
+
+  lazy val ermine = {
+    val ermineFileSettings = Defaults.defaultSettings ++ Seq[SettingsDefinition](
+      compileTestRuntime(sc => classpathConfiguration in sc := sc)
+     ,mainClass in (Compile, run) := Some("com.clarifi.reporting.ermine.session.Console")
+     ,compileTestRuntime(sco => allUnmanagedResourceDirectories in sco <<=
+        Defaults.inDependencies(unmanagedResourceDirectories in sco, _ => Seq.empty)
+         (_.reverse.flatten))
+      // Usually, resources end up in the classpath by virtue of `compile'
+      // copying them into target/scala-*/classes, and from there into jar.  But
+      // we want in development p(1) I can edit an Ermine module in src
+      // resources, hit reload, and it's seen. So we (harmlessly) patch the src resources
+      // dirs in *before* the classes dirs, so they will win in the classloader
+      // lookup.
+     ,compileTestRuntime(sco =>
+        fullClasspath in sco <<= (allUnmanagedResourceDirectories in sco,
+                                  fullClasspath in sco) map {
+          (urd, fc) => Attributed.blankSeq(urd) ++ fc
+      })
+    ) flatMap (_.settings)
+    Project(
+      id = "ermine-plugins",
+      base = file("ermine"),
+      settings = standardSettings ++ Seq[Sett](
+        name := "Ermine Plugin API",
+        libraryDependencies ++= Seq("com.clarifi" %% "ermine-legacy" % "0.1"),
+        fullRunInputTask(repl, Compile, "com.clarifi.reporting.ermine.session.Console")
+      ) ++ ermineFileSettings,
+      dependencies = Seq(core)
+    )
+  }
 }
 
 // some crap left over from old build.sbt files.
