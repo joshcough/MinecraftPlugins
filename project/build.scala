@@ -6,7 +6,7 @@ import java.io.File
 object build extends Build {
   type Sett = Project.Setting[_]
 
-  lazy val standardSettings: Seq[Sett] = Defaults.defaultSettings ++ Seq[Sett](
+  lazy val standardSettings: Seq[Sett] = Defaults.defaultSettings ++ bintray.Plugin.bintraySettings ++ Seq[Sett](
     organization := "jcdc.pluginfactory",
     version := "0.3.1",
     scalaVersion := "2.10.2",
@@ -76,7 +76,7 @@ object build extends Build {
   lazy val coreJava = Project(
     id = "core-java",
     base = file("core-java"),
-    settings = standardSettings ++ Seq[Sett](name := "Java Plugin API")
+    settings = standardSettings ++ Seq[Sett](name := "Java Minecraft Plugin API")
   )
 
   lazy val core = Project(
