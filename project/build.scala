@@ -10,6 +10,8 @@ object build extends Build {
     organization := "jcdc.pluginfactory",
     version := "0.3.1",
     scalaVersion := "2.10.2",
+    licenses += ("MIT", url("http://opensource.org/licenses/MIT")),
+    publishMavenStyle := true,
     libraryDependencies ++= Seq(
       "javax.servlet"      % "servlet-api"           % "2.5" % "provided->default",
       "org.bukkit"         % "craftbukkit"           % "1.5.2-R1.0",
@@ -18,9 +20,8 @@ object build extends Build {
     ),
     resolvers += Resolver.sonatypeRepo("snapshots"),
     resolvers ++= Seq(
-      "Sonatype Snapshots" at "http://oss.sonatype.org/content/repositories/snapshots",
-      "Sonatype Releases"  at "http://oss.sonatype.org/content/repositories/releases",
-      "Bukkit"             at "http://repo.bukkit.org/content/repositories/releases"
+      "Bukkit"             at "http://repo.bukkit.org/content/repositories/releases",
+      "joshcough bintray maven" at "http://dl.bintray.com/joshcough/maven/"
     ),
     // make publish local also copy jars to my bukkit server :)
     publishLocal <<= (packagedArtifacts, publishLocal) map { case (r, _) =>
@@ -133,36 +134,18 @@ object build extends Build {
   /** Multiply a setting across Compile, Test, Runtime. */
   def compileTestRuntime[A](f: Configuration => Setting[A]): SettingsDefinition =
     seq(f(Compile), f(Test), f(Runtime))
-  def fromGithub(githubUser: String, project: String, subProject: Option[String] = None, sha: Option[String] = None) = {
-    // if a specific commit isnt supplied, just fetch the very latest commit.
-    // 'sbt update' doesn't seem to get the latest even though this says that it should
-    // http://stackoverflow.com/questions/8864317/how-do-i-refresh-updated-git-dependency-artifacts-in-sbt
-    // so instead we have to go to github and get the latest version.
-    val shaOrLatest = sha.getOrElse{
-      val commitsUrl = "https://api.github.com/repos/"+githubUser+"/"+project+"/commits?sha=master"
-      scala.io.Source.fromURL(commitsUrl).takeWhile(_ != ',').mkString.dropWhile(_!=':').drop(2).dropRight(1)
-    }
-    val projectUri = uri("https://github.com/"+githubUser+"/"+project+".git#" + shaOrLatest)
-    subProject match {
-      case None => RootProject(projectUri)
-      case Some(sub) => ProjectRef(projectUri, sub)
-    }
-  }
-
-  lazy val ermineLegacy  = fromGithub("ermine-language", "ermine-legacy")
 
   lazy val ermine = {
     val ermineFileSettings = Defaults.defaultSettings ++ Seq[SettingsDefinition](
       compileTestRuntime(sc => classpathConfiguration in sc := sc)
      ,mainClass in (Compile, run) := Some("com.clarifi.reporting.ermine.session.Console")
      ,compileTestRuntime(sco => allUnmanagedResourceDirectories in sco <<=
-        (Defaults.inDependencies(unmanagedResourceDirectories in sco, _ => Seq.empty)
-         (_.reverse.flatten)))
+        Defaults.inDependencies(unmanagedResourceDirectories in sco, _ => Seq.empty)
+         (_.reverse.flatten))
       // Usually, resources end up in the classpath by virtue of `compile'
       // copying them into target/scala-*/classes, and from there into jar.  But
       // we want in development p(1) I can edit an Ermine module in src
-      // resources, hit reload, and it's seen, and (2) I can edit CSS/JS, reload
-      // the HTML, and it's seen.  So we (harmlessly) patch the src resources
+      // resources, hit reload, and it's seen. So we (harmlessly) patch the src resources
       // dirs in *before* the classes dirs, so they will win in the classloader
       // lookup.
      ,compileTestRuntime(sco =>
@@ -176,12 +159,12 @@ object build extends Build {
       base = file("ermine"),
       settings = standardSettings ++ Seq[Sett](
         name := "Ermine Plugin API",
-        //libraryDependencies ++= Seq("com.clarifi" %% "ermine-legacy" % "0.1"),
+        libraryDependencies ++= Seq("com.clarifi" %% "ermine-legacy" % "0.1"),
         fullRunInputTask(repl, Compile, "com.clarifi.reporting.ermine.session.Console")
       ) ++ ermineFileSettings,
       dependencies = Seq(core)
     )
-  }.dependsOn(ermineLegacy)
+  }
 }
 
 // some crap left over from old build.sbt files.

@@ -2,6 +2,7 @@ examples/src/main/resources/
 target/
 out/
 .idea/workspace.xml
+.idea/copyright/
 .lib/
 plugins/
 bukkit/
@@ -11,6 +12,7 @@ bukkit/
 .lein-deps-sum
 .lein-failures
 .lein-plugins
+.ermine_history
 
 examples/BlockChanger/src/
 examples/BlockChangerGold/src/
