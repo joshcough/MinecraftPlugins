@@ -13,15 +13,3 @@ bukkit/
 .lein-failures
 .lein-plugins
 .ermine_history
-
-examples/BlockChanger/src/
-examples/BlockChangerGold/src/
-examples/BanArrows/src/
-examples/LightningArrows/src/
-examples/MultiPlayerCommands/src/
-examples/NoRain/src/
-examples/PluginCommander/src/
-examples/TreeDelogger/src/
-examples/WorldEdit/src/
-examples/YellowBrickRoad/src/
-examples/ZombieApocalypse/src/
