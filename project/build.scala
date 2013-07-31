@@ -83,9 +83,8 @@ object build extends Build {
     id = "core",
     base = file("core"),
     settings = standardSettings ++ Seq[Sett](
-      name := "Scala Plugin API",
+      name := "Scala Minecraft Plugin API",
       libraryDependencies ++= Seq(
-        "org.clojure"        % "clojure"               % "1.4.0",
         "org.scalacheck"    %% "scalacheck"            % "1.10.0" % "test"
       )
     ),
@@ -176,6 +175,7 @@ object build extends Build {
 //  result
 //}
 
+//"org.clojure"        % "clojure"               % "1.4.0",
 //"org.squeryl"       %% "squeryl"               % "0.9.6-SNAPSHOT",
 //"mysql"              % "mysql-connector-java"  % "5.1.10",
 //"org.apache.derby"   % "derby"                 % "10.7.1.1",
