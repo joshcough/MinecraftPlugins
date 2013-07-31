@@ -2,6 +2,7 @@ import sbt._
 import Project.Setting
 import Keys._
 import java.io.File
+import jcdc.pluginfactory.Plugin._
 
 object build extends Build {
   type Sett = Project.Setting[_]
@@ -31,19 +32,20 @@ object build extends Build {
       }
     },
     traceLevel := 10
+    //,logLevel := Level.Warn
   )
 
-  def pluginYmlSettings(author: String): Seq[Sett] = Seq[Sett](
-    resourceGenerators in Compile <+=
-      (resourceManaged in Compile, streams, name, productDirectories in Compile, dependencyClasspath in Compile, version, compile in Compile, runner) map {
-        (dir, s, name, cp1, cp2, v, _, r) =>
-          Run.run(
-            "jcdc.pluginfactory.YMLGenerator", (Attributed.blankSeq(cp1) ++ cp2).map(_.data),
-            Seq("jcdc.pluginfactory.examples." + name, author, v, dir.getAbsolutePath),
-            s.log)(r)
-          Seq(dir / "plugin.yml", dir / "config.yml")
-      }
-  )
+//  def pluginYmlSettings(author: String): Seq[Sett] = Seq[Sett](
+//    resourceGenerators in Compile <+=
+//      (resourceManaged in Compile, streams, name, productDirectories in Compile, dependencyClasspath in Compile, version, compile in Compile, runner) map {
+//        (dir, s, name, cp1, cp2, v, _, r) =>
+//          Run.run(
+//            "jcdc.pluginfactory.YMLGenerator", (Attributed.blankSeq(cp1) ++ cp2).map(_.data),
+//            Seq("jcdc.pluginfactory.examples." + name, author, v, dir.getAbsolutePath),
+//            s.log)(r)
+//          Seq(dir / "plugin.yml", dir / "config.yml")
+//      }
+//  )
 
   lazy val scalaMinecraftPlugins = Project(
     id = "scalaMinecraftPlugins",
