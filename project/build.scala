@@ -23,7 +23,8 @@ object build extends Build {
     resolvers += Resolver.sonatypeRepo("snapshots"),
     resolvers ++= Seq(
       "Bukkit"             at "http://repo.bukkit.org/content/repositories/releases",
-      "joshcough bintray maven" at "http://dl.bintray.com/joshcough/maven/"
+      "joshcough bintray maven" at "http://dl.bintray.com/joshcough/maven/",
+      "runarorama bintray maven" at "http://dl.bintray.com/runarorama/maven/"
     ),
     // make publish local also copy jars to my bukkit server :)
     publishLocal <<= (packagedArtifacts, publishLocal) map { case (r, _) =>
