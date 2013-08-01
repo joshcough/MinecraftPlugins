@@ -11,7 +11,8 @@ object build extends Build {
     organization := "jcdc.pluginfactory",
     version := "0.3.1",
     scalaVersion := "2.10.2",
-    licenses += ("MIT", url("http://opensource.org/licenses/MIT")),
+    licenses <++= (version)(v => Seq("MIT" -> url(
+      "https://github.com/joshcough/MinecraftPlugins/blob/%s/LICENSE".format(v)))),
     publishMavenStyle := true,
     libraryDependencies ++= Seq(
       "javax.servlet"      % "servlet-api"           % "2.5" % "provided->default",
