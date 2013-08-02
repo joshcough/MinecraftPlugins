@@ -16,7 +16,7 @@ case class Point2D(x:Int, y:Int){
   def invokeFun2a(f: (Int, Int) => Int) = f(8, 9)
 }
 
-object ClojureInScalaTests extends Properties("MinecraftParserTests") with BukkitEnrichment with TestHelpers {
+object ClojureInScalaTests extends Properties("ClojureInScalaTests") with BukkitEnrichment with TestHelpers {
 
   evalTest("constructorCall1", "(new jcdc.pluginfactory.Point2D 5 6)",                Point2D(5,6))
   evalTest("constructorCall2", "(new jcdc.pluginfactory.Point2D 5 6 nil)",            Point2D(5,6))
@@ -27,10 +27,10 @@ object ClojureInScalaTests extends Properties("MinecraftParserTests") with Bukki
   // TODO: this passes in java 6, but fails in 7!
   evalTest("staticCall1",      "(java.lang.String/valueOf 5)",                      "5")
   evalTest("staticField1",     "java.lang.Math/PI",                                 Math.PI)
-  evalTest("lamTest",          "((lam (x) x) 7)",                                   7)
-  evalTest("invokeWithFun1a",  "(.invokeFun1a (new jcdc.pluginfactory.Point2D 5 6) (lam (x) x))",         7)
-  evalTest("invokeWithFun1b",  "(.invokeFun1b (new jcdc.pluginfactory.Point2D 5 6) (lam (x) (+ x x)))",   16)
-  evalTest("invokeWithFun2a",  "(.invokeFun2a (new jcdc.pluginfactory.Point2D 5 6) (lam (x y) (* 9 8)))", 72)
+  evalTest("lamTest",          "((fn (x) x) 7)",                                   7)
+  evalTest("invokeWithFun1a",  "(.invokeFun1a (new jcdc.pluginfactory.Point2D 5 6) (fn (x) x))",         7)
+  evalTest("invokeWithFun1b",  "(.invokeFun1b (new jcdc.pluginfactory.Point2D 5 6) (fn (x) (+ x x)))",   16)
+  evalTest("invokeWithFun2a",  "(.invokeFun2a (new jcdc.pluginfactory.Point2D 5 6) (fn (x y) (* 9 8)))", 72)
   evalTest("let1 test",        "(let (a 5) a)",                       5)
   evalTest("let2 test",        "(let (a 5) (+ a a))",                 10)
   evalTest("letNested test",   "(let (a 5) (let (a 10) 10))",         10)
@@ -39,9 +39,9 @@ object ClojureInScalaTests extends Properties("MinecraftParserTests") with Bukki
   evalTest("isa? test 1",      """(isa? "hi" java.lang.String)""",    true)
   evalTest("access empty",     s"empty",                              Nil)
   evalTest("apply cons",       s"(cons 1 empty)",                     List(1))
-  evalTest("list map"  ,  "(map (lam (x) (* x x)) (cons 1 (cons 2 (cons 3 empty))))",  List(1, 4, 9))
+  evalTest("list map"  ,  "(map (fn (x) (* x x)) (cons 1 (cons 2 (cons 3 empty))))",  List(1, 4, 9))
 
-  def evalTest(name:String, code:String, expected:Any) = test("name"){
+  def evalTest(name:String, code:String, expected:Any) = test(name){
     val actual = Session.withStdLib().runExpr(code)._1._2
     println(s"Result: $actual")
     actual == expected

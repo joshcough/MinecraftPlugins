@@ -1,6 +1,6 @@
 (
   (def test []
-    (letrec (fact (lam [n] (if (eq? n 0) 1 (* n (fact (- n 1))))))
+    (letrec (fact (fn [n] (if (eq? n 0) 1 (* n (fact (- n 1))))))
       (fact 5)
     )
   )

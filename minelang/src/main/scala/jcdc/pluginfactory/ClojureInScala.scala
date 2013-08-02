@@ -26,7 +26,7 @@ object ClojureInScala {
   trait Reader {
     def read(s:String): Any = read(stripComments(s).toList)
     def read(f:File)  : Any = read(fileToString(f))
-    def fileToString(f:File): String = scala.io.Source.fromFile(f).getLines().mkString("\n")
+    def fileToString(f:File): String = scala.io.Source.fromFile(f).getLines.mkString("\n")
   
     def stripComments(code:String) = code.split("\n").map(s => s.takeWhile(_!=';').trim).mkString(" ")
     def read(data:List[Char]): Any = readWithRest(data)._1
@@ -400,8 +400,8 @@ object ClojureInScala {
       name -> BuiltinFunction(name, (es, env) => { ObjectValue(eval(es,env)) })
   }
 
-  val filesystemStdLibDir = new File("./src/main/resources/clojureinscala")
-  val resourcesStdLibDir  = new File("./clojureinscala")
+  val filesystemStdLibDir = new File("minelang/src/main/resources/clojureinscala")
+  val resourcesStdLibDir  = "clojureinscala"
 
 //  trait Module
 //    case object BuiltIn
@@ -409,20 +409,18 @@ object ClojureInScala {
   object LibLoader {
     def loadLib(file:String): List[Def] = {
       // try to load from the file system
-      val fromFileSystem =
-        Option(new File(filesystemStdLibDir, file)).filter(_.exists).orElse(
-          Option(new File(file)).filter(_.exists)
-        )
+      val fromFileSystem = Option(new File(filesystemStdLibDir, file)).filter(_.exists).orElse(
+        Option(new File(file)).filter(_.exists)
+      )
       // if that fails, try to load from the jar
       val url = Option(getClass.getClassLoader.getResource(resourcesStdLibDir + "/" + file))
       val fromJar = url.map(u => new File(u.toURI))
       val theFile: File = {
         def loadedFrom(location: String)(f: File): File = { println(s"loading: $f from $location"); f }
         // load from the filesystem first, then from the jar.
-        fromFileSystem.flipFold(loadedFrom("disk"))
-          (fromJar.flipFold(loadedFrom("resources"))
-            (die(s"couldn't find library: $file"))
-        )
+        fromFileSystem.map(loadedFrom("disk")).orElse(
+          fromJar.map(loadedFrom("resources"))
+        ).getOrElse(die(s"couldn't find library: $file from ${filesystemStdLibDir.getAbsolutePath} or $resourcesStdLibDir"))
       }
       val defs =
         try parseDefs(read(theFile))

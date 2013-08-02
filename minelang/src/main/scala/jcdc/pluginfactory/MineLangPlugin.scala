@@ -11,7 +11,7 @@ class MineLangPlugin extends CommandsPlugin {
 
   // todo: we should be able to load more than one file
   // and this directory might be wrong now.
-  val houseDefs = new File("src/main/resources/minelang/house.mc")
+  val houseDefs = new File("minelang/src/main/resources/minelang/house.mc")
   var defs: List[Def] = parseDefs(read(houseDefs))
 
   val commands = List(
@@ -21,6 +21,6 @@ class MineLangPlugin extends CommandsPlugin {
     Command("run", "run a program", slurp){ case (p, code) =>
       runProgram(Program(defs, parseExpr(read(code))), p)
     },
-    Command("reload-code", "run a program")(p => defs = parseDefs(read(houseDefs)))
+    Command("reload-code", "reload some code")(p => defs = parseDefs(read(houseDefs)))
   )
 }

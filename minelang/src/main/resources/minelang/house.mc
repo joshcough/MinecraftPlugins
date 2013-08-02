@@ -10,7 +10,7 @@
   ; Cube -> Material -> Cube
   (defrec pyramid [c m]
     (cube:set-walls c m)
-    (let (closed (lam [c] (or (<= (- (.maxX c) (.minX c)) 1) (<= (- (.maxZ c) (.minZ c)) 1))))
+    (let (closed (fn [c] (or (<= (- (.maxX c) (.minX c)) 1) (<= (- (.maxZ c) (.minZ c)) 1))))
       (unless (closed c) (pyramid (.shiftY (.shrinkXZ c 1) 1) m))
     )
   )
@@ -19,7 +19,7 @@
   ; Location -> Int -> Int -> Int -> Material -> Material -> Material -> Cube
   (def build-house [start-point h w d floor-m walls-m roof-m]
     (let* ((c (.growUp (.expandZ (.expandX (new jcdc.pluginfactory.Cube start-point start-point) w) d) h))
-           (build-ceiling (lam (c m) (pyramid (.expandXZ (.ceiling c) 1) m) c)))
+           (build-ceiling (fn (c m) (pyramid (.expandXZ (.ceiling c) 1) m) c)))
       (begin
         (build-ceiling (cube:set-walls (cube:set-floor (cube:set-all c "air") floor-m) walls-m) roof-m)
         c
@@ -85,7 +85,7 @@
   ; build a house, and then change the wall its walls every second for 100 seconds.
   (def living-house []
     (let (c (normal-house XYZ))
-      (spawn 100 1 (lam (n) (cube:set-walls c (if (even n) "gold_block" "gold_ore"))))
+      (spawn 100 1 (fn (n) (cube:set-walls c (if (even n) "gold_block" "gold_ore"))))
     )
   )
 )

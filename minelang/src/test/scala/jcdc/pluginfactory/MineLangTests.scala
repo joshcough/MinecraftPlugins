@@ -9,9 +9,9 @@ import ClojureInScala._
   import MineLang._
 import java.io.File
 
-object MineLangTests extends Properties("MinecraftParserTests") with BukkitEnrichment with TestHelpers{
+object MineLangTests extends Properties("MineLangTests") with BukkitEnrichment with TestHelpers {
 
-  val mineLangDir = new File("../minelang")
+  val mineLangDir = new File("minelang/src/main/resources")
   val expandMc = mineLangDir.child("expand.mc")
   parseDefsTest("expand defs parse", expandMc, 0)
   evalTest("expand", expandMc.slurp, TestServer.world(12,3,12).cubeTo(TestServer.world(-2,3,-2)))

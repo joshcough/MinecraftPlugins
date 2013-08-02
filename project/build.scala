@@ -57,6 +57,8 @@ object build extends Build {
     settings = standardSettings,
     aggregate = Seq(
       scalaLibPlugin,
+      ermineLibPlugin,
+      //mineLang,
       coreJava,
       core,
       ermine,
@@ -147,6 +149,19 @@ object build extends Build {
       name := "JCDC Plugin Factory Java Examples"
     ),
     dependencies = Seq(coreJava)
+  )
+
+  lazy val mineLang = Project(
+    id = "mineLang",
+    base = file("minelang"),
+    settings = standardSettings ++ pluginYmlSettings("JoshCough") ++ Seq[Sett](
+      name := "MineLang",
+      libraryDependencies ++= Seq(
+        "org.scala-lang"     % "jline"                    % "2.10.2",
+        "org.clojure"        % "clojure"                  % "1.4.0"
+      )
+    ),
+    dependencies = Seq(core)
   )
 
   def exampleProject(exampleProjectName: String) = Project(
