@@ -1,11 +1,8 @@
 package jcdc.pluginfactory.examples
 
-import jcdc.pluginfactory.Listeners._
-import jcdc.pluginfactory.Listeners.ListeningFor
 import jcdc.pluginfactory.{CommandPlugin, ListenerPlugin}
 import org.bukkit.entity.Player
 import org.bukkit.Material
-import Material.GOLD_BLOCK
 
 /**
  * A more in depth version of BlockChangerGold, that has a command
