@@ -1,11 +1,18 @@
-name := "Scala Library Plugin"
+import AssemblyKeys._
 
-version := "2.10.2"
+artifact in (Compile, assembly) ~= { art => art.copy(`classifier` = Some("assembly")) }
 
-organization := "jcdc.pluginfactory"
+addArtifact(artifact in (Compile, assembly), assembly)
 
-scalaVersion := "2.10.2"
+// TODO: fix me, maybe ask people here: https://github.com/sbt/sbt-assembly
+//jarName in (assembly, normalizedName, scalaVersion) ~= { case (_, n, v) => n + v + ".jar" }
 
-resolvers += "Bukkit" at "http://repo.bukkit.org/content/repositories/releases"
+// TODO: this doesn't seem to be actually working,
+// but is creating scala-library-plugin_2.10-assembly.jar instead...
+jarName in assembly := "scala-library-plugin-2.10.2.jar"
 
-libraryDependencies += "org.bukkit" % "craftbukkit" % "1.5.2-R1.0"
+// TODO: plugin doc says "To exclude some jar file, first consider using "provided" dependency."
+// Figure out what that means...
+excludedJars in assembly <<= (fullClasspath in assembly) map { cp =>
+  cp filter {_.data.getName.contains("craftbukkit")}
+}

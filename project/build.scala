@@ -3,6 +3,9 @@ import Project.Setting
 import Keys._
 import java.io.File
 //import jcdc.pluginfactory.Plugin._
+import sbtassembly.Plugin._
+import AssemblyKeys._
+
 
 object build extends Build {
   type Sett = Project.Setting[_]
@@ -17,7 +20,6 @@ object build extends Build {
     libraryDependencies ++= Seq(
       "javax.servlet"      % "servlet-api"           % "2.5" % "provided->default",
       "org.bukkit"         % "craftbukkit"           % "1.5.2-R1.0",
-      "org.clojure"        % "clojure"               % "1.4.0",
       "org.scalacheck"    %% "scalacheck"            % "1.10.0" % "test"
     ),
     resolvers += Resolver.sonatypeRepo("snapshots"),
@@ -54,6 +56,7 @@ object build extends Build {
     base = file("."),
     settings = standardSettings,
     aggregate = Seq(
+      scalaLibPlugin,
       coreJava,
       core,
       ermine,
@@ -75,6 +78,30 @@ object build extends Build {
       WorldEdit,
       YellowBrickRoad,
       ZombieApocalypse)
+  )
+
+  lazy val scalaLibPlugin = Project(
+    id = "scalaLibPlugin",
+    base = file("scala-lib-plugin"),
+    settings = standardSettings ++ assemblySettings ++ Seq[Sett](
+      name := "Scala Library Plugin"
+    )
+  )
+
+  lazy val ermineLibPlugin = Project(
+    id = "ermineLibPlugin",
+    base = file("ermine-lib-plugin"),
+    settings = standardSettings ++ assemblySettings ++ Seq[Sett](
+      name := "Ermine Library Plugin",
+      libraryDependencies ++= Seq(
+        "com.clarifi" %% "ermine-legacy"     % "0.1",
+        "org.scalaz"  %% "scalaz-core"       % "7.0.2",
+        "org.scalaz"  %% "scalaz-concurrent" % "7.0.2",
+        "org.scalaz"  %% "scalaz-effect"     % "7.0.2",
+        "org.scalaz"  %% "scalaz-iterv"      % "7.0.2",
+        "log4j"       %  "log4j"             % "1.2.14"
+      )
+    )
   )
 
   lazy val coreJava = Project(
