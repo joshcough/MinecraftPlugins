@@ -6,7 +6,6 @@ import java.io.File
 import sbtassembly.Plugin._
 import AssemblyKeys._
 
-
 object build extends Build {
   type Sett = Project.Setting[_]
 
@@ -39,13 +38,13 @@ object build extends Build {
     //,logLevel := Level.Warn
   )
 
-  def pluginYmlSettings(author: String): Seq[Sett] = Seq[Sett](
+  def pluginYmlSettings(pluginClassname: String, author: String): Seq[Sett] = Seq[Sett](
     resourceGenerators in Compile <+=
-      (resourceManaged in Compile, streams, name, productDirectories in Compile, dependencyClasspath in Compile, version, compile in Compile, runner) map {
-        (dir, s, name, cp1, cp2, v, _, r) =>
+      (resourceManaged in Compile, streams, productDirectories in Compile, dependencyClasspath in Compile, version, compile in Compile, runner) map {
+        (dir, s, cp1, cp2, v, _, r) =>
           Run.run(
             "jcdc.pluginfactory.YMLGenerator", (Attributed.blankSeq(cp1) ++ cp2).map(_.data),
-            Seq("jcdc.pluginfactory.examples." + name, author, v, dir.getAbsolutePath),
+            Seq(pluginClassname, author, v, dir.getAbsolutePath),
             s.log)(r)
           Seq(dir / "plugin.yml", dir / "config.yml")
       }
@@ -117,9 +116,7 @@ object build extends Build {
     base = file("core"),
     settings = standardSettings ++ Seq[Sett](
       name := "Scala Minecraft Plugin API",
-      libraryDependencies ++= Seq(
-        "org.scalacheck"    %% "scalacheck"            % "1.10.0" % "test"
-      )
+      libraryDependencies ++= Seq("org.scalacheck" %% "scalacheck" % "1.10.0" % "test")
     ),
     dependencies = Seq(coreJava)
   )
@@ -154,7 +151,7 @@ object build extends Build {
   lazy val mineLang = Project(
     id = "mineLang",
     base = file("minelang"),
-    settings = standardSettings ++ pluginYmlSettings("JoshCough") ++ Seq[Sett](
+    settings = standardSettings ++ pluginYmlSettings("jcdc.pluginfactory.MineLangPlugin", "JoshCough") ++ Seq[Sett](
       name := "MineLang",
       libraryDependencies ++= Seq(
         "org.scala-lang"     % "jline"                    % "2.10.2",
@@ -164,14 +161,17 @@ object build extends Build {
     dependencies = Seq(core)
   )
 
-  def exampleProject(exampleProjectName: String) = Project(
-    id = exampleProjectName,
-    base = file("examples/" + exampleProjectName),
-    settings = standardSettings ++ pluginYmlSettings("JoshCough") ++ Seq[Sett](
-      name := exampleProjectName
-    ),
-    dependencies = Seq(core)
-  )
+  def exampleProject(exampleProjectName: String) = {
+    val pluginClassname = "jcdc.pluginfactory.examples." + exampleProjectName
+    Project(
+      id = exampleProjectName,
+      base = file("examples/" + exampleProjectName),
+      settings = standardSettings ++ pluginYmlSettings(pluginClassname, "JoshCough") ++ Seq[Sett](
+        name := exampleProjectName
+      ),
+      dependencies = Seq(core)
+    )
+  }
 
   // ErmineCraft stuff below.
   val repl = InputKey[Unit]("repl", "Run the Ermine read-eval-print loop")
@@ -181,7 +181,8 @@ object build extends Build {
     seq(f(Compile), f(Test), f(Runtime))
 
   lazy val ermine = {
-    val ermineFileSettings = Defaults.defaultSettings ++ Seq[SettingsDefinition](
+    val pluginClassname = "jcdc.pluginfactory.ermine.ErminePlugin"
+    val ermineFileSettings = Defaults.defaultSettings ++ pluginYmlSettings(pluginClassname, "JoshCough") ++ Seq[SettingsDefinition](
       compileTestRuntime(sc => classpathConfiguration in sc := sc)
      ,mainClass in (Compile, run) := Some("com.clarifi.reporting.ermine.session.Console")
      ,compileTestRuntime(sco => allUnmanagedResourceDirectories in sco <<=
