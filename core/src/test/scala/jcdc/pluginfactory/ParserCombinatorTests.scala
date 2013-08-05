@@ -57,7 +57,7 @@ object ParserCombinatorTests extends Properties("ParserCombinatorTests") with Pa
 
   test("(eof)(Nil)") { eof(Nil) ?= Success((), Nil) }
   test("(eof)(\"werersd\")") {
-    eof("werersd") ?= Failure("unprocessed input: werersd")
+    eof("werersd") ?= Failure("expected eof, but got: werersd")
   }
   test("(\"werersd\" <~ eof)('werersd')") {
     ("werersd" <~ eof)("werersd").get ?= "werersd"

@@ -30,13 +30,13 @@ object MinecraftParsersTests extends Properties("MinecraftParserTests") with Tes
     val res = (material or eof)("werersd").fold(id)((p,r) =>
       "parser worked with bogus material type: werersd, but shouldnt have."
     )
-    res ?= "invalid material-type: werersd or unprocessed input: werersd"
+    res ?= "invalid material-type: werersd or expected eof, but got: werersd"
   }
 
   test("((material or eof) <~ eof)(dirt 7)") {
     val res = ((material or eof) <~ eof)("dirt 7").fold(id)((_,_) =>
       "parser worked, but shouldnt have."
     )
-    res ?= "unprocessed input: 7"
+    res ?= "expected eof, but got: 7"
   }
 }
