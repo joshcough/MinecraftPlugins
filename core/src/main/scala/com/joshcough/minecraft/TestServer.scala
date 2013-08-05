@@ -1,6 +1,5 @@
 package com.joshcough.minecraft
 
-import betterjava.JavaTestWorld
 import org.bukkit._
 import org.bukkit.inventory._
 import org.bukkit.inventory.InventoryView.Property
@@ -99,7 +98,9 @@ object TestServer { ts =>
   /**
    * Creates a world object
    */
-  val world: World = new JavaTestWorld {
+  val world: World = new World {
+    def getEntitiesByClass[T <: org.bukkit.entity.Entity](cs: Class[T]*): java.util.Collection[T] = ???
+    def getEntitiesByClasses(cs: Class[_]*): java.util.Collection[org.bukkit.entity.Entity] = ???
     def getMetadata(x$1: String): java.util.List[org.bukkit.metadata.MetadataValue] = sys error "todo"
     def hasMetadata(x$1: String): Boolean = sys error "todo"
     def removeMetadata(x$1: String,x$2: org.bukkit.plugin.Plugin): Unit = sys error "todo"

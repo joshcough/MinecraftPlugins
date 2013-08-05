@@ -59,7 +59,7 @@
       <excludeFolder url="file://$MODULE_DIR$/examples/ZombieApocalypse/target" />
       <excludeFolder url="file://$MODULE_DIR$/examples/project" />
       <excludeFolder url="file://$MODULE_DIR$/examples/target" />
-      <excludeFolder url="file://$MODULE_DIR$/microexample/project" />
+      <excludeFolder url="file://$MODULE_DIR$/microexample/project/target" />
       <excludeFolder url="file://$MODULE_DIR$/microexample/target" />
       <excludeFolder url="file://$MODULE_DIR$/minelang/project" />
       <excludeFolder url="file://$MODULE_DIR$/minelang/target" />

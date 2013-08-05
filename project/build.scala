@@ -108,7 +108,7 @@ object build extends Build {
   lazy val coreJava = Project(
     id = "core-java",
     base = file("core-java"),
-    settings = standardSettings ++ Seq[Sett](name := "Java Minecraft Plugin API")
+    settings = standardSettings ++ Seq[Sett](name := "java-minecraft-plugin-api")
   )
 
   lazy val core = Project(
@@ -117,8 +117,7 @@ object build extends Build {
     settings = standardSettings ++ Seq[Sett](
       name := "scala-minecraft-plugin-api",
       libraryDependencies ++= Seq("org.scalacheck" %% "scalacheck" % "1.10.0" % "test")
-    ),
-    dependencies = Seq(coreJava)
+    )
   )
 
   lazy val Arena               = exampleProject("Arena")
