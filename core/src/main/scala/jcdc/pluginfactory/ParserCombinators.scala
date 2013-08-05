@@ -244,7 +244,7 @@ trait ParserCombinators extends ScalaEnrichment {
   val eof = new Parser[Unit] {
     def apply(args: List[String]) = args match {
       case Nil => Success((), Nil)
-      case _   => Failure(s"unprocessed input: ${args.mkString(" ")}")
+      case _   => Failure(s"expected eof, but got: ${args.mkString(" ")}")
     }
     def describe = "EOF"
   }

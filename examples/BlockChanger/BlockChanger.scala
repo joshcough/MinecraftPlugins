@@ -37,7 +37,7 @@ class BlockChanger extends ListenerPlugin with CommandPlugin {
     name = "bc",
     desc = "Specify which material to change blocks to, or just /bc to turn off",
     // this command works with either a material argument, or no arguments.
-    args = material or eof)(
+    args = material or nothing)(
     body = {
       // if they have typed in a material argument, save it in the map
       case (p, Left(m)) => users += (p -> m); p ! s"bc using: $m"

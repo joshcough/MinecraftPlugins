@@ -22,6 +22,9 @@ core-java-publish-local:
 	cp core-java/target/scala-2.10/java-plugin-api_2.10-0.3.1.jar $(BUKKIT)/plugins
 
 go-ermine:
-    sbt 'project ermine-plugins' publishLocal
-    cp /Users/joshcough/work/MinecraftPlugins/ermine/target/scala-2.10/ermine-plugins_2.10-0.3.1.jar bukkit/plugins
-    cd $(BUKKIT); java -Djava.ext.dirs=/Library/Java/Home/lib/ext:lib -Xmx2048M -Xms512M -jar bukkit.jar nogui
+	sbt 'project ermine-plugins' publishLocal
+	cp /Users/joshcough/work/MinecraftPlugins/ermine/target/scala-2.10/ermine-plugins_2.10-0.3.1.jar bukkit/plugins
+	cd $(BUKKIT); java -Djava.ext.dirs=/Library/Java/Home/lib/ext:lib -Xmx2048M -Xms512M -jar bukkit.jar nogui
+
+go:
+	cd $(BUKKIT); java -Djava.ext.dirs=/Library/Java/Home/lib/ext:lib -Xmx2048M -Xms512M -jar bukkit.jar nogui

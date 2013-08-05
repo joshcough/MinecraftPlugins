@@ -38,9 +38,9 @@
       <excludeFolder url="file://$MODULE_DIR$/examples-java/project" />
       <excludeFolder url="file://$MODULE_DIR$/examples-java/target" />
       <excludeFolder url="file://$MODULE_DIR$/examples/BlockChanger/src" />
+      <excludeFolder url="file://$MODULE_DIR$/examples/BlockChanger/target" />
       <excludeFolder url="file://$MODULE_DIR$/examples/BlockChangerGold/src" />
       <excludeFolder url="file://$MODULE_DIR$/examples/BlockChangerGold/target" />
-      <excludeFolder url="file://$MODULE_DIR$/examples/BlockChanger/target" />
       <excludeFolder url="file://$MODULE_DIR$/examples/project" />
       <excludeFolder url="file://$MODULE_DIR$/examples/target" />
       <excludeFolder url="file://$MODULE_DIR$/microexample/project" />
