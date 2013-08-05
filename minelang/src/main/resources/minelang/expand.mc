@@ -1,5 +1,5 @@
 (; simple, fun floor expansion program
-  (let (c (new jcdc.pluginfactory.Cube XYZ (loc (+ X 10) Y (+ Z 10))))
+  (let (c (new com.joshcough.minecraft.Cube XYZ (loc (+ X 10) Y (+ Z 10))))
     (begin
       (cube:set-walls c "stone")
       (cube:set-walls (.expandXZ c 1) "brick")

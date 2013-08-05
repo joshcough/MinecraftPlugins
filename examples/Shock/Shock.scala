@@ -1,6 +1,6 @@
-package jcdc.pluginfactory.examples
+package com.joshcough.minecraft.examples
 
-import jcdc.pluginfactory.CommandPlugin
+import com.joshcough.minecraft.CommandPlugin
 
 class Shock extends CommandPlugin {
   val command = Command("shock", "shock a player", player){ case (you, them) =>

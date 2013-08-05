@@ -54,7 +54,7 @@ foreign
   method "getY" blockY : Block -> Int
   method "getZ" blockZ : Block -> Int
 
-  function "jcdc.pluginfactory.ListenersObject" "OnBlockDamage" onBlockDamage# : Function2 Block BlockDamageEvent () -> Listener
+  function "com.joshcough.minecraft.ListenersObject" "OnBlockDamage" onBlockDamage# : Function2 Block BlockDamageEvent () -> Listener
 
   data "org.bukkit.GameMode" GameMode
   value "org.bukkit.GameMode" "CREATIVE" creative : GameMode

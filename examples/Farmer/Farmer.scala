@@ -1,9 +1,9 @@
-package jcdc.pluginfactory.examples
+package com.joshcough.minecraft.examples
 
 import org.bukkit.Material._
 import org.bukkit.block.Block
 import org.bukkit.entity.Player
-import jcdc.pluginfactory.{ListenersPlugin, Listeners}
+import com.joshcough.minecraft.{ListenersPlugin, Listeners}
 import Listeners._
 
 class Farmer extends ListenersPlugin {

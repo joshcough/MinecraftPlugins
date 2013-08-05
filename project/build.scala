@@ -2,7 +2,7 @@ import sbt._
 import Project.Setting
 import Keys._
 import java.io.File
-//import jcdc.pluginfactory.Plugin._
+//import com.joshcough.minecraft.Plugin._
 import sbtassembly.Plugin._
 import AssemblyKeys._
 
@@ -10,7 +10,7 @@ object build extends Build {
   type Sett = Project.Setting[_]
 
   lazy val standardSettings: Seq[Sett] = Defaults.defaultSettings ++ bintray.Plugin.bintraySettings ++ Seq[Sett](
-    organization := "jcdc.pluginfactory",
+    organization := "com.joshcough",
     version := "0.3.1",
     scalaVersion := "2.10.2",
     licenses <++= (version)(v => Seq("MIT" -> url(
@@ -43,7 +43,7 @@ object build extends Build {
       (resourceManaged in Compile, streams, productDirectories in Compile, dependencyClasspath in Compile, version, compile in Compile, runner) map {
         (dir, s, cp1, cp2, v, _, r) =>
           Run.run(
-            "jcdc.pluginfactory.YMLGenerator", (Attributed.blankSeq(cp1) ++ cp2).map(_.data),
+            "com.joshcough.minecraft.YMLGenerator", (Attributed.blankSeq(cp1) ++ cp2).map(_.data),
             Seq(pluginClassname, author, v, dir.getAbsolutePath),
             s.log)(r)
           Seq(dir / "plugin.yml", dir / "config.yml")
@@ -151,7 +151,7 @@ object build extends Build {
   lazy val mineLang = Project(
     id = "mineLang",
     base = file("minelang"),
-    settings = standardSettings ++ pluginYmlSettings("jcdc.pluginfactory.MineLangPlugin", "JoshCough") ++ Seq[Sett](
+    settings = standardSettings ++ pluginYmlSettings("com.joshcough.minecraft.MineLangPlugin", "JoshCough") ++ Seq[Sett](
       name := "MineLang",
       libraryDependencies ++= Seq(
         "org.scala-lang"     % "jline"                    % "2.10.2",
@@ -162,7 +162,7 @@ object build extends Build {
   )
 
   def exampleProject(exampleProjectName: String) = {
-    val pluginClassname = "jcdc.pluginfactory.examples." + exampleProjectName
+    val pluginClassname = "com.joshcough.minecraft.examples." + exampleProjectName
     Project(
       id = exampleProjectName,
       base = file("examples/" + exampleProjectName),
@@ -181,7 +181,7 @@ object build extends Build {
     seq(f(Compile), f(Test), f(Runtime))
 
   lazy val ermine = {
-    val pluginClassname = "jcdc.pluginfactory.ermine.ErminePlugin"
+    val pluginClassname = "com.joshcough.minecraft.ermine.ErminePlugin"
     val ermineFileSettings = Defaults.defaultSettings ++ pluginYmlSettings(pluginClassname, "JoshCough") ++ Seq[SettingsDefinition](
       compileTestRuntime(sc => classpathConfiguration in sc := sc)
      ,mainClass in (Compile, run) := Some("com.clarifi.reporting.ermine.session.Console")

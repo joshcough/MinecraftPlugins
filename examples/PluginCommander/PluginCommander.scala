@@ -1,6 +1,6 @@
-package jcdc.pluginfactory.examples
+package com.joshcough.minecraft.examples
 
-import jcdc.pluginfactory.CommandsPlugin
+import com.joshcough.minecraft.CommandsPlugin
 
 class PluginCommander extends CommandsPlugin {
   val commands = List(

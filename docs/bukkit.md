@@ -19,7 +19,7 @@ The source for the project can be found here:
 The following example demonstrates how to use listeners in Scala.
 This plugin strikes an entity (any player or mob) with lightning if that entity is hit with an arrow:
 
-    import jcdc.pluginfactory.Listeners._
+    import com.joshcough.minecraft.Listeners._
     import org.bukkit.entity.EntityType.ARROW
 
     class LightningArrows extends ListeningFor(OnEntityDamageByEntity { e =>
@@ -31,7 +31,7 @@ This plugin strikes an entity (any player or mob) with lightning if that entity 
 The following example demonstrates how to write commands in Scala.
 It has one command called "shock" which takes a player as input, and shocks that player with lightning.
 
-    import jcdc.pluginfactory.CommandPlugin
+    import com.joshcough.minecraft.CommandPlugin
 
     class Shock extends CommandPlugin {
       val command = Command("shock", "shock a player", player){
@@ -54,7 +54,7 @@ A complete guide to getting started writing Scala plugins can be found here:
 ## More examples
 
 Many, many more examples can be found here:
-[https://github.com/joshcough/MinecraftPlugins/tree/master/examples/src/main/scala/jcdc/pluginfactory/examples](https://github.com/joshcough/MinecraftPlugins/tree/master/examples/src/main/scala/jcdc/pluginfactory/examples),
+[https://github.com/joshcough/MinecraftPlugins/tree/master/examples/src/main/scala/com/joshcough/minecraft/examples](https://github.com/joshcough/MinecraftPlugins/tree/master/examples/src/main/scala/com/joshcough/minecraft/examples),
 including Scala versions of WorldEdit, Multi Player Commands (a plugin that supports many of the
 same commands as Single Player Commands), Warp, and more.
 

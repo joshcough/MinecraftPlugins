@@ -1,5 +1,5 @@
 name: WarpPluginJava
-main: jcdc.pluginfactory.db.WarpPluginJava
+main: com.joshcough.minecraft.db.WarpPluginJava
 author: Josh Cough
 version: 0.3.1
 database: false

@@ -1,10 +1,10 @@
-package jcdc.pluginfactory.examples
+package com.joshcough.minecraft.examples
 
 import org.bukkit.Material
 import Material._
 import org.bukkit.event.player.PlayerMoveEvent
 import org.bukkit.block.Block
-import jcdc.pluginfactory.{Cube, CubeState, CommandsPlugin, ListenersPlugin}
+import com.joshcough.minecraft.{Cube, CubeState, CommandsPlugin, ListenersPlugin}
 
 /**
  * The goal of this plugin was to have combatants enter an arena and

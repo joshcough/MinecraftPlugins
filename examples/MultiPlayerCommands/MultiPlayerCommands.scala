@@ -1,10 +1,10 @@
-package jcdc.pluginfactory.examples
+package com.joshcough.minecraft.examples
 
 import org.bukkit.GameMode._
 import org.bukkit.Material._
 import org.bukkit.entity.EntityType._
 import scala.collection.JavaConversions._
-import jcdc.pluginfactory.CommandsPlugin
+import com.joshcough.minecraft.CommandsPlugin
 
 /**
  * Classic MultiPlayerCommands plugin, done in Scala.

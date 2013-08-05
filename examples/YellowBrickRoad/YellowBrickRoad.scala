@@ -1,7 +1,7 @@
-package jcdc.pluginfactory.examples
+package com.joshcough.minecraft.examples
 
 import org.bukkit.Material._
-import jcdc.pluginfactory.Listeners
+import com.joshcough.minecraft.Listeners
 import Listeners._
 
 class YellowBrickRoad extends ListeningFor(OnPlayerMove((p, e) =>

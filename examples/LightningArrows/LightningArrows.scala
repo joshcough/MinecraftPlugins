@@ -1,6 +1,6 @@
-package jcdc.pluginfactory.examples
+package com.joshcough.minecraft.examples
 
-import jcdc.pluginfactory.Listeners._
+import com.joshcough.minecraft.Listeners._
 import org.bukkit.entity.EntityType.ARROW
 
 class LightningArrows extends ListeningFor(OnEntityDamageByEntity { e =>

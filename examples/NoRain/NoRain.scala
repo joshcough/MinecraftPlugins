@@ -1,6 +1,6 @@
-package jcdc.pluginfactory.examples
+package com.joshcough.minecraft.examples
 
-import jcdc.pluginfactory.{ListenerPlugin, Listeners}
+import com.joshcough.minecraft.{ListenerPlugin, Listeners}
 import Listeners._
 
 class NoRain extends ListenerPlugin {

@@ -18,7 +18,7 @@
   ; build a single house
   ; Location -> Int -> Int -> Int -> Material -> Material -> Material -> Cube
   (def build-house [start-point h w d floor-m walls-m roof-m]
-    (let* ((c (.growUp (.expandZ (.expandX (new jcdc.pluginfactory.Cube start-point start-point) w) d) h))
+    (let* ((c (.growUp (.expandZ (.expandX (new com.joshcough.minecraft.Cube start-point start-point) w) d) h))
            (build-ceiling (fn (c m) (pyramid (.expandXZ (.ceiling c) 1) m) c)))
       (begin
         (build-ceiling (cube:set-walls (cube:set-floor (cube:set-all c "air") floor-m) walls-m) roof-m)

@@ -1,7 +1,7 @@
-package jcdc.pluginfactory.examples
+package com.joshcough.minecraft.examples
 
 import org.bukkit.entity.EntityType.ZOMBIE
-import jcdc.pluginfactory.Listeners
+import com.joshcough.minecraft.Listeners
 import Listeners._
 
 class ZombieApocalypse extends ListeningFor(OnPlayerDeath { (p, _) => p.loc spawn ZOMBIE })

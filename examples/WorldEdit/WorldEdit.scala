@@ -1,11 +1,11 @@
-package jcdc.pluginfactory.examples
+package com.joshcough.minecraft.examples
 
 import org.bukkit.Material
 import org.bukkit.block.Block
 import org.bukkit.entity.Player
 import Material._
-import jcdc.pluginfactory._
-import jcdc.pluginfactory.UndoState
+import com.joshcough.minecraft._
+import com.joshcough.minecraft.UndoState
 
 /**
  * Classic WorldEdit plugin, done in Scala.

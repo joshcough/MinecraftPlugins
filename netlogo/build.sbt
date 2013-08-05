@@ -2,7 +2,7 @@ name := "NetLogo Minecraft Plugin"
 
 version := "0.1"
 
-organization := "jcdc.pluginfactory"
+organization := "com.joshcough"
 
 scalaVersion := "2.10.2"
 
@@ -15,7 +15,7 @@ resolvers ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-  "jcdc.pluginfactory" % "jcdc-plugin-factory_2.10" % "0.1",
+  "com.joshcough"      % "jcdc-plugin-factory_2.10" % "0.1",
   "org.nlogo"          % "NetLogo"                  % "5.0.3" from "http://ccl.northwestern.edu/netlogo/5.0.3/NetLogo.jar",
   "javax.servlet"      % "servlet-api"              % "2.5" % "provided->default",
   "org.bukkit"         % "craftbukkit"              % "1.4.5-R0.2",

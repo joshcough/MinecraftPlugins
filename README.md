@@ -27,7 +27,7 @@ This plugin strikes an entity (any player or mob) with lightning
 if that entity is hit with an arrow:
 
 ```scala
-import jcdc.pluginfactory.Listeners._
+import com.joshcough.minecraft.Listeners._
 import org.bukkit.entity.EntityType.ARROW
 
 class LightningArrows extends ListeningFor(OnEntityDamageByEntity { e =>
@@ -42,7 +42,7 @@ It has one command called "shock" which takes a player as input,
 and shocks that player with lightning.
 
 ```scala
-import jcdc.pluginfactory.CommandPlugin
+import com.joshcough.minecraft.CommandPlugin
 
 class Shock extends CommandPlugin {
   val command = Command("shock", "shock a player", player){ case (you, them) =>

@@ -1,7 +1,7 @@
-package jcdc.pluginfactory.examples
+package com.joshcough.minecraft.examples
 
 import org.bukkit.entity.EntityType.ARROW
-import jcdc.pluginfactory.Listeners
+import com.joshcough.minecraft.Listeners
 import Listeners._
 
 class BanArrows extends ListeningFor(OnPlayerDamageByEntity { (p, e) =>

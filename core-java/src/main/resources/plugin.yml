@@ -1,5 +1,5 @@
 name: JavaPluginAPI
-main: jcdc.pluginfactory.betterjava.JavaPluginAPI
+main: com.joshcough.minecraft.betterjava.JavaPluginAPI
 author: Josh Cough
 version: 0.3.1
 database: false

@@ -1,7 +1,7 @@
-package jcdc.pluginfactory.examples
+package com.joshcough.minecraft.examples
 
 import org.bukkit.event.player.PlayerMoveEvent
-import jcdc.pluginfactory.{Cube, CubeState, CommandsPlugin, ListenerPlugin}
+import com.joshcough.minecraft.{Cube, CubeState, CommandsPlugin, ListenerPlugin}
 import org.bukkit.block.Block
 
 /**

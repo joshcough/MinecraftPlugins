@@ -1,6 +1,6 @@
-package jcdc.pluginfactory.examples
+package com.joshcough.minecraft.examples
 
-import jcdc.pluginfactory.{CommandPlugin, ListenerPlugin}
+import com.joshcough.minecraft.{CommandPlugin, ListenerPlugin}
 import org.bukkit.entity.Player
 import org.bukkit.Material
 

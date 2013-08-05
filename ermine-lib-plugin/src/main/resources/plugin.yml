@@ -1,5 +1,5 @@
 name: ErmineLibPlugin
-main: jcdc.pluginfactory.ErmineLibPlugin
+main: com.joshcough.minecraft.ErmineLibPlugin
 author: Josh Cough
 version: 0.1
 database: false
