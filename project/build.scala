@@ -115,7 +115,7 @@ object build extends Build {
     id = "core",
     base = file("core"),
     settings = standardSettings ++ Seq[Sett](
-      name := "Scala Minecraft Plugin API",
+      name := "scala-minecraft-plugin-api",
       libraryDependencies ++= Seq("org.scalacheck" %% "scalacheck" % "1.10.0" % "test")
     ),
     dependencies = Seq(coreJava)
