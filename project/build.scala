@@ -53,6 +53,9 @@ object build extends Build {
       }
   )
 
+  // this is just a convenience project
+  // for me to easily publish my most used plugins to my bukkit server.
+  // > sbt 'project commonPlugins' publishLocal
   lazy val commonPlugins = Project(
     id = "commonPlugins",
     base = file(".commonPlugins"),
@@ -67,6 +70,8 @@ object build extends Build {
       WorldEdit)
   )
 
+  // this is the main project, that builds all subprojects.
+  // it doesnt contain any code itself.
   lazy val scalaMinecraftPlugins = Project(
     id = "scalaMinecraftPlugins",
     base = file("."),
@@ -99,6 +104,8 @@ object build extends Build {
       ZombieApocalypse)
   )
 
+  // this project supplies the scala language classes.
+  // it is needed in the bukkit plugins dir to run any scala plugins.
   lazy val scalaLibPlugin = Project(
     id = "scalaLibPlugin",
     base = file("scala-lib-plugin"),
@@ -107,12 +114,7 @@ object build extends Build {
     )
   )
 
-  lazy val coreJava = Project(
-    id = "core-java",
-    base = file("core-java"),
-    settings = standardSettings ++ Seq[Sett](name := "java-minecraft-plugin-api")
-  )
-
+  // the core plugin library
   lazy val core = Project(
     id = "core",
     base = file("core"),
@@ -122,8 +124,10 @@ object build extends Build {
     )
   )
 
+  // a special example project...
   lazy val microExample = Project(id = "microexample", base = file("microexample"))
 
+  // a whole pile of example projects
   lazy val Arena               = exampleProject("Arena")
   lazy val BanArrows           = exampleProject("BanArrows")
   lazy val BlockChanger        = exampleProject("BlockChanger")
@@ -142,13 +146,9 @@ object build extends Build {
   lazy val YellowBrickRoad     = exampleProject("YellowBrickRoad")
   lazy val ZombieApocalypse    = exampleProject("ZombieApocalypse")
 
-  lazy val examplesJava = Project(
-    id = "examplesJava",
-    base = file("examples-java"),
-    settings = standardSettings ++ Seq[Sett](name := "JCDC Plugin Factory Java Examples"),
-    dependencies = Seq(coreJava)
-  )
-
+  // minelang is a plugin that contains a language i wrote that is much like clojure
+  // and allows people to easily write plugins without having to deploy lots of crap.
+  // however, this has more or less been replaced by erminecraft.
   lazy val mineLang = Project(
     id = "mineLang",
     base = file("minelang"),
@@ -202,8 +202,8 @@ object build extends Build {
       })
     ) flatMap (_.settings)
     Project(
-      id = "ermine-plugins",
-      base = file("ermine"),
+      id = "erminecraft",
+      base = file("erminecraft"),
       settings = standardSettings ++ publishPluginToBukkitSettings ++ Seq[Sett](
         name := "Ermine Plugin API",
         libraryDependencies ++= Seq("com.clarifi" %% "ermine-legacy" % "0.1"),
@@ -213,6 +213,8 @@ object build extends Build {
     )
   }
 
+  // this project supplies the ermine language classes, and classes for all of ermine's dependencies.
+  // it is needed in the bukkit plugins dir to run any ermine plugins.
   lazy val ermineLibPlugin = Project(
     id = "ermineLibPlugin",
     base = file("ermine-lib-plugin"),
@@ -228,6 +230,24 @@ object build extends Build {
       )
     )
   )
+
+  // two relatively unimportant projects
+  // that show how to do all this scala stuff in java.
+  // or, how the bukkit api should have been written (in java).
+  // this backports most of my interesting features from scala to java.
+  lazy val coreJava = Project(
+    id = "core-java",
+    base = file("core-java"),
+    settings = standardSettings ++ Seq[Sett](name := "java-minecraft-plugin-api")
+  )
+
+  lazy val examplesJava = Project(
+    id = "examplesJava",
+    base = file("examples-java"),
+    settings = standardSettings ++ Seq[Sett](name := "JCDC Plugin Factory Java Examples"),
+    dependencies = Seq(coreJava)
+  )
+
 }
 
 // some crap left over from old build.sbt files.
