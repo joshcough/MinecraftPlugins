@@ -19,23 +19,26 @@ object build extends Build {
     publishMavenStyle := true,
     libraryDependencies ++= Seq(
       "javax.servlet"      % "servlet-api" % "2.5"        % "provided->default",
-      "org.bukkit"         % "craftbukkit" % "1.5.2-R1.0" % "provided->default",
-      "org.scalacheck"    %% "scalacheck"  % "1.10.0"     % "test"
+      "org.scalacheck"    %% "scalacheck"  % "1.10.0"     % "test",
+      "org.bukkit"         % "craftbukkit" % "1.5.2-R1.0"
     ),
     resolvers += Resolver.sonatypeRepo("snapshots"),
     resolvers ++= Seq(
       "Bukkit"             at "http://repo.bukkit.org/content/repositories/releases",
-      "runarorama bintray maven" at "http://dl.bintray.com/runarorama/maven/"
+      "runarorama bintray" at "http://dl.bintray.com/runarorama/maven/"
     ),
+    traceLevel := 10
+    //,logLevel := Level.Warn
+  )
+
+  lazy val publishPluginToBukkitSettings: Seq[Sett] = Seq[Sett](
     // make publish local also copy jars to my bukkit server :)
     publishLocal <<= (packagedArtifacts, publishLocal) map { case (r, _) =>
       r collectFirst { case (Artifact(_,"jar","jar",_, _, _, _), f) =>
         println("copying " + f.name + " to bukkit server")
         IO.copyFile(f, new File("bukkit/plugins/" + f.name))
       }
-    },
-    traceLevel := 10
-    //,logLevel := Level.Warn
+    }
   )
 
   def pluginYmlSettings(pluginClassname: String, author: String): Seq[Sett] = Seq[Sett](
@@ -48,6 +51,20 @@ object build extends Build {
             s.log)(r)
           Seq(dir / "plugin.yml", dir / "config.yml")
       }
+  )
+
+  lazy val commonPlugins = Project(
+    id = "commonPlugins",
+    base = file(".commonPlugins"),
+    settings = standardSettings,
+    aggregate = Seq(
+      scalaLibPlugin,
+      ermineLibPlugin,
+      core,
+      ermine,
+      MultiPlayerCommands,
+      PluginCommander,
+      WorldEdit)
   )
 
   lazy val scalaMinecraftPlugins = Project(
@@ -85,7 +102,9 @@ object build extends Build {
   lazy val scalaLibPlugin = Project(
     id = "scalaLibPlugin",
     base = file("scala-lib-plugin"),
-    settings = standardSettings ++ assemblySettings ++ Seq[Sett](name := "Scala Library Plugin")
+    settings = standardSettings ++ assemblySettings ++ publishPluginToBukkitSettings ++ Seq[Sett](
+      name := "Scala Library Plugin"
+    )
   )
 
   lazy val coreJava = Project(
@@ -97,7 +116,7 @@ object build extends Build {
   lazy val core = Project(
     id = "core",
     base = file("core"),
-    settings = standardSettings ++ Seq[Sett](
+    settings = standardSettings ++ publishPluginToBukkitSettings ++ Seq[Sett](
       name := "scala-minecraft-plugin-api",
       libraryDependencies ++= Seq("org.scalacheck" %% "scalacheck" % "1.10.0" % "test")
     )
@@ -148,7 +167,7 @@ object build extends Build {
     Project(
       id = exampleProjectName,
       base = file("examples/" + exampleProjectName),
-      settings = standardSettings ++ pluginYmlSettings(pluginClassname, "JoshCough") ++ Seq[Sett](
+      settings = standardSettings ++ pluginYmlSettings(pluginClassname, "JoshCough") ++ publishPluginToBukkitSettings ++ Seq[Sett](
         name := exampleProjectName
       ),
       dependencies = Seq(core)
@@ -164,7 +183,7 @@ object build extends Build {
 
   lazy val ermine = {
     val pluginClassname = "com.joshcough.minecraft.ermine.ErminePlugin"
-    val ermineFileSettings = Defaults.defaultSettings ++ pluginYmlSettings(pluginClassname, "JoshCough") ++ Seq[SettingsDefinition](
+    val ermineFileSettings = Defaults.defaultSettings ++ pluginYmlSettings(pluginClassname, "JoshCough") ++ publishPluginToBukkitSettings ++ Seq[SettingsDefinition](
       compileTestRuntime(sc => classpathConfiguration in sc := sc)
      ,mainClass in (Compile, run) := Some("com.clarifi.reporting.ermine.session.Console")
      ,compileTestRuntime(sco => allUnmanagedResourceDirectories in sco <<=
@@ -185,7 +204,7 @@ object build extends Build {
     Project(
       id = "ermine-plugins",
       base = file("ermine"),
-      settings = standardSettings ++ Seq[Sett](
+      settings = standardSettings ++ publishPluginToBukkitSettings ++ Seq[Sett](
         name := "Ermine Plugin API",
         libraryDependencies ++= Seq("com.clarifi" %% "ermine-legacy" % "0.1"),
         fullRunInputTask(repl, Compile, "com.clarifi.reporting.ermine.session.Console")
@@ -197,7 +216,7 @@ object build extends Build {
   lazy val ermineLibPlugin = Project(
     id = "ermineLibPlugin",
     base = file("ermine-lib-plugin"),
-    settings = standardSettings ++ assemblySettings ++ Seq[Sett](
+    settings = standardSettings ++ assemblySettings ++ publishPluginToBukkitSettings ++ Seq[Sett](
       name := "Ermine Library Plugin",
       libraryDependencies ++= Seq(
         "com.clarifi" %% "ermine-legacy"     % "0.1",
