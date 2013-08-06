@@ -2,7 +2,7 @@ import sbt._
 import Project.Setting
 import Keys._
 import java.io.File
-//import com.joshcough.minecraft.Plugin._
+import com.joshcough.minecraft.Plugin._
 import sbtassembly.Plugin._
 import AssemblyKeys._
 
@@ -38,18 +38,6 @@ object build extends Build {
         IO.copyFile(f, new File("bukkit/plugins/" + f.name))
       }
     }
-  )
-
-  def pluginYmlSettings(pluginClassname: String, author: String): Seq[Sett] = Seq[Sett](
-    resourceGenerators in Compile <+=
-      (resourceManaged in Compile, streams, productDirectories in Compile, dependencyClasspath in Compile, version, compile in Compile, runner) map {
-        (dir, s, cp1, cp2, v, _, r) =>
-          Run.run(
-            "com.joshcough.minecraft.YMLGenerator", (Attributed.blankSeq(cp1) ++ cp2).map(_.data),
-            Seq(pluginClassname, author, v, dir.getAbsolutePath),
-            s.log)(r)
-          Seq(dir / "plugin.yml", dir / "config.yml")
-      }
   )
 
   // this is just a convenience project
@@ -181,7 +169,7 @@ object build extends Build {
     seq(f(Compile), f(Test), f(Runtime))
 
   lazy val ermine = {
-    val pluginClassname = "com.joshcough.minecraft.ermine.ErminePlugin"
+    val pluginClassname = "com.joshcough.minecraft.ermine.ErmineCraft"
     val ermineFileSettings = Defaults.defaultSettings ++ pluginYmlSettings(pluginClassname, "JoshCough") ++ publishPluginToBukkitSettings ++ Seq[SettingsDefinition](
       compileTestRuntime(sc => classpathConfiguration in sc := sc)
      ,mainClass in (Compile, run) := Some("com.clarifi.reporting.ermine.session.Console")
