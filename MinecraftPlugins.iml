@@ -27,6 +27,7 @@
       <sourceFolder url="file://$MODULE_DIR$/examples-java/src/main/java" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples/src/test/scala" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/erminecraft/src/main/scala" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/ermine-lib-plugin/src/main/scala" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/.idea" />
       <excludeFolder url="file://$MODULE_DIR$/bukkit" />
       <excludeFolder url="file://$MODULE_DIR$/core-java/project" />
@@ -34,6 +35,7 @@
       <excludeFolder url="file://$MODULE_DIR$/core/bin/target" />
       <excludeFolder url="file://$MODULE_DIR$/core/project" />
       <excludeFolder url="file://$MODULE_DIR$/core/target" />
+      <excludeFolder url="file://$MODULE_DIR$/ermine-lib-plugin/project" />
       <excludeFolder url="file://$MODULE_DIR$/ermine-lib-plugin/project/target" />
       <excludeFolder url="file://$MODULE_DIR$/ermine-lib-plugin/target" />
       <excludeFolder url="file://$MODULE_DIR$/erminecraft/target" />
@@ -76,60 +78,6 @@
     <orderEntry type="jdk" jdkName="1.7" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="servlet-api-2.5" level="project" />
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.scalacheck/scalacheck_2.10.0-M7/jars/scalacheck_2.10.0-M7-1.10.0.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.nlogo/NetLogo/jars/NetLogo-5.0.3.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.scalaz/scalaz-core_2.10.0-RC5/bundles/scalaz-core_2.10.0-RC5-7.0.0-M6.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.clojure/clojure/jars/clojure-1.4.0.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.scala-lang/jline/jars/jline-2.10.0.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.squeryl/squeryl_2.10/jars/squeryl_2.10-0.9.5-SNAPSHOT.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
     <orderEntry type="library" name="scala-2.10.2" level="application" />
     <orderEntry type="module-library">
       <library>
@@ -140,15 +88,6 @@
         <SOURCES>
           <root url="jar://$USER_HOME$/.ivy2/cache/org.bukkit/craftbukkit/jars/craftbukkit-1.5.2-R1.0.jar!/" />
         </SOURCES>
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$USER_HOME$/.ivy2/local/com.clarifi/ermine-legacy_2.10/0.1/jars/ermine-legacy_2.10.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
       </library>
     </orderEntry>
   </component>
