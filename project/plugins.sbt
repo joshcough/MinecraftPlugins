@@ -1,4 +1,4 @@
-resolvers += "joshcough bintray maven" at "http://dl.bintray.com/joshcough/maven/"
+//resolvers += "joshcough bintray maven" at "http://dl.bintray.com/joshcough/maven/"
 
 //addSbtPlugin("com.joshcough" % "scala-minecraft-yml-gen" % "0.3.1")
 

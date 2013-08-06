@@ -14,7 +14,7 @@ jarName in assembly := "ermime-library-plugin-2.10.2.jar"
 // TODO: plugin doc says "To exclude some jar file, first consider using "provided" dependency."
 // Figure out what that means...
 excludedJars in assembly <<= (fullClasspath in assembly) map { cp =>
-  cp filter {x =>
+  cp filter { x =>
     x.data.getName.contains("craftbukkit") ||
     x.data.getName.contains("scala-library.jar")
   }

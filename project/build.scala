@@ -13,18 +13,18 @@ object build extends Build {
     organization := "com.joshcough",
     version := "0.3.1",
     scalaVersion := "2.10.2",
-    licenses <++= (version)(v => Seq("MIT" -> url(
-      "https://github.com/joshcough/MinecraftPlugins/blob/%s/LICENSE".format(v)))),
+    licenses <++= version(v =>
+      Seq("MIT" -> url("https://github.com/joshcough/MinecraftPlugins/blob/%s/LICENSE".format(v)))
+    ),
     publishMavenStyle := true,
     libraryDependencies ++= Seq(
-      "javax.servlet"      % "servlet-api"           % "2.5" % "provided->default",
-      "org.bukkit"         % "craftbukkit"           % "1.5.2-R1.0",
-      "org.scalacheck"    %% "scalacheck"            % "1.10.0" % "test"
+      "javax.servlet"      % "servlet-api" % "2.5"        % "provided->default",
+      "org.bukkit"         % "craftbukkit" % "1.5.2-R1.0" % "provided->default",
+      "org.scalacheck"    %% "scalacheck"  % "1.10.0"     % "test"
     ),
     resolvers += Resolver.sonatypeRepo("snapshots"),
     resolvers ++= Seq(
       "Bukkit"             at "http://repo.bukkit.org/content/repositories/releases",
-      "joshcough bintray maven" at "http://dl.bintray.com/joshcough/maven/",
       "runarorama bintray maven" at "http://dl.bintray.com/runarorama/maven/"
     ),
     // make publish local also copy jars to my bukkit server :)
