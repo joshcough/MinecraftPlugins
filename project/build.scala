@@ -24,8 +24,7 @@ object build extends Build {
     ),
     resolvers += Resolver.sonatypeRepo("snapshots"),
     resolvers ++= Seq(
-      "Bukkit"             at "http://repo.bukkit.org/content/repositories/releases",
-      "runarorama bintray" at "http://dl.bintray.com/runarorama/maven/"
+      "Bukkit"             at "http://repo.bukkit.org/content/repositories/releases"
     ),
     traceLevel := 10
     //,logLevel := Level.Warn

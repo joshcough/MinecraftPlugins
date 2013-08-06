@@ -7,12 +7,14 @@ import org.bukkit.event.Listener
 import com.clarifi.reporting.ermine.Global
 import org.bukkit.entity.Player
 
-class ErminePlugin extends CommandsPlugin {
+class ErmineCraft extends CommandsPlugin {
 
   override def onEnable: Unit = {
     super.onEnable
     cache
   }
+
+  override def dependencies = List("ErmineLibPlugin")
 
   // code for running ermine
   val ermineDir = "/Users/joshcough/work/MinecraftPlugins/ermine/src/main/resources/modules"
