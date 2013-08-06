@@ -62,6 +62,7 @@ object build extends Build {
       core,
       ermine,
       examplesJava,
+      microExample,
       Arena,
       BanArrows,
       BlockChanger,
@@ -84,25 +85,7 @@ object build extends Build {
   lazy val scalaLibPlugin = Project(
     id = "scalaLibPlugin",
     base = file("scala-lib-plugin"),
-    settings = standardSettings ++ assemblySettings ++ Seq[Sett](
-      name := "Scala Library Plugin"
-    )
-  )
-
-  lazy val ermineLibPlugin = Project(
-    id = "ermineLibPlugin",
-    base = file("ermine-lib-plugin"),
-    settings = standardSettings ++ assemblySettings ++ Seq[Sett](
-      name := "Ermine Library Plugin",
-      libraryDependencies ++= Seq(
-        "com.clarifi" %% "ermine-legacy"     % "0.1",
-        "org.scalaz"  %% "scalaz-core"       % "7.0.2",
-        "org.scalaz"  %% "scalaz-concurrent" % "7.0.2",
-        "org.scalaz"  %% "scalaz-effect"     % "7.0.2",
-        "org.scalaz"  %% "scalaz-iterv"      % "7.0.2",
-        "log4j"       %  "log4j"             % "1.2.14"
-      )
-    )
+    settings = standardSettings ++ assemblySettings ++ Seq[Sett](name := "Scala Library Plugin")
   )
 
   lazy val coreJava = Project(
@@ -119,6 +102,8 @@ object build extends Build {
       libraryDependencies ++= Seq("org.scalacheck" %% "scalacheck" % "1.10.0" % "test")
     )
   )
+
+  lazy val microExample = Project(id = "microexample", base = file("microexample"))
 
   lazy val Arena               = exampleProject("Arena")
   lazy val BanArrows           = exampleProject("BanArrows")
@@ -141,9 +126,7 @@ object build extends Build {
   lazy val examplesJava = Project(
     id = "examplesJava",
     base = file("examples-java"),
-    settings = standardSettings ++ Seq[Sett](
-      name := "JCDC Plugin Factory Java Examples"
-    ),
+    settings = standardSettings ++ Seq[Sett](name := "JCDC Plugin Factory Java Examples"),
     dependencies = Seq(coreJava)
   )
 
@@ -153,8 +136,8 @@ object build extends Build {
     settings = standardSettings ++ pluginYmlSettings("com.joshcough.minecraft.MineLangPlugin", "JoshCough") ++ Seq[Sett](
       name := "MineLang",
       libraryDependencies ++= Seq(
-        "org.scala-lang"     % "jline"                    % "2.10.2",
-        "org.clojure"        % "clojure"                  % "1.4.0"
+        "org.scala-lang" % "jline"   % "2.10.2",
+        "org.clojure"    % "clojure" % "1.4.0"
       )
     ),
     dependencies = Seq(core)
@@ -210,6 +193,22 @@ object build extends Build {
       dependencies = Seq(core)
     )
   }
+
+  lazy val ermineLibPlugin = Project(
+    id = "ermineLibPlugin",
+    base = file("ermine-lib-plugin"),
+    settings = standardSettings ++ assemblySettings ++ Seq[Sett](
+      name := "Ermine Library Plugin",
+      libraryDependencies ++= Seq(
+        "com.clarifi" %% "ermine-legacy"     % "0.1",
+        "org.scalaz"  %% "scalaz-core"       % "7.0.2",
+        "org.scalaz"  %% "scalaz-concurrent" % "7.0.2",
+        "org.scalaz"  %% "scalaz-effect"     % "7.0.2",
+        "org.scalaz"  %% "scalaz-iterv"      % "7.0.2",
+        "log4j"       %  "log4j"             % "1.2.14"
+      )
+    )
+  )
 }
 
 // some crap left over from old build.sbt files.
