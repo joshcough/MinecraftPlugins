@@ -11,6 +11,8 @@ resolvers += "Bukkit" at "http://repo.bukkit.org/content/repositories/releases"
 
 seq(bintrayResolverSettings:_*)
 
+seq(pluginYmlSettings("com.example.BlockChanger", "JoshCough"):_*)
+
 // plugins need to depend on com.joshcough.minecraft, and bukkit
 libraryDependencies ++= Seq(
   "com.joshcough"     %% "scala-minecraft-plugin-api" % "0.3.1",

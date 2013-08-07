@@ -1,3 +1,5 @@
+package com.example
+
 import com.joshcough.minecraft.{CommandPlugin, ListenerPlugin}
 import org.bukkit.entity.Player
 import org.bukkit.Material
@@ -17,8 +19,3 @@ class BlockChanger extends ListenerPlugin with CommandPlugin {
     }
   )
 }
-
-//object YMLGenerator {
-//  def main(args: Array[String]): Unit =
-//    new BlockChanger().writeYML("Josh Cough", "0.3.1")
-//}
