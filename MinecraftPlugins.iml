@@ -69,7 +69,9 @@
       <excludeFolder url="file://$MODULE_DIR$/netlogo/bukkit" />
       <excludeFolder url="file://$MODULE_DIR$/netlogo/project" />
       <excludeFolder url="file://$MODULE_DIR$/netlogo/target" />
-      <excludeFolder url="file://$MODULE_DIR$/project/project" />
+      <excludeFolder url="file://$MODULE_DIR$/project/project/project" />
+      <excludeFolder url="file://$MODULE_DIR$/project/project/project/target" />
+      <excludeFolder url="file://$MODULE_DIR$/project/project/target" />
       <excludeFolder url="file://$MODULE_DIR$/project/target" />
       <excludeFolder url="file://$MODULE_DIR$/scala-lib-plugin/project" />
       <excludeFolder url="file://$MODULE_DIR$/scala-lib-plugin/target" />
