@@ -133,22 +133,6 @@ object build extends Build {
   lazy val YellowBrickRoad     = exampleProject("YellowBrickRoad")
   lazy val ZombieApocalypse    = exampleProject("ZombieApocalypse")
 
-  // minelang is a plugin that contains a language i wrote that is much like clojure
-  // and allows people to easily write plugins without having to deploy lots of crap.
-  // however, this has more or less been replaced by erminecraft.
-  lazy val mineLang = Project(
-    id = "mineLang",
-    base = file("minelang"),
-    settings = standardSettings ++ pluginYmlSettings("com.joshcough.minecraft.MineLangPlugin", "JoshCough") ++ Seq[Sett](
-      name := "MineLang",
-      libraryDependencies ++= Seq(
-        "org.scala-lang" % "jline"   % "2.10.2",
-        "org.clojure"    % "clojure" % "1.4.0"
-      )
-    ),
-    dependencies = Seq(core)
-  )
-
   def exampleProject(exampleProjectName: String) = {
     val pluginClassname = "com.joshcough.minecraft.examples." + exampleProjectName
     Project(
@@ -224,16 +208,33 @@ object build extends Build {
   // this backports most of my interesting features from scala to java.
   lazy val coreJava = Project(
     id = "core-java",
-    base = file("core-java"),
+    base = file("other/core-java"),
     settings = standardSettings ++ Seq[Sett](name := "java-minecraft-plugin-api")
   )
 
   lazy val examplesJava = Project(
     id = "examplesJava",
-    base = file("examples-java"),
+    base = file("other/examples-java"),
     settings = standardSettings ++ Seq[Sett](name := "JCDC Plugin Factory Java Examples"),
     dependencies = Seq(coreJava)
   )
+
+  // minelang is a plugin that contains a language i wrote that is much like clojure
+  // and allows people to easily write plugins without having to deploy lots of crap.
+  // however, this has more or less been replaced by erminecraft.
+  lazy val mineLang = Project(
+    id = "mineLang",
+    base = file("other/minelang"),
+    settings = standardSettings ++ pluginYmlSettings("com.joshcough.minecraft.MineLangPlugin", "JoshCough") ++ Seq[Sett](
+      name := "MineLang",
+      libraryDependencies ++= Seq(
+        "org.scala-lang" % "jline"   % "2.10.2",
+        "org.clojure"    % "clojure" % "1.4.0"
+      )
+    ),
+    dependencies = Seq(core)
+  )
+
 
 }
 
