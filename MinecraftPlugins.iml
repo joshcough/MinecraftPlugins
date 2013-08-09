@@ -12,55 +12,30 @@
   <component name="NewModuleRootManager" inherit-compiler-output="true">
     <exclude-output />
     <content url="file://$MODULE_DIR$">
-      <sourceFolder url="file://$MODULE_DIR$/core/src/main/scala" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/examples/src/main/scala" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/scala/core/src/main/scala" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/scala/examples/src/main/scala" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/other/netlogo/src/main/scala" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/core/src/test/scala" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/scala/core/src/test/scala" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/other/core-java/src/main/java" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/other/clojure/src/main/clojure" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/other/clojure/src/test/clojure" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/other/minelang/src/main/scala" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/other/minelang/src/test/scala" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/scala-lib-plugin/src/main/scala" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/scala/scala-lib-plugin/src/main/scala" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/other/examples-java/src/main/java" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/examples/src/test/scala" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/erminecraft/src/main/scala" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/ermine-lib-plugin/src/main/scala" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/microexample" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/ermine/erminecraft/src/main/scala" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/ermine/ermine-lib-plugin/src/main/scala" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/scala/microexample" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/scala/examples/src/test/scala" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/.commonPlugins" />
       <excludeFolder url="file://$MODULE_DIR$/.idea" />
       <excludeFolder url="file://$MODULE_DIR$/bukkit" />
       <excludeFolder url="file://$MODULE_DIR$/core-java/project" />
       <excludeFolder url="file://$MODULE_DIR$/core/bin/target" />
-      <excludeFolder url="file://$MODULE_DIR$/core/project" />
-      <excludeFolder url="file://$MODULE_DIR$/core/target" />
-      <excludeFolder url="file://$MODULE_DIR$/ermine-lib-plugin/project" />
-      <excludeFolder url="file://$MODULE_DIR$/ermine-lib-plugin/project/target" />
-      <excludeFolder url="file://$MODULE_DIR$/ermine-lib-plugin/target" />
-      <excludeFolder url="file://$MODULE_DIR$/erminecraft/target" />
-      <excludeFolder url="file://$MODULE_DIR$/examples/Arena/target" />
-      <excludeFolder url="file://$MODULE_DIR$/examples/BanArrows/target" />
-      <excludeFolder url="file://$MODULE_DIR$/examples/BlockChanger/src" />
-      <excludeFolder url="file://$MODULE_DIR$/examples/BlockChanger/target" />
-      <excludeFolder url="file://$MODULE_DIR$/examples/BlockChangerGold/src" />
-      <excludeFolder url="file://$MODULE_DIR$/examples/BlockChangerGold/target" />
-      <excludeFolder url="file://$MODULE_DIR$/examples/Farmer/target" />
-      <excludeFolder url="file://$MODULE_DIR$/examples/GetOffMyLawn/target" />
-      <excludeFolder url="file://$MODULE_DIR$/examples/God/target" />
-      <excludeFolder url="file://$MODULE_DIR$/examples/LightningArrows/target" />
-      <excludeFolder url="file://$MODULE_DIR$/examples/MultiPlayerCommands/target" />
-      <excludeFolder url="file://$MODULE_DIR$/examples/NoRain/target" />
-      <excludeFolder url="file://$MODULE_DIR$/examples/PluginCommander/target" />
-      <excludeFolder url="file://$MODULE_DIR$/examples/Shock/target" />
-      <excludeFolder url="file://$MODULE_DIR$/examples/Thor/target" />
-      <excludeFolder url="file://$MODULE_DIR$/examples/TreeDelogger/target" />
-      <excludeFolder url="file://$MODULE_DIR$/examples/WorldEdit/target" />
-      <excludeFolder url="file://$MODULE_DIR$/examples/YellowBrickRoad/target" />
-      <excludeFolder url="file://$MODULE_DIR$/examples/ZombieApocalypse/target" />
-      <excludeFolder url="file://$MODULE_DIR$/examples/project" />
-      <excludeFolder url="file://$MODULE_DIR$/examples/target" />
-      <excludeFolder url="file://$MODULE_DIR$/microexample/project/target" />
-      <excludeFolder url="file://$MODULE_DIR$/microexample/target" />
+      <excludeFolder url="file://$MODULE_DIR$/ermine/ermine-lib-plugin/project" />
+      <excludeFolder url="file://$MODULE_DIR$/ermine/ermine-lib-plugin/project/target" />
+      <excludeFolder url="file://$MODULE_DIR$/ermine/ermine-lib-plugin/target" />
+      <excludeFolder url="file://$MODULE_DIR$/ermine/erminecraft/target" />
       <excludeFolder url="file://$MODULE_DIR$/other/core-java/target" />
       <excludeFolder url="file://$MODULE_DIR$/other/examples-java/project" />
       <excludeFolder url="file://$MODULE_DIR$/other/examples-java/target" />
@@ -73,8 +48,33 @@
       <excludeFolder url="file://$MODULE_DIR$/project/project/project/target" />
       <excludeFolder url="file://$MODULE_DIR$/project/project/target" />
       <excludeFolder url="file://$MODULE_DIR$/project/target" />
-      <excludeFolder url="file://$MODULE_DIR$/scala-lib-plugin/project" />
-      <excludeFolder url="file://$MODULE_DIR$/scala-lib-plugin/target" />
+      <excludeFolder url="file://$MODULE_DIR$/scala/core/project" />
+      <excludeFolder url="file://$MODULE_DIR$/scala/core/target" />
+      <excludeFolder url="file://$MODULE_DIR$/scala/examples/Arena/target" />
+      <excludeFolder url="file://$MODULE_DIR$/scala/examples/BanArrows/target" />
+      <excludeFolder url="file://$MODULE_DIR$/scala/examples/BlockChanger/src" />
+      <excludeFolder url="file://$MODULE_DIR$/scala/examples/BlockChanger/target" />
+      <excludeFolder url="file://$MODULE_DIR$/scala/examples/BlockChangerGold/src" />
+      <excludeFolder url="file://$MODULE_DIR$/scala/examples/BlockChangerGold/target" />
+      <excludeFolder url="file://$MODULE_DIR$/scala/examples/Farmer/target" />
+      <excludeFolder url="file://$MODULE_DIR$/scala/examples/GetOffMyLawn/target" />
+      <excludeFolder url="file://$MODULE_DIR$/scala/examples/God/target" />
+      <excludeFolder url="file://$MODULE_DIR$/scala/examples/LightningArrows/target" />
+      <excludeFolder url="file://$MODULE_DIR$/scala/examples/MultiPlayerCommands/target" />
+      <excludeFolder url="file://$MODULE_DIR$/scala/examples/NoRain/target" />
+      <excludeFolder url="file://$MODULE_DIR$/scala/examples/PluginCommander/target" />
+      <excludeFolder url="file://$MODULE_DIR$/scala/examples/Shock/target" />
+      <excludeFolder url="file://$MODULE_DIR$/scala/examples/Thor/target" />
+      <excludeFolder url="file://$MODULE_DIR$/scala/examples/TreeDelogger/target" />
+      <excludeFolder url="file://$MODULE_DIR$/scala/examples/WorldEdit/target" />
+      <excludeFolder url="file://$MODULE_DIR$/scala/examples/YellowBrickRoad/target" />
+      <excludeFolder url="file://$MODULE_DIR$/scala/examples/ZombieApocalypse/target" />
+      <excludeFolder url="file://$MODULE_DIR$/scala/examples/project" />
+      <excludeFolder url="file://$MODULE_DIR$/scala/examples/target" />
+      <excludeFolder url="file://$MODULE_DIR$/scala/microexample/project/target" />
+      <excludeFolder url="file://$MODULE_DIR$/scala/microexample/target" />
+      <excludeFolder url="file://$MODULE_DIR$/scala/scala-lib-plugin/project" />
+      <excludeFolder url="file://$MODULE_DIR$/scala/scala-lib-plugin/target" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
     <orderEntry type="jdk" jdkName="1.7" jdkType="JavaSDK" />

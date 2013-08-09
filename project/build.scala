@@ -95,7 +95,7 @@ object build extends Build {
   // it is needed in the bukkit plugins dir to run any scala plugins.
   lazy val scalaLibPlugin = Project(
     id = "scalaLibPlugin",
-    base = file("scala-lib-plugin"),
+    base = file("scala/scala-lib-plugin"),
     settings = standardSettings ++ assemblySettings ++ publishPluginToBukkitSettings ++ Seq[Sett](
       name := "Scala Library Plugin"
     )
@@ -104,7 +104,7 @@ object build extends Build {
   // the core plugin library
   lazy val core = Project(
     id = "core",
-    base = file("core"),
+    base = file("scala/core"),
     settings = standardSettings ++ publishPluginToBukkitSettings ++ Seq[Sett](
       name := "scala-minecraft-plugin-api",
       libraryDependencies ++= Seq("org.scalacheck" %% "scalacheck" % "1.10.0" % "test")
@@ -112,7 +112,7 @@ object build extends Build {
   )
 
   // a special example project...
-  lazy val microExample = Project(id = "microexample", base = file("microexample"))
+  lazy val microExample = Project(id = "microexample", base = file("scala/microexample"))
 
   // a whole pile of example projects
   lazy val Arena               = exampleProject("Arena")
@@ -137,7 +137,7 @@ object build extends Build {
     val pluginClassname = "com.joshcough.minecraft.examples." + exampleProjectName
     Project(
       id = exampleProjectName,
-      base = file("examples/" + exampleProjectName),
+      base = file("scala/examples/" + exampleProjectName),
       settings = standardSettings ++ pluginYmlSettings(pluginClassname, "JoshCough") ++ publishPluginToBukkitSettings ++ Seq[Sett](
         name := exampleProjectName
       ),
@@ -174,7 +174,7 @@ object build extends Build {
     ) flatMap (_.settings)
     Project(
       id = "erminecraft",
-      base = file("erminecraft"),
+      base = file("ermine/erminecraft"),
       settings = standardSettings ++ publishPluginToBukkitSettings ++ Seq[Sett](
         name := "Ermine Plugin API",
         libraryDependencies ++= Seq("com.clarifi" %% "ermine-legacy" % "0.1"),
@@ -188,7 +188,7 @@ object build extends Build {
   // it is needed in the bukkit plugins dir to run any ermine plugins.
   lazy val ermineLibPlugin = Project(
     id = "ermineLibPlugin",
-    base = file("ermine-lib-plugin"),
+    base = file("ermine/ermine-lib-plugin"),
     settings = standardSettings ++ assemblySettings ++ publishPluginToBukkitSettings ++ Seq[Sett](
       name := "Ermine Library Plugin",
       libraryDependencies ++= Seq(
