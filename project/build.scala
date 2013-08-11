@@ -97,7 +97,7 @@ object build extends Build {
     id = "scalaLibPlugin",
     base = file("scala/scala-lib-plugin"),
     settings = standardSettings ++ assemblySettings ++ publishPluginToBukkitSettings ++ Seq[Sett](
-      name := "Scala Library Plugin"
+      name := "scala-minecraft-scala-library"
     )
   )
 
@@ -176,7 +176,7 @@ object build extends Build {
       id = "erminecraft",
       base = file("ermine/erminecraft"),
       settings = standardSettings ++ publishPluginToBukkitSettings ++ Seq[Sett](
-        name := "Ermine Plugin API",
+        name := "erminecraft-plugin-api",
         libraryDependencies ++= Seq("com.clarifi" %% "ermine-legacy" % "0.1"),
         fullRunInputTask(repl, Compile, "com.clarifi.reporting.ermine.session.Console")
       ) ++ ermineFileSettings,
@@ -190,7 +190,7 @@ object build extends Build {
     id = "ermineLibPlugin",
     base = file("ermine/ermine-lib-plugin"),
     settings = standardSettings ++ assemblySettings ++ publishPluginToBukkitSettings ++ Seq[Sett](
-      name := "Ermine Library Plugin",
+      name := "erminecraft-ermine-library",
       libraryDependencies ++= Seq(
         "com.clarifi" %% "ermine-legacy"     % "0.1",
         "org.scalaz"  %% "scalaz-core"       % "7.0.2",
