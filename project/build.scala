@@ -234,8 +234,6 @@ object build extends Build {
     ),
     dependencies = Seq(core)
   )
-
-
 }
 
 // some crap left over from old build.sbt files.
