@@ -30,10 +30,10 @@ object build extends Build {
     //,logLevel := Level.Warn
   )
 
-  lazy val publishPluginToBukkitSettings: Seq[Sett] = Seq[Sett](
+  def copyPluginToBukkitSettings(meta: Option[String]): Seq[Sett] = Seq[Sett](
     // make publish local also copy jars to my bukkit server :)
     publishLocal <<= (packagedArtifacts, publishLocal) map { case (r, _) =>
-      r collectFirst { case (Artifact(_,"jar","jar",_, _, _, _), f) =>
+      r collectFirst { case (Artifact(_,"jar","jar", m, _, _, name), f) if m == meta =>
         println("copying " + f.name + " to bukkit server")
         IO.copyFile(f, new File("bukkit/plugins/" + f.name))
       }
@@ -96,7 +96,7 @@ object build extends Build {
   lazy val scalaLibPlugin = Project(
     id = "scalaLibPlugin",
     base = file("scala/scala-lib-plugin"),
-    settings = standardSettings ++ assemblySettings ++ publishPluginToBukkitSettings ++ Seq[Sett](
+    settings = standardSettings ++ assemblySettings ++ copyPluginToBukkitSettings(Some("assembly")) ++ Seq[Sett](
       name := "scala-minecraft-scala-library"
     )
   )
@@ -105,7 +105,7 @@ object build extends Build {
   lazy val core = Project(
     id = "core",
     base = file("scala/core"),
-    settings = standardSettings ++ publishPluginToBukkitSettings ++ Seq[Sett](
+    settings = standardSettings ++ copyPluginToBukkitSettings(None) ++ Seq[Sett](
       name := "scala-minecraft-plugin-api",
       libraryDependencies ++= Seq("org.scalacheck" %% "scalacheck" % "1.10.0" % "test")
     )
@@ -138,7 +138,7 @@ object build extends Build {
     Project(
       id = exampleProjectName,
       base = file("scala/examples/" + exampleProjectName),
-      settings = standardSettings ++ pluginYmlSettings(pluginClassname, "JoshCough") ++ publishPluginToBukkitSettings ++ Seq[Sett](
+      settings = standardSettings ++ pluginYmlSettings(pluginClassname, "JoshCough") ++ copyPluginToBukkitSettings(None) ++ Seq[Sett](
         name := exampleProjectName
       ),
       dependencies = Seq(core)
@@ -154,7 +154,7 @@ object build extends Build {
 
   lazy val ermine = {
     val pluginClassname = "com.joshcough.minecraft.ermine.ErmineCraft"
-    val ermineFileSettings = Defaults.defaultSettings ++ pluginYmlSettings(pluginClassname, "JoshCough") ++ publishPluginToBukkitSettings ++ Seq[SettingsDefinition](
+    val ermineFileSettings = Defaults.defaultSettings ++ Seq[SettingsDefinition](
       compileTestRuntime(sc => classpathConfiguration in sc := sc)
      ,mainClass in (Compile, run) := Some("com.clarifi.reporting.ermine.session.Console")
      ,compileTestRuntime(sco => allUnmanagedResourceDirectories in sco <<=
@@ -167,15 +167,14 @@ object build extends Build {
       // dirs in *before* the classes dirs, so they will win in the classloader
       // lookup.
      ,compileTestRuntime(sco =>
-        fullClasspath in sco <<= (allUnmanagedResourceDirectories in sco,
-                                  fullClasspath in sco) map {
+        fullClasspath in sco <<= (allUnmanagedResourceDirectories in sco, fullClasspath in sco) map {
           (urd, fc) => Attributed.blankSeq(urd) ++ fc
       })
     ) flatMap (_.settings)
     Project(
       id = "erminecraft",
       base = file("ermine/erminecraft"),
-      settings = standardSettings ++ publishPluginToBukkitSettings ++ Seq[Sett](
+      settings = standardSettings ++ copyPluginToBukkitSettings(None) ++ pluginYmlSettings(pluginClassname, "JoshCough") ++ Seq[Sett](
         name := "erminecraft-plugin-api",
         libraryDependencies ++= Seq("com.clarifi" %% "ermine-legacy" % "0.1"),
         fullRunInputTask(repl, Compile, "com.clarifi.reporting.ermine.session.Console")
@@ -189,7 +188,7 @@ object build extends Build {
   lazy val ermineLibPlugin = Project(
     id = "ermineLibPlugin",
     base = file("ermine/ermine-lib-plugin"),
-    settings = standardSettings ++ assemblySettings ++ publishPluginToBukkitSettings ++ Seq[Sett](
+    settings = standardSettings ++ assemblySettings ++ copyPluginToBukkitSettings(Some("assembly")) ++ Seq[Sett](
       name := "erminecraft-ermine-library",
       libraryDependencies ++= Seq(
         "com.clarifi" %% "ermine-legacy"     % "0.1",
@@ -233,6 +232,37 @@ object build extends Build {
       )
     ),
     dependencies = Seq(core)
+  )
+
+  lazy val netlogoPlugin = Project(
+    id = "netLogoPlugin",
+    base = file("other/netlogo"),
+    settings =
+      standardSettings ++
+      copyPluginToBukkitSettings(None) ++
+      pluginYmlSettings("com.joshcough.minecraft.NetLogoPlugin", "JoshCough") ++ Seq[Sett](
+      resolvers ++= Seq(
+        "remoteentities-repo" at "http://repo.infinityblade.de/remoteentities/releases"
+      ),
+      libraryDependencies ++= Seq(
+        "org.nlogo" % "NetLogoHeadless"  % "5.1.0-M2" from "http://ccl.northwestern.edu/netlogo/5.1.0-M2/NetLogoHeadless.jar",
+        "de.kumpelblase2" % "remoteentities" % "1.6" from "http://dev.bukkit.org/media/files/700/586/remoteentities-1.6.jar"
+      )
+    ),
+    dependencies = Seq(core)
+  )
+
+  lazy val netlogoLibPlugin = Project(
+    id = "netLogoLibPlugin",
+    base = file("other/netlogo-lib-plugin"),
+    settings = standardSettings ++ assemblySettings ++ copyPluginToBukkitSettings(Some("assembly")) ++ Seq[Sett](
+      name := "netlogo-lib-plugin",
+      libraryDependencies ++= Seq(
+        "org.nlogo" % "NetLogoHeadless"  % "5.1.0-M2" from "http://ccl.northwestern.edu/netlogo/5.1.0-M2/NetLogoHeadless.jar",
+        "asm" % "asm-all" % "3.3.1",
+        "org.picocontainer" % "picocontainer" % "2.13.6"
+      )
+    )
   )
 }
 

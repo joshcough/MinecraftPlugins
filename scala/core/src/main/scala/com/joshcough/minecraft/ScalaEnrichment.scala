@@ -31,7 +31,7 @@ trait ScalaEnrichment {
   /**
    * Implicit conversion to Runnable.
    */
-  implicit def byNameToRunnable(f: => Unit) = new Runnable { def run = f }
+  implicit def byNameToRunnable(f: => Unit) = new Runnable { override def run = f }
 
   def spawn(f: => Unit): Unit = new Thread(f).start()
 

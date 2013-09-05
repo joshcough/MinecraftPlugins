@@ -1,0 +1,6 @@
+name: NetLogoLibPlugin
+main: com.joshcough.minecraft.NetLogoLibPlugin
+author: Josh Cough
+version: 0.1
+database: false
+depend: [ScalaLibPlugin]
