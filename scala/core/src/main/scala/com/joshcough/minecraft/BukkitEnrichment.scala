@@ -16,7 +16,21 @@ import util.Try
 import Cube._
 
 
-object BukkitEnrichment extends BukkitEnrichment
+object BukkitEnrichment extends BukkitEnrichment{
+  object MaterialAndData {
+    val AIR = new MaterialAndData(Material.AIR, None)
+  }
+  case class MaterialAndData(m: Material, data: Option[Byte]){
+    def update(b: Block): Boolean = {
+      val oldM    = b.getType
+      val oldData = b.getData
+      b setType m
+      data foreach b.setData
+      oldM != m || oldData != data.getOrElse(0)
+    }
+    def itemStack: ItemStack = data.fold(new ItemStack(m))(new ItemStack(m, 1, 0:Short, _))
+  }
+}
 
 /**
  * Adds piles of missing functions to Bukkit classes.
@@ -411,20 +425,6 @@ trait BukkitEnrichment extends ScalaEnrichment {
     val GREEN       = new Color(13)
     val RED         = new Color(14)
     val BLACK       = new Color(15)
-  }
-
-  object MaterialAndData {
-    val AIR = new MaterialAndData(Material.AIR, None)
-  }
-  case class MaterialAndData(m: Material, data: Option[Byte]){
-    def update(b: Block): Boolean = {
-      val oldM    = b.getType
-      val oldData = b.getData
-      b setType m
-      data foreach b.setData
-      oldM != m || oldData != data.getOrElse(0)
-    }
-    def itemStack: ItemStack = data.fold(new ItemStack(m))(new ItemStack(m, 1, 0:Short, _))
   }
 }
 

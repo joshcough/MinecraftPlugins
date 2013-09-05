@@ -66,10 +66,12 @@ object build extends Build {
     aggregate = Seq(
       scalaLibPlugin,
       ermineLibPlugin,
+      netlogoLibPlugin,
       //mineLang,
       coreJava,
       core,
       ermine,
+      netlogoPlugin,
       examplesJava,
       microExample,
       Arena,

@@ -6,6 +6,7 @@ import org.bukkit.entity.Player
 import org.bukkit.event.{EventHandler, Listener}
 import org.bukkit.{Location, Material, World}
 import Material._
+import BukkitEnrichment._
 import de.kumpelblase2.remoteentities.RemoteEntities
 import de.kumpelblase2.remoteentities.api.{RemoteEntity, RemoteEntityType}
 
