@@ -111,7 +111,7 @@ trait BukkitEnrichment extends ScalaEnrichment {
      * @return all of b's 26 neighbors in 3D space
      */
     def neighbors    : Stream[Block] =
-      neighbors8 ++ (b.blockBelow.andNeighbors8) #::: (b.blockAbove.andNeighbors8)
+      neighbors8 ++ b.blockBelow.andNeighbors8 #::: b.blockAbove.andNeighbors8
 
     /**
      * @return b, and all of b's 26 neighbors in 3D space
