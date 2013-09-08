@@ -2,7 +2,10 @@ module BlockChangerGold where
 
 import Minecraft.Minecraft
 
-change = onBlockDamage (b _ -> setType b diamond)
+whenHitChangeTo : Material -> Listener
+whenHitChangeTo m = onBlockDamage (b _ -> setType b m)
 
--- Run this command:
---registerErmineListener BlockChangerGold change
+-- | Example listener
+whenHitChangeToDiamond = whenHitChangeTo diamond
+
+plugin = ErminePlugin [] [whenHitChangeToDiamond]

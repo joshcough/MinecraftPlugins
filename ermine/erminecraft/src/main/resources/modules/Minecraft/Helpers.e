@@ -8,6 +8,7 @@ import Native.Function
 import Native.Object
 import Num
 import Parse
+import Syntax.IO
 
 findEntityType : String -> Maybe EntityType
 findEntityType name = orMaybe (liftNull (entityFromName n)) (liftNull (entityValueOf n)) where n = toUpperCase name
@@ -31,3 +32,13 @@ getPluginManagerFromPlayer = getPluginManager . getServerFromPlayer
 
 location : World -> Int -> Int -> Int -> Location
 location w x y z = location# w (toDouble x) (toDouble y) (toDouble z)
+
+-- misc stuff
+onBlockDamage f = onBlockDamage# (function2 f)
+withWorld p f = getWorldFromPlayer p >>= f
+
+discard : IO a -> IO ()
+discard io = (_ -> ()) <$> io
+
+discardMaybe : Maybe (IO LightningStrike) -> IO ()
+discardMaybe = maybe (return ()) discard

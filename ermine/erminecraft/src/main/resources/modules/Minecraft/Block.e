@@ -34,7 +34,6 @@ andNeighbors8 b = b :: neighbors8 b
 neighbors     b = neighbors8 b ++ (andNeighbors8 $ blockBelow b) ++ (andNeighbors8 $ blockAbove b)
 andNeighbors  b = b :: neighbors b
 
-
 private
   wfb = getWorldFromBlock
 

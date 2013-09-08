@@ -15,6 +15,7 @@ foreign
   method "getWorld"    getWorldFromPlayer : Player -> IO World
   method "getLocation" getLocationFromPlayer : Player -> IO Location
   method "getServer"   getServerFromPlayer : Player -> Server
+  method "teleport"    teleport : Player -> Location -> IO Bool
 
   data "org.bukkit.plugin.Plugin" Plugin
   method "getServer" getServerFromPlugin : Plugin -> Server
@@ -47,18 +48,20 @@ foreign
   function "org.bukkit.Material" "getMaterial" getMaterialByName# : String -> FFI Material
 
   data "org.bukkit.block.Block" Block
-  method "setType" setType : Block -> Material -> ()
+  method "setType" setType : Block -> Material -> IO ()
   method "getLocation" getLocationFromBlock : Block -> Location
   method "getWorld" getWorldFromBlock : Block -> World
   method "getX" blockX : Block -> Int
   method "getY" blockY : Block -> Int
   method "getZ" blockZ : Block -> Int
 
-  function "com.joshcough.minecraft.ListenersObject" "OnBlockDamage" onBlockDamage# : Function2 Block BlockDamageEvent () -> Listener
+  function "com.joshcough.minecraft.ListenersObject" "OnBlockDamage" onBlockDamage# : Function2 Block BlockDamageEvent (IO ()) -> Listener
 
   data "org.bukkit.GameMode" GameMode
   value "org.bukkit.GameMode" "CREATIVE" creative : GameMode
   value "org.bukkit.GameMode" "SURVIVAL" survival : GameMode
+
+  data "org.bukkit.command.Command" BukkitCommand
 
 
 --TODO move to String
