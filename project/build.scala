@@ -30,6 +30,10 @@ object build extends Build {
     //,logLevel := Level.Warn
   )
 
+  def join(settings: Seq[Sett]*): Seq[Sett] = settings.flatten
+  def named(pname: String): Seq[Sett] = Seq[Sett](name := pname)
+  def deps(libs: sbt.ModuleID*) = Seq[Sett](libraryDependencies ++= libs)
+
   def copyPluginToBukkitSettings(meta: Option[String]): Seq[Sett] = Seq[Sett](
     // make publish local also copy jars to my bukkit server :)
     publishLocal <<= (packagedArtifacts, publishLocal) map { case (r, _) =>
@@ -59,8 +63,8 @@ object build extends Build {
 
   // this is the main project, that builds all subprojects.
   // it doesnt contain any code itself.
-  lazy val scalaMinecraftPlugins = Project(
-    id = "scalaMinecraftPlugins",
+  lazy val all = Project(
+    id = "all",
     base = file("."),
     settings = standardSettings,
     aggregate = Seq(
@@ -98,8 +102,11 @@ object build extends Build {
   lazy val scalaLibPlugin = Project(
     id = "scalaLibPlugin",
     base = file("scala/scala-lib-plugin"),
-    settings = standardSettings ++ assemblySettings ++ copyPluginToBukkitSettings(Some("assembly")) ++ Seq[Sett](
-      name := "scala-minecraft-scala-library"
+    settings = join(
+      standardSettings,
+      named("scala-minecraft-scala-library"),
+      assemblySettings,
+      copyPluginToBukkitSettings(Some("assembly"))
     )
   )
 
@@ -107,9 +114,11 @@ object build extends Build {
   lazy val core = Project(
     id = "core",
     base = file("scala/core"),
-    settings = standardSettings ++ copyPluginToBukkitSettings(None) ++ Seq[Sett](
-      name := "scala-minecraft-plugin-api",
-      libraryDependencies ++= Seq("org.scalacheck" %% "scalacheck" % "1.10.0" % "test")
+    settings = join(
+      standardSettings,
+      copyPluginToBukkitSettings(None),
+      named("scala-minecraft-plugin-api"),
+      deps("org.scalacheck" %% "scalacheck" % "1.10.0" % "test")
     )
   )
 
@@ -140,8 +149,11 @@ object build extends Build {
     Project(
       id = exampleProjectName,
       base = file("scala/examples/" + exampleProjectName),
-      settings = standardSettings ++ pluginYmlSettings(pluginClassname, "JoshCough") ++ copyPluginToBukkitSettings(None) ++ Seq[Sett](
-        name := exampleProjectName
+      settings = join(
+        standardSettings,
+        named(exampleProjectName),
+        pluginYmlSettings(pluginClassname, "JoshCough"),
+        copyPluginToBukkitSettings(None)
       ),
       dependencies = Seq(core)
     )
@@ -153,34 +165,42 @@ object build extends Build {
   /** Multiply a setting across Compile, Test, Runtime. */
   def compileTestRuntime[A](f: Configuration => Setting[A]): SettingsDefinition =
     seq(f(Compile), f(Test), f(Runtime))
+  lazy val ermineFileSettings = Defaults.defaultSettings ++ Seq[SettingsDefinition](
+    compileTestRuntime(sc => classpathConfiguration in sc := sc)
+    ,mainClass in (Compile, run) := Some("com.clarifi.reporting.ermine.session.Console")
+    ,compileTestRuntime(sco => allUnmanagedResourceDirectories in sco <<=
+      Defaults.inDependencies(unmanagedResourceDirectories in sco, _ => Seq.empty)
+        (_.reverse.flatten))
+    // Usually, resources end up in the classpath by virtue of `compile'
+    // copying them into target/scala-*/classes, and from there into jar.  But
+    // we want in development p(1) I can edit an Ermine module in src
+    // resources, hit reload, and it's seen. So we (harmlessly) patch the src resources
+    // dirs in *before* the classes dirs, so they will win in the classloader
+    // lookup.
+    ,compileTestRuntime(sco =>
+      fullClasspath in sco <<= (allUnmanagedResourceDirectories in sco, fullClasspath in sco) map {
+        (urd, fc) => Attributed.blankSeq(urd) ++ fc
+      })
+  ) flatMap (_.settings)
+
+  lazy val ermineSettings = join(
+    standardSettings,
+    ermineFileSettings,
+    deps("com.clarifi" %% "ermine-legacy" % "0.1"),
+    Seq[Sett](fullRunInputTask(repl, Compile, "com.clarifi.reporting.ermine.session.Console"))
+  )
 
   lazy val ermine = {
     val pluginClassname = "com.joshcough.minecraft.ermine.ErmineCraft"
-    val ermineFileSettings = Defaults.defaultSettings ++ Seq[SettingsDefinition](
-      compileTestRuntime(sc => classpathConfiguration in sc := sc)
-     ,mainClass in (Compile, run) := Some("com.clarifi.reporting.ermine.session.Console")
-     ,compileTestRuntime(sco => allUnmanagedResourceDirectories in sco <<=
-        Defaults.inDependencies(unmanagedResourceDirectories in sco, _ => Seq.empty)
-         (_.reverse.flatten))
-      // Usually, resources end up in the classpath by virtue of `compile'
-      // copying them into target/scala-*/classes, and from there into jar.  But
-      // we want in development p(1) I can edit an Ermine module in src
-      // resources, hit reload, and it's seen. So we (harmlessly) patch the src resources
-      // dirs in *before* the classes dirs, so they will win in the classloader
-      // lookup.
-     ,compileTestRuntime(sco =>
-        fullClasspath in sco <<= (allUnmanagedResourceDirectories in sco, fullClasspath in sco) map {
-          (urd, fc) => Attributed.blankSeq(urd) ++ fc
-      })
-    ) flatMap (_.settings)
     Project(
       id = "erminecraft",
       base = file("ermine/erminecraft"),
-      settings = standardSettings ++ copyPluginToBukkitSettings(None) ++ pluginYmlSettings(pluginClassname, "JoshCough") ++ Seq[Sett](
-        name := "erminecraft-plugin-api",
-        libraryDependencies ++= Seq("com.clarifi" %% "ermine-legacy" % "0.1"),
-        fullRunInputTask(repl, Compile, "com.clarifi.reporting.ermine.session.Console")
-      ) ++ ermineFileSettings,
+      settings = join(
+        ermineSettings,
+        named("erminecraft-plugin-api"),
+        copyPluginToBukkitSettings(None),
+        pluginYmlSettings(pluginClassname, "JoshCough")
+      ),
       dependencies = Seq(core)
     )
   }
@@ -190,9 +210,12 @@ object build extends Build {
   lazy val ermineLibPlugin = Project(
     id = "ermineLibPlugin",
     base = file("ermine/ermine-lib-plugin"),
-    settings = standardSettings ++ assemblySettings ++ copyPluginToBukkitSettings(Some("assembly")) ++ Seq[Sett](
-      name := "erminecraft-ermine-library",
-      libraryDependencies ++= Seq(
+    settings = join(
+      standardSettings,
+      assemblySettings,
+      copyPluginToBukkitSettings(Some("assembly")),
+      named("erminecraft-ermine-library"),
+      deps(
         "com.clarifi" %% "ermine-legacy"     % "0.1",
         "org.scalaz"  %% "scalaz-core"       % "7.0.2",
         "org.scalaz"  %% "scalaz-concurrent" % "7.0.2",
@@ -210,13 +233,13 @@ object build extends Build {
   lazy val coreJava = Project(
     id = "core-java",
     base = file("other/core-java"),
-    settings = standardSettings ++ Seq[Sett](name := "java-minecraft-plugin-api")
+    settings = standardSettings ++ named("java-minecraft-plugin-api")
   )
 
   lazy val examplesJava = Project(
     id = "examplesJava",
     base = file("other/examples-java"),
-    settings = standardSettings ++ Seq[Sett](name := "JCDC Plugin Factory Java Examples"),
+    settings = standardSettings ++ named("JCDC Plugin Factory Java Examples"),
     dependencies = Seq(coreJava)
   )
 
@@ -226,9 +249,11 @@ object build extends Build {
   lazy val mineLang = Project(
     id = "mineLang",
     base = file("other/minelang"),
-    settings = standardSettings ++ pluginYmlSettings("com.joshcough.minecraft.MineLangPlugin", "JoshCough") ++ Seq[Sett](
-      name := "MineLang",
-      libraryDependencies ++= Seq(
+    settings = join(
+      standardSettings,
+      pluginYmlSettings("com.joshcough.minecraft.MineLangPlugin", "JoshCough"),
+      named("MineLang"),
+      deps(
         "org.scala-lang" % "jline"   % "2.10.2",
         "org.clojure"    % "clojure" % "1.4.0"
       )
@@ -239,17 +264,15 @@ object build extends Build {
   lazy val netlogoPlugin = Project(
     id = "netLogoPlugin",
     base = file("other/netlogo"),
-    settings =
-      standardSettings ++
-      copyPluginToBukkitSettings(None) ++
-      pluginYmlSettings("com.joshcough.minecraft.NetLogoPlugin", "JoshCough") ++ Seq[Sett](
-      resolvers ++= Seq(
-        "remoteentities-repo" at "http://repo.infinityblade.de/remoteentities/releases"
-      ),
+    settings = join(
+      standardSettings,
+      copyPluginToBukkitSettings(None),
+      pluginYmlSettings("com.joshcough.minecraft.NetLogoPlugin", "JoshCough"), Seq[Sett](
+      resolvers ++= Seq("remoteentities-repo" at "http://repo.infinityblade.de/remoteentities/releases"),
       libraryDependencies ++= Seq(
         "org.nlogo" % "NetLogoHeadless"  % "5.1.0-M2" from "http://ccl.northwestern.edu/netlogo/5.1.0-M2/NetLogoHeadless.jar",
         "de.kumpelblase2" % "remoteentities" % "1.6" from "http://dev.bukkit.org/media/files/700/586/remoteentities-1.6.jar"
-      )
+      ))
     ),
     dependencies = Seq(core)
   )
@@ -257,9 +280,12 @@ object build extends Build {
   lazy val netlogoLibPlugin = Project(
     id = "netLogoLibPlugin",
     base = file("other/netlogo-lib-plugin"),
-    settings = standardSettings ++ assemblySettings ++ copyPluginToBukkitSettings(Some("assembly")) ++ Seq[Sett](
-      name := "netlogo-lib-plugin",
-      libraryDependencies ++= Seq(
+    settings = join(
+      standardSettings,
+      assemblySettings,
+      named("netlogo-lib-plugin"),
+      copyPluginToBukkitSettings(Some("assembly")),
+      deps(
         "org.nlogo" % "NetLogoHeadless"  % "5.1.0-M2" from "http://ccl.northwestern.edu/netlogo/5.1.0-M2/NetLogoHeadless.jar",
         "asm" % "asm-all" % "3.3.1",
         "org.picocontainer" % "picocontainer" % "2.13.6"
@@ -267,18 +293,3 @@ object build extends Build {
     )
   )
 }
-
-// some crap left over from old build.sbt files.
-
-//packageBin in Compile <<= (packageBin in Compile) dependsOn run
-//Keys.`package` <<= (Keys.`package` in Compile) dependsOn run
-//compile <<= (compile in Compile) map { result =>
-//  println("in compile, something")
-//  result
-//}
-
-//"org.clojure"        % "clojure"               % "1.4.0",
-//"org.squeryl"       %% "squeryl"               % "0.9.6-SNAPSHOT",
-//"mysql"              % "mysql-connector-java"  % "5.1.10",
-//"org.apache.derby"   % "derby"                 % "10.7.1.1",
-//"ch.spacebase"       % "NPCCreatures"          % "1.4" from "http://dev.bukkit.org/media/files/584/232/NPCCreatures.jar",
