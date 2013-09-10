@@ -1,5 +1,6 @@
 module Minecraft.Minecraft where
 
+import Error
 import Native.Function
 import Native.List
 
@@ -35,11 +36,15 @@ command name desc p body = command' name desc (p & eof) body where
 
 -- If the given plugin contains the given command, return the IO action that will run the command.
 -- If not, return Nothing.
-onCommand : ErminePlugin -> Player -> BukkitCommand -> String -> List String -> Maybe (IO ())
-onCommand plugin p bc c args = fmap maybeFunctor (c -> commandBody c args p) (findCommand plugin c) where
-  findCommand : ErminePlugin -> String -> Maybe Command
-  findCommand (ErminePlugin cs _) c = find (x -> (commandName x) == c) cs
-  commandName : Command -> String
-  commandName (Command name _ _) = name
-  commandBody : Command -> (List String -> Player -> IO ())
-  commandBody (Command _ _ body) = body
+onCommand : ErminePlugin -> Player -> BukkitCommand -> String -> List# String -> IO ()
+onCommand plugin p bc c args =
+  maybe (return $ error "no such command") (c -> commandBody c (fromList# args) p) (findCommand plugin c) where
+    findCommand : ErminePlugin -> String -> Maybe Command
+    findCommand (ErminePlugin cs _) c = find (x -> (commandName x) == c) cs
+    commandName : Command -> String
+    commandName (Command name _ _) = name
+    commandBody : Command -> (List String -> Player -> IO ())
+    commandBody (Command _ _ body) = body
+
+listeners : ErminePlugin -> List# Listener
+listeners (ErminePlugin _ ls) = toList# ls
