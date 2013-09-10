@@ -9,30 +9,28 @@ import AssemblyKeys._
 object build extends Build {
   type Sett = Project.Setting[_]
 
-  lazy val standardSettings: Seq[Sett] = Defaults.defaultSettings ++ bintray.Plugin.bintraySettings ++ Seq[Sett](
-    organization := "com.joshcough",
-    version := "0.3.1",
-    scalaVersion := "2.10.2",
-    licenses <++= version(v =>
-      Seq("MIT" -> url("https://github.com/joshcough/MinecraftPlugins/blob/%s/LICENSE".format(v)))
-    ),
-    publishMavenStyle := true,
-    libraryDependencies ++= Seq(
+  val projectUrl = "https://github.com/joshcough/MinecraftPlugins"
+
+  lazy val standardSettings: Seq[Sett] = join(
+    Defaults.defaultSettings,
+    bintray.Plugin.bintraySettings,
+    libDeps(
       "javax.servlet"      % "servlet-api" % "2.5"        % "provided->default",
       "org.scalacheck"    %% "scalacheck"  % "1.10.0"     % "test",
       "org.bukkit"         % "craftbukkit" % "1.5.2-R1.0"
     ),
-    resolvers += Resolver.sonatypeRepo("snapshots"),
-    resolvers ++= Seq(
-      "Bukkit"             at "http://repo.bukkit.org/content/repositories/releases"
-    ),
-    traceLevel := 10
-    //,logLevel := Level.Warn
+    Seq[Sett](
+      organization := "com.joshcough",
+      version := "0.3.1",
+      scalaVersion := "2.10.2",
+      licenses <++= version(v => Seq("MIT" -> url(projectUrl + "/blob/%s/LICENSE".format(v)))),
+      publishMavenStyle := true,
+      resolvers += Resolver.sonatypeRepo("snapshots"),
+      resolvers += ("Bukkit" at "http://repo.bukkit.org/content/repositories/releases"),
+      traceLevel := 10
+      //,logLevel := Level.Warn
+    )
   )
-
-  def join(settings: Seq[Sett]*): Seq[Sett] = settings.flatten
-  def named(pname: String): Seq[Sett] = Seq[Sett](name := pname)
-  def deps(libs: sbt.ModuleID*) = Seq[Sett](libraryDependencies ++= libs)
 
   def copyPluginToBukkitSettings(meta: Option[String]): Seq[Sett] = Seq[Sett](
     // make publish local also copy jars to my bukkit server :)
@@ -58,7 +56,8 @@ object build extends Build {
       ermine,
       MultiPlayerCommands,
       PluginCommander,
-      WorldEdit)
+      WorldEdit
+    )
   )
 
   // this is the main project, that builds all subprojects.
@@ -94,7 +93,8 @@ object build extends Build {
       TreeDelogger,
       WorldEdit,
       YellowBrickRoad,
-      ZombieApocalypse)
+      ZombieApocalypse
+    )
   )
 
   // this project supplies the scala language classes.
@@ -118,7 +118,7 @@ object build extends Build {
       standardSettings,
       copyPluginToBukkitSettings(None),
       named("scala-minecraft-plugin-api"),
-      deps("org.scalacheck" %% "scalacheck" % "1.10.0" % "test")
+      libDeps("org.scalacheck" %% "scalacheck" % "1.10.0" % "test")
     )
   )
 
@@ -161,12 +161,15 @@ object build extends Build {
 
   // ErmineCraft stuff below.
   val repl = InputKey[Unit]("repl", "Run the Ermine read-eval-print loop")
-  val allUnmanagedResourceDirectories = SettingKey[Seq[File]]("all-unmanaged-resource-directories", "unmanaged-resource-directories, transitively.")
+  val allUnmanagedResourceDirectories = SettingKey[Seq[File]](
+    "all-unmanaged-resource-directories",
+    "unmanaged-resource-directories, transitively."
+  )
   /** Multiply a setting across Compile, Test, Runtime. */
   def compileTestRuntime[A](f: Configuration => Setting[A]): SettingsDefinition =
     seq(f(Compile), f(Test), f(Runtime))
   lazy val ermineFileSettings = Defaults.defaultSettings ++ Seq[SettingsDefinition](
-    compileTestRuntime(sc => classpathConfiguration in sc := sc)
+     compileTestRuntime(sc => classpathConfiguration in sc := sc)
     ,mainClass in (Compile, run) := Some("com.clarifi.reporting.ermine.session.Console")
     ,compileTestRuntime(sco => allUnmanagedResourceDirectories in sco <<=
       Defaults.inDependencies(unmanagedResourceDirectories in sco, _ => Seq.empty)
@@ -186,7 +189,7 @@ object build extends Build {
   lazy val ermineSettings = join(
     standardSettings,
     ermineFileSettings,
-    deps("com.clarifi" %% "ermine-legacy" % "0.1"),
+    libDeps("com.clarifi" %% "ermine-legacy" % "0.1"),
     Seq[Sett](fullRunInputTask(repl, Compile, "com.clarifi.reporting.ermine.session.Console"))
   )
 
@@ -215,7 +218,7 @@ object build extends Build {
       assemblySettings,
       copyPluginToBukkitSettings(Some("assembly")),
       named("erminecraft-ermine-library"),
-      deps(
+      libDeps(
         "com.clarifi" %% "ermine-legacy"     % "0.1",
         "org.scalaz"  %% "scalaz-core"       % "7.0.2",
         "org.scalaz"  %% "scalaz-concurrent" % "7.0.2",
@@ -253,7 +256,7 @@ object build extends Build {
       standardSettings,
       pluginYmlSettings("com.joshcough.minecraft.MineLangPlugin", "JoshCough"),
       named("MineLang"),
-      deps(
+      libDeps(
         "org.scala-lang" % "jline"   % "2.10.2",
         "org.clojure"    % "clojure" % "1.4.0"
       )
@@ -267,12 +270,12 @@ object build extends Build {
     settings = join(
       standardSettings,
       copyPluginToBukkitSettings(None),
-      pluginYmlSettings("com.joshcough.minecraft.NetLogoPlugin", "JoshCough"), Seq[Sett](
-      resolvers ++= Seq("remoteentities-repo" at "http://repo.infinityblade.de/remoteentities/releases"),
-      libraryDependencies ++= Seq(
+      pluginYmlSettings("com.joshcough.minecraft.NetLogoPlugin", "JoshCough"),
+      libDeps(
         "org.nlogo" % "NetLogoHeadless"  % "5.1.0-M2" from "http://ccl.northwestern.edu/netlogo/5.1.0-M2/NetLogoHeadless.jar",
-        "de.kumpelblase2" % "remoteentities" % "1.6" from "http://dev.bukkit.org/media/files/700/586/remoteentities-1.6.jar"
-      ))
+        "de.kumpelblase2" % "remoteentities" % "1.6"  from "http://dev.bukkit.org/media/files/700/586/remoteentities-1.6.jar"
+      ),
+      Seq[Sett](resolvers ++= Seq("remoteentities-repo" at "http://repo.infinityblade.de/remoteentities/releases"))
     ),
     dependencies = Seq(core)
   )
@@ -285,11 +288,15 @@ object build extends Build {
       assemblySettings,
       named("netlogo-lib-plugin"),
       copyPluginToBukkitSettings(Some("assembly")),
-      deps(
+      libDeps(
         "org.nlogo" % "NetLogoHeadless"  % "5.1.0-M2" from "http://ccl.northwestern.edu/netlogo/5.1.0-M2/NetLogoHeadless.jar",
         "asm" % "asm-all" % "3.3.1",
         "org.picocontainer" % "picocontainer" % "2.13.6"
       )
     )
   )
+
+  def join(settings: Seq[Sett]*): Seq[Sett] = settings.flatten
+  def named(pname: String): Seq[Sett] = Seq[Sett](name := pname)
+  def libDeps(libDeps: sbt.ModuleID*) = Seq[Sett](libraryDependencies ++= libDeps)
 }
