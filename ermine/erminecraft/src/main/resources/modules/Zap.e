@@ -1,6 +1,7 @@
 module Zap where
 
 import Minecraft.Minecraft
+import Prelude
 
 zap p = withWorld p (w -> getLocationFromPlayer p >>= strikeLightning w)
 

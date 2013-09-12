@@ -120,9 +120,9 @@ eof = Parser empty' "EOF" where
   empty' [] = Success () []
   empty' ss = Failure $ concat_String ("unprocessed input" :: ss)
 
-noArguments = eof
-nothing     = eof
-empty       = eof
+noArguments = rename eof ""
+nothing     = rename eof ""
+empty       = rename eof ""
 
 anyStringAs : String -> Parser String
 anyStringAs name = Parser f' name where
