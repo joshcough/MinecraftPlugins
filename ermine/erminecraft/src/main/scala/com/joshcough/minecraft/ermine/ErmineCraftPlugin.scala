@@ -1,53 +1,75 @@
 package com.joshcough.minecraft.ermine
 
 import com.clarifi.reporting.ermine._
-import com.joshcough.minecraft.{ScalaPlugin}
+import com.joshcough.minecraft.ScalaPlugin
 import org.bukkit.command.{CommandSender, Command => BukkitCommand}
 import org.bukkit.event.Listener
 import org.bukkit.entity.Player
-import com.clarifi.reporting.ermine.session.FilesystemReportsCache
+import com.clarifi.reporting.ermine.session.SessionEnv
+import scalaz.{-\/, \/, \/-, Show}
+import scalaz.std.string._
+import scalaz.syntax.std._
+import java.io.File
+import com.clarifi.reporting.ermine.session.Session.{SourceFile, Filesystem, Resource}
+import java.net.URL
+import ReportsCache.ModuleExpr
 
 class ErmineCraftPlugin extends ScalaPlugin {
 
   lazy val moduleName = this.name
   lazy val ermineModule = runErmine(moduleName, "plugin")()
-  lazy val listeners: List[Listener] =
-    runErmine("Minecraft.Minecraft", "listeners")(ermineModule).extract[List[Listener]]
 
   override def yml(author: String, version: String): String =
-    runErmine("Minecraft.Minecraft", "yml")(
-      ermineModule, Prim(this.name), Prim(this.getClass.getName), Prim(author), Prim(version)
-    ).extract[String]
+    runMC("yml")(ermineModule, name, getClass.getName, author, version).extract[String]
 
-  override def onEnable{ super.onEnable(); cache; listeners.foreach(registerListener) }
+  override def onEnable{
+    super.onEnable()
+    cache
+    // register all the listeners.
+    runMC("listeners")(ermineModule).extract[List[Listener]].foreach(registerListener)
+  }
 
-  override def onCommand(sender: CommandSender, cmd: BukkitCommand,
-                         commandName: String, args: Array[String]) = {
+  override def onCommand(sender: CommandSender, cmd: BukkitCommand, commandName: String, args: Array[String]) = {
     println(s"$name handling $commandName [${args.mkString(",")}]")
-    //onCommand : ErminePlugin -> Player -> BukkitCommand -> String -> List String -> IO ()
-    runIO(runErmine("Minecraft.Minecraft", "onCommand")(
-      ermineModule, Prim(sender.asInstanceOf[Player]), Prim(cmd), Prim(commandName), Prim(args.toList)
-    ))
+    runIO(runMC("onCommand")(ermineModule, sender.asInstanceOf[Player], cmd, commandName, args.toList))
     true
   }
 
+  /** Load from Java classloader, rooted at `root`. */
+  def classloader()(module: String): Option[SourceFile] = {
+    val path = ("modules" :: module.split('.').toList).mkString("/") + ".e"
+    Option(classOf[Resource].getClassLoader.getResource(path)).orElse(
+    Option(classOf[ErmineCraft].getClassLoader.getResource(path))).orElse(
+    Option(this.getClass.getClassLoader.getResource(path))).map(Resource(module, _))
+  }
+
   // code for running ermine
-  val ermineDir = "/Users/joshcough/work/MinecraftPlugins/ermine/src/main/resources/modules"
-  lazy val cache = new FilesystemReportsCache(List(ermineDir))
-  def runErmine(module: String, function: String)(args: Runtime*): Runtime =
-    cache.getReport(module, function).toEither match {
-      case Right(r) => r(args:_*)
-      case Left(e)  => throw new RuntimeException(s"Couldn't find $moduleName.plugin", e)
+  lazy val cache = new LoaderReportsCache[String](classloader()) {
+    import ReportsCache.ModuleExpr
+    type Report = ModuleExpr[String]
+    lazy val loadPaths : List[String] = Nil
+    override protected def initialEnv = {
+      val e = new SessionEnv
+      e.loadFile = classloader()
+      e
+    }
+    override def preloads: List[String] = List("Minecraft.Minecraft")
+    def showReport = Show[Report]
+    protected def toME(r: Report) = r
+  }
+
+  def runErmine(module: String, expr: String)(args: AnyRef*): Runtime =
+    cache.getReport(ModuleExpr(module, expr)).toEither match {
+      case Right(r) => r(args.map(Prim(_)):_*)
+      case Left(e)  => throw e
     }
   def runIO(r: Runtime) = {
     val g = Global("IO.Unsafe","unsafePerformIO")
-    cache.baseEnv.termNames.get(g).flatMap(cache.baseEnv.env.get) map { unsafePerformIO =>
-      try unsafePerformIO(r) match {
-        case Bottom(msg) => println(msg.apply.toString)
-        case x           => x.extract[Any]
-      }
-      catch { case t: Throwable => println(t.getMessage) }
-    }
+    cache.baseEnv.termNames.get(g).flatMap(cache.baseEnv.env.get).map(_(r).extract[Any])
+  }
+  def runMC(function: String)(args: AnyRef*): Runtime = {
+    val g = Global("Minecraft.Minecraft",function)
+    cache.baseEnv.termNames.get(g).flatMap(cache.baseEnv.env.get).map(_(args.map(Prim(_)):_*)).get
   }
 }
 

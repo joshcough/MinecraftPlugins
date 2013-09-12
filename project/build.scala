@@ -53,7 +53,7 @@ object build extends Build {
       scalaLibPlugin,
       ermineLibPlugin,
       core,
-      ermine,
+      erminecraft,
       MultiPlayerCommands,
       PluginCommander,
       WorldEdit
@@ -73,7 +73,7 @@ object build extends Build {
       //mineLang,
       coreJava,
       core,
-      ermine,
+      erminecraft,
       netlogoPlugin,
       examplesJava,
       microExample,
@@ -193,18 +193,29 @@ object build extends Build {
     Seq[Sett](fullRunInputTask(repl, Compile, "com.clarifi.reporting.ermine.session.Console"))
   )
 
-  lazy val ermine = {
-    val pluginClassname = "com.joshcough.minecraft.ermine.ErmineCraft"
+  lazy val erminecraft = {
     Project(
       id = "erminecraft",
       base = file("ermine/erminecraft"),
-      settings = join(
-        ermineSettings,
-        named("erminecraft-plugin-api"),
-        copyPluginToBukkitSettings(None),
-        pluginYmlSettings(pluginClassname, "JoshCough")
-      ),
+      settings = join(ermineSettings, named("erminecraft-plugin-api"), copyPluginToBukkitSettings(None)),
       dependencies = Seq(core)
+    )
+  }
+
+  lazy val Zap = exampleErmineProject("Zap")
+
+  def exampleErmineProject(exampleProjectName: String) = {
+    val pluginClassname = "com.joshcough.minecraft.ermine.examples." + exampleProjectName
+    Project(
+      id = exampleProjectName,
+      base = file("ermine/examples/" + exampleProjectName),
+      settings = join(
+        standardSettings,
+        named(exampleProjectName),
+        pluginYmlSettings(pluginClassname, "JoshCough"),
+        copyPluginToBukkitSettings(None)
+      ),
+      dependencies = Seq(core, erminecraft)
     )
   }
 

@@ -66,8 +66,8 @@ yml (ErminePlugin commands _) pluginName className author version = toLines [
   "author: "   ++_String author,
   "version: "  ++_String version,
   "database: " ++_String "false",
-  "depend: ["  ++_String "ScalaLibPlugin, ScalaPluginAPI, ErmineLibPlugin" ++_String "]",
-  "softdepend: []\n" ] ++_String commandsYml where
+  "depend: ["  ++_String "ScalaLibPlugin, ScalaPluginAPI, ErmineLibPlugin, ErmineCraft" ++_String "]",
+  "softdepend: []\ncommands:\n" ] ++_String commandsYml where
   commandsYml : String
   commandsYml = concat_String $ fmap listFunctor commandYml commands
   commandYml : Command -> String
