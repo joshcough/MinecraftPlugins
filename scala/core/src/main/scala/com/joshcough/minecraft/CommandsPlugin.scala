@@ -189,7 +189,7 @@ trait CommandsPlugin extends ScalaPlugin with MinecraftParsers {
     def yml(c: Command) =
       s"  ${c.name}:\n" +
       s"    description: ${c.description}\n" +
-      s"    usage: /$name ${c.argsDescription.getOrElse("")}"
+      s"    usage: /${c.name} ${c.argsDescription.getOrElse("")}"
     val commandsYml = s"commands:\n${commands.map(yml).mkString("\n")}"
     List(super.yml(author, version), commandsYml).mkString("\n")
   }
