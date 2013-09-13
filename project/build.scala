@@ -193,14 +193,12 @@ object build extends Build {
     Seq[Sett](fullRunInputTask(repl, Compile, "com.clarifi.reporting.ermine.session.Console"))
   )
 
-  lazy val erminecraft = {
-    Project(
-      id = "erminecraft",
-      base = file("ermine/erminecraft"),
-      settings = join(ermineSettings, named("erminecraft-plugin-api"), copyPluginToBukkitSettings(None)),
-      dependencies = Seq(core)
-    )
-  }
+  lazy val erminecraft = Project(
+    id = "erminecraft",
+    base = file("ermine/erminecraft"),
+    settings = join(ermineSettings, named("erminecraft-plugin-api"), copyPluginToBukkitSettings(None)),
+    dependencies = Seq(core)
+  )
 
   lazy val Zap = exampleErmineProject("Zap")
 
@@ -213,7 +211,12 @@ object build extends Build {
         standardSettings,
         named(exampleProjectName),
         pluginYmlSettings(pluginClassname, "JoshCough"),
-        copyPluginToBukkitSettings(None)
+        copyPluginToBukkitSettings(None),
+        Seq[Setting[_]](resourceGenerators in Compile <+= (baseDirectory, resourceManaged in Compile) map { (baseDir, outDir) =>
+          IO.createDirectory(outDir / "modules")
+          IO.copyDirectory(baseDir / "modules", outDir / "modules")
+          (outDir / "modules").listFiles.toSeq
+        })
       ),
       dependencies = Seq(core, erminecraft)
     )

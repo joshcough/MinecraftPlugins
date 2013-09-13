@@ -47,6 +47,9 @@ commandArgDescription (Command _ _ argDesc _) = argDesc
 commandBody : Command -> (List String -> Player -> IO ())
 commandBody (Command _ _ _ body) = body
 
+commandNames : ErminePlugin -> List# String
+commandNames (ErminePlugin cs _) = toList# $ fmap listFunctor commandName cs
+
 -- If the given plugin contains the given command, return the IO action that will run the command.
 -- If not, return Nothing.
 onCommand : ErminePlugin -> Player -> BukkitCommand -> String -> List# String -> IO ()
