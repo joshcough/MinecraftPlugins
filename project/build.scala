@@ -21,7 +21,7 @@ object build extends Build {
     ),
     Seq[Sett](
       organization := "com.joshcough",
-      version := "0.3.1",
+      version := "0.3.2",
       scalaVersion := "2.10.2",
       licenses <++= version(v => Seq("MIT" -> url(projectUrl + "/blob/%s/LICENSE".format(v)))),
       publishMavenStyle := true,

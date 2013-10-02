@@ -1,6 +1,6 @@
 name: ScalaPluginAPI
 main: com.joshcough.minecraft.ScalaPluginAPI
 author: Josh Cough
-version: 0.3.1
+version: 0.3.2
 database: false
 depend: [ScalaLibPlugin]

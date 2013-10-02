@@ -1,3 +1,6 @@
+# THIS IS OLD AND DEAD
+# Keeping around temporarily for reference.
+
 # put everything in a bukkit dir so we don't pollute the users current directory.
 mkdir -p bukkit/lib
 mkdir -p bukkit/plugins
