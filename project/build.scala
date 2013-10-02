@@ -208,7 +208,7 @@ object build extends Build {
       id = exampleProjectName,
       base = file("ermine/examples/" + exampleProjectName),
       settings = join(
-        standardSettings,
+        ermineSettings,
         named(exampleProjectName),
         pluginYmlSettings(pluginClassname, "JoshCough"),
         copyPluginToBukkitSettings(None),
