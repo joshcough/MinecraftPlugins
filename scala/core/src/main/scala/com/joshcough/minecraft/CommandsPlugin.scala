@@ -254,11 +254,11 @@ trait CommandsPlugin extends ScalaPlugin with MinecraftParsers {
       def setGameMode(p1: GameMode): Unit = {}
       def setBedSpawnLocation(p1: Location): Unit = {}
       def setBedSpawnLocation(x$1: org.bukkit.Location,x$2: Boolean): Unit = {}
-      def getHealth: Int = 0
+      def getHealth: Double = 0
       def getItemInHand: ItemStack = new ItemStack(Material.AIR)
       override def getDisplayName: String = getServer.getName
       def damage(p1: Int, p2: Entity): Unit = {}
-      override def damage(p1: Int): Unit = {}
+      def damage(p1: Int): Unit = {}
       def getNearbyEntities(p1: Double, p2: Double, p3: Double): java.util.List[Entity] = new java.util.LinkedList[Entity]()
       def isSleepingIgnored: Boolean = true
       def setVelocity(p1: Vector): Unit = {}
@@ -270,7 +270,7 @@ trait CommandsPlugin extends ScalaPlugin with MinecraftParsers {
       def playEffect(p1: EntityEffect): Unit = {}
       def getListeningPluginChannels: java.util.Set[String] = new java.util.HashSet()
       def getPlayer: Player = this
-      def getMaxHealth: Int = 0
+      def getMaxHealth: Double = 0
       def getVehicle: Entity = this // TODO: might not be ok
       def isSneaking: Boolean = false
       def loadData: Unit = {}
@@ -293,7 +293,7 @@ trait CommandsPlugin extends ScalaPlugin with MinecraftParsers {
       def incrementStatistic(p1: Statistic, p2: Int): Unit = {}
       def incrementStatistic(p1: Statistic): Unit = {}
       def isWhitelisted: Boolean = true
-      def getLastDamage: Int = 0
+      def getLastDamage: Double  = 0
       def getKiller: Player = this
       def getEffectivePermissions: java.util.Set[PermissionAttachmentInfo] = new java.util.HashSet()
       def openEnchanting(p1: Location, p2: Boolean): InventoryView = ???
@@ -441,6 +441,34 @@ trait CommandsPlugin extends ScalaPlugin with MinecraftParsers {
       def resetPlayerWeather(): Unit = {}
       def setPlayerWeather(x$1: org.bukkit.WeatherType): Unit = {}
       def setScoreboard(x$1: org.bukkit.scoreboard.Scoreboard): Unit = {}
+
+      // 1.7 update
+      def _INVALID_damage(x$1: Int,x$2: org.bukkit.entity.Entity): Unit = ???
+      def _INVALID_damage(x$1: Int): Unit = ???
+      def _INVALID_getHealth(): Int = ???
+      def _INVALID_getMaxHealth(): Int = ???
+      def _INVALID_setHealth(x$1: Int): Unit = ???
+      def _INVALID_setMaxHealth(x$1: Int): Unit = ???
+      def damage(x$1: Double,x$2: org.bukkit.entity.Entity): Unit = ???
+      def damage(x$1: Double): Unit = ???
+      def setHealth(x$1: Double): Unit = ???
+      def setMaxHealth(x$1: Double): Unit = ???
+
+      // Members declared in org.bukkit.entity.LivingEntity
+      def _INVALID_getLastDamage(): Int = ???
+      def _INVALID_setLastDamage(x$1: Int): Unit = ???
+      def getLeashHolder(): org.bukkit.entity.Entity = ???
+      def isLeashed(): Boolean = ???
+      def setLastDamage(x$1: Double): Unit = ???
+      def setLeashHolder(x$1: org.bukkit.entity.Entity): Boolean = ???
+
+      // Members declared in org.bukkit.entity.Player
+      def getHealthScale(): Double = ???
+      def isHealthScaled(): Boolean = ???
+      def playSound(x$1: org.bukkit.Location,x$2: String,x$3: Float,x$4: Float): Unit = ???
+      def setHealthScale(x$1: Double): Unit = ???
+      def setHealthScaled(x$1: Boolean): Unit = ???
+      def setResourcePack(x$1: String): Unit = ???
     }
   }
 }

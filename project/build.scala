@@ -17,12 +17,12 @@ object build extends Build {
     libDeps(
       "javax.servlet"      % "servlet-api" % "2.5"        % "provided->default",
       "org.scalacheck"    %% "scalacheck"  % "1.10.0"     % "test",
-      "org.bukkit"         % "craftbukkit" % "1.5.2-R1.0"
+      "org.bukkit"         % "bukkit" % "1.7.2-R0.2"
     ),
     Seq[Sett](
       organization := "com.joshcough",
       version := "0.3.2",
-      scalaVersion := "2.10.2",
+      scalaVersion := "2.10.3",
       licenses <++= version(v => Seq("MIT" -> url(projectUrl + "/blob/%s/LICENSE".format(v)))),
       publishMavenStyle := true,
       resolvers += Resolver.sonatypeRepo("snapshots"),
@@ -74,7 +74,7 @@ object build extends Build {
       coreJava,
       core,
       erminecraft,
-      netlogoPlugin,
+      //netlogoPlugin,
       examplesJava,
       microExample,
       Arena,

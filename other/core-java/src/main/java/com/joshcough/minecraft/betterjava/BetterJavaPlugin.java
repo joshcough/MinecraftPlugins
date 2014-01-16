@@ -393,9 +393,9 @@ public class BetterJavaPlugin extends JavaPlugin {
     public void setGameMode(GameMode gameMode) {}    
     public boolean isBlocking() { return false; }    
     public int getExpToLevel() { return 0; }    
-    public int getHealth() { return 0; }    
+    public double getHealth() { return 0; }
     public void setHealth(int i) {}    
-    public int getMaxHealth() { return 0; }
+    public double getMaxHealth() { return 0; }
     public void setMaxHealth(int i) {}
     public void resetMaxHealth() {}
     public double getEyeHeight() { return 0; }
@@ -416,7 +416,7 @@ public class BetterJavaPlugin extends JavaPlugin {
     public void damage(int i, Entity entity) {}
     public int getMaximumNoDamageTicks() { return 0; }    
     public void setMaximumNoDamageTicks(int i) {}
-    public int getLastDamage() { return 0; }    
+    public double getLastDamage() { return 0; }
     public void setLastDamage(int i) {}
     public int getNoDamageTicks() { return 0; }    
     public void setNoDamageTicks(int i) {}
@@ -499,5 +499,31 @@ public class BetterJavaPlugin extends JavaPlugin {
     public Set<String> getListeningPluginChannels() { return null; }    
     public boolean isOp() { return false; }    
     public void setOp(boolean b) {}
+
+    // 1.7 update
+    public void _INVALID_damage(int i, org.bukkit.entity.Entity e){}
+    public void _INVALID_damage(int i){}
+    public int _INVALID_getHealth() { return 0; }
+    public int _INVALID_getMaxHealth() { return 0; }
+    public void _INVALID_setHealth(int i){}
+    public void _INVALID_setMaxHealth(int i){}
+    public void damage(double d, org.bukkit.entity.Entity e){}
+    public void damage(double d){}
+    public void setHealth(double d){}
+    public void setMaxHealth(double d){}
+    // Members declared in org.bukkit.entity.LivingEntity
+    public int _INVALID_getLastDamage(){ return 0; }
+    public void _INVALID_setLastDamage(int i){}
+    public org.bukkit.entity.Entity getLeashHolder(){ return null; }
+    public boolean isLeashed(){ return false; }
+    public void setLastDamage(double d){}
+    public boolean setLeashHolder(org.bukkit.entity.Entity e){ return false; }
+    // Members declared in org.bukkit.entity.Player
+    public double getHealthScale(){ return 0; }
+    public boolean isHealthScaled(){ return false; }
+    public void playSound(org.bukkit.Location l, String s, float f1, float f2){}
+    public void setHealthScale(double d){}
+    public void setHealthScaled(boolean b){}
+    public void setResourcePack(String s){}
   };
 }
