@@ -1,11 +1,11 @@
 core-release:
 	echo "copying documentation to pages dir"
-	rm -rf ../pages/MinecraftPlugins/scaladoc/scala-plugin-api_2.10.2-0.3.2
-	cp -r scala/core/target/scala-2.10/api ../pages/MinecraftPlugins/scaladoc/scala-plugin-api_2.10.2-0.3.2
+	rm -rf ../pages/MinecraftPlugins/scaladoc/scala-plugin-api_2.10.3-0.3.3
+	cp -r scala/core/target/scala-2.10/api ../pages/MinecraftPlugins/scaladoc/scala-plugin-api_2.10.3-0.3.3
 	echo "don't forget:"
 	echo "  * commit the scaladocs after adding a link in scaladoc/index.html"
 	echo "  * upload the release"
-	echo "  * apply git tag for 0.3.2"
+	echo "  * apply git tag for 0.3.3"
 	echo "  * bring MinecraftPluginsScalaExample up to date"
 	echo "  * consider automating some of these!"
 

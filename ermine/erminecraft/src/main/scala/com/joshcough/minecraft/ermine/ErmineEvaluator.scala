@@ -42,7 +42,7 @@ trait ErmineEvaluator {
     implicit val e : SessionEnv = initialEnv
     Lib.preamble
     Session.loadModules(preloads ++ List("Prelude"))(e, supply, printer)
-    e.loadFile = SourceFile inOrder (e.loadFile :: (loadPaths map (dir => SourceFile.filesystem(dir)(_))):_*)
+    e.loadFile = SourceFile.inOrder(e.loadFile :: (loadPaths map (dir => SourceFile.filesystem(dir)(_))):_*)
     e
   }
 

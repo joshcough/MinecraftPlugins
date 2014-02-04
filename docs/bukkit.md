@@ -2,15 +2,15 @@ Provides a library for writing server plugins in Scala. The plugins are vastly s
 
 **_Update_** - This project now provides two plugins:
 
-  * scala-library-plugin-2.10.2.jar
-  * scala-plugin-api_2.10-0.3.2.jar
+  * scala-library-plugin-2.10.3.jar
+  * scala-plugin-api_2.10-0.3.3.jar
 
-The first plugin provides Scala 2.10.2, so that plugins that depend on it can have scala on the classpath.
+The first plugin provides Scala 2.10.3, so that plugins that depend on it can have scala on the classpath.
 
 The second is an entire Scala Minecraft Server Plugin API that cleans up the Bukkit API very nicely, and allows for writing clean, declarative, immutable, and fun plugins.
 
 The source for the project can be found here:
-[https://github.com/joshcough/MinecraftPlugins](https://github.com/joshcough/MinecraftPlugins).
+[https://github.com/joshcough/MinecraftPlugins](https://github.com/joshcough/MinecraftPlugins/scala).
 
 ## Examples
 
@@ -54,7 +54,7 @@ A complete guide to getting started writing Scala plugins can be found here:
 ## More examples
 
 Many, many more examples can be found here:
-[https://github.com/joshcough/MinecraftPlugins/tree/master/examples/src/main/scala/com/joshcough/minecraft/examples](https://github.com/joshcough/MinecraftPlugins/tree/master/examples/src/main/scala/com/joshcough/minecraft/examples),
+[https://github.com/joshcough/MinecraftPlugins/tree/master/examples/src/main/scala/com/joshcough/minecraft/scala/examples](https://github.com/joshcough/MinecraftPlugins/tree/master/scala/examples/src/main/scala/com/joshcough/minecraft/examples),
 including Scala versions of WorldEdit, Multi Player Commands (a plugin that supports many of the
 same commands as Single Player Commands), Warp, and more.
 

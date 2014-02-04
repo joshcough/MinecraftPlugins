@@ -21,7 +21,7 @@ object build extends Build {
     ),
     Seq[Sett](
       organization := "com.joshcough",
-      version := "0.3.2",
+      version := "0.3.3",
       scalaVersion := "2.10.3",
       licenses <++= version(v => Seq("MIT" -> url(projectUrl + "/blob/%s/LICENSE".format(v)))),
       publishMavenStyle := true,
@@ -271,7 +271,7 @@ object build extends Build {
       pluginYmlSettings("com.joshcough.minecraft.MineLangPlugin", "JoshCough"),
       named("MineLang"),
       libDeps(
-        "org.scala-lang" % "jline"   % "2.10.2",
+        "org.scala-lang" % "jline"   % "2.10.3",
         "org.clojure"    % "clojure" % "1.4.0"
       )
     ),
