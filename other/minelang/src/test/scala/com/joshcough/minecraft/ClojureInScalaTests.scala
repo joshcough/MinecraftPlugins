@@ -1,7 +1,7 @@
 package com.joshcough.minecraft
 
-import org.scalacheck.Properties
-import org.scalacheck.Prop.secure
+import org.scalacheck._
+import org.scalacheck.Prop._
 import ClojureInScala._
 
 case class Point2D(x:Int, y:Int){
@@ -48,6 +48,6 @@ object ClojureInScalaTests extends Properties("ClojureInScalaTests") with Bukkit
   def evalTest(name:String, code:String, expected:Any) = test(name){
     val actual = Session.withStdLib().runExpr(code)._1._2
     println(s"Result: $actual")
-    actual == expected
+    actual ?= expected
   }
 }

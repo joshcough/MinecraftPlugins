@@ -25,7 +25,7 @@ object MineLang {
     def evalToMaterial(e:Expr, env:Env): Material =
       evalTo(e,env,"material"){
         case ObjectValue(m:Material) => m
-        case ObjectValue(s:String) => MinecraftParsers.material(s).fold(sys error _)((m, _) => m)
+        case ObjectValue(s:String) => MinecraftParsers.material(s).fold(sys.error)((m, _) => m)
       }
     def evalToCube(e:Expr, env:Env): Cube[Block] =
       evalTo(e,env,"cube"){ case ObjectValue(c:Cube[Block]) => c }
@@ -33,17 +33,17 @@ object MineLang {
     val getMaterial = builtIn('material, (exps, env) => {
       eval(exps(0),env) match {
         case ObjectValue(s:String) => ObjectValue(
-          MinecraftParsers.material(s).fold(sys error _)((m, _) => m)
+          MinecraftParsers.material(s).fold(sys.error)((m, _) => m)
         )
         case ObjectValue(i:Int) => ObjectValue(
-          MinecraftParsers.material(i.toString).fold(sys error _)((m, _) => m)
+          MinecraftParsers.material(i.toString).fold(sys.error)((m, _) => m)
         )
         case ev                    => sys error s"not a material: $ev"
       }
     })
     val goto = builtInNil('goto, (exps, env) => {
       val loc = evalToLocation(exps(0),env)
-      p ! s"teleported to: ${loc.xyz}"; p.teleport(loc)
+      //p ! s"teleported to: ${loc.xyz}"; p.teleport(loc)
     })
     val loc = builtIn('loc, (exps, env) => {
       val (xe,ye,ze) = (evalAndUnbox(exps(0),env),evalAndUnbox(exps(1),env),evalAndUnbox(exps(2),env))
@@ -53,38 +53,43 @@ object MineLang {
     })
     // here are all the cube block mutation functions.
     def builtInCube(name:Symbol, eval: (List[Expr], Env) => Cube[Block]) =
-      (name -> BuiltinFunction(name, (es, env) => { ObjectValue(eval(es,env)) }))
+      name -> BuiltinFunction(name, (es, env) => { ObjectValue(eval(es,env)) })
     val setAll = builtInCube(Symbol("cube:set-all"), (exps, env) => {
       val c = evalToCube(exps(0), env)
       val m = evalToMaterial(exps(1), env)
       for(b <- c.toStream) b changeTo m
-      p ! s"setting all in $c to $m"
+      //p ! s"setting all in $c to $m"
       c
     })
-    val changeSome = builtInCube(Symbol("cube:change"), ((exps, env) => {
+    val mkCube = builtInCube(Symbol("cube:mk"), (exps, env) => {
+      val c1 = evalToLocation(exps(0),env)
+      val c2 = evalToLocation(exps(1),env)
+      new Cube(Point(c1.xyz), Point(c2.xyz))(pt => p.world.getBlockAt(pt.x, pt.y, pt.z))
+    })
+    val changeSome = builtInCube(Symbol("cube:change"), (exps, env) => {
       val c    = evalToCube(exps(0), env)
       val oldM = evalToMaterial(exps(1),env)
       val newM = evalToMaterial(exps(2),env)
-      for(b <- c.toStream; if(b is oldM)) b changeTo newM
-      p ! s"changed $oldM in $c to $newM"
+      for(b <- c.toStream; if b is oldM) b changeTo newM
+      //p ! s"changed $oldM in $c to $newM"
       c
-    }))
-    val setWalls = builtInCube(Symbol("cube:set-walls"), ((exps, env) => {
+    })
+    val setWalls = builtInCube(Symbol("cube:set-walls"), (exps, env) => {
       val c = evalToCube(exps(0), env)
       val m = evalToMaterial(exps(1),env)
       c.walls.foreach(_ changeTo m)
-      p ! s"set walls in $c to: $m"
+      //p ! s"set walls in $c to: $m"
       c
-    }))
-    val setFloor = builtInCube(Symbol("cube:set-floor"), ((exps, env) => {
+    })
+    val setFloor = builtInCube(Symbol("cube:set-floor"), (exps, env) => {
       val c = evalToCube(exps(0), env)
       val m = evalToMaterial(exps(1),env)
       c.floor.toStream.foreach(_ changeTo m)
-      p ! s"set floor in $c to: $m"
+      //p ! s"set floor in $c to: $m"
       c
-    }))
+    })
     val message = builtInNil('message, (exps, env) =>
-      p ! (exps.map(e => evalAndUnbox(e, env).toString).mkString("\n"))
+      p ! exps.map(e => evalAndUnbox(e, env).toString).mkString("\n")
     )
 
     val lib: Env = Map(
@@ -99,7 +104,7 @@ object MineLang {
       // material functions
       getMaterial,
       // mutable world edit functions
-      setAll, changeSome, setWalls, setFloor,
+      mkCube, setAll, changeSome, setWalls, setFloor,
       // send a message to the player
       message
     )

@@ -18,8 +18,6 @@ object ClojureInScala {
     }
   }
 
-  import EnrichmentClasses._
-
   object Reader extends Reader
   import Reader._
 
@@ -332,11 +330,13 @@ object ClojureInScala {
     }
     def allNumbers(as: List[Any]) = as.forall(x =>
       x.isInstanceOf[Int]    ||
-      x.isInstanceOf[Double]
+      x.isInstanceOf[Double] ||
+      x.isInstanceOf[Long]
     )
     def toInt(a:Any): Int = a match {
       case i:Int    => i
       case d:Double => d.toInt
+      case l:Long   => l.toInt
       case  _       => die(s"not a number: $a")
     }
     def evalToInt   (e:Expr, env:Env): Int    =
@@ -425,7 +425,7 @@ object ClojureInScala {
       val defs =
         try parseDefs(read(theFile))
         catch{ case e: Exception => die(s"failed parsing library: $file", e) }
-      println(defs map (_.name))
+      //println(defs map (_.name))
       defs
     }
     def evalLib(file:String, env:Env): Env = loadLib(file).foldLeft(env)(evalDef)
@@ -519,23 +519,32 @@ object ClojureInScala {
 
     def twoIntOp(name:Symbol)
                 (fi: (Int,Int)       => Any)
+                (fl: (Long,Long)     => Any)
                 (fd: (Double,Double) => Any) = builtIn(name, (exps, env) =>
       (eval(exps(0), env), eval(exps(1), env)) match {
         case (ObjectValue(av:Int),    ObjectValue(bv:Int))    => ObjectValue(fi(av, bv))
         case (ObjectValue(av:Double), ObjectValue(bv:Double)) => ObjectValue(fd(av, bv))
-        case (ObjectValue(av:Int),    ObjectValue(bv:Double)) => ObjectValue(fd(av.toDouble, bv))
-        case (ObjectValue(av:Double), ObjectValue(bv:Int))    => ObjectValue(fd(av, bv.toDouble))
-        case (av,bv) => die(s"${name.toString drop 1} expected two numbers, but got: $av, $bv")
+        case (ObjectValue(av:Int),    ObjectValue(bv:Double)) => ObjectValue(fd(av, bv))
+        case (ObjectValue(av:Double), ObjectValue(bv:Int))    => ObjectValue(fd(av, bv))
+        case (ObjectValue(av:Int),    ObjectValue(bv:Long))   => ObjectValue(fl(av, bv))
+        case (ObjectValue(av:Long),   ObjectValue(bv:Int))    => ObjectValue(fl(av, bv))
+        // TODO: on double/long operations, should we convert to double, or long?
+        case (ObjectValue(av:Long),   ObjectValue(bv:Double)) => ObjectValue(fl(av, bv.toLong))
+        case (ObjectValue(av:Double), ObjectValue(bv:Long))   => ObjectValue(fl(av.toLong, bv))
+        case (ObjectValue(av),ObjectValue(bv)) =>
+          die(s"${name.toString drop 1} expected two numbers, but got: $av ${av.getClass}, $bv ${bv.getClass}")
+        case (av,bv) =>
+          die(s"${name.toString drop 1} expected two numbers, but got: $av, $bv")
       }
     )
-    // todo: these need to deal with different numberic data types
-    val sub  = twoIntOp('-) ((i,j) => i - j) ((i,j) => i - j)
-    val mult = twoIntOp('*) ((i,j) => i * j) ((i,j) => i * j)
-    val mod  = twoIntOp('%) ((i,j) => i % j) ((i,j) => i % j)
-    val lt   = twoIntOp('<) ((i,j) => i < j) ((i,j) => i < j)
-    val gt   = twoIntOp('>) ((i,j) => i > j) ((i,j) => i > j)
-    val lteq = twoIntOp('<=)((i,j) => i <= j)((i,j) => i <= j)
-    val gteq = twoIntOp('>=)((i,j) => i >= j)((i,j) => i >= j)
+    // todo: these need to deal with different numeric data types
+    val sub  = twoIntOp('-)  ((i,j) => i - j)  ((i,j) => i - j)  ((i,j) => i - j)
+    val mult = twoIntOp('*)  ((i,j) => i * j)  ((i,j) => i * j)  ((i,j) => i * j)
+    val mod  = twoIntOp('%)  ((i,j) => i % j)  ((i,j) => i % j)  ((i,j) => i % j)
+    val lt   = twoIntOp('<)  ((i,j) => i < j)  ((i,j) => i < j)  ((i,j) => i < j)
+    val gt   = twoIntOp('>)  ((i,j) => i > j)  ((i,j) => i > j)  ((i,j) => i > j)
+    val lteq = twoIntOp('<=) ((i,j) => i <= j) ((i,j) => i <= j) ((i,j) => i <= j)
+    val gteq = twoIntOp('>=) ((i,j) => i >= j) ((i,j) => i >= j) ((i,j) => i >= j)
   
     val printOnSameLine = builtInNil('print, (exps, env) =>
       print(exps.map(e => evalAndUnbox(e, env).toString).mkString(" ")))
@@ -579,9 +588,9 @@ object ClojureInScala {
   }
 
   class Repl(val inputSession:Session = Session.withStdLib()) {
-    import scala.tools.jline.console.ConsoleReader
-    import scala.tools.jline.console.history.FileHistory
-    import scala.tools.jline.console.completer._
+    import jline.console.ConsoleReader
+    import jline.console.history.FileHistory
+    import jline.console.completer._
     import scala.collection.JavaConversions._
 
     trait ReplCommand

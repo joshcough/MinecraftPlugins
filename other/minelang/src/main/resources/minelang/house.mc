@@ -18,7 +18,7 @@
   ; build a single house
   ; Location -> Int -> Int -> Int -> Material -> Material -> Material -> Cube
   (def build-house [start-point h w d floor-m walls-m roof-m]
-    (let* ((c (.growUp (.expandZ (.expandX (new com.joshcough.minecraft.Cube start-point start-point) w) d) h))
+    (let* ((c (.growUp (.expandZ (.expandX (cube:mk start-point start-point) w) d) h))
            (build-ceiling (fn (c m) (pyramid (.expandXZ (.ceiling c) 1) m) c)))
       (begin
         (build-ceiling (cube:set-walls (cube:set-floor (cube:set-all c "air") floor-m) walls-m) roof-m)
@@ -76,15 +76,15 @@
 
   ; builds a row of skyscrapers. not really a full city, yet.
   ; -> Cube
-  (def city    [] (build-house-row XYZ 10 build-random-skyscraper)))
+  (def city    [] (build-house-row (XYZ) 10 build-random-skyscraper))
 
   ; builds a row of little houses. could be considered a village.
   ; -> Cube
-  (def village [] (build-house-row XYZ  6 build-normal-house))
+  (def village [] (build-house-row (XYZ)  6 build-normal-house))
 
   ; build a house, and then change the wall its walls every second for 100 seconds.
   (def living-house []
-    (let (c (normal-house XYZ))
+    (let (c (normal-house (XYZ)))
       (spawn 100 1 (fn (n) (cube:set-walls c (if (even n) "gold_block" "gold_ore"))))
     )
   )

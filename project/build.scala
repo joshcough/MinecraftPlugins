@@ -16,13 +16,13 @@ object build extends Build {
     bintray.Plugin.bintraySettings,
     libDeps(
       "javax.servlet"      % "servlet-api" % "2.5"        % "provided->default",
-      "org.scalacheck"    %% "scalacheck"  % "1.10.0"     % "test",
+      "org.scalacheck"    %% "scalacheck"  % "1.11.3"     % "test",
       "org.bukkit"         % "bukkit" % "1.7.2-R0.2"
     ),
     Seq[Sett](
       organization := "com.joshcough",
       version := "0.3.3",
-      scalaVersion := "2.10.3",
+      scalaVersion := "2.11.0",
       licenses <++= version(v => Seq("MIT" -> url(projectUrl + "/blob/%s/LICENSE".format(v)))),
       publishMavenStyle := true,
       resolvers += Resolver.sonatypeRepo("snapshots"),
@@ -70,13 +70,13 @@ object build extends Build {
       scalaLibPlugin,
       ermineLibPlugin,
       netlogoLibPlugin,
-      //mineLang,
+      mineLang,
       coreJava,
       core,
       erminecraft,
       //netlogoPlugin,
       examplesJava,
-      microExample,
+      //microExample,
       Arena,
       BanArrows,
       BlockChanger,
@@ -89,6 +89,7 @@ object build extends Build {
       NoRain,
       PluginCommander,
       Shock,
+      TeleportBows,
       Thor,
       TreeDelogger,
       WorldEdit,
@@ -139,6 +140,7 @@ object build extends Build {
   lazy val PluginCommander     = exampleProject("PluginCommander")
   lazy val Shock               = exampleProject("Shock")
   lazy val Thor                = exampleProject("Thor")
+  lazy val TeleportBows        = exampleProject("TeleportBows")
   lazy val TreeDelogger        = exampleProject("TreeDelogger")
   lazy val WorldEdit           = exampleProject("WorldEdit")
   lazy val YellowBrickRoad     = exampleProject("YellowBrickRoad")
@@ -189,7 +191,7 @@ object build extends Build {
   lazy val ermineSettings = join(
     standardSettings,
     ermineFileSettings,
-    libDeps("com.clarifi" %% "ermine-legacy" % "0.1"),
+    libDeps("com.clarifi" %% "ermine-legacy" % "0.1.1"),
     Seq[Sett](fullRunInputTask(repl, Compile, "com.clarifi.reporting.ermine.session.Console"))
   )
 
@@ -233,11 +235,11 @@ object build extends Build {
       copyPluginToBukkitSettings(Some("assembly")),
       named("erminecraft-ermine-library"),
       libDeps(
-        "com.clarifi" %% "ermine-legacy"     % "0.1",
-        "org.scalaz"  %% "scalaz-core"       % "7.0.2",
-        "org.scalaz"  %% "scalaz-concurrent" % "7.0.2",
-        "org.scalaz"  %% "scalaz-effect"     % "7.0.2",
-        "org.scalaz"  %% "scalaz-iterv"      % "7.0.2",
+        "com.clarifi" %% "ermine-legacy"     % "0.1.1",
+        "org.scalaz"  %% "scalaz-core"       % "7.0.6",
+        "org.scalaz"  %% "scalaz-concurrent" % "7.0.6",
+        "org.scalaz"  %% "scalaz-effect"     % "7.0.6",
+        "org.scalaz"  %% "scalaz-iterv"      % "7.0.6",
         "log4j"       %  "log4j"             % "1.2.14"
       )
     )
@@ -271,7 +273,7 @@ object build extends Build {
       pluginYmlSettings("com.joshcough.minecraft.MineLangPlugin", "JoshCough"),
       named("MineLang"),
       libDeps(
-        "org.scala-lang" % "jline"   % "2.10.3",
+        "jline" % "jline"   % "2.11",
         "org.clojure"    % "clojure" % "1.4.0"
       )
     ),

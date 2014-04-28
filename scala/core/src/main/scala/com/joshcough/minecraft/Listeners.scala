@@ -1,14 +1,14 @@
 package com.joshcough.minecraft
 
 import org.bukkit.block.Block
-import org.bukkit.entity.{Entity, Player}
+import org.bukkit.entity.{Arrow, Entity, Player}
 import org.bukkit.event.{EventHandler => EH, Listener}
 import org.bukkit.event.block.{BlockBreakEvent, BlockDamageEvent}
 import org.bukkit.event.block.Action._
-import org.bukkit.event.entity.{EntityDamageEvent, PlayerDeathEvent, EntityDamageByEntityEvent}
+import org.bukkit.event.entity.{ProjectileHitEvent, EntityDamageEvent, PlayerDeathEvent, EntityDamageByEntityEvent}
 import org.bukkit.event.weather.WeatherChangeEvent
 import org.bukkit.event.player.{PlayerQuitEvent, PlayerInteractEvent, PlayerMoveEvent, PlayerChatEvent,
-                                PlayerJoinEvent, PlayerKickEvent, PlayerLoginEvent, PlayerEvent}
+                                PlayerJoinEvent, PlayerKickEvent, PlayerLoginEvent}
 
 /**
  * A trait that supports exactly one listener.
@@ -132,4 +132,11 @@ trait Listeners extends BukkitEnrichment {
   def OnPlayerJoin(f: (Player, PlayerJoinEvent) => Unit) = new Listener {
     @EH def on(e: PlayerJoinEvent): Unit = f(e.getPlayer, e)
   }
+  def OnArrowHitEvent(f: (Arrow, ProjectileHitEvent) => Unit) = new Listener {
+    @EH def on(e: ProjectileHitEvent): Unit = e.getEntity match {
+      case a: Arrow => f(a, e)
+      case _ =>
+    }
+  }
 }
+

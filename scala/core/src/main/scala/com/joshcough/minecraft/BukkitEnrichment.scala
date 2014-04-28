@@ -16,7 +16,7 @@ import util.Try
 import Cube._
 
 
-object BukkitEnrichment extends BukkitEnrichment{
+object BukkitEnrichment extends BukkitEnrichment {
   object MaterialAndData {
     val AIR = new MaterialAndData(Material.AIR, None)
   }

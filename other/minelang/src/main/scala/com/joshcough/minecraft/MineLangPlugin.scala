@@ -11,7 +11,7 @@ class MineLangPlugin extends CommandsPlugin {
 
   // todo: we should be able to load more than one file
   // and this directory might be wrong now.
-  val houseDefs = new File("minelang/src/main/resources/minelang/house.mc")
+  lazy val houseDefs = new File("other/minelang/src/main/resources/minelang/house.mc")
   var defs: List[Def] = parseDefs(read(houseDefs))
 
   val commands = List(

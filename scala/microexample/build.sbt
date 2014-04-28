@@ -4,7 +4,7 @@ version := "0.3.3"
 
 organization := "examples"
 
-scalaVersion := "2.10.3"
+scalaVersion := "2.11.0"
 
 // this specifies where to get the bukkit jar from.
 resolvers += "Bukkit" at "http://repo.bukkit.org/content/repositories/releases"

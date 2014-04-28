@@ -1,5 +1,5 @@
 name: ScalaLibPlugin
 main: com.joshcough.minecraft.ScalaLibPlugin
 author: Josh Cough
-version: 2.10.3
+version: 2.11.0
 database: false

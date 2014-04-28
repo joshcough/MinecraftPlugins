@@ -1,7 +1,7 @@
 package com.joshcough.minecraft
 
-import org.scalacheck.Properties
-import org.scalacheck.Prop.secure
+import org.scalacheck._
+import org.scalacheck.Prop._
 import ClojureInScala._
   import Reader._
   import AST._
@@ -11,7 +11,7 @@ import java.io.File
 
 object MineLangTests extends Properties("MineLangTests") with BukkitEnrichment with TestHelpers {
 
-  val mineLangDir = new File("minelang/src/main/resources/minelang")
+  val mineLangDir = new File("other/minelang/src/main/resources/minelang")
   val expandMc = mineLangDir.child("expand.mc")
   parseDefsTest("expand defs parse", expandMc, 0)
   evalTest("expand", expandMc.slurp, TestServer.world(12,3,12).cubeTo(TestServer.world(-2,3,-2)))
@@ -34,19 +34,19 @@ object MineLangTests extends Properties("MineLangTests") with BukkitEnrichment w
       val res = parseDefs(read(code))
       //println(s"Parse Result:")
       //res.foreach(println)
-      res.size == expected
+      res.size ?= expected
     }
 
-  def run(code:String, expected:Any): Boolean = {
+  def run(code:String, expected:Any) = {
     val actual = MineLang.run(code, TestServer.player)
     println(s"Result: $actual")
-    actual == expected
+    actual ?= expected
   }
 
-  def runWithDefs(code:String, expected:Any, defs:List[Def]): Boolean = {
+  def runWithDefs(code:String, expected:Any, defs:List[Def]) = {
     val actual = runProgram(Program(defs, parseExpr(read(code))), TestServer.player)
     println(s"Result: $actual")
-    actual == expected
+    actual ?= expected
   }
 }
 
