@@ -8,7 +8,7 @@ addArtifact(artifact in (Compile, assembly), assembly)
 // Figure out what that means...
 excludedJars in assembly <<= (fullClasspath in assembly) map { cp =>
   cp filter { x =>
-    x.data.getName.contains("craftbukkit") ||
-    x.data.getName.contains("scala-library.jar")
+    x.data.getName.contains("bukkit") ||
+    x.data.getName.contains("scala-library")
   }
 }

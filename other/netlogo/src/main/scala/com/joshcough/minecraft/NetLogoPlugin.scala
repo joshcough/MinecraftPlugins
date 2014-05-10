@@ -7,8 +7,8 @@ import org.bukkit.event.{EventHandler, Listener}
 import org.bukkit.{Location, Material, World}
 import Material._
 import BukkitEnrichment._
-import de.kumpelblase2.remoteentities.RemoteEntities
-import de.kumpelblase2.remoteentities.api.{RemoteEntity, RemoteEntityType}
+import net.npcwarehouse.api.NPCWarehouseAPI
+import net.npcwarehouse.entity.NPC
 
 object NetLogoEvent{
   implicit def toJ(e: NetLogoEvent)  = new NetLogoEventJ(e)
@@ -21,16 +21,16 @@ import NetLogoEvent._
 
 class NetLogoPlugin extends CommandsPlugin with ListenersPlugin {
 
-  override def dependencies = List("RemoteEntities", "NetLogoLibPlugin")
+  override def dependencies = List("NetLogoLibPlugin", "NPCWarehouse")
 
-  lazy val manager = RemoteEntities.createManager(this)
+  lazy val manager = new NPCWarehouseAPI
 
   /**
    * This map holds the state of the NetLogo world on the last tick (or the last call to go).
    * It gets populated during nl:setup, and then gets updated after each call to go.
    * The Long key is the turtle id.
    */
-  val entities = collection.mutable.Map[Long, RemoteEntity]()
+  val entities = collection.mutable.Map[Long, NPC]()
   var workspace: Option[HeadlessWorkspace] = None
   // whether or not to check all the patches for updates each tick
   var updatePatches = true
@@ -107,7 +107,7 @@ class NetLogoPlugin extends CommandsPlugin with ListenersPlugin {
     workspace.fold(p ! "call open first!"){ ws => f(ws); update(p.world, ws) }
 
   def dispose(){
-    entities.values.foreach(e => manager.removeEntity(e.getID))
+    entities.values.foreach(manager.removeNPC)
     entities.clear()
     workspace.foreach(_.dispose())
     workspace = None
@@ -128,21 +128,16 @@ class NetLogoPlugin extends CommandsPlugin with ListenersPlugin {
        */
       if (! entities.contains(id)) entities += (id -> spawn(id, loc, t.getBreed.printName))
       /* update the positions of existing npcs based on their turtles position. */
-      else entities(id).teleport(loc)
+      else manager.moveNPC(id.toString, loc, false)
       //updateItemInHand(entities(id), ws, t)
     }
 
     def spawn(id: Long, loc: Location, breedName: String) = {
       // TODO: deal with breedName here
-      val e = manager.createNamedEntity(RemoteEntityType.Human, loc, id.toString, false)
-      e setStationary true
-      e
+      manager.createNPC(id.toString, loc)
     }
 
-    def despawn(e: RemoteEntity) {
-      manager.removeEntity(e.getID)
-    }
-
+    def despawn(e: NPC) { manager.removeNPC(e) }
 
     /* if turtles die in netlogo, kill them in minecraft */
     val deadTurtles = entities.filter{ case (id, _) => ! turtles.contains(id) }

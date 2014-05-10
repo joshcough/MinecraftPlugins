@@ -288,8 +288,8 @@ object build extends Build {
       copyPluginToBukkitSettings(None),
       pluginYmlSettings("com.joshcough.minecraft.NetLogoPlugin", "JoshCough"),
       libDeps(
-        "org.nlogo" % "NetLogoHeadless"  % "5.1.0-M2" from "http://ccl.northwestern.edu/netlogo/5.1.0-M2/NetLogoHeadless.jar",
-        "de.kumpelblase2" % "remoteentities" % "1.6"  from "http://dev.bukkit.org/media/files/700/586/remoteentities-1.6.jar"
+        "org.nlogo" % "netlogoheadless" % "5.2.0",
+        "net.npcwarehouse" % "npcwarehouse" % "1.7" from "http://dev.bukkit.org/media/files/769/696/NPCWarehouse.jar"
       ),
       Seq[Sett](resolvers ++= Seq("remoteentities-repo" at "http://repo.infinityblade.de/remoteentities/releases"))
     ),
@@ -302,12 +302,18 @@ object build extends Build {
     settings = join(
       standardSettings,
       assemblySettings,
+      mergeStrategy in assembly <<= (mergeStrategy in assembly) { old => {
+        case "plugin.yml" => MergeStrategy.first
+        case x => old(x)
+      }},
       named("netlogo-lib-plugin"),
       copyPluginToBukkitSettings(Some("assembly")),
       libDeps(
-        "org.nlogo" % "NetLogoHeadless"  % "5.1.0-M2" from "http://ccl.northwestern.edu/netlogo/5.1.0-M2/NetLogoHeadless.jar",
+        "org.nlogo" % "netlogoheadless" % "5.2.0", //from "http://ccl.northwestern.edu/netlogo/5.1.0-M2/NetLogoHeadless.jar",
         "asm" % "asm-all" % "3.3.1",
-        "org.picocontainer" % "picocontainer" % "2.13.6"
+        "org.picocontainer" % "picocontainer" % "2.13.6",
+        "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.1",
+        "net.npcwarehouse" % "npcwarehouse" % "1.7" from "http://dev.bukkit.org/media/files/769/696/NPCWarehouse.jar"
       )
     )
   )
