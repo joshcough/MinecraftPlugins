@@ -1,5 +1,4 @@
 import sbt._
-import Project.Setting
 import Keys._
 import java.io.File
 import com.joshcough.minecraft.Plugin._
@@ -53,7 +52,7 @@ trait Common {
     }
   )
 
-  def join(settings: Seq[Project.Setting[_]]*) = settings.flatten
+  def join(settings: Seq[Setting[_]]*) = settings.flatten
   def named(pname: String) = Seq(name := pname)
   def libDeps(libDeps: sbt.ModuleID*) = Seq(libraryDependencies ++= libDeps)
 }
