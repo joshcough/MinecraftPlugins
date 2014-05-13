@@ -7,11 +7,10 @@ import sbtassembly.Plugin._
 import AssemblyKeys._
 
 object build extends Build {
-  type Sett = Project.Setting[_]
 
   val projectUrl = "https://github.com/joshcough/MinecraftPlugins"
 
-  lazy val standardSettings: Seq[Sett] = join(
+  lazy val standardSettings = join(
     Defaults.defaultSettings,
     bintray.Plugin.bintraySettings,
     libDeps(
@@ -19,7 +18,7 @@ object build extends Build {
       "org.scalacheck"    %% "scalacheck"  % "1.11.3"     % "test",
       "org.bukkit"         % "bukkit" % "1.7.2-R0.2"
     ),
-    Seq[Sett](
+    Seq(
       organization := "com.joshcough",
       version := "0.3.3",
       scalaVersion := "2.11.0",
@@ -32,7 +31,7 @@ object build extends Build {
     )
   )
 
-  def copyPluginToBukkitSettings(meta: Option[String]): Seq[Sett] = Seq[Sett](
+  def copyPluginToBukkitSettings(meta: Option[String]) = Seq(
     // make publish local also copy jars to my bukkit server :)
     publishLocal <<= (packagedArtifacts, publishLocal) map { case (r, _) =>
       r collectFirst { case (Artifact(_,"jar","jar", m, _, _, name), f) if m == meta =>
@@ -193,7 +192,7 @@ object build extends Build {
     standardSettings,
     ermineFileSettings,
     libDeps("com.clarifi" %% "ermine-legacy" % "0.1.1"),
-    Seq[Sett](fullRunInputTask(repl, Compile, "com.clarifi.reporting.ermine.session.Console"))
+    Seq(fullRunInputTask(repl, Compile, "com.clarifi.reporting.ermine.session.Console"))
   )
 
   lazy val erminecraft = Project(
@@ -296,7 +295,7 @@ object build extends Build {
         "org.nlogo" % "netlogoheadless" % "5.2.0-439e6c4",
         npcLib
       ),
-      Seq[Sett](resolvers ++= Seq(netlogoRepo, remoteEntitiesRepo))
+      Seq(resolvers ++= Seq(netlogoRepo, remoteEntitiesRepo))
     ),
     dependencies = Seq(core)
   )
@@ -319,11 +318,11 @@ object build extends Build {
         "org.picocontainer" % "picocontainer" % "2.13.6",
         "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.1"
       ),
-      Seq[Sett](resolvers += netlogoRepo)
+      resolvers += netlogoRepo
     )
   )
 
-  def join(settings: Seq[Sett]*): Seq[Sett] = settings.flatten
-  def named(pname: String): Seq[Sett] = Seq[Sett](name := pname)
-  def libDeps(libDeps: sbt.ModuleID*) = Seq[Sett](libraryDependencies ++= libDeps)
+  def join(settings: Seq[Project.Setting[_]]*) = settings.flatten
+  def named(pname: String)  = Seq(name := pname)
+  def libDeps(libDeps: sbt.ModuleID*) = Seq(libraryDependencies ++= libDeps)
 }
