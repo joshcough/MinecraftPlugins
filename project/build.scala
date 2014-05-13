@@ -24,7 +24,7 @@ trait Common {
       licenses <++= version(v => Seq("MIT" -> url(projectUrl + "/blob/%s/LICENSE".format(v)))),
       publishMavenStyle := true,
       resolvers += Resolver.sonatypeRepo("snapshots"),
-      resolvers += ("Bukkit" at "http://repo.bukkit.org/content/repositories/releases"),
+      resolvers += "Bukkit" at "http://repo.bukkit.org/content/repositories/releases",
       traceLevel := 10
       //,logLevel := Level.Warn
     )
@@ -72,13 +72,13 @@ object build extends Build
     settings = standardSettings,
     aggregate = Seq(
       scalaLibPlugin,
+      core,
+      erminecraft,
       ermineLibPlugin,
+      netlogoPlugin,
       netlogoLibPlugin,
       mineLang,
       coreJava,
-      core,
-      erminecraft,
-      //netlogoPlugin,
       examplesJava,
       //microExample,
       Arena,
@@ -131,6 +131,24 @@ object build extends Build
       assemblySettings,
       copyPluginToBukkitSettings(Some("assembly"))
     )
+  )
+
+  // minelang is a plugin that contains a language i wrote that is much like clojure
+  // and allows people to easily write plugins without having to deploy lots of crap.
+  // however, this has more or less been replaced by erminecraft.
+  lazy val mineLang = Project(
+    id = "mineLang",
+    base = file("other/minelang"),
+    settings = join(
+      standardSettings,
+      pluginYmlSettings("com.joshcough.minecraft.MineLangPlugin", "JoshCough"),
+      named("MineLang"),
+      libDeps(
+        "jline" % "jline"   % "2.11",
+        "org.clojure"    % "clojure" % "1.4.0"
+      )
+    ),
+    dependencies = Seq(core)
   )
 }
 
@@ -191,24 +209,6 @@ trait JavaBuild extends Build with Common {
     base = file("other/examples-java"),
     settings = standardSettings ++ named("JCDC Plugin Factory Java Examples"),
     dependencies = Seq(coreJava)
-  )
-
-  // minelang is a plugin that contains a language i wrote that is much like clojure
-  // and allows people to easily write plugins without having to deploy lots of crap.
-  // however, this has more or less been replaced by erminecraft.
-  lazy val mineLang = Project(
-    id = "mineLang",
-    base = file("other/minelang"),
-    settings = join(
-      standardSettings,
-      pluginYmlSettings("com.joshcough.minecraft.MineLangPlugin", "JoshCough"),
-      named("MineLang"),
-      libDeps(
-        "jline" % "jline"   % "2.11",
-        "org.clojure"    % "clojure" % "1.4.0"
-      )
-    ),
-    dependencies = Seq(core)
   )
 }
 
@@ -311,7 +311,7 @@ trait ErmineBuild extends Build with Common {
         named(exampleProjectName),
         pluginYmlSettings(pluginClassname, "JoshCough"),
         copyPluginToBukkitSettings(None),
-        Seq[Setting[_]](resourceGenerators in Compile <+= (baseDirectory, resourceManaged in Compile) map { (baseDir, outDir) =>
+        Seq(resourceGenerators in Compile <+= (baseDirectory, resourceManaged in Compile) map { (baseDir, outDir) =>
           IO.createDirectory(outDir / "modules")
           IO.copyDirectory(baseDir / "modules", outDir / "modules")
           (outDir / "modules").listFiles.toSeq
@@ -341,5 +341,4 @@ trait ErmineBuild extends Build with Common {
       )
     )
   )
-
 }
