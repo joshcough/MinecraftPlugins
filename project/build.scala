@@ -6,7 +6,7 @@ import com.joshcough.minecraft.Plugin._
 import sbtassembly.Plugin._
 import AssemblyKeys._
 
-object build extends Build {
+trait Common {
 
   val projectUrl = "https://github.com/joshcough/MinecraftPlugins"
 
@@ -31,6 +31,18 @@ object build extends Build {
     )
   )
 
+  // the core plugin library
+  lazy val core = Project(
+    id = "core",
+    base = file("scala/core"),
+    settings = join(
+      standardSettings,
+      copyPluginToBukkitSettings(None),
+      named("scala-minecraft-plugin-api"),
+      libDeps("org.scalacheck" %% "scalacheck" % "1.10.0" % "test")
+    )
+  )
+
   def copyPluginToBukkitSettings(meta: Option[String]) = Seq(
     // make publish local also copy jars to my bukkit server :)
     publishLocal <<= (packagedArtifacts, publishLocal) map { case (r, _) =>
@@ -41,23 +53,17 @@ object build extends Build {
     }
   )
 
-  // this is just a convenience project
-  // for me to easily publish my most used plugins to my bukkit server.
-  // > sbt 'project commonPlugins' publishLocal
-  lazy val commonPlugins = Project(
-    id = "commonPlugins",
-    base = file(".commonPlugins"),
-    settings = standardSettings,
-    aggregate = Seq(
-      scalaLibPlugin,
-      ermineLibPlugin,
-      core,
-      erminecraft,
-      MultiPlayerCommands,
-      PluginCommander,
-      WorldEdit
-    )
-  )
+  def join(settings: Seq[Project.Setting[_]]*) = settings.flatten
+  def named(pname: String) = Seq(name := pname)
+  def libDeps(libDeps: sbt.ModuleID*) = Seq(libraryDependencies ++= libDeps)
+}
+
+object build extends Build
+  with Common
+  with ExamplesBuild
+  with ErmineBuild
+  with NetLogoBuild
+  with JavaBuild {
 
   // this is the main project, that builds all subprojects.
   // it doesnt contain any code itself.
@@ -97,6 +103,24 @@ object build extends Build {
     )
   )
 
+  // this is just a convenience project
+  // for me to easily publish my most used plugins to my bukkit server.
+  // > sbt 'project commonPlugins' publishLocal
+  lazy val commonPlugins = Project(
+    id = "commonPlugins",
+    base = file(".commonPlugins"),
+    settings = standardSettings,
+    aggregate = Seq(
+      scalaLibPlugin,
+      ermineLibPlugin,
+      core,
+      erminecraft,
+      MultiPlayerCommands,
+      PluginCommander,
+      WorldEdit
+    )
+  )
+
   // this project supplies the scala language classes.
   // it is needed in the bukkit plugins dir to run any scala plugins.
   lazy val scalaLibPlugin = Project(
@@ -109,19 +133,9 @@ object build extends Build {
       copyPluginToBukkitSettings(Some("assembly"))
     )
   )
+}
 
-  // the core plugin library
-  lazy val core = Project(
-    id = "core",
-    base = file("scala/core"),
-    settings = join(
-      standardSettings,
-      copyPluginToBukkitSettings(None),
-      named("scala-minecraft-plugin-api"),
-      libDeps("org.scalacheck" %% "scalacheck" % "1.10.0" % "test")
-    )
-  )
-
+trait ExamplesBuild extends Build with Common {
   // a special example project...
   lazy val microExample = Project(id = "microexample", base = file("scala/microexample"))
 
@@ -160,6 +174,90 @@ object build extends Build {
       dependencies = Seq(core)
     )
   }
+}
+
+trait JavaBuild extends Build with Common {
+  // two relatively unimportant projects
+  // that show how to do all this scala stuff in java.
+  // or, how the bukkit api should have been written (in java).
+  // this backports most of my interesting features from scala to java.
+  lazy val coreJava = Project(
+    id = "core-java",
+    base = file("other/core-java"),
+    settings = standardSettings ++ named("java-minecraft-plugin-api")
+  )
+
+  lazy val examplesJava = Project(
+    id = "examplesJava",
+    base = file("other/examples-java"),
+    settings = standardSettings ++ named("JCDC Plugin Factory Java Examples"),
+    dependencies = Seq(coreJava)
+  )
+
+  // minelang is a plugin that contains a language i wrote that is much like clojure
+  // and allows people to easily write plugins without having to deploy lots of crap.
+  // however, this has more or less been replaced by erminecraft.
+  lazy val mineLang = Project(
+    id = "mineLang",
+    base = file("other/minelang"),
+    settings = join(
+      standardSettings,
+      pluginYmlSettings("com.joshcough.minecraft.MineLangPlugin", "JoshCough"),
+      named("MineLang"),
+      libDeps(
+        "jline" % "jline"   % "2.11",
+        "org.clojure"    % "clojure" % "1.4.0"
+      )
+    ),
+    dependencies = Seq(core)
+  )
+}
+
+trait NetLogoBuild extends Build with Common {
+  lazy val npcLib = "de.kumpelblase2" %% "remote-entities" % "1.7.2-R0.2"
+  lazy val netlogoRepo = bintray.Opts.resolver.repo("netlogo", "NetLogoHeadless")
+  lazy val remoteEntitiesRepo = bintray.Opts.resolver.repo("joshcough", "remote-entities")
+
+  lazy val netlogoPlugin = Project(
+    id = "netLogoPlugin",
+    base = file("other/netlogo"),
+    settings = join(
+      standardSettings,
+      copyPluginToBukkitSettings(None),
+      pluginYmlSettings("com.joshcough.minecraft.NetLogoPlugin", "JoshCough"),
+      libDeps(
+        "org.nlogo" % "netlogoheadless" % "5.2.0-439e6c4",
+        npcLib
+      ),
+      Seq(resolvers ++= Seq(netlogoRepo, remoteEntitiesRepo))
+    ),
+    dependencies = Seq(core)
+  )
+
+  lazy val netlogoLibPlugin = Project(
+    id = "netLogoLibPlugin",
+    base = file("other/netlogo-lib-plugin"),
+    settings = join(
+      standardSettings,
+      assemblySettings,
+      mergeStrategy in assembly <<= (mergeStrategy in assembly) { old => {
+        case "plugin.yml" => MergeStrategy.first
+        case x => old(x)
+      }},
+      named("netlogo-lib-plugin"),
+      copyPluginToBukkitSettings(Some("assembly")),
+      libDeps(
+        "org.nlogo" % "netlogoheadless" % "5.2.0-439e6c4",
+        "asm" % "asm-all" % "3.3.1",
+        "org.picocontainer" % "picocontainer" % "2.13.6",
+        "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.1"
+      ),
+      resolvers += netlogoRepo
+    )
+  )
+}
+
+trait ErmineBuild extends Build with Common {
 
   // ErmineCraft stuff below.
   val repl = InputKey[Unit]("repl", "Run the Ermine read-eval-print loop")
@@ -171,7 +269,7 @@ object build extends Build {
   def compileTestRuntime[A](f: Configuration => Setting[A]): SettingsDefinition =
     seq(f(Compile), f(Test), f(Runtime))
   lazy val ermineFileSettings = Defaults.defaultSettings ++ Seq[SettingsDefinition](
-     compileTestRuntime(sc => classpathConfiguration in sc := sc)
+    compileTestRuntime(sc => classpathConfiguration in sc := sc)
     ,mainClass in (Compile, run) := Some("com.clarifi.reporting.ermine.session.Console")
     ,compileTestRuntime(sco => allUnmanagedResourceDirectories in sco <<=
       Defaults.inDependencies(unmanagedResourceDirectories in sco, _ => Seq.empty)
@@ -245,84 +343,4 @@ object build extends Build {
     )
   )
 
-  // two relatively unimportant projects
-  // that show how to do all this scala stuff in java.
-  // or, how the bukkit api should have been written (in java).
-  // this backports most of my interesting features from scala to java.
-  lazy val coreJava = Project(
-    id = "core-java",
-    base = file("other/core-java"),
-    settings = standardSettings ++ named("java-minecraft-plugin-api")
-  )
-
-  lazy val examplesJava = Project(
-    id = "examplesJava",
-    base = file("other/examples-java"),
-    settings = standardSettings ++ named("JCDC Plugin Factory Java Examples"),
-    dependencies = Seq(coreJava)
-  )
-
-  // minelang is a plugin that contains a language i wrote that is much like clojure
-  // and allows people to easily write plugins without having to deploy lots of crap.
-  // however, this has more or less been replaced by erminecraft.
-  lazy val mineLang = Project(
-    id = "mineLang",
-    base = file("other/minelang"),
-    settings = join(
-      standardSettings,
-      pluginYmlSettings("com.joshcough.minecraft.MineLangPlugin", "JoshCough"),
-      named("MineLang"),
-      libDeps(
-        "jline" % "jline"   % "2.11",
-        "org.clojure"    % "clojure" % "1.4.0"
-      )
-    ),
-    dependencies = Seq(core)
-  )
-
-  lazy val npcLib = "de.kumpelblase2" %% "remote-entities" % "1.7.2-R0.2"
-  lazy val netlogoRepo = bintray.Opts.resolver.repo("netlogo", "NetLogoHeadless")
-  lazy val remoteEntitiesRepo = bintray.Opts.resolver.repo("joshcough", "remote-entities")
-
-  lazy val netlogoPlugin = Project(
-    id = "netLogoPlugin",
-    base = file("other/netlogo"),
-    settings = join(
-      standardSettings,
-      copyPluginToBukkitSettings(None),
-      pluginYmlSettings("com.joshcough.minecraft.NetLogoPlugin", "JoshCough"),
-      libDeps(
-        "org.nlogo" % "netlogoheadless" % "5.2.0-439e6c4",
-        npcLib
-      ),
-      Seq(resolvers ++= Seq(netlogoRepo, remoteEntitiesRepo))
-    ),
-    dependencies = Seq(core)
-  )
-
-  lazy val netlogoLibPlugin = Project(
-    id = "netLogoLibPlugin",
-    base = file("other/netlogo-lib-plugin"),
-    settings = join(
-      standardSettings,
-      assemblySettings,
-      mergeStrategy in assembly <<= (mergeStrategy in assembly) { old => {
-        case "plugin.yml" => MergeStrategy.first
-        case x => old(x)
-      }},
-      named("netlogo-lib-plugin"),
-      copyPluginToBukkitSettings(Some("assembly")),
-      libDeps(
-        "org.nlogo" % "netlogoheadless" % "5.2.0-439e6c4",
-        "asm" % "asm-all" % "3.3.1",
-        "org.picocontainer" % "picocontainer" % "2.13.6",
-        "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.1"
-      ),
-      resolvers += netlogoRepo
-    )
-  )
-
-  def join(settings: Seq[Project.Setting[_]]*) = settings.flatten
-  def named(pname: String)  = Seq(name := pname)
-  def libDeps(libDeps: sbt.ModuleID*) = Seq(libraryDependencies ++= libDeps)
 }
