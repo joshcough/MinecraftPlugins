@@ -28,6 +28,25 @@
       <sourceFolder url="file://$MODULE_DIR$/scala/microexample" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/scala/examples/src/test/scala" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/ermine/examples/Zap" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/scala/examples/Arena" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/scala/examples/BanArrows" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/scala/examples/BlockChanger" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/scala/examples/BlockChangerGold" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/scala/examples/Farmer" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/scala/examples/GetOffMyLawn" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/scala/examples/God" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/scala/examples/LightningArrows" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/scala/examples/MultiPlayerCommands" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/scala/examples/NoRain" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/scala/examples/PluginCommander" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/scala/examples/Shock" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/scala/examples/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/scala/examples/TeleportBows" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/scala/examples/Thor" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/scala/examples/TreeDelogger" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/scala/examples/WorldEdit" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/scala/examples/YellowBrickRoad" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/scala/examples/ZombieApocalypse" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/.commonPlugins" />
       <excludeFolder url="file://$MODULE_DIR$/.idea" />
       <excludeFolder url="file://$MODULE_DIR$/bukkit" />
@@ -174,6 +193,19 @@
         </CLASSES>
         <JAVADOC />
         <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/craftbukkit-1.7.2-R0.2.jar!/" />
+          <root url="jar://$MODULE_DIR$/minecraft-server-1.7.2.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/craftbukkit-1.7.2-R0.2.jar!/" />
+          <root url="jar://$MODULE_DIR$/minecraft-server-1.7.2.jar!/" />
+        </SOURCES>
       </library>
     </orderEntry>
   </component>
