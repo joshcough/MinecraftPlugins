@@ -146,7 +146,7 @@ object build extends Build {
   lazy val YellowBrickRoad     = exampleProject("YellowBrickRoad")
   lazy val ZombieApocalypse    = exampleProject("ZombieApocalypse")
 
-  def exampleProject(exampleProjectName: String) = {
+  def exampleProject(exampleProjectName: String, deps: sbt.ModuleID*) = {
     val pluginClassname = "com.joshcough.minecraft.examples." + exampleProjectName
     Project(
       id = exampleProjectName,
@@ -155,7 +155,8 @@ object build extends Build {
         standardSettings,
         named(exampleProjectName),
         pluginYmlSettings(pluginClassname, "JoshCough"),
-        copyPluginToBukkitSettings(None)
+        copyPluginToBukkitSettings(None),
+        libDeps(deps:_*)
       ),
       dependencies = Seq(core)
     )
@@ -280,6 +281,10 @@ object build extends Build {
     dependencies = Seq(core)
   )
 
+  lazy val npcLib = "de.kumpelblase2" %% "remote-entities" % "1.7.2-R0.2"
+  lazy val netlogoRepo = bintray.Opts.resolver.repo("netlogo", "NetLogoHeadless")
+  lazy val remoteEntitiesRepo = bintray.Opts.resolver.repo("joshcough", "remote-entities")
+
   lazy val netlogoPlugin = Project(
     id = "netLogoPlugin",
     base = file("other/netlogo"),
@@ -288,10 +293,10 @@ object build extends Build {
       copyPluginToBukkitSettings(None),
       pluginYmlSettings("com.joshcough.minecraft.NetLogoPlugin", "JoshCough"),
       libDeps(
-        "org.nlogo" % "netlogoheadless" % "5.2.0",
-        "net.npcwarehouse" % "npcwarehouse" % "1.7" from "http://dev.bukkit.org/media/files/769/696/NPCWarehouse.jar"
+        "org.nlogo" % "netlogoheadless" % "5.2.0-439e6c4",
+        npcLib
       ),
-      Seq[Sett](resolvers ++= Seq("remoteentities-repo" at "http://repo.infinityblade.de/remoteentities/releases"))
+      Seq[Sett](resolvers ++= Seq(netlogoRepo, remoteEntitiesRepo))
     ),
     dependencies = Seq(core)
   )
@@ -309,12 +314,12 @@ object build extends Build {
       named("netlogo-lib-plugin"),
       copyPluginToBukkitSettings(Some("assembly")),
       libDeps(
-        "org.nlogo" % "netlogoheadless" % "5.2.0", //from "http://ccl.northwestern.edu/netlogo/5.1.0-M2/NetLogoHeadless.jar",
+        "org.nlogo" % "netlogoheadless" % "5.2.0-439e6c4",
         "asm" % "asm-all" % "3.3.1",
         "org.picocontainer" % "picocontainer" % "2.13.6",
-        "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.1",
-        "net.npcwarehouse" % "npcwarehouse" % "1.7" from "http://dev.bukkit.org/media/files/769/696/NPCWarehouse.jar"
-      )
+        "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.1"
+      ),
+      Seq[Sett](resolvers += netlogoRepo)
     )
   )
 
