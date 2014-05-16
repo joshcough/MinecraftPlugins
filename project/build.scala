@@ -41,20 +41,6 @@ trait Common {
       libDeps("org.scalacheck" %% "scalacheck" % "1.10.0" % "test")
     )
   )
-
-  def copyPluginToBukkitSettings(meta: Option[String]) = Seq(
-    // make publish local also copy jars to my bukkit server :)
-    publishLocal <<= (packagedArtifacts, publishLocal) map { case (r, _) =>
-      r collectFirst { case (Artifact(_,"jar","jar", m, _, _, name), f) if m == meta =>
-        println("copying " + f.name + " to bukkit server")
-        IO.copyFile(f, new File("bukkit/plugins/" + f.name))
-      }
-    }
-  )
-
-  def join(settings: Seq[Setting[_]]*) = settings.flatten
-  def named(pname: String) = Seq(name := pname)
-  def libDeps(libDeps: sbt.ModuleID*) = Seq(libraryDependencies ++= libDeps)
 }
 
 object build extends Build
@@ -213,7 +199,7 @@ trait JavaBuild extends Build with Common {
 }
 
 trait NetLogoBuild extends Build with Common {
-  lazy val npcLib = "de.kumpelblase2" %% "remote-entities" % "1.7.2-R0.2"
+  lazy val npcLib = "com.joshcough" %% "remote-entities" % "1.7.2-R0.2-SNAPSHOT"
   lazy val netlogoRepo = bintray.Opts.resolver.repo("netlogo", "NetLogoHeadless")
   lazy val remoteEntitiesRepo = bintray.Opts.resolver.repo("joshcough", "remote-entities")
 
