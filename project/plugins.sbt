@@ -1,9 +1,11 @@
-resolvers ++= Seq(
-  "Bukkit" at "http://repo.bukkit.org/content/repositories/releases",
-  "Josh Cough sbt plugins" at "http://bintray.com/joshcough/sbt-plugins"
-)
+resolvers += Resolver.url(
+  "Josh Cough sbt plugins",
+  url("http://dl.bintray.com/content/joshcough/sbt-plugins"))(
+    Resolver.ivyStylePatterns)
 
-addSbtPlugin("com.joshcough" % "scala-minecraft-yml-gen" % "0.3.3")
+resolvers ++= Seq(
+  "Bukkit" at "http://repo.bukkit.org/content/repositories/releases"
+)
 
 addSbtPlugin("me.lessis" % "bintray-sbt" % "0.1.0")
 

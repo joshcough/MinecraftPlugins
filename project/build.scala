@@ -1,7 +1,6 @@
 import sbt._
 import Keys._
 import java.io.File
-import com.joshcough.minecraft.Plugin._
 import sbtassembly.Plugin._
 import AssemblyKeys._
 
@@ -21,6 +20,7 @@ trait Common {
       organization := "com.joshcough",
       version := "0.3.3",
       scalaVersion := "2.11.0",
+      crossScalaVersions := Seq("2.10.3", "2.11.0"),
       licenses <++= version(v => Seq("MIT" -> url(projectUrl + "/blob/%s/LICENSE".format(v)))),
       publishMavenStyle := true,
       resolvers += Resolver.sonatypeRepo("snapshots"),
@@ -41,6 +41,33 @@ trait Common {
       libDeps("org.scalacheck" %% "scalacheck" % "1.10.0" % "test")
     )
   )
+
+  def copyPluginToBukkitSettings(meta: Option[String]) = Seq(
+    // make publish local also copy jars to my bukkit server :)
+    publishLocal <<= (packagedArtifacts, publishLocal) map { case (r, _) =>
+      r collectFirst { case (Artifact(_,"jar","jar", m, _, _, name), f) if m == meta =>
+        println("copying " + f.name + " to bukkit server")
+        IO.copyFile(f, new File("bukkit/plugins/" + f.name))
+      }
+    }
+  )
+
+  def join(settings: Seq[Def.Setting[_]]*) = settings.flatten
+  def named(pname: String) = Seq(name := pname)
+  def libDeps(libDeps: sbt.ModuleID*) = Seq(libraryDependencies ++= libDeps)
+
+  def pluginYmlSettings(pluginClassname: String, author: String): Seq[Setting[_]] = Seq[Setting[_]](
+    resourceGenerators in Compile <+=
+      (resourceManaged in Compile, streams, productDirectories in Compile, dependencyClasspath in Compile, version, compile in Compile, runner) map {
+        (dir, s, cp1, cp2, v, _, r) =>
+          Run.run(
+            "com.joshcough.minecraft.YMLGenerator", (Attributed.blankSeq(cp1) ++ cp2).map(_.data),
+            Seq(pluginClassname, author, v, dir.getAbsolutePath),
+            s.log)(r)
+          Seq(dir / "plugin.yml", dir / "config.yml")
+      }
+  )
+
 }
 
 object build extends Build
