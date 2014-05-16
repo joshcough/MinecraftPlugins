@@ -1,6 +1,0 @@
-name: ErmineCraft
-main: com.joshcough.minecraft.ermine.ErmineCraft
-author: Josh Cough
-version: 0.1
-database: false
-depend: [ScalaLibPlugin, ErmineLibPlugin]

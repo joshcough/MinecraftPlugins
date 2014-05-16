@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/joshcough/MinecraftPlugins.png?branch=master)](https://travis-ci.org/joshcough/MinecraftPlugins)
+
 # Overview
 
 This project contains an API for building Minecraft Plugins in Scala.

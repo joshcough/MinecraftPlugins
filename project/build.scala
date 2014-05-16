@@ -73,7 +73,6 @@ trait Common {
 object build extends Build
   with Common
   with ExamplesBuild
-  with ErmineBuild
   with JavaBuild {
 
   // this is the main project, that builds all subprojects.
@@ -85,8 +84,6 @@ object build extends Build
     aggregate = Seq(
       scalaLibPlugin,
       core,
-      erminecraft,
-      ermineLibPlugin,
       mineLang,
       coreJava,
       examplesJava,
@@ -121,9 +118,7 @@ object build extends Build
     settings = standardSettings,
     aggregate = Seq(
       scalaLibPlugin,
-      ermineLibPlugin,
       core,
-      erminecraft,
       MultiPlayerCommands,
       PluginCommander,
       WorldEdit
@@ -219,92 +214,5 @@ trait JavaBuild extends Build with Common {
     base = file("other/examples-java"),
     settings = standardSettings ++ named("JCDC Plugin Factory Java Examples"),
     dependencies = Seq(coreJava)
-  )
-}
-
-trait ErmineBuild extends Build with Common {
-
-  // ErmineCraft stuff below.
-  val repl = InputKey[Unit]("repl", "Run the Ermine read-eval-print loop")
-  val allUnmanagedResourceDirectories = SettingKey[Seq[File]](
-    "all-unmanaged-resource-directories",
-    "unmanaged-resource-directories, transitively."
-  )
-  /** Multiply a setting across Compile, Test, Runtime. */
-  def compileTestRuntime[A](f: Configuration => Setting[A]): SettingsDefinition =
-    seq(f(Compile), f(Test), f(Runtime))
-  lazy val ermineFileSettings = Defaults.defaultSettings ++ Seq[SettingsDefinition](
-    compileTestRuntime(sc => classpathConfiguration in sc := sc)
-    ,mainClass in (Compile, run) := Some("com.clarifi.reporting.ermine.session.Console")
-    ,compileTestRuntime(sco => allUnmanagedResourceDirectories in sco <<=
-      Defaults.inDependencies(unmanagedResourceDirectories in sco, _ => Seq.empty)
-        (_.reverse.flatten))
-    // Usually, resources end up in the classpath by virtue of `compile'
-    // copying them into target/scala-*/classes, and from there into jar.  But
-    // we want in development p(1) I can edit an Ermine module in src
-    // resources, hit reload, and it's seen. So we (harmlessly) patch the src resources
-    // dirs in *before* the classes dirs, so they will win in the classloader
-    // lookup.
-    ,compileTestRuntime(sco =>
-      fullClasspath in sco <<= (allUnmanagedResourceDirectories in sco, fullClasspath in sco) map {
-        (urd, fc) => Attributed.blankSeq(urd) ++ fc
-      })
-  ) flatMap (_.settings)
-
-  lazy val ermineSettings = join(
-    standardSettings,
-    ermineFileSettings,
-    libDeps("com.clarifi" %% "ermine-legacy" % "0.1.1"),
-    Seq(fullRunInputTask(repl, Compile, "com.clarifi.reporting.ermine.session.Console"))
-  )
-
-  lazy val erminecraft = Project(
-    id = "erminecraft",
-    base = file("ermine/erminecraft"),
-    settings = join(ermineSettings, named("erminecraft-plugin-api"), copyPluginToBukkitSettings(None)),
-    dependencies = Seq(core)
-  )
-
-  lazy val Zap = exampleErmineProject("Zap")
-
-  def exampleErmineProject(exampleProjectName: String) = {
-    val pluginClassname = "com.joshcough.minecraft.ermine.examples." + exampleProjectName
-    Project(
-      id = exampleProjectName,
-      base = file("ermine/examples/" + exampleProjectName),
-      settings = join(
-        ermineSettings,
-        named(exampleProjectName),
-        pluginYmlSettings(pluginClassname, "JoshCough"),
-        copyPluginToBukkitSettings(None),
-        Seq(resourceGenerators in Compile <+= (baseDirectory, resourceManaged in Compile) map { (baseDir, outDir) =>
-          IO.createDirectory(outDir / "modules")
-          IO.copyDirectory(baseDir / "modules", outDir / "modules")
-          (outDir / "modules").listFiles.toSeq
-        })
-      ),
-      dependencies = Seq(core, erminecraft)
-    )
-  }
-
-  // this project supplies the ermine language classes, and classes for all of ermine's dependencies.
-  // it is needed in the bukkit plugins dir to run any ermine plugins.
-  lazy val ermineLibPlugin = Project(
-    id = "ermineLibPlugin",
-    base = file("ermine/ermine-lib-plugin"),
-    settings = join(
-      standardSettings,
-      assemblySettings,
-      copyPluginToBukkitSettings(Some("assembly")),
-      named("erminecraft-ermine-library"),
-      libDeps(
-        "com.clarifi" %% "ermine-legacy"     % "0.1.1",
-        "org.scalaz"  %% "scalaz-core"       % "7.0.6",
-        "org.scalaz"  %% "scalaz-concurrent" % "7.0.6",
-        "org.scalaz"  %% "scalaz-effect"     % "7.0.6",
-        "org.scalaz"  %% "scalaz-iterv"      % "7.0.6",
-        "log4j"       %  "log4j"             % "1.2.14"
-      )
-    )
   )
 }
