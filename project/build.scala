@@ -47,7 +47,6 @@ object build extends Build
   with Common
   with ExamplesBuild
   with ErmineBuild
-  with NetLogoBuild
   with JavaBuild {
 
   // this is the main project, that builds all subprojects.
@@ -61,8 +60,6 @@ object build extends Build
       core,
       erminecraft,
       ermineLibPlugin,
-      netlogoPlugin,
-      netlogoLibPlugin,
       mineLang,
       coreJava,
       examplesJava,
@@ -195,50 +192,6 @@ trait JavaBuild extends Build with Common {
     base = file("other/examples-java"),
     settings = standardSettings ++ named("JCDC Plugin Factory Java Examples"),
     dependencies = Seq(coreJava)
-  )
-}
-
-trait NetLogoBuild extends Build with Common {
-  lazy val npcLib = "com.joshcough" %% "remote-entities" % "1.7.2-R0.2-SNAPSHOT"
-  lazy val netlogoRepo = bintray.Opts.resolver.repo("netlogo", "NetLogoHeadless")
-  lazy val remoteEntitiesRepo = bintray.Opts.resolver.repo("joshcough", "remote-entities")
-
-  lazy val netlogoPlugin = Project(
-    id = "netLogoPlugin",
-    base = file("other/netlogo"),
-    settings = join(
-      standardSettings,
-      copyPluginToBukkitSettings(None),
-      pluginYmlSettings("com.joshcough.minecraft.NetLogoPlugin", "JoshCough"),
-      libDeps(
-        "org.nlogo" % "netlogoheadless" % "5.2.0-439e6c4",
-        npcLib
-      ),
-      Seq(resolvers ++= Seq(netlogoRepo, remoteEntitiesRepo))
-    ),
-    dependencies = Seq(core)
-  )
-
-  lazy val netlogoLibPlugin = Project(
-    id = "netLogoLibPlugin",
-    base = file("other/netlogo-lib-plugin"),
-    settings = join(
-      standardSettings,
-      assemblySettings,
-      mergeStrategy in assembly <<= (mergeStrategy in assembly) { old => {
-        case "plugin.yml" => MergeStrategy.first
-        case x => old(x)
-      }},
-      named("netlogo-lib-plugin"),
-      copyPluginToBukkitSettings(Some("assembly")),
-      libDeps(
-        "org.nlogo" % "netlogoheadless" % "5.2.0-439e6c4",
-        "asm" % "asm-all" % "3.3.1",
-        "org.picocontainer" % "picocontainer" % "2.13.6",
-        "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.1"
-      ),
-      resolvers += netlogoRepo
-    )
   )
 }
 
