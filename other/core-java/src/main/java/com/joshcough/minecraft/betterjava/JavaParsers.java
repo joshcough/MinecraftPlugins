@@ -8,18 +8,10 @@ public class JavaParsers {
 
   static class ParserMonad {
     public <T> Parser<T> unit(final T t){
-      return new Parser<T>(){
-        public ParseResult<T> parse(List<String> args) {
-          return new Success<>(t, args);
-        }
-      };
+      return args -> new Success<>(t, args);
     }
     public <T, U> Parser<U> bind(final Parser<T> p, final Function1<T, Parser<U>> f) {
-      return new Parser<U>() {
-        public ParseResult<U> parse(List<String> args) {
-          return p.parse(args).fold(Failure::new, (t, rest) -> f.apply(t).parse(rest));
-        }
-      };
+      return args -> p.parse(args).fold(Failure::new, (t, rest) -> f.apply(t).parse(rest));
     }
     public <T, U> Parser<U> map(final Parser<T> p, final Function1<T, U> f) {
       return bind(p, t -> unit(f.apply(t)));
@@ -56,46 +48,42 @@ public class JavaParsers {
     }
   }
 
-  static public abstract class Parser<T> {
+  static public interface Parser<T> {
     public abstract ParseResult<T> parse(List<String> args);
 
-    public ParseResult<T> parse(String[] args){
+    default ParseResult<T> parse(String[] args){
       return parse(new LinkedList<>(Arrays.asList(args)));
     }
 
-    public <U> Parser<U> bind(Function1<T, Parser<U>> f) { return parserMonad.bind(this, f); }
-    public <U> Parser<U> map(final Function1<T, U> f)    { return parserMonad.map(this, f); }
+    default <U> Parser<U> bind(Function1<T, Parser<U>> f) { return parserMonad.bind(this, f); }
+    default <U> Parser<U> map(final Function1<T, U> f)    { return parserMonad.map(this, f); }
 
-    public <U> Parser<Tuple2<T, U>> and(final Parser<U> p2){ return andLazy(Function0.constant(p2)); }
+    default <U> Parser<Tuple2<T, U>> and(final Parser<U> p2){ return andLazy(Function0.constant(p2)); }
 
-    public <U> Parser<Tuple2<T, U>> andLazy(final Function0<Parser<U>> p2){
+    default <U> Parser<Tuple2<T, U>> andLazy(final Function0<Parser<U>> p2){
       return bind(t -> p2.apply().map(u -> new Tuple2<>(t, u)));
     }
 
-    public Parser<T> or(final Parser<T> p2){ return orLazy(Function0.constant(p2)); }
+    default Parser<T> or(final Parser<T> p2){ return orLazy(Function0.constant(p2)); }
 
-    public Parser<T> orLazy(final Function0<Parser<T>> p2){
+    default Parser<T> orLazy(final Function0<Parser<T>> p2){
       final Parser<T> self = this;
-      return new Parser<T>() {
-        public ParseResult<T> parse(List<String> args) {
-          return self.parse(args).fold(
-            err1 -> p2.apply().parse(args).fold(
-              err2 -> new Failure<>(err1 + " or " + err2),
-              Success::new
-            ),
-            Success::new
-          );
-        }
-      };
+      return args -> self.parse(args).fold(
+        err1 -> p2.apply().parse(args).fold(
+          err2 -> new Failure<>(err1 + " or " + err2),
+          Success::new
+        ),
+        Success::new
+      );
     }
 
-    public <U> Parser<U> outputting(final U u){ return map((t) -> u); }
+    default <U> Parser<U> outputting(final U u){ return map((t) -> u); }
 
-    public Parser<List<T>> star(){
+    default Parser<List<T>> star(){
       return this.plus().orLazy(() -> success((List<T>) (new LinkedList<T>())));
     }
 
-    public Parser<List<T>> plus(){
+    default Parser<List<T>> plus(){
       final Parser<T> self = this;
       return this.andLazy(self::star).map(t -> {
         LinkedList<T> ts = new LinkedList<>(t._2());
@@ -112,75 +100,46 @@ public class JavaParsers {
   }
 
   static public Parser<String> match(final String s){
-    return new Parser<String>(){
-      public ParseResult<String> parse(List<String> args) {
-        if(! args.isEmpty()) {
-          return args.get(0).equalsIgnoreCase(s) ?
-            successAndDropOne(args.get(0), args) :
-            new Failure<>("expected: " + s + ", but got: " + args.get(0));
-        }
-        else return new Failure<>("expected: " + s + ", but got nothing");
-      }
-    };
+    return args -> (! args.isEmpty()) ?
+      args.get(0).equalsIgnoreCase(s) ?
+        successAndDropOne(args.get(0), args) :
+        new Failure<>("expected: " + s + ", but got: " + args.get(0)) :
+      new Failure<>("expected: " + s + ", but got nothing");
   }
 
   static public <T> Parser<T> success(final T t){
-    return new Parser<T>() {
-      public ParseResult<T> parse(List<String> args) {
-        return new Success<>(t, args);
-      }
-    };
+    return args -> new Success<>(t, args);
   }
 
   static public Parser<Void> nothing(){
-    return new Parser<Void>() {
-      public ParseResult<Void> parse(List<String> args) {
-        return new Success<>(null, args);
-      }
-    };
+    return args -> new Success<>(null, args);
   }
 
   static public <T, U> Parser<Either<T,U>> either(final Parser<T> pt, final Parser<U> pu){
-    return new Parser<Either<T,U>>() {
-      public ParseResult<Either<T,U>> parse(List<String> args) {
-        return pt.parse(args).fold(
-          err1 -> pu.parse(args).fold(
-            err2 -> new Failure<>(err1 + " or " + err2),
-            (t2, rest2) -> new Success<>(new Right<>(t2), rest2)),
-          (t1, rest1) -> new Success<>(new Left<>(t1), rest1)
-        );
-      }
-    };
+    return args -> pt.parse(args).fold(
+      err1 -> pu.parse(args).fold(
+        err2 -> new Failure<>(err1 + " or " + err2),
+        (t2, rest2) -> new Success<>(new Right<>(t2), rest2)),
+      (t1, rest1) -> new Success<>(new Left<>(t1), rest1)
+    );
   }
 
-  static public Parser<String> anyString = new Parser<String>() {
-    public ParseResult<String> parse(List<String> args) {
-      return ! args.isEmpty() ?
-        successAndDropOne(args.get(0), args) :
-        new Failure<>("expected a string, but didn't get any");
-    }
-  };
+  static public Parser<String> anyString = args -> ! args.isEmpty() ?
+    successAndDropOne(args.get(0), args) :
+    new Failure<>("expected a string, but didn't get any");
 
   static public <T> Parser<Option<T>> opt(final Parser<T> p){
-    return new Parser<Option<T>>(){
-      public ParseResult<Option<T>> parse(List<String> args) {
-        return p.parse(args).fold(
-          err -> new Success<>(new None<T>(), args),
-          (t, rest) -> new Success<>(Option.apply(t), rest));
-      }
-    };
+    return args -> p.parse(args).fold(
+      err -> new Success<>(new None<T>(), args),
+      (t, rest) -> new Success<>(Option.apply(t), rest));
   }
 
   static public <T> Parser<T> token(final String name, final Function1<String, Option<T>> f){
-    return new Parser<T>() {
-      public ParseResult<T> parse(List<String> args) {
-        return args.isEmpty() ?
-          new Failure<>("expected " + name + ", got nothing") :
-          f.apply(args.get(0)).fold(
-            () -> new Failure<>("invalid " + name + ": " + args.get(0)),
-            t -> successAndDropOne(t, args));
-      }
-    };
+    return args -> args.isEmpty() ?
+      new Failure<>("expected " + name + ", got nothing") :
+      f.apply(args.get(0)).fold(
+        () -> new Failure<>("invalid " + name + ": " + args.get(0)),
+        t -> successAndDropOne(t, args));
   }
 
   static public Parser<Integer> integer = token("player", s -> {
