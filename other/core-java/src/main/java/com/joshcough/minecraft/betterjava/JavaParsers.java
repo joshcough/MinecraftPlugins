@@ -29,24 +29,18 @@ public class JavaParsers {
   static final ParserMonad parserMonad = new ParserMonad();
 
   static public abstract class ParseResult<T>{
-    abstract boolean isFailure();
-    abstract boolean isSuccess();
-    abstract T get();
-    abstract String error();
-    abstract List<String> rest();
     abstract <A> A fold(Function1<String, A> failF, Function2<T, List<String>, A> sucF);
+    abstract void foldVoid(Function1V<String> failF, Function2V<T, List<String>> sucF);
   }
 
   static public class Failure<T> extends ParseResult<T> {
     private String message;
     public Failure(String message){ this.message = message; }
-    boolean isFailure() { return true; }
-    boolean isSuccess() { return false; }
-    T get(){ throw new RuntimeException("cant get value from Failure"); }
-    List<String> rest(){ throw new RuntimeException("cant get rest Failure"); }
-    String error(){ return message; }
     <A> A fold(Function1<String, A> failF, Function2<T, List<String>, A> sucF){
       return failF.apply(message);
+    }
+    void foldVoid(Function1V<String> failF, Function2V<T, List<String>> sucF){
+      failF.apply(message);
     }
   }
 
@@ -54,13 +48,11 @@ public class JavaParsers {
     private final T t;
     private final List<String> rest;
     public Success(T t, List<String> rest){ this.t = t; this.rest = rest; }
-    boolean isFailure() { return false; }
-    boolean isSuccess() { return true; }
-    T get(){ return t; }
-    List<String> rest() { return rest; }
-    String error(){ throw new RuntimeException("cant get error message Success"); }
     <A> A fold(Function1<String, A> failF, Function2<T, List<String>, A> sucF){
       return sucF.apply(t, rest);
+    }
+    void foldVoid(Function1V<String> failF, Function2V<T, List<String>> sucF){
+      sucF.apply(t, rest);
     }
   }
 
@@ -86,13 +78,13 @@ public class JavaParsers {
       final Parser<T> self = this;
       return new Parser<T>() {
         public ParseResult<T> parse(List<String> args) {
-          ParseResult<T> pr1 = self.parse(args);
-          if(pr1.isSuccess()) return pr1;
-          else {
-            ParseResult<T> pr2 = p2.apply().parse(args);
-            if(pr2.isSuccess()) return pr2;
-            else return new Failure<>(pr1.error() + " or " + pr2.error());
-          }
+          return self.parse(args).fold(
+            err1 -> p2.apply().parse(args).fold(
+              err2 -> new Failure<>(err1 + " or " + err2),
+              Success::new
+            ),
+            Success::new
+          );
         }
       };
     }
@@ -105,7 +97,7 @@ public class JavaParsers {
 
     public Parser<List<T>> plus(){
       final Parser<T> self = this;
-      return this.andLazy(() -> self.star()).map(t -> {
+      return this.andLazy(self::star).map(t -> {
         LinkedList<T> ts = new LinkedList<>(t._2());
         ts.addFirst(t._1());
         return ts;
@@ -151,15 +143,12 @@ public class JavaParsers {
   static public <T, U> Parser<Either<T,U>> either(final Parser<T> pt, final Parser<U> pu){
     return new Parser<Either<T,U>>() {
       public ParseResult<Either<T,U>> parse(List<String> args) {
-        ParseResult<T> pr1 = pt.parse(args);
-        if(pr1.isSuccess())
-          return new Success<>(new Left<>(pr1.get()), pr1.rest());
-        else {
-          ParseResult<U> pr2 = pu.parse(args);
-          return pr2.isSuccess() ?
-            new Success<>(new Right<>(pr2.get()), pr2.rest()) :
-            new Failure<>(pr1.error() + " or " + pr2.error());
-        }
+        return pt.parse(args).fold(
+          err1 -> pu.parse(args).fold(
+            err2 -> new Failure<>(err1 + " or " + err2),
+            (t2, rest2) -> new Success<>(new Right<>(t2), rest2)),
+          (t1, rest1) -> new Success<>(new Left<>(t1), rest1)
+        );
       }
     };
   }
@@ -175,10 +164,9 @@ public class JavaParsers {
   static public <T> Parser<Option<T>> opt(final Parser<T> p){
     return new Parser<Option<T>>(){
       public ParseResult<Option<T>> parse(List<String> args) {
-        ParseResult<T> pr = p.parse(args);
-        return pr.isFailure() ?
-          new Success<>(new None<>(), args) :
-          new Success<>(Option.apply(pr.get()), pr.rest());
+        return p.parse(args).fold(
+          err -> new Success<>(new None<T>(), args),
+          (t, rest) -> new Success<>(Option.apply(t), rest));
       }
     };
   }
@@ -186,13 +174,11 @@ public class JavaParsers {
   static public <T> Parser<T> token(final String name, final Function1<String, Option<T>> f){
     return new Parser<T>() {
       public ParseResult<T> parse(List<String> args) {
-        if(args.isEmpty()) return new Failure<>("expected " + name + ", got nothing");
-        else{
-          Option<T> ot = f.apply(args.get(0));
-          return ot.isDefined() ?
-            successAndDropOne(ot.get(), args) :
-            new Failure<>("invalid " + name + ": " + args.get(0));
-        }
+        return args.isEmpty() ?
+          new Failure<>("expected " + name + ", got nothing") :
+          f.apply(args.get(0)).fold(
+            () -> new Failure<>("invalid " + name + ": " + args.get(0)),
+            t -> successAndDropOne(t, args));
       }
     };
   }

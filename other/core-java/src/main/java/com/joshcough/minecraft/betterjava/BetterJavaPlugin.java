@@ -241,9 +241,10 @@ public class BetterJavaPlugin extends JavaPlugin {
     public CommandBody(Parser<T> parser){ this.parser = parser; }
     abstract public void run(Player p, T t);
     public void parseAndRun(Player p, String[] args){
-      ParseResult<T> pr = parser.parse(args);
-      if(pr.isSuccess()) run(p, pr.get());
-      else p.sendMessage(pr.error());
+      parser.parse(args).foldVoid(
+        err -> p.sendMessage(err),
+        (t, rest) -> run(p, t)
+      );
     }
   }
 
