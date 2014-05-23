@@ -39,8 +39,8 @@ import static com.joshcough.minecraft.betterjava.JavaParsers.*;
 public class BetterJavaPlugin extends JavaPlugin {
   public final Logger logger = Logger.getLogger("Minecraft");
 
-  public List<Listener> listeners = new ArrayList<Listener>();
-  public List<Command>  commands  = new ArrayList<Command>();
+  public List<Listener> listeners = new ArrayList<>();
+  public List<Command>  commands  = new ArrayList<>();
 
   public void onEnable() {
     super.onEnable();
@@ -140,14 +140,14 @@ public class BetterJavaPlugin extends JavaPlugin {
 
   /**
    */
-  private List<String> dependencies = new java.util.ArrayList<String>();
+  private List<String> dependencies = new java.util.ArrayList<>();
   public void addDependency(String d){ dependencies.add(d); }
 
   /**
    * Classes that want to use a database should override this def, providing
    * all of the Entity classes. See WarpPlugin in examples.
    */
-  private List<Class<?>> dbClasses = new java.util.ArrayList<Class<?>>();
+  private List<Class<?>> dbClasses = new java.util.ArrayList<>();
   public void addDbClass(Class<?> c){ dbClasses.add(c); }
   public List<Class<?>> getDatabaseClasses(){ return dbClasses; }
 
@@ -267,23 +267,11 @@ public class BetterJavaPlugin extends JavaPlugin {
     return Option.apply(e);
   }
 
-  public Parser<Material> material = token("material",
-    new Function1<String, Option<Material>>() {
-      public Option<Material> apply(String s) { return findMaterial(s);};
-    }
-  );
+  public Parser<Material> material = token("material", this::findMaterial);
 
-  public Parser<EntityType> entity = token("entity",
-    new Function1<String, Option<EntityType>>() {
-      public Option<EntityType> apply(String s) { return findEntity(s); };
-    }
-  );
+  public Parser<EntityType> entity = token("entity", this::findEntity);
 
-  public Parser<Player> player = token("player", new Function1<String, Option<Player>>() {
-    public Option<Player> apply(String s) {
-      return Option.apply(getServer().getPlayer(s));
-    };
-  });
+  public Parser<Player> player = token("player", s -> Option.apply(getServer().getPlayer(s)));
 
   public Parser<GameMode> gamemode =
     match("c").or(match("creative")).or(match("1")).outputting(GameMode.CREATIVE).or(
