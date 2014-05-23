@@ -24,11 +24,11 @@ public class MultiPlayerCommands extends BetterJavaPlugin {
           else{
             Tuple2<Tuple2<Integer, Integer>, Option<Integer>> t = e.getRight();
             int x = t._1()._1();
-            if(t._2().isDefined()) teleport(you, x, t._1()._2(), t._2().get());
-            else {
-              int z = t._1()._2();
-              teleport(you, x, you.getWorld().getHighestBlockYAt(x, z), z);
-            }
+            int z = t._1()._2();
+            t._2().foldV(
+              () -> teleport(you, x, you.getWorld().getHighestBlockYAt(x, z), z),
+              y  -> teleport(you, x, z, y)
+            );
           }
         }
       }
@@ -38,55 +38,40 @@ public class MultiPlayerCommands extends BetterJavaPlugin {
       public void run(Player p, Integer i) { p.getWorld().setTime(i.longValue()); }
     }));
 
-    commands.add(new Command("day", "Sets the time to day.", new NoArgCommandBody() {
-      public void run(Player p) { p.getWorld().setTime(1); }
-    }));
+    commands.add(new Command("day", "Sets the time to day.", p -> p.getWorld().setTime(1)));
 
-    commands.add(new Command("night", "Sets the time to night.", new NoArgCommandBody() {
-      public void run(Player p) { p.getWorld().setTime(15000); }
-    }));
+    commands.add(new Command("night", "Sets the time to night.", p -> p.getWorld().setTime(15000)));
 
-    commands.add(new Command("entities", "Display all the entities.", new NoArgCommandBody() {
-      public void run(Player p) {
-        for(Entity e: p.getWorld().getEntities()){ p.sendMessage(e.toString()); }
-      }
+    commands.add(new Command("entities", "Display all the entities.", p -> {
+      for(Entity e: p.getWorld().getEntities()){ p.sendMessage(e.toString()); }
     }));
 
     commands.add(new Command("feed", "Fill a players hunger bar", new CommandBody<Player>(player) {
-      public void run(Player you, final Player them) { doTo(you, them, new Runnable(){
-        public void run() { them.setFoodLevel(20); }
-      }, "fed"); }
+      public void run(Player you, final Player them) { doTo(you, them, () -> them.setFoodLevel(20), "fed"); }
     }));
 
-    commands.add(new Command("starve", "Drain a players hunger bar", new CommandBody<Player>(player)
-    {
-      public void run(Player you, final Player them) { doTo(you, them, new Runnable(){
-        public void run() { them.setFoodLevel(0); }
-      }, "starved"); }
+    commands.add(new Command("starve", "Drain a players hunger bar", new CommandBody<Player>(player) {
+      public void run(Player you, final Player them) { doTo(you, them, () -> them.setFoodLevel(0), "starved"); }
     }));
 
     commands.add(new Command("shock", "Shock a player.", new CommandBody<Player>(player) {
-      public void run(Player you, final Player them) { doTo(you, them, new Runnable(){
-        public void run() { them.getWorld().strikeLightning(them.getLocation()); }
-      }, "starved"); }
+      public void run(Player you, final Player them) {
+        doTo(you, them, () -> them.getWorld().strikeLightning(them.getLocation()), "starved");
+      }
     }));
 
     commands.add(new Command("gm", "Set your game mode", new CommandBody<GameMode>(gamemode) {
       public void run(Player you, GameMode gm) { you.setGameMode(gm); }
     }));
 
-    commands.add(new Command("gms", "Set your game mode to survival", new NoArgCommandBody() {
-      public void run(Player you) { you.setGameMode(GameMode.SURVIVAL); }
-    }));
+    commands.add(new Command("gms", "Set your game mode to survival", you -> you.setGameMode(GameMode.SURVIVAL)));
 
-    commands.add(new Command("gmc", "Set your game mode to creative", new NoArgCommandBody() {
-      public void run(Player you) { you.setGameMode(GameMode.CREATIVE); }
-    }));
+    commands.add(new Command("gmc", "Set your game mode to creative", you -> you.setGameMode(GameMode.CREATIVE)));
 
     commands.add(new Command("spawn", "Spawn some mobs.",
       new CommandBody<Tuple2<EntityType, Option<Integer>>>(entity.and(opt(integer))) {
         public void run(Player p, Tuple2<EntityType, Option<Integer>> t) {
-          spawnN(t._1(), t._2().isDefined() ? t._2().get() : 1, p.getLocation());
+          spawnN(t._1(), t._2().getOrElse(() -> 1), p.getLocation());
         }
     }));
 
@@ -103,18 +88,15 @@ public class MultiPlayerCommands extends BetterJavaPlugin {
       }
     ));
 
-    commands.add(new Command("up", "Go up to the surface.", new NoArgCommandBody() {
-      public void run(Player p) {
-        p.teleport(p.getWorld().getHighestBlockAt(p.getLocation()).getLocation());
-      }
-    }));
+    commands.add(new Command("up", "Go up to the surface.", p ->
+      p.teleport(p.getWorld().getHighestBlockAt(p.getLocation()).getLocation())
+    ));
 
     commands.add(new Command("kill", "Kill entities.",
       new CommandBody<Either<Tuple2<String, Player>, EntityType>>(
         either(match("player").and(player), entity)) {
         public void run(Player killer, final Either<Tuple2<String, Player>, EntityType> e) {
-          if(e.isLeft()) doTo(killer, e.getLeft()._2(), new Runnable() {
-            public void run() { e.getLeft()._2().setHealth(0); } }, "killed"
+          if(e.isLeft()) doTo(killer, e.getLeft()._2(), () -> e.getLeft()._2().setHealth(0), "killed"
           );
           else for(Entity en: killer.getWorld().getEntities()){
             if(en.getType() == e.getRight()) en.remove();

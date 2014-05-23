@@ -67,8 +67,7 @@ public class JavaParsers {
     default Parser<T> or(final Parser<T> p2){ return orLazy(Function0.constant(p2)); }
 
     default Parser<T> orLazy(final Function0<Parser<T>> p2){
-      final Parser<T> self = this;
-      return args -> self.parse(args).fold(
+      return args -> this.parse(args).fold(
         err1 -> p2.apply().parse(args).fold(
           err2 -> new Failure<>(err1 + " or " + err2),
           Success::new
@@ -77,15 +76,14 @@ public class JavaParsers {
       );
     }
 
-    default <U> Parser<U> outputting(final U u){ return map((t) -> u); }
+    default <U> Parser<U> outputting(final U u){ return map(t -> u); }
 
     default Parser<List<T>> star(){
       return this.plus().orLazy(() -> success((List<T>) (new LinkedList<T>())));
     }
 
     default Parser<List<T>> plus(){
-      final Parser<T> self = this;
-      return this.andLazy(self::star).map(t -> {
+      return this.andLazy(this::star).map(t -> {
         LinkedList<T> ts = new LinkedList<>(t._2());
         ts.addFirst(t._1());
         return ts;

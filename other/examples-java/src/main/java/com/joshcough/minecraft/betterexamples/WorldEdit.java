@@ -10,30 +10,24 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import java.util.*;
 
 public class WorldEdit extends BetterJavaPlugin {
-  public final Map<Player, List<Location>> corners = new HashMap<Player, List<Location>>();
+  public final Map<Player, List<Location>> corners = new HashMap<>();
 
   public WorldEdit() {
-    listeners.add(new LeftClickBlockHandler() {
-      public void onLeftClickBlock(Player p, PlayerInteractEvent event) {
-        if(isHolding(p, Material.WOOD_AXE)){
-          setFirstPos(p, event.getClickedBlock().getLocation());
-          event.setCancelled(true);
-        }
+    listeners.add((LeftClickBlockHandler) (p, event) -> {
+      if(isHolding(p, Material.WOOD_AXE)){
+        setFirstPos(p, event.getClickedBlock().getLocation());
+        event.setCancelled(true);
       }
     });
-    listeners.add(new RightClickBlockHandler() {
-      public void onRightClickBlock(Player p, PlayerInteractEvent event) {
-        if(isHolding(p, Material.WOOD_AXE)){
-          setSecondPos(p, event.getClickedBlock().getLocation());
-        }
+    listeners.add((RightClickBlockHandler) (p, event) -> {
+      if(isHolding(p, Material.WOOD_AXE)){
+        setSecondPos(p, event.getClickedBlock().getLocation());
       }
     });
 
-    commands.add(new Command("wand", "Get a WorldEdit wand.", new NoArgCommandBody() {
-      public void run(Player p) {
-        p.getWorld().dropItem(p.getLocation(), itemStack(Material.WOOD_AXE));
-      }
-    }));
+    commands.add(new Command("wand", "Get a WorldEdit wand.", p ->
+      p.getWorld().dropItem(p.getLocation(), itemStack(Material.WOOD_AXE))
+    ));
     commands.add(new Command(
         "set", "Set all the selected blocks to the given material type.",
         new CommandBody<Material>(material) {
@@ -69,33 +63,29 @@ public class WorldEdit extends BetterJavaPlugin {
   }
 
   private List<Location> getCorners(Player p) {
-    return corners.containsKey(p) ? corners.get(p) : new LinkedList<Location>();
+    return corners.containsKey(p) ? corners.get(p) : new LinkedList<>();
   }
 
   public Iterable<Block> iterable(final Location loc1, final Location loc2){
-    return new Iterable<Block>(){
-      public Iterator<Block> iterator() {
-        return new Iterator<Block>() {
-          final int minX = Math.min((int)loc1.getX(), (int)loc2.getX());
-          final int maxX = Math.max((int)loc1.getX(), (int)loc2.getX());
-          final int minY = Math.min((int)loc1.getY(), (int)loc2.getY());
-          final int maxY = Math.max((int)loc1.getY(), (int)loc2.getY());
-          final int minZ = Math.min((int)loc1.getZ(), (int)loc2.getZ());
-          final int maxZ = Math.max((int)loc1.getZ(), (int)loc2.getZ());
-          private int x = minX;
-          private int y = minY;
-          private int z = minZ;
-          public boolean hasNext() { return x <= maxX && y <= maxY && z <= maxZ; }
-          public Block next() {
-            if(!hasNext()) new IllegalStateException("no more blocks in this cube!");
-            Block b = loc1.getWorld().getBlockAt(x, y, z);
-            if(x < maxX) x++; else if(y < maxY) y++; else if(z < maxZ) z++;
-            return b;
-          }
-          public void remove() {
-            throw new IllegalStateException("cant remove from this iterator!");
-          }
-        };
+    return () -> new Iterator<Block>() {
+      final int minX = Math.min((int)loc1.getX(), (int)loc2.getX());
+      final int maxX = Math.max((int)loc1.getX(), (int)loc2.getX());
+      final int minY = Math.min((int)loc1.getY(), (int)loc2.getY());
+      final int maxY = Math.max((int)loc1.getY(), (int)loc2.getY());
+      final int minZ = Math.min((int)loc1.getZ(), (int)loc2.getZ());
+      final int maxZ = Math.max((int)loc1.getZ(), (int)loc2.getZ());
+      private int x = minX;
+      private int y = minY;
+      private int z = minZ;
+      public boolean hasNext() { return x <= maxX && y <= maxY && z <= maxZ; }
+      public Block next() {
+        if(!hasNext()) new IllegalStateException("no more blocks in this cube!");
+        Block b = loc1.getWorld().getBlockAt(x, y, z);
+        if(x < maxX) x++; else if(y < maxY) y++; else if(z < maxZ) z++;
+        return b;
+      }
+      public void remove() {
+        throw new IllegalStateException("cant remove from this iterator!");
       }
     };
   }
@@ -105,7 +95,7 @@ public class WorldEdit extends BetterJavaPlugin {
     if(cs.size() == 2) return iterable(cs.get(0), cs.get(1));
     else {
       p.sendMessage("Both corners must be set!");
-      return new LinkedList<Block>();
+      return new LinkedList<>();
     }
   }
 }

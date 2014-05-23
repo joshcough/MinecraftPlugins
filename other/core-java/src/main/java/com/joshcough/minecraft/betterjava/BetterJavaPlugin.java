@@ -204,6 +204,16 @@ public class BetterJavaPlugin extends JavaPlugin {
       this.description = description;
       this.body = body;
     }
+    public Command(String name, String description, NoArgCommandBodyI body){
+      this.name = name;
+      this.description = description;
+      this.body = new NoArgCommandBody() {
+        @Override
+        public void run(Player p) {
+          body.run(p);
+        }
+      };
+    }
   }
 
   static public void doTo(Player p1, Player p2, Runnable r, String actionName){
@@ -218,18 +228,18 @@ public class BetterJavaPlugin extends JavaPlugin {
 
   static public ItemStack itemStack(Material m){ return new ItemStack(m, 1); }
 
-  static public abstract class LeftClickBlockHandler implements Listener {
+  static public interface LeftClickBlockHandler extends Listener {
     @EventHandler
-    public void on_Dont_Call_Me_Directly(PlayerInteractEvent event){
+    public default void on_Dont_Call_Me_Directly(PlayerInteractEvent event){
       if(event.getAction() == Action.LEFT_CLICK_BLOCK)
         onLeftClickBlock(event.getPlayer(), event);
     }
     abstract public void onLeftClickBlock(Player p, PlayerInteractEvent event);
   }
 
-  static public abstract class RightClickBlockHandler implements Listener {
+  static public interface RightClickBlockHandler extends Listener {
     @EventHandler
-    public void on_Dont_Call_Me_Directly(PlayerInteractEvent event){
+    public default void on_Dont_Call_Me_Directly(PlayerInteractEvent event){
       if(event.getAction() == Action.RIGHT_CLICK_BLOCK)
         onRightClickBlock(event.getPlayer(), event);
     }
@@ -246,6 +256,10 @@ public class BetterJavaPlugin extends JavaPlugin {
         (t, rest) -> run(p, t)
       );
     }
+  }
+
+  public interface NoArgCommandBodyI{
+    public void run(Player p);
   }
 
   abstract public class NoArgCommandBody extends CommandBody<Void> {

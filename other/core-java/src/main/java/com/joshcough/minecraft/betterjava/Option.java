@@ -11,6 +11,10 @@ abstract public class Option<T> {
     return isDefined() ? full.apply(get()) : empty.apply();
   }
 
+  public void foldV(Runnable empty, Function1V<T> full){
+    if(isDefined()) full.apply(get()); else empty.run();
+  }
+
   public <U> Option<U> map(Function1<T,U> f){
     return fold(None::new, t -> new Some<>(f.apply(t)));
   }
