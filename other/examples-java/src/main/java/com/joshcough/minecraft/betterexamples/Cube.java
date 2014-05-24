@@ -44,41 +44,33 @@ public class Cube{
   }
 
   public Iterable<Block> iterable(){
-    return new Iterable<Block>(){
-      public Iterator<Block> iterator() {
-        return new Iterator<Block>() {
-          private int x = minX;
-          private int y = minY;
-          private int z = minZ;
-          public boolean hasNext() { return x <= maxX && y <= maxY && z <= maxZ; }
-          public Block next() {
-            if(!hasNext()) new IllegalStateException("no more blocks in this cube!");
-            Block b = world.getBlockAt(x, y, z);
-            if     (x < maxX) x++;
-            else if(y < maxY) y++;
-            else if(z < maxZ) z++;
-            return b;
-          }
-          public void remove() {
-            throw new IllegalStateException("cant remove from this iterator!");
-          }
-        };
+    return () -> new Iterator<Block>() {
+      private int x = minX;
+      private int y = minY;
+      private int z = minZ;
+      public boolean hasNext() { return x <= maxX && y <= maxY && z <= maxZ; }
+      public Block next() {
+        if(!hasNext()) new IllegalStateException("no more blocks in this cube!");
+        Block b = world.getBlockAt(x, y, z);
+        if     (x < maxX) x++;
+        else if(y < maxY) y++;
+        else if(z < maxZ) z++;
+        return b;
+      }
+      public void remove() {
+        throw new IllegalStateException("cant remove from this iterator!");
       }
     };
   }
 
   public Void set(final Material m){
-    return iterate(new Function1<Block, Void>() {
-      public Void apply(Block b) { b.setType(m); return null; }
-    });
+    return iterate(b -> { b.setType(m); return null; });
   }
 
   public Void change(final Material oldM, final Material newM) {
-    return iterate(new Function1<Block, Void>() {
-      public Void apply(Block b) {
-        if(b.getType() == oldM) b.setType(newM);
-        return null;
-      }
+    return iterate(b -> {
+      if(b.getType() == oldM) b.setType(newM);
+      return null;
     });
   }
 
@@ -96,26 +88,24 @@ public class Cube{
     for(Block b: iterable()){
       if(b.getType() == m) return Option.apply(b);
     }
-    return new None<Block>();
+    return new None<>();
   }
 
 
   // just a test...
   static public <T,U> Iterable<Tuple2<T,U>> zip(final Iterable<T> ts, final Iterable<U> us){
-    return new Iterable<Tuple2<T,U>>(){
-      public Iterator<Tuple2<T,U>> iterator() {
-        final Iterator<T> tsI = ts.iterator();
-        final Iterator<U> usI = us.iterator();
-        return new Iterator<Tuple2<T, U>>() {
-          public boolean hasNext() { return tsI.hasNext() && usI.hasNext(); }
-          public Tuple2<T, U> next() {
-            return new Tuple2<T, U>(tsI.next(), usI.next());
-          }
-          public void remove() {
-            throw new IllegalStateException("cant remove from this iterator!");
-          }
-        };
-      }
+    return () -> {
+      final Iterator<T> tsI = ts.iterator();
+      final Iterator<U> usI = us.iterator();
+      return new Iterator<Tuple2<T, U>>() {
+        public boolean hasNext() { return tsI.hasNext() && usI.hasNext(); }
+        public Tuple2<T, U> next() {
+          return new Tuple2<>(tsI.next(), usI.next());
+        }
+        public void remove() {
+          throw new IllegalStateException("cant remove from this iterator!");
+        }
+      };
     };
   }
 }

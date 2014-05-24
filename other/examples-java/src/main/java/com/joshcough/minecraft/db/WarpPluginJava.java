@@ -14,27 +14,21 @@ public class WarpPluginJava extends BetterJavaPlugin {
   public WarpPluginJava(){
     addDependency("WarpPluginDB");
 
-    commands.add(new Command("warps", "List all warps.", new NoArgCommandBody() {
-      public void run(Player p) {
-        for (Warp w : warpsFor(p)) { p.sendMessage(w.toString()); }
-      }
+    commands.add(Command("warps", "List all warps.", p -> {
+      for (Warp w : warpsFor(p)) { p.sendMessage(w.toString()); }
     }));
 
-    commands.add(new Command("warp", "Warp to the given warp location.",
-      new CommandBody<String>(warpToken) {
-        public void run(Player p, final String wt) {
-          p.teleport(getWarp(p, wt).location(p.getWorld()));
-        }
-      }));
+    commands.add(Command("warp", "Warp to the given warp location.", warpToken,
+      (p, wt) -> p.teleport(getWarp(p, wt).location(p.getWorld()))
+    ));
 
-    commands.add(new Command("set-warp", "Create a new warp location.",
-        new CommandBody<String>(warpToken) {
-          public void run(Player p, final String warpName) {
-            Warp w = createWarp(warpName, p);
-            getDatabase().save(w);
-            p.sendMessage("created warp: " + warpName);
-          }
-        }));
+    commands.add(Command("set-warp", "Create a new warp location.", warpToken,
+      (p, warpName) -> {
+        Warp w = createWarp(warpName, p);
+        getDatabase().save(w);
+        p.sendMessage("created warp: " + warpName);
+      }
+     ));
   }
 
   public EbeanServer getDatabase(){

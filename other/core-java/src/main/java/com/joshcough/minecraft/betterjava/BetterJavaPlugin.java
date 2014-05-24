@@ -64,7 +64,7 @@ public class BetterJavaPlugin extends JavaPlugin {
       info("in loop, c.name=" + c.name);
       if(c.name.toLowerCase().equals(commandLabel.toLowerCase())){
         try {
-          c.body.parseAndRun(p, args);
+          c.body.apply(p, args);
           handled = true;
         } catch (Exception e){
           if(e.getMessage() != null) p.sendMessage(e.getMessage());
@@ -195,25 +195,28 @@ public class BetterJavaPlugin extends JavaPlugin {
     p.teleport(new Location(p.getWorld(), x, y, z));
   }
 
-  public class Command {
+  public static class Command {
     final String name;
     final String description;
-    final CommandBody body;
-    public <T> Command(String name, String description, CommandBody<T> body){
+    final Function2V<Player, String[]> body;
+    public Command(String name, String description, Function2V<Player, String[]> body){
       this.name = name;
       this.description = description;
       this.body = body;
     }
-    public Command(String name, String description, NoArgCommandBodyI body){
-      this.name = name;
-      this.description = description;
-      this.body = new NoArgCommandBody() {
-        @Override
-        public void run(Player p) {
-          body.run(p);
-        }
-      };
-    }
+  }
+
+  public static <T> Command Command(String name, String desc, Parser<T> parser, Function2V<Player, T> f){
+    return new Command(name, desc, (p, args) ->
+      left(parser, eof).parse(args).foldVoid(
+          err -> p.sendMessage(err),
+          (t, rest) -> f.apply(p, t)
+      )
+    );
+  }
+
+  public static Command Command(String name, String desc, Function1V<Player> f){
+    return Command(name, desc, eof, (p, $) -> f.apply(p));
   }
 
   static public void doTo(Player p1, Player p2, Runnable r, String actionName){
@@ -244,28 +247,6 @@ public class BetterJavaPlugin extends JavaPlugin {
         onRightClickBlock(event.getPlayer(), event);
     }
     abstract public void onRightClickBlock(Player p, PlayerInteractEvent event);
-  }
-
-  abstract public class CommandBody<T>{
-    private Parser<T> parser;
-    public CommandBody(Parser<T> parser){ this.parser = parser; }
-    abstract public void run(Player p, T t);
-    public void parseAndRun(Player p, String[] args){
-      parser.parse(args).foldVoid(
-        err -> p.sendMessage(err),
-        (t, rest) -> run(p, t)
-      );
-    }
-  }
-
-  public interface NoArgCommandBodyI{
-    public void run(Player p);
-  }
-
-  abstract public class NoArgCommandBody extends CommandBody<Void> {
-    public NoArgCommandBody(){ super(nothing()); }
-    public void run(Player p, Void v){ run(p); }
-    abstract public void run(Player p);
   }
 
   public Option<Material> findMaterial(String nameOrId){

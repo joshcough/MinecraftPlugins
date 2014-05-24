@@ -25,20 +25,20 @@ public class BlockChangerFinal extends BetterJavaPlugin {
       }
     });
 
-    commands.add(new Command(
+    commands.add(Command(
         "bc",
         "Hit blocks to change them to the block with type blockId, or just /bc to turn it off.",
-        new CommandBody<Option<Material>>(opt(material)) {
-          public void run(Player p, Option<Material> om) {
-            if (om.isDefined()) {
-              blockChangerUsers.put(p, om.get());
-              p.sendMessage(ChatColor.BLUE + "BlockChanger using: " + om.get().name());
-            } else {
-              blockChangerUsers.remove(p);
-              p.sendMessage(ChatColor.RED + "BlockChanger has been disabled!");
-            }
+        opt(material),
+        (p, om) -> om.foldV(
+          () -> {
+            blockChangerUsers.remove(p);
+            p.sendMessage(ChatColor.RED + "BlockChanger has been disabled!");
+          },
+          m -> {
+            blockChangerUsers.put(p, om.get());
+              p.sendMessage(ChatColor.BLUE + "BlockChanger using: " + m.name());
           }
-        }
+        )
     ));
   }
 }

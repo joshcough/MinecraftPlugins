@@ -113,6 +113,8 @@ public class JavaParsers {
     return args -> new Success<>(null, args);
   }
 
+  static public Parser<Void> eof = nothing();
+
   static public <T, U> Parser<Either<T,U>> either(final Parser<T> pt, final Parser<U> pu){
     return args -> pt.parse(args).fold(
       err1 -> pu.parse(args).fold(
@@ -120,6 +122,14 @@ public class JavaParsers {
         (t2, rest2) -> new Success<>(new Right<>(t2), rest2)),
       (t1, rest1) -> new Success<>(new Left<>(t1), rest1)
     );
+  }
+
+  static public <T, U> Parser<T> left(Parser<T> pt, Parser<U> pu){
+    return parserMonad.bind(pt, t -> parserMonad.map(pu, u -> t));
+  }
+
+  static public <T, U> Parser<U> right(Parser<T> pt, Parser<U> pu){
+    return parserMonad.bind(pt, t -> parserMonad.map(pu, u -> u));
   }
 
   static public Parser<String> anyString = args -> ! args.isEmpty() ?

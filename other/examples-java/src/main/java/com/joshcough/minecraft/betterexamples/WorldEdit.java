@@ -5,7 +5,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
-import org.bukkit.event.player.PlayerInteractEvent;
 
 import java.util.*;
 
@@ -25,25 +24,19 @@ public class WorldEdit extends BetterJavaPlugin {
       }
     });
 
-    commands.add(new Command("wand", "Get a WorldEdit wand.", p ->
+    commands.add(Command("wand", "Get a WorldEdit wand.", p ->
       p.getWorld().dropItem(p.getLocation(), itemStack(Material.WOOD_AXE))
     ));
-    commands.add(new Command(
-        "set", "Set all the selected blocks to the given material type.",
-        new CommandBody<Material>(material) {
-          public void run(Player p, final Material m) {
-            for(Block b: cube(p)) { b.setType(m); }
-          }
-        }
+    commands.add(Command(
+      "set", "Set all the selected blocks to the given material type.",
+      material,
+      (p, m) -> { for(Block b: cube(p)) { b.setType(m); } }
     ));
-    commands.add(new Command(
+    commands.add(Command(
         "change",
         "Change all the selected blocks of the first material type to the second material type.",
-        new CommandBody<Tuple2<Material, Material>>(material.and(material)) {
-          public void run(Player p, final Tuple2<Material, Material> t) {
-            for(Block b: cube(p)) { if(b.getType() == t._1()) b.setType(t._2()); }
-          }
-        }
+        material.and(material),
+        (p, ms) -> { for(Block b: cube(p)) { if(b.getType() == ms._1()) b.setType(ms._2()); }}
     ));
   }
 
@@ -58,8 +51,7 @@ public class WorldEdit extends BetterJavaPlugin {
       if(locs.size() == 1) locs.add(loc2); else locs.set(1, loc2);
       p.sendMessage("second corner set to: " + loc2);
     }
-    else
-      p.sendMessage("set corner one first! (with a left click)");
+    else p.sendMessage("set corner one first! (with a left click)");
   }
 
   private List<Location> getCorners(Player p) {

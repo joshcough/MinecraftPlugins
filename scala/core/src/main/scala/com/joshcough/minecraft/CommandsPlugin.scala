@@ -35,7 +35,8 @@ trait MinecraftParsers extends ScalaPlugin with ParserCombinators {
 /**
  * A trait that allows a plugin to have one command, very easily.
  */
-trait CommandPlugin extends CommandsPlugin {
+trait
+CommandPlugin extends CommandsPlugin {
   val command: Command
   def commands = List(command)
 }
