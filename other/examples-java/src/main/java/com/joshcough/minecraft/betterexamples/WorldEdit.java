@@ -12,32 +12,33 @@ public class WorldEdit extends BetterJavaPlugin {
   public final Map<Player, List<Location>> corners = new HashMap<>();
 
   public WorldEdit() {
-    listeners.add((LeftClickBlockHandler) (p, event) -> {
-      if(isHolding(p, Material.WOOD_AXE)){
-        setFirstPos(p, event.getClickedBlock().getLocation());
-        event.setCancelled(true);
+    Listeners(
+      (LeftClickBlockHandler) (p, event) -> {
+        if(isHolding(p, Material.WOOD_AXE)){
+          setFirstPos(p, event.getClickedBlock().getLocation());
+          event.setCancelled(true);
+        }
+      },
+      (RightClickBlockHandler) (p, event) -> {
+        if(isHolding(p, Material.WOOD_AXE)){
+          setSecondPos(p, event.getClickedBlock().getLocation());
+        }
       }
-    });
-    listeners.add((RightClickBlockHandler) (p, event) -> {
-      if(isHolding(p, Material.WOOD_AXE)){
-        setSecondPos(p, event.getClickedBlock().getLocation());
-      }
-    });
-
-    commands.add(Command("wand", "Get a WorldEdit wand.", p ->
-      p.getWorld().dropItem(p.getLocation(), itemStack(Material.WOOD_AXE))
-    ));
-    commands.add(Command(
-      "set", "Set all the selected blocks to the given material type.",
-      material,
-      (p, m) -> { for(Block b: cube(p)) { b.setType(m); } }
-    ));
-    commands.add(Command(
+    );
+    Commands(
+      Command("wand", "Get a WorldEdit wand.", p ->
+        p.getWorld().dropItem(p.getLocation(), itemStack(Material.WOOD_AXE))
+      ),
+      Command("set", "Set all the selected blocks to the given material type.", material,
+        (p, m) -> cube(p).forEach(b -> b.setType(m))
+      ),
+      Command(
         "change",
         "Change all the selected blocks of the first material type to the second material type.",
         material.and(material),
         (p, ms) -> { for(Block b: cube(p)) { if(b.getType() == ms._1()) b.setType(ms._2()); }}
-    ));
+      )
+    );
   }
 
   private void setFirstPos(Player player, final Location location) {

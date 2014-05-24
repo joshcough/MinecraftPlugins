@@ -10,7 +10,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 
 public class TreeDeloggerFinal extends BetterJavaPlugin {
   public TreeDeloggerFinal() {
-    listeners.add(new Listener() {
+    Listeners(new Listener() {
       @EventHandler public void onBlockBreak(BlockBreakEvent event) {
         Block current = event.getBlock();
         while (current.getType() == Material.LOG) {

@@ -33,20 +33,27 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.*;
 import java.util.logging.Logger;
+import java.util.stream.*;
 
 import static com.joshcough.minecraft.betterjava.JavaParsers.*;
 
 public class BetterJavaPlugin extends JavaPlugin {
   public final Logger logger = Logger.getLogger("Minecraft");
 
-  public List<Listener> listeners = new ArrayList<>();
-  public List<Command>  commands  = new ArrayList<>();
+  private List<Listener> listeners = new ArrayList<>();
+  private List<Command> commands = new ArrayList<>();
 
+  protected void Listeners(Listener... ls){
+    listeners = Arrays.asList(ls);
+  }
+  protected void Commands(Command... cs){
+    commands = Arrays.asList(cs);
+  }
   public void onEnable() {
     super.onEnable();
     setupDatabase();
     for (Listener l : listeners) { register(l); }
-    for(Command c: commands) { info(c.name); }
+    commands.forEach(c -> info(c.name));
     info("version " + getVersion() + " is now enabled.");
   }
 
@@ -93,7 +100,7 @@ public class BetterJavaPlugin extends JavaPlugin {
       "author: "    + author + "\n" +
       "version: "   + version + "\n" +
       "database: "  + (this.getDatabaseClasses().size() > 0) + "\n" +
-      "depend: ["   + mkString(this.dependencies, ", ") + "]\n" +
+      "depend: ["   + mkString(this.dependencies.stream(), ", ") + "]\n" +
       "commands:\n" + commandsYml();
   }
 
@@ -105,13 +112,11 @@ public class BetterJavaPlugin extends JavaPlugin {
   }
 
   private String commandsYml(){
-    StringBuilder s = new StringBuilder();
-    for(Command c: commands) { s.append(commandYml(c)); }
-    return s.toString();
+    return mkString(commands.stream().map(this::commandYml), "");
   }
 
   // holy shit.
-  private static <T> String mkString(List<T> list, String separator) {
+  private static <T> String mkString(Stream<T> list, String separator) {
     StringBuilder s = new StringBuilder();
     Iterator<T> it = list.iterator();
     if (it.hasNext()) { s.append(it.next()); }
@@ -208,10 +213,7 @@ public class BetterJavaPlugin extends JavaPlugin {
 
   public static <T> Command Command(String name, String desc, Parser<T> parser, Function2V<Player, T> f){
     return new Command(name, desc, (p, args) ->
-      left(parser, eof).parse(args).foldVoid(
-          err -> p.sendMessage(err),
-          (t, rest) -> f.apply(p, t)
-      )
+      left(parser, eof).parse(args).foldVoid(p::sendMessage, (t, rest) -> f.apply(p, t))
     );
   }
 

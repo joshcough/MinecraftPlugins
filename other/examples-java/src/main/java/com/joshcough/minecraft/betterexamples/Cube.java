@@ -75,7 +75,7 @@ public class Cube{
   }
 
   public Void seti(final Material m){
-    for(Block b: iterable()){ b.setType(m); }
+    iterable().forEach(b -> b.setType(m));
     return null;
   }
 

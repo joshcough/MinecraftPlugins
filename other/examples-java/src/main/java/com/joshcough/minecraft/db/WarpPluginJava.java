@@ -13,22 +13,18 @@ public class WarpPluginJava extends BetterJavaPlugin {
 
   public WarpPluginJava(){
     addDependency("WarpPluginDB");
-
-    commands.add(Command("warps", "List all warps.", p -> {
-      for (Warp w : warpsFor(p)) { p.sendMessage(w.toString()); }
-    }));
-
-    commands.add(Command("warp", "Warp to the given warp location.", warpToken,
-      (p, wt) -> p.teleport(getWarp(p, wt).location(p.getWorld()))
-    ));
-
-    commands.add(Command("set-warp", "Create a new warp location.", warpToken,
-      (p, warpName) -> {
-        Warp w = createWarp(warpName, p);
-        getDatabase().save(w);
-        p.sendMessage("created warp: " + warpName);
-      }
-     ));
+    Commands(
+      Command("warps", "List all warps.", p -> warpsFor(p).forEach(w -> p.sendMessage(w.toString()))),
+      Command("warp", "Warp to the given warp location.", warpToken,
+        (p, wt) -> p.teleport(getWarp(p, wt).location(p.getWorld()))
+      ),
+      Command("set-warp", "Create a new warp location.", warpToken,
+        (p, warpName) -> {
+          getDatabase().save(createWarp(warpName, p));
+          p.sendMessage("created warp: " + warpName);
+        }
+       )
+    );
   }
 
   public EbeanServer getDatabase(){

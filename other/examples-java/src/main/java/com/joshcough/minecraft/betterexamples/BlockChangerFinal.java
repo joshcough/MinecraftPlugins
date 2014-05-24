@@ -17,15 +17,14 @@ public class BlockChangerFinal extends BetterJavaPlugin {
   public final Map<Player, Material> blockChangerUsers = new HashMap<Player, Material>();
 
   public BlockChangerFinal() {
-    listeners.add(new Listener() {
+    Listeners(new Listener() {
       @EventHandler public void onBlockDamage(BlockDamageEvent event) {
         if (blockChangerUsers.containsKey(event.getPlayer())) {
           event.getBlock().setTypeId(blockChangerUsers.get(event.getPlayer()).getId());
         }
       }
     });
-
-    commands.add(Command(
+    Commands((Command(
         "bc",
         "Hit blocks to change them to the block with type blockId, or just /bc to turn it off.",
         opt(material),
@@ -39,6 +38,6 @@ public class BlockChangerFinal extends BetterJavaPlugin {
               p.sendMessage(ChatColor.BLUE + "BlockChanger using: " + m.name());
           }
         )
-    ));
+    )));
   }
 }

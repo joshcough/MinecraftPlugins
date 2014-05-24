@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class BlockChangerV2 extends JavaPlugin {
-  public final Map<Player, Material> blocks = new HashMap<Player, Material>();
+  public final Map<Player, Material> blocks = new HashMap<>();
 
   public void onEnable() {
     getServer().getPluginManager().registerEvents(new Listener (){
