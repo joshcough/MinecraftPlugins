@@ -33,7 +33,7 @@ trait Common {
   // the core plugin library
   lazy val core = Project(
     id = "core",
-    base = file("scala/core"),
+    base = file("core"),
     settings = join(
       standardSettings,
       copyPluginToBukkitSettings(None),
@@ -72,8 +72,7 @@ trait Common {
 
 object build extends Build
   with Common
-  with ExamplesBuild
-  with JavaBuild {
+  with ExamplesBuild {
 
   // this is the main project, that builds all subprojects.
   // it doesnt contain any code itself.
@@ -85,8 +84,6 @@ object build extends Build
       scalaLibPlugin,
       core,
       mineLang,
-      coreJava,
-      examplesJava,
       //microExample,
       Arena,
       BanArrows,
@@ -129,7 +126,7 @@ object build extends Build
   // it is needed in the bukkit plugins dir to run any scala plugins.
   lazy val scalaLibPlugin = Project(
     id = "scalaLibPlugin",
-    base = file("scala/scala-lib-plugin"),
+    base = file("scala-lib-plugin"),
     settings = join(
       standardSettings,
       named("scala-minecraft-scala-library"),
@@ -159,7 +156,7 @@ object build extends Build
 
 trait ExamplesBuild extends Build with Common {
   // a special example project...
-  lazy val microExample = Project(id = "microexample", base = file("scala/microexample"))
+  lazy val microExample = Project(id = "microexample", base = file("microexample"))
 
   // a whole pile of example projects
   lazy val Arena               = exampleProject("Arena")
@@ -185,7 +182,7 @@ trait ExamplesBuild extends Build with Common {
     val pluginClassname = "com.joshcough.minecraft.examples." + exampleProjectName
     Project(
       id = exampleProjectName,
-      base = file("scala/examples/" + exampleProjectName),
+      base = file("examples/" + exampleProjectName),
       settings = join(
         standardSettings,
         named(exampleProjectName),
@@ -196,23 +193,4 @@ trait ExamplesBuild extends Build with Common {
       dependencies = Seq(core)
     )
   }
-}
-
-trait JavaBuild extends Build with Common {
-  // two relatively unimportant projects
-  // that show how to do all this scala stuff in java.
-  // or, how the bukkit api should have been written (in java).
-  // this backports most of my interesting features from scala to java.
-  lazy val coreJava = Project(
-    id = "core-java",
-    base = file("other/core-java"),
-    settings = standardSettings ++ named("java-minecraft-plugin-api")
-  )
-
-  lazy val examplesJava = Project(
-    id = "examplesJava",
-    base = file("other/examples-java"),
-    settings = standardSettings ++ named("JCDC Plugin Factory Java Examples"),
-    dependencies = Seq(coreJava)
-  )
 }
