@@ -2,6 +2,8 @@
 
 # Overview
 
+[![Join the chat at https://gitter.im/joshcough/MinecraftPlugins](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/joshcough/MinecraftPlugins?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 This project contains an API for building Minecraft Plugins in Scala.
 It is currently made up of several sub-projects, but the most important ones to know about are:
 
