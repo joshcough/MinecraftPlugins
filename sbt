@@ -4,8 +4,8 @@
 # Author: Paul Phillips <paulp@typesafe.com>
 
 # todo - make this dynamic
-declare -r sbt_release_version=0.13.2
-declare -r sbt_snapshot_version=0.13.0-SNAPSHOT
+declare -r sbt_release_version=0.13.8
+declare -r sbt_snapshot_version=0.13.9-SNAPSHOT
 
 unset sbt_jar sbt_dir sbt_create sbt_snapshot sbt_launch_dir
 unset scala_version java_home sbt_explicit_version
@@ -113,7 +113,7 @@ declare -r sbt_opts_file=".sbtopts"
 declare -r jvm_opts_file=".jvmopts"
 declare -r latest_28="2.8.2"
 declare -r latest_29="2.9.2"
-declare -r latest_210="2.11.0"
+declare -r latest_210="2.11.6"
 
 declare -r script_path=$(get_script_path "$BASH_SOURCE")
 declare -r script_dir="$(dirname $script_path)"

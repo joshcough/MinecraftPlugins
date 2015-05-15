@@ -14,17 +14,17 @@ trait Common {
     libDeps(
       "javax.servlet"      % "servlet-api" % "2.5"        % "provided->default",
       "org.scalacheck"    %% "scalacheck"  % "1.11.3"     % "test",
-      "org.bukkit"         % "bukkit" % "1.7.2-R0.2"
+      "org.bukkit"         % "bukkit"      % "1.7.2-R0.2"
     ),
     Seq(
       organization := "com.joshcough",
       version := "0.3.3",
-      scalaVersion := "2.11.0",
-      crossScalaVersions := Seq("2.10.3", "2.11.0"),
+      scalaVersion := "2.11.6",
+      crossScalaVersions := Seq("2.10.3", "2.11.6"),
       licenses <++= version(v => Seq("MIT" -> url(projectUrl + "/blob/%s/LICENSE".format(v)))),
       publishMavenStyle := true,
       resolvers += Resolver.sonatypeRepo("snapshots"),
-      resolvers += "Bukkit" at "http://repo.bukkit.org/content/repositories/releases",
+      resolvers += "Bukkit" at "http://repo.bukkit.org/content/groups/public/",
       traceLevel := 10
       //,logLevel := Level.Warn
     )
