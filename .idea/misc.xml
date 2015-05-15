@@ -1,15 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component default="" name="CopyrightManager">
-    <module2copyright/>
+    <module2copyright />
   </component>
   <component name="EntryPointsManager">
-    <entry_points version="2.0"/>
+    <entry_points version="2.0" />
   </component>
   <component name="ProjectResources">
     <default-html-doctype>http://www.w3.org/1999/xhtml</default-html-doctype>
   </component>
-  <component 
-  project-jdk-type="JavaSDK" project-jdk-name="1.8 (1)" jdk-15="true" assert-keyword="true" languageLevel="JDK_1_8" version="2" name="ProjectRootManager">
-    <output url="file://$PROJECT_DIR$/out"/>
-</component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" assert-keyword="true" jdk-15="true" project-jdk-name="1.8" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/out" />
+  </component>
 </project>
+

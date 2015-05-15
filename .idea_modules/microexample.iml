@@ -1,33 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <module type="JAVA_MODULE" version="4">
-  <component name="FacetManager">
-    <facet type="scala" name="Scala">
-      <configuration>
-        <option name="compilerLibraryLevel" value="Project"/>
-        <option name="compilerLibraryName" value="SBT: scala:2.11.0"/>
-        <option name="languageLevel" value="Scala 2.11"/>
-        <option name="fsc" value="true"/>
-        <option name="compilerOptions" value=""/>
-      </configuration>
-    </facet>
-  </component>
+  <component name="FacetManager" />
   <component name="NewModuleRootManager" inherit-compiler-output="false">
-    <output url="file://$MODULE_DIR$/../microexample/target/scala-2.11/classes"/>
-    <output-test url="file://$MODULE_DIR$/../microexample/target/scala-2.11/test-classes"/>
-    <exclude-output/>
+    <output url="file://$MODULE_DIR$/../microexample/target/scala-2.11/classes" />
+    <output-test url="file://$MODULE_DIR$/../microexample/target/scala-2.11/test-classes" />
+    <exclude-output />
     <content url="file://$MODULE_DIR$/../microexample">
-      <sourceFolder url="file://$MODULE_DIR$/../microexample/src/main/scala" isTestSource="false"/>
-      <sourceFolder url="file://$MODULE_DIR$/../microexample/src/main/java" isTestSource="false"/>
-      <sourceFolder url="file://$MODULE_DIR$/../microexample" isTestSource="false"/>
-      <sourceFolder url="file://$MODULE_DIR$/../microexample/src/main/resources" isTestSource="false"/>
-      <sourceFolder url="file://$MODULE_DIR$/../microexample/src/test/scala" isTestSource="true"/>
-      <sourceFolder url="file://$MODULE_DIR$/../microexample/src/test/java" isTestSource="true"/>
-      <sourceFolder url="file://$MODULE_DIR$/../microexample/src/test/resources" isTestSource="true"/>
-      <excludeFolder url="file://$MODULE_DIR$/../microexample/target"/>
+      <sourceFolder url="file://$MODULE_DIR$/../microexample/src/main/scala" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/../microexample/src/main/java" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/../microexample" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/../microexample/src/main/resources" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/../microexample/src/test/scala" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/../microexample/src/test/java" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/../microexample/src/test/resources" isTestSource="true" />
+      <excludeFolder url="file://$MODULE_DIR$/../microexample/target" />
     </content>
-    <orderEntry type="inheritedJdk"/>
-    <orderEntry type="sourceFolder" forTests="false"/>
-    <orderEntry type="library" name="SBT: org.scala-lang:scala-library:2.11.0" level="project"/>
-    <orderEntry type="library" name="SBT: com.joshcough:scala-minecraft-plugin-api_2.11:0.3.3" level="project"/>
-    <orderEntry type="library" name="SBT: org.bukkit:bukkit:1.7.2-R0.2" level="project"/>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="SBT: com.joshcough:scala-minecraft-plugin-api_2.11:0.3.3" level="project" />
+    <orderEntry type="library" name="SBT: org.bukkit:bukkit:1.7.2-R0.2" level="project" />
+    <orderEntry type="library" name="SBT: org.scala-lang:scala-library:2.11.0" level="project" />
   </component>
 </module>
+
