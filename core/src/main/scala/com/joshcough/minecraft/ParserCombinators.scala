@@ -1,8 +1,5 @@
 package com.joshcough.minecraft
 
-import java.io.File
-import util.Try
-
 object ParserCombinators extends ParserCombinators
 
 /**
@@ -35,17 +32,11 @@ trait ParserCombinators extends ScalaEnrichment {
     def fold[A](failF: String => A)(sucF: (T,List[String]) => A): A = sucF(value, rest)
   }
 
-  object ParserMonad {
-    def unit[T](t: T) = new Parser[T] {
+  object Parser {
+    def apply[T](t: T) = new Parser[T] {
       def apply(args: List[String]) = Success(t, args)
       def describe = t.toString
     }
-    def bind[T, U](p: Parser[T])(f: T => Parser[U]) = new Parser[U] {
-      def apply(args: List[String]): ParseResult[U] =
-        p(args).fold[ParseResult[U]](Failure)(f(_)(_))
-      def describe = p.describe
-    }
-    def map[T, U](p: Parser[T])(f: T => U) = bind(p)(t => unit(f(t)))
   }
 
   trait Parser[+T] extends (List[String] => ParseResult[T]) { self =>
@@ -55,9 +46,9 @@ trait ParserCombinators extends ScalaEnrichment {
 
     /**
      * Create a new parser that when ran, if it succeeds,
-     * take its result and map it over f.
+     * take its result and maps it over f.
      */
-    def map[U](f: T => U) = ParserMonad.map(this)(f)
+    def map[U](f: T => U) = flatMap(t => Parser(f(t)))
 
     /**
      * Operator alias for map.
@@ -71,10 +62,16 @@ trait ParserCombinators extends ScalaEnrichment {
     def ^^^[U](u: => U) = map (_ => u)
 
     /**
-     * Monadic bind for a Parser. Used for chaining parsers together in for comprehensions,
+     * Used for chaining parsers together in for comprehensions,
      * so that you can run N of them in a row, short circuiting if any fail.
+     * Warning: flatMap does not play well with describe, and you should
+     * always describe your parser after running flatMap.
      */
-    def flatMap[U](f: T => Parser[U]) = ParserMonad.bind(this)(f)
+    def flatMap[U](f: T => Parser[U]) = new Parser[U] {
+      def apply(args: List[String]): ParseResult[U] =
+        self(args).fold[ParseResult[U]](Failure)(f(_)(_))
+      def describe = self.describe
+    }
 
     /**
      * Create a new parser that when ran, if it succeeds,
@@ -190,9 +187,10 @@ trait ParserCombinators extends ScalaEnrichment {
   }
 
   /**
-   * Monadic return for Parsers. Create a parser that always succeeds, returning t.
+   * Create a parser that always succeeds (on any input), returning t.
+   * The parser consumes no input.
    */
-  def success[T](t: T) = ParserMonad.unit(t)
+  def success[T](t: T) = Parser(t)
 
   /**
    * Create a parser that always fails with the given error message.
@@ -223,7 +221,7 @@ trait ParserCombinators extends ScalaEnrichment {
    * If an exception is thrown, it is caught, and the parser fails.
    */
   def attempt[T](name: String)(f: String => T): Parser[T] =
-    anyStringAs(name).flatMap(s => Try(success(f(s))).getOrElse(failure(s"invalid $name: $s")))
+    anyStringAs(name).flatMap(s => util.Try(success(f(s))).getOrElse(failure(s"invalid $name: $s")))
 
   /**
    * A parser that succeeds as long as there is
@@ -299,38 +297,10 @@ trait ParserCombinators extends ScalaEnrichment {
 
   // file parsers
   // TODO: fix so that filenameP only accepts valid file names.
+  import java.io.File
   val filenameP: Parser[String] = anyStringAs("file")
   val file   : Parser[File] = filenameP ^^ (new File(_))
   val newFile: Parser[File] = attempt("new-file"){ s => val f = new File(s); f.createNewFile; f }
   val existingFile     : Parser[File] = file.filter(_.exists) named "existing-file"
   val existingOrNewFile: Parser[File] = existingFile | newFile
 }
-
-// TODO: review these and maybe fix up later
-//  def slurpUntil(delim:Char): Parser[String] = new Parser[String] {
-//    def apply(args: List[String]) = {
-//      val all = args.mkString(" ")
-//      val (l,r) = all.partition(_ != delim)
-//      if(l.isEmpty) Failure(s"didn't find: $delim in: $all")
-//      else Success(l, r.drop(1).split(" ").toList)
-//    }
-//    def describe = s"slurp until: $delim"
-//  }
-//
-//  implicit def charToParser(c:Char): Parser[Char] = matchChar(c)
-//
-//  def matchChar(c:Char): Parser[Char] = new Parser[Char] {
-//    def apply(args: List[String]) = args match {
-//      case Nil => Failure(s"didn't find: $c")
-//      case x :: xs =>
-//        if(x.startsWith(c.toString)) Success(c, x.drop(1) :: xs)
-//        else Failure(s"expected: $c, but got: ${x.take(1)}")
-//    }
-//    def describe = s"slurp until: $c"
-//  }
-
-//at com.joshcough.minecraft.ParserCombinators$Parser$class.$tilde(ParserCombinators.scala:96)
-//at com.joshcough.minecraft.ParserCombinators$$anon$9.$tilde(ParserCombinators.scala:230)
-//at com.joshcough.minecraft.ParserCombinators$Parser$class.$plus(ParserCombinators.scala:134)
-//at com.joshcough.minecraft.ParserCombinators$$anon$9.$plus(ParserCombinators.scala:230)
-//at com.joshcough.minecraft.ParserCombinators$Parser$class.$times(ParserCombinators.scala:125)
