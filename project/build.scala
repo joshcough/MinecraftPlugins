@@ -10,7 +10,6 @@ trait Common {
 
   lazy val standardSettings = join(
     Defaults.defaultSettings,
-    bintray.Plugin.bintraySettings,
     libDeps(
       "javax.servlet"      % "servlet-api" % "2.5"        % "provided->default",
       "org.scalacheck"    %% "scalacheck"  % "1.11.3"     % "test",
@@ -18,13 +17,16 @@ trait Common {
     ),
     Seq(
       organization := "com.joshcough",
-      version := "0.3.3",
+      version := "0.3.4",
       scalaVersion := "2.11.6",
-      crossScalaVersions := Seq("2.10.3", "2.11.6"),
+      crossScalaVersions := Seq("2.10.4", "2.11.6"),
       licenses <++= version(v => Seq("MIT" -> url(projectUrl + "/blob/%s/LICENSE".format(v)))),
       publishMavenStyle := true,
-      resolvers += Resolver.sonatypeRepo("snapshots"),
-      resolvers += "Bukkit" at "http://repo.bukkit.org/content/groups/public/",
+      resolvers ++= Seq(
+        Resolver.jcenterRepo,
+        Resolver.sonatypeRepo("snapshots"),
+        "Bukkit" at "http://repo.bukkit.org/content/groups/public/"
+      ),
       traceLevel := 10
       //,logLevel := Level.Warn
     )
