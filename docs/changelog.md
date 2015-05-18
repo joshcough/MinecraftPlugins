@@ -1,3 +1,8 @@
+# 0.3.4
+
+ * Upgraded to Bukkit 1.7.2-R0.2
+ * Upgraded to Scala 2.10.4 and 2.11.6
+
 # 0.3.0
 
 ## Summary
