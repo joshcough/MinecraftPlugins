@@ -40,10 +40,12 @@ class MultiPlayerCommands extends CommandsPlugin {
       case (p, e ~ n) => p.loc.spawnN(e, n.fold(1)(id))
     },
 
-    Command("ban",      "Ban some players.", anyString.named("player").+){ case (you, them) =>
-      server.findOnlinePlayers (them) foreach { _ ban s"${you.name} doesn't like you." }
-      server.findOfflinePlayers(them) foreach { _ setBanned true }
-    },
+    // Can now do this this way from https://www.spigotmc.org/threads/banning-players.131889/ :
+    // Bukkit.getBanlist(Type.NAME).addBan(username, reason, expires, source);
+//    Command("ban",      "Ban some players.", anyString.named("player").+){ case (you, them) =>
+//      server.findOnlinePlayers (them) foreach { _ ban s"${you.name} doesn't like you." }
+//      server.findOfflinePlayers(them) foreach { _ setBanned true }
+//    },
 
     Command("box",      "Put a box around yourself, made of any material.", material){ case (p,m) =>
       p.blocksAround.foreach(_ changeTo m)
@@ -60,7 +62,7 @@ class MultiPlayerCommands extends CommandsPlugin {
     Command("drill",    "Drill down to bedrock immediately.")(p =>
       for (b <- p.blockOn.blocksBelow.takeWhile(_ isNot BEDROCK); if b isNot AIR) {
         b.erase
-        if (b.blockBelow is BEDROCK) b nthBlockAbove 2 changeTo STATIONARY_WATER
+        if (b.blockBelow is BEDROCK) b nthBlockAbove 2 changeTo WATER
       }
     ),
 
@@ -84,15 +86,15 @@ class MultiPlayerCommands extends CommandsPlugin {
 
     OpOnly(P2P("shock",    "Shock a player.")((you, them) => you.doTo(them, them.shock, "shocked"))),
 
-    OpOnly(Command("lamp", "Spawns a lamp wherever you are looking."){ p =>
-      val b = p.getTargetBlock(null, 1000)
-      if((b is Material.AIR) || math.abs(p.x - b.x) > 50 || math.abs(p.z - b.z) > 50)
-        p ! s"That's more than 50 blocks away. (x: ${math.abs(p.x - b.x)}) (z: ${math.abs(p.z - b.z)})"
-      else {
-        b.blockBelow.changeTo(Material.REDSTONE_TORCH_ON)
-        b.changeTo(Material.REDSTONE_LAMP_ON)
-      }
-    }),
+//    OpOnly(Command("lamp", "Spawns a lamp wherever you are looking."){ p =>
+//      val b = p.getTargetBlock(null, 1000)
+//      if((b is Material.AIR) || math.abs(p.x - b.x) > 50 || math.abs(p.z - b.z) > 50)
+//        p ! s"That's more than 50 blocks away. (x: ${math.abs(p.x - b.x)}) (z: ${math.abs(p.z - b.z)})"
+//      else {
+//        b.blockBelow.changeTo(Material.REDSTONE_TORCH_ON)
+//        b.changeTo(Material.REDSTONE_LAMP_ON)
+//      }
+//    }),
 
     Command("jump", "Jump really high.", (int ~ int ~ int) or eof){
       case (p, Left(x ~ y ~ z)) => p.setVelocity(new org.bukkit.util.Vector(x, y, z))

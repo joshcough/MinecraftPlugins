@@ -1,3 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="ScalaCompilerConfiguration"> </component>
+  <component name="ScalaCompilerConfiguration">
+    <profile name="sbt 1" modules="minecraftplugins_7095,minecraftplugins,scala-minecraft-plugin-api,WorldEdit,scala-minecraft-scala-library" />
+  </component>
 </project>

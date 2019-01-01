@@ -23,10 +23,8 @@ object BukkitEnrichment extends BukkitEnrichment {
   case class MaterialAndData(m: Material, data: Option[Byte]){
     def update(b: Block): Boolean = {
       val oldM    = b.getType
-      val oldData = b.getData
       b setType m
-      data foreach b.setData
-      oldM != m || oldData != data.getOrElse(0)
+      oldM != m
     }
     def itemStack: ItemStack = data.fold(new ItemStack(m))(new ItemStack(m, 1, 0:Short, _))
   }
@@ -232,7 +230,7 @@ trait BukkitEnrichment extends ScalaEnrichment {
     lazy val xyzd       = (xd, yd, zd)
     def world           = loc.getWorld
     def block           = loc.getBlock
-    def spawn(entityType:  EntityType): Unit = world.spawnCreature(loc, entityType)
+    def spawn(entityType:  EntityType): Unit = world.spawnEntity(loc, entityType)
     def spawnN(entityType: EntityType, n: Int): Unit = for (i <- 1 to n) spawn(entityType)
     def dropItem(stack: ItemStack): Unit = loc.world.dropItem(loc, stack)
     def dropItem(m: Material): Unit = dropItem(m.itemStack)
@@ -331,7 +329,7 @@ trait BukkitEnrichment extends ScalaEnrichment {
     def findPlayer(name:String)(f: Player => Unit): Unit =
       server.findPlayer(name).fold(sendError("kill could not find player: " + name))(f)
     def findPlayers(names:List[String])(f: Player => Unit): Unit = names.foreach(n => findPlayer(n)(f))
-    def ban(reason:String){ player.setBanned(true); player.kickPlayer("banned: $reason") }
+    //def ban(reason:String){ player.setBanned(true); player.kickPlayer("banned: $reason") }
     def kill(playerName:String): Unit   = findPlayer(playerName)(kill)
     def kill(p:Player): Unit            = doTo(p, p.setHealth(0), "killed")
     def teleportTo(otherPlayer: Player) = player.teleport(otherPlayer)
@@ -396,35 +394,33 @@ trait BukkitEnrichment extends ScalaEnrichment {
     Option(EntityType.valueOf(name.toUpperCase))
   )
 
-  def findMaterial(nameOrId: String) = Option(getMaterial(nameOrId.toUpperCase)).orElse(
-    tryO(getMaterial(nameOrId.toInt))
-  )
+  def findMaterial(nameOrId: String) = Option(getMaterial(nameOrId.toUpperCase))
 
   implicit class RichColor(c: ChatColor) {
     def apply(s: String) = c + s
   }
 
-  sealed case class Color(data:Byte){
-    def wool = MaterialAndData(WOOL, Some(data))
-  }
-
-  object Color {
-    val WHITE       = new Color(0)
-    val ORANGE      = new Color(1)
-    val MAGENTA     = new Color(2)
-    val LIGHT_BLUE  = new Color(3)
-    val YELLOW      = new Color(4)
-    val LIGHT_GREEN = new Color(5)
-    val PINK        = new Color(6)
-    val GREY        = new Color(7)
-    val LIGHT_GREY  = new Color(8)
-    val CYAN        = new Color(9)
-    val VIOLET      = new Color(10)
-    val BLUE        = new Color(11)
-    val BROWN       = new Color(12)
-    val GREEN       = new Color(13)
-    val RED         = new Color(14)
-    val BLACK       = new Color(15)
-  }
+//  sealed case class Color(data:Byte){
+//    def wool = MaterialAndData(WOOL, Some(data))
+//  }
+//
+//  object Color {
+//    val WHITE       = new Color(0)
+//    val ORANGE      = new Color(1)
+//    val MAGENTA     = new Color(2)
+//    val LIGHT_BLUE  = new Color(3)
+//    val YELLOW      = new Color(4)
+//    val LIGHT_GREEN = new Color(5)
+//    val PINK        = new Color(6)
+//    val GREY        = new Color(7)
+//    val LIGHT_GREY  = new Color(8)
+//    val CYAN        = new Color(9)
+//    val VIOLET      = new Color(10)
+//    val BLUE        = new Color(11)
+//    val BROWN       = new Color(12)
+//    val GREEN       = new Color(13)
+//    val RED         = new Color(14)
+//    val BLACK       = new Color(15)
+//  }
 }
 

@@ -2,33 +2,14 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea_modules/Arena.iml" filepath="$PROJECT_DIR$/.idea_modules/Arena.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea_modules/BanArrows.iml" filepath="$PROJECT_DIR$/.idea_modules/BanArrows.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea_modules/BlockChanger.iml" filepath="$PROJECT_DIR$/.idea_modules/BlockChanger.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea_modules/BlockChangerGold.iml" filepath="$PROJECT_DIR$/.idea_modules/BlockChangerGold.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea_modules/Farmer.iml" filepath="$PROJECT_DIR$/.idea_modules/Farmer.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea_modules/GetOffMyLawn.iml" filepath="$PROJECT_DIR$/.idea_modules/GetOffMyLawn.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea_modules/God.iml" filepath="$PROJECT_DIR$/.idea_modules/God.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea_modules/LightningArrows.iml" filepath="$PROJECT_DIR$/.idea_modules/LightningArrows.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea_modules/MultiPlayerCommands.iml" filepath="$PROJECT_DIR$/.idea_modules/MultiPlayerCommands.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea_modules/NoRain.iml" filepath="$PROJECT_DIR$/.idea_modules/NoRain.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea_modules/PluginCommander.iml" filepath="$PROJECT_DIR$/.idea_modules/PluginCommander.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea_modules/Shock.iml" filepath="$PROJECT_DIR$/.idea_modules/Shock.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea_modules/TeleportBows.iml" filepath="$PROJECT_DIR$/.idea_modules/TeleportBows.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea_modules/Thor.iml" filepath="$PROJECT_DIR$/.idea_modules/Thor.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea_modules/TreeDelogger.iml" filepath="$PROJECT_DIR$/.idea_modules/TreeDelogger.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea_modules/WorldEdit.iml" filepath="$PROJECT_DIR$/.idea_modules/WorldEdit.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea_modules/YellowBrickRoad.iml" filepath="$PROJECT_DIR$/.idea_modules/YellowBrickRoad.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea_modules/ZombieApocalypse.iml" filepath="$PROJECT_DIR$/.idea_modules/ZombieApocalypse.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea_modules/all.iml" filepath="$PROJECT_DIR$/.idea_modules/all.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea_modules/all-build.iml" filepath="$PROJECT_DIR$/.idea_modules/all-build.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea_modules/commonPlugins.iml" filepath="$PROJECT_DIR$/.idea_modules/commonPlugins.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea_modules/core.iml" filepath="$PROJECT_DIR$/.idea_modules/core.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea_modules/microexample.iml" filepath="$PROJECT_DIR$/.idea_modules/microexample.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea_modules/microexample-build.iml" filepath="$PROJECT_DIR$/.idea_modules/microexample-build.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea_modules/mineLang.iml" filepath="$PROJECT_DIR$/.idea_modules/mineLang.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea_modules/scalaLibPlugin.iml" filepath="$PROJECT_DIR$/.idea_modules/scalaLibPlugin.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/WorldEdit.iml" filepath="$PROJECT_DIR$/.idea/modules/WorldEdit.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/WorldEdit-build.iml" filepath="$PROJECT_DIR$/.idea/modules/WorldEdit-build.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/core-build.iml" filepath="$PROJECT_DIR$/.idea/modules/core-build.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/minecraftplugins.iml" filepath="$PROJECT_DIR$/.idea/modules/minecraftplugins.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/minecraftplugins-build.iml" filepath="$PROJECT_DIR$/.idea/modules/minecraftplugins-build.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/scala-minecraft-plugin-api.iml" filepath="$PROJECT_DIR$/.idea/modules/scala-minecraft-plugin-api.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/scala-minecraft-scala-library.iml" filepath="$PROJECT_DIR$/.idea/modules/scala-minecraft-scala-library.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/scalaLibPlugin-build.iml" filepath="$PROJECT_DIR$/.idea/modules/scalaLibPlugin-build.iml" />
     </modules>
   </component>
 </project>
-

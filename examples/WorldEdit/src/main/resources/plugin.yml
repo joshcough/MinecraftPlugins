@@ -1,0 +1,107 @@
+name: WorldEdit
+main: com.joshcough.minecraft.examples.WorldEdit
+author: Josh Cough
+version: 0.1
+api-version: 1.13
+depend: [ScalaLibPlugin, ScalaPluginAPI]
+softdepend: []
+commands:
+  goto:
+    description: Teleport to a player.
+    usage: /goto (player-name or int int optional(int))
+  set-time:
+    description: Sets the time.
+    usage: /set-time time
+  day:
+    description: Sets the time to 1.
+    usage: /day EOF
+  night:
+    description: Sets the time to 15000.
+    usage: /night EOF
+  s:
+    description: Set your game mode to survival.
+    usage: /s EOF
+  c:
+    description: Set your game mode to creative.
+    usage: /c EOF
+  getconf:
+    description: get a config
+    usage: /getconf string
+  wand:
+    description: Get a WorldEdit wand.
+    usage: /wand EOF
+  pos1:
+    description: Set the first position
+    usage: /pos1 optional(int int optional(int))
+  pos2:
+    description: Set the second position
+    usage: /pos2 optional(int int optional(int))
+  set:
+    description: Set all the selected blocks to the given material type.
+    usage: /set material-type
+  replace:
+    description: Replace all the selected blocks of the first material type to the second material type.
+    usage: /replace material-type material-type
+  undo:
+    description: undo!
+    usage: /undo ((on or off) or EOF)
+  redo:
+    description: redo!
+    usage: /redo EOF
+  paste:
+    description: Paste your cube at your current location!
+    usage: /paste EOF
+  move:
+    description: Move your cube to your current location!
+    usage: /move EOF
+  flip:
+    description: Flip your cube upside down!
+    usage: /flip EOF
+  flipxz:
+    description: Flip x and z
+    usage: /flipxz EOF
+  paste-mirror-y:
+    description: paste your cube somewhere, but flipped upside down!
+    usage: /paste-mirror-y EOF
+  goto:
+    description: Teleport!
+    usage: /goto int int optional(int)
+  cube-to:
+    description: Set both positions
+    usage: /cube-to int int optional(int) optional(int int optional(int))
+  between:
+    description: Set both positions
+    usage: /between int int optional(int) - int int optional(int)
+  find:
+    description: Checks if your cube contains any of the given material, and tells where.
+    usage: /find material-type
+  erase:
+    description: Set all the selected blocks to air.
+    usage: /erase EOF
+  fib-tower:
+    description: create a tower from the fib numbers
+    usage: /fib-tower int material-type
+  walls:
+    description: Create walls with the given material type.
+    usage: /walls material-type
+  empty-tower:
+    description: Create walls and floor with the given material type, and set everything inside to air.
+    usage: /empty-tower material-type
+  dig:
+    description: Dig
+    usage: /dig odd-int int
+  goto:
+    description: Teleport!
+    usage: /goto (player-name or int int optional(int))
+  up:
+    description: Go up to the surface.
+    usage: /up EOF
+  set-time:
+    description: Sets the time.
+    usage: /set-time time
+  day:
+    description: Sets the time to day (1000).
+    usage: /day EOF
+  night:
+    description: Sets the time to night (15000).
+    usage: /night EOF

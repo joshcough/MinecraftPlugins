@@ -1,7 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module type="JAVA_MODULE" version="4">
-  <component name="FacetManager" />
-  <component name="NewModuleRootManager" inherit-compiler-output="false">
+  <component name="FacetManager">
+    <facet type="minecraft" name="Minecraft">
+      <configuration>
+        <autoDetectTypes>
+          <platformType>BUKKIT</platformType>
+        </autoDetectTypes>
+      </configuration>
+    </facet>
+  </component>
+  <component name="NewModuleRootManager">
     <output url="file://$MODULE_DIR$/../target/scala-2.11/classes" />
     <output-test url="file://$MODULE_DIR$/../target/scala-2.11/test-classes" />
     <exclude-output />
@@ -16,11 +24,11 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="SBT: org.bukkit:bukkit:1.7.2-R0.2" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="SBT: javax.servlet:servlet-api:2.5:provided" level="project" />
-    <orderEntry type="library" scope="TEST" name="SBT: org.scalacheck:scalacheck_2.11:1.11.3:test" level="project" />
-    <orderEntry type="library" scope="TEST" name="SBT: org.scala-sbt:test-interface:1.0:test" level="project" />
-    <orderEntry type="library" scope="TEST" name="SBT: org.scala-lang.modules:scala-parser-combinators_2.11:1.0.1:test" level="project" />
+    <orderEntry type="library" exported="" name="SBT: org.bukkit:bukkit:1.7.2-R0.2" level="project" />
+    <orderEntry type="library" exported="" scope="PROVIDED" name="SBT: javax.servlet:servlet-api:2.5:provided" level="project" />
+    <orderEntry type="library" exported="" scope="TEST" name="SBT: org.scalacheck:scalacheck_2.11:1.11.3:test" level="project" />
+    <orderEntry type="library" exported="" scope="TEST" name="SBT: org.scala-sbt:test-interface:1.0:test" level="project" />
+    <orderEntry type="library" exported="" scope="TEST" name="SBT: org.scala-lang.modules:scala-parser-combinators_2.11:1.0.1:test" level="project" />
     <orderEntry type="module" module-name="scalaLibPlugin" exported="" />
     <orderEntry type="module" module-name="core" exported="" />
     <orderEntry type="module" module-name="mineLang" exported="" />
@@ -42,7 +50,7 @@
     <orderEntry type="module" module-name="WorldEdit" exported="" />
     <orderEntry type="module" module-name="YellowBrickRoad" exported="" />
     <orderEntry type="module" module-name="ZombieApocalypse" exported="" />
-    <orderEntry type="library" name="SBT: org.scala-lang:scala-library:2.11.0" level="project" />
+    <orderEntry type="library" exported="" name="SBT: org.scala-lang:scala-library:2.11.0" level="project" />
+    <orderEntry type="library" exported="" name="bukkit-1.13.2-R0.1-SNAPSHOT" level="project" />
   </component>
 </module>
-

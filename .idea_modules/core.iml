@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module type="JAVA_MODULE" version="4">
-  <component name="FacetManager" />
-  <component name="NewModuleRootManager" inherit-compiler-output="false">
+  <component name="NewModuleRootManager">
     <output url="file://$MODULE_DIR$/../core/target/scala-2.11/classes" />
     <output-test url="file://$MODULE_DIR$/../core/target/scala-2.11/test-classes" />
     <exclude-output />
@@ -22,6 +21,6 @@
     <orderEntry type="library" scope="TEST" name="SBT: org.scala-sbt:test-interface:1.0:test" level="project" />
     <orderEntry type="library" scope="TEST" name="SBT: org.scala-lang.modules:scala-parser-combinators_2.11:1.0.1:test" level="project" />
     <orderEntry type="library" name="SBT: org.scala-lang:scala-library:2.11.0" level="project" />
+    <orderEntry type="library" name="scala-sdk-2.12.7" level="application" />
   </component>
 </module>
-
