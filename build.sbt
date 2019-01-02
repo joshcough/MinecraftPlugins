@@ -1,9 +1,3 @@
-//import sbt._
-//import Keys._
-//import java.io.File
-////import sbtassembly.Plugin._
-////import AssemblyKeys._
-//
 
 val projectUrl = "https://github.com/joshcough/MinecraftPlugins"
 
@@ -41,10 +35,8 @@ lazy val scalaLibPlugin = (project in file("scala-lib-plugin"))
 val WorldEdit = (project in file("examples/WorldEdit"))
   .settings(standardSettings, name := "WorldEdit").dependsOn(core)
 
-//val MultiPlayerCommands = (project in file("examples/MultiPlayerCommands"))
-//  .settings(standardSettings, name := "MultiPlayerCommands").dependsOn(core)
-//
-//
+val MultiPlayerCommands = (project in file("examples/MultiPlayerCommands"))
+  .settings(standardSettings, name := "MultiPlayerCommands").dependsOn(core)
 
 //object build extends Build
 //  with Common {
@@ -165,7 +157,6 @@ excludedJars in assembly <<= (fullClasspath in assembly) map { cp =>
 //    dependencies = Seq(core)
 //}
 
-//
 //  def pluginYmlSettings(pluginClassname: String, author: String): Seq[Setting[_]] = Seq[Setting[_]](
 //    resourceGenerators in Compile <+=
 //      (resourceManaged in Compile, streams, productDirectories in Compile, dependencyClasspath in Compile, version, compile in Compile, runner) map {

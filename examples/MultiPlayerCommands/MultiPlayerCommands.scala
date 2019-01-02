@@ -5,16 +5,31 @@ import org.bukkit.Material._
 import org.bukkit.entity.EntityType._
 import scala.collection.JavaConversions._
 import com.joshcough.minecraft.CommandsPlugin
-import org.bukkit.Material
+import org.bukkit.{Material, Server}
+
+/*
+Run these commands to regenerate the plugin.yml contents
+import com.joshcough.minecraft.ScalaPlugin
+import com.joshcough.minecraft.CommandsPlugin
+println(CommandsPlugin.fullPluginYml("MultiPlayerCommands", "com.joshcough.minecraft.examples.MultiPlayerCommands", "Josh Cough", "0.1",
+                              Nil, List("ScalaLibPlugin", "ScalaPluginAPI"), Nil,
+                              com.joshcough.minecraft.examples.MultiPlayerCommands.commands(null)))
+*/
 
 /**
  * Classic MultiPlayerCommands plugin, done in Scala.
  * Gives a whole pile of useful commands.
  * Their descriptions serve well as documentation.
  */
-class MultiPlayerCommands extends CommandsPlugin {
+class MultiPlayerCommands extends CommandsPlugin  {
+  val commands = MultiPlayerCommands.commands(server)
+}
 
-  val commands = List(
+object MultiPlayerCommands {
+
+  import CommandsPlugin._
+
+  def commands(implicit server: Server) = List(
 
     Command("goto",     "Teleport!", player or location){ case (you, e) =>
       e.fold(them => you teleportTo them, loc => you.teleport(loc of you.world))
@@ -24,14 +39,6 @@ class MultiPlayerCommands extends CommandsPlugin {
 
     Command("set-time", "Sets the time.", time){ case (p, n) => p.world setTime n },
 
-    Command("day",      "Sets the time to day (1000).")   (_.world setTime 1000),
-
-    Command("night",    "Sets the time to night (15000).")(_.world setTime 15000),
-
-    Command("gms",      "Set your game mode to survival.")(_ setGameMode SURVIVAL),
-
-    Command("gmc",      "Set your game mode to creative.")(_ setGameMode CREATIVE),
-
     Command("gm",       "Set your game mode.", gamemode){ case (p, gm) => p setGameMode gm },
 
     Command("entities", "Display all the entities.")(p => p !* (p.world.entities.map(_.toString): _*)),
@@ -40,12 +47,9 @@ class MultiPlayerCommands extends CommandsPlugin {
       case (p, e ~ n) => p.loc.spawnN(e, n.fold(1)(id))
     },
 
-    // Can now do this this way from https://www.spigotmc.org/threads/banning-players.131889/ :
-    // Bukkit.getBanlist(Type.NAME).addBan(username, reason, expires, source);
-//    Command("ban",      "Ban some players.", anyString.named("player").+){ case (you, them) =>
-//      server.findOnlinePlayers (them) foreach { _ ban s"${you.name} doesn't like you." }
-//      server.findOfflinePlayers(them) foreach { _ setBanned true }
-//    },
+    Command("ban",      "Ban some players.", player+){ case (you, them) =>
+      them.foreach(_.ban(s"${you.name} doesn't like you.", you))
+    },
 
     Command("box",      "Put a box around yourself, made of any material.", material){ case (p,m) =>
       p.blocksAround.foreach(_ changeTo m)
@@ -104,7 +108,6 @@ class MultiPlayerCommands extends CommandsPlugin {
 }
 
 /**
-
 p = player
 t = target
 
@@ -125,5 +128,4 @@ looking more towards the x axis:
   hmm...use those weights?:  Vector(x=7.5, y=10, z=2.5)
 
 similar with z axis.
-
 */

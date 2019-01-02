@@ -30,7 +30,7 @@ trait MinecraftParsers extends ParserCombinators with BukkitEnrichment {
   val height  : Parser[Int] = int.named("height")
   val depth   : Parser[Int] = int.named("depth")
 
-  def player(server: Server)  : Parser[Player]
+  def player(implicit server: Server)  : Parser[Player]
     = maybe("player-name")  (server.findPlayer)
   def plugin(pluginManager: PluginManager)  : Parser[Plugin]
     = maybe("plugin")       (pluginManager.findPlugin(_))
@@ -194,11 +194,11 @@ object CommandsPlugin extends MinecraftParsers {
     */
   def OpOnly(c: Command): Command = c.filter(_.isOp, s"You must be an op to run /${c.name}")
 
-//  /**
-//    * Simple combinator for creating commands that take a single Player argument (only).
-//    */
-//  def P2P(name: String, desc: String)(f: (Player, Player) => Unit): Command =
-//    Command(name, desc, player){case (p1,p2) => f(p1, p2)}
+  /**
+    * Simple combinator for creating commands that take a single Player argument (only).
+    */
+  def P2P(name: String, desc: String)(f: (Player, Player) => Unit)(implicit server: Server): Command =
+    Command(name, desc, player){case (p1,p2) => f(p1, p2)}
 
   def yml(commands: List[Command]): String = {
     def yml(c: Command) =

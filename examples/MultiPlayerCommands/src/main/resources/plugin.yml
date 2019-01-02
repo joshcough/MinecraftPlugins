@@ -1,0 +1,59 @@
+name: MultiPlayerCommands
+main: com.joshcough.minecraft.examples.MultiPlayerCommands
+author: Josh Cough
+version: 0.1
+api-version: 1.13
+depend: [ScalaLibPlugin, ScalaPluginAPI]
+softdepend: []
+commands:
+  goto:
+    description: Teleport!
+    usage: /goto (player-name or int int optional(int))
+  up:
+    description: Go up to the surface.
+    usage: /up EOF
+  set-time:
+    description: Sets the time.
+    usage: /set-time time
+  gm:
+    description: Set your game mode.
+    usage: /gm (((c or creative) or 1) or ((s or survival) or 0))
+  entities:
+    description: Display all the entities.
+    usage: /entities EOF
+  spawn:
+    description: Spawn some mobs.
+    usage: /spawn entity-type number to spawn
+  ban:
+    description: Ban some players.
+    usage: /ban player-name+
+  box:
+    description: Put a box around yourself, made of any material.
+    usage: /box material-type
+  safe:
+    description: Put yourself in a box made of bedrock.
+    usage: /safe EOF
+  punish:
+    description: Puts someone in a box made of bedrock.
+    usage: /punish player-name
+  drill:
+    description: Drill down to bedrock immediately.
+    usage: /drill EOF
+  kill:
+    description: Kill entities.
+    usage: /kill (player player-name or entity-type)
+  creeper-kill:
+    description: Surround a player with creepers
+    usage: /creeper-kill player-name
+  feed:
+    description: Fill a players hunger bar.
+    usage: /feed player-name
+  starve:
+    description: Drain a players hunger bar.
+    usage: /starve player-name
+  shock:
+    description: Shock a player.
+    usage: /shock player-name
+  jump:
+    description: Jump really high.
+    usage: /jump (int int int or EOF)

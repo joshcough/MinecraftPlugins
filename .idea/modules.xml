@@ -2,6 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/MinecraftPlugins.iml" filepath="$PROJECT_DIR$/.idea/MinecraftPlugins.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/MultiPlayerCommands.iml" filepath="$PROJECT_DIR$/.idea/modules/MultiPlayerCommands.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/WorldEdit.iml" filepath="$PROJECT_DIR$/.idea/modules/WorldEdit.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/WorldEdit-build.iml" filepath="$PROJECT_DIR$/.idea/modules/WorldEdit-build.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/core-build.iml" filepath="$PROJECT_DIR$/.idea/modules/core-build.iml" />

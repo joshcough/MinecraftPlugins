@@ -9,9 +9,6 @@ commands:
   goto:
     description: Teleport to a player.
     usage: /goto (player-name or int int optional(int))
-  set-time:
-    description: Sets the time.
-    usage: /set-time time
   day:
     description: Sets the time to 1.
     usage: /day EOF

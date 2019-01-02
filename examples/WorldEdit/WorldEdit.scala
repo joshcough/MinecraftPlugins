@@ -24,7 +24,7 @@ class WorldEdit extends ListenersPlugin with CommandsPlugin  {
     OnLeftClickBlock ((p, e) => if(p isHoldingA WOODEN_AXE){ cubeState.setFirstPosition (p, e.loc); e.cancel }),
     OnRightClickBlock((p, e) => if(p isHoldingA WOODEN_AXE){ cubeState.setSecondPosition(p, e.loc) })
   )
-  val commands = WorldEditCommands.commands(server, getConfig(), cubeState)
+  val commands = WorldEditCommands.commands(getConfig(), cubeState)(server)
 }
 
 /**
@@ -57,7 +57,7 @@ object WorldEditCommands {
 
   val undoManager = new UndoManager[Player, Changes, Changes]
 
-  def commands(server: Server, config: FileConfiguration, cubeState: CubeState) = {
+  def commands(config: FileConfiguration, cubeState: CubeState)(implicit server: Server) = {
     import cubeState._
     //import BukkitEnrichment._
     import org.bukkit.GameMode._
@@ -65,12 +65,9 @@ object WorldEditCommands {
     // some simple useful commands
     val allCommonCommands = {
       List(
-        Command("goto", "Teleport to a player.", player(server) or location){
+        Command("goto", "Teleport to a player.", player or location){
           case (you, Left(them)) => you.teleportTo(them)
           case (you, Right(loc)) => you.teleport(loc of you.world)
-        },
-        Command("set-time", "Sets the time.", time){
-          case (p, n) => p.world.setTime(n)
         },
         Command("day",   "Sets the time to 1."    )(_.world.setTime(1)),
         Command("night", "Sets the time to 15000.")(_.world.setTime(15000)),

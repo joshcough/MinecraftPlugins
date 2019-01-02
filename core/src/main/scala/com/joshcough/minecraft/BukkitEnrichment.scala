@@ -1,6 +1,9 @@
 package com.joshcough.minecraft
 
-import org.bukkit.{ChatColor, Effect, Location, Material, OfflinePlayer, Server, World}
+import java.util.Date
+
+import org.bukkit.{Bukkit, ChatColor, Effect, Location, Material, OfflinePlayer, Server, World}
+import org.bukkit.BanList.Type
 import org.bukkit.block.Block
 import org.bukkit.event.Cancellable
 import org.bukkit.event.entity.EntityDamageByEntityEvent
@@ -10,7 +13,7 @@ import org.bukkit.plugin.{Plugin, PluginManager}
 import ChatColor._
 import Effect._
 import Material._
-import org.bukkit.entity.{LivingEntity, Entity, EntityType, Player}
+import org.bukkit.entity.{Entity, EntityType, LivingEntity, Player}
 import org.bukkit.event.player.PlayerInteractEvent
 import util.Try
 import Cube._
@@ -352,6 +355,10 @@ trait BukkitEnrichment extends ScalaEnrichment {
       f
       otherPlayer  ! GREEN(s"you have been $actionName by ${player.name}")
       player       ! GREEN(s"you have $actionName ${otherPlayer.name}")
+    }
+
+    def ban(reason: String, bannedBy: Player): Unit = {
+      Bukkit.getBanList(Type.NAME).addBan(player.name, reason, new Date(3000, 12,31), bannedBy.name)
     }
   }
 
