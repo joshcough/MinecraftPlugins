@@ -39,6 +39,9 @@ commands:
   replace:
     description: Replace all the selected blocks of the first material type to the second material type.
     usage: /replace material-type material-type
+  replace-under:
+    description: Replace all the selected blocks of the first material type under the second material type, to the third material type.
+    usage: /replace-under material-type material-type material-type
   undo:
     description: undo!
     usage: /undo ((on or off) or EOF)

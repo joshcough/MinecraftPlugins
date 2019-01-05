@@ -13,7 +13,7 @@ import com.joshcough.minecraft.ScalaPlugin
 import com.joshcough.minecraft.CommandsPlugin
 println(CommandsPlugin.fullPluginYml("WorldEdit", "com.joshcough.minecraft.examples.WorldEdit", "Josh Cough", "0.1",
                               Nil, List("ScalaLibPlugin", "ScalaPluginAPI"), Nil,
-                              com.joshcough.minecraft.examples.WorldEditCommands.commands(null, null, null)))
+                              com.joshcough.minecraft.examples.WorldEditCommands.commands(null, null)))
 */
 
 class WorldEdit extends ListenersPlugin with CommandsPlugin  {
@@ -93,12 +93,23 @@ object WorldEditCommands {
         args = material)(
         body = { case (p, m) => p.newChange(setAll(cube(p), m)) }
       ),
+      // example: /replace sand obsidian
       Command(
         name = "replace",
         desc = "Replace all the selected blocks of the first material type to the second material type.",
         args = material ~ material)(
         body = { case (p, oldM ~ newM) => p.newChange(changeAll(cube(p), oldM, newM.andData)) }
       ),
+      // example: /replace-under stone air dirt
+      Command(
+        name = "replace-under",
+        desc = "Replace all the selected blocks of the first material type under the second material type, to the third material type.",
+        args = material ~ material ~ material)(
+        body = { case (p, oldM ~ underM ~ newM) =>
+          p.newChange(changeAllUnder(cube(p), oldM, underM, newM.andData))
+        }
+      ),
+
       Command(
         name = "undo",
         desc = "undo!",
@@ -190,6 +201,15 @@ object WorldEditCommands {
     )
     allCommonCommands ++ worldEditCommands
   }
+
+  def printYml(): Unit = {
+    import com.joshcough.minecraft.ScalaPlugin
+    import com.joshcough.minecraft.CommandsPlugin
+    println(CommandsPlugin.fullPluginYml("WorldEdit", "com.joshcough.minecraft.examples.WorldEdit", "Josh Cough", "0.1",
+      Nil, List("ScalaLibPlugin", "ScalaPluginAPI"), Nil,
+      commands(null, null)(null)))
+  }
+
 
   /**
    *

@@ -88,6 +88,9 @@ object CubeModifier {
   def changeAll(c: Cube[Block], oldM: Material, newM: MaterialAndData): Changes =
     setAll(c.blocks.filter(_ is oldM), newM)
 
+  def changeAllUnder(c: Cube[Block], oldM: Material, underM: Material, newM: MaterialAndData): Changes =
+    setAll(c.blocks.filter(b => (b is oldM) && (b.blockAbove is underM)), newM)
+
   /**
    * Set all the blocks in this cube to air
    * TODO: this really could be removed...
