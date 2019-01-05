@@ -38,6 +38,9 @@ val WorldEdit = (project in file("examples/WorldEdit"))
 val MultiPlayerCommands = (project in file("examples/MultiPlayerCommands"))
   .settings(standardSettings, name := "MultiPlayerCommands").dependsOn(core)
 
+val Warp = (project in file("examples/Warp"))
+  .settings(standardSettings, name := "Warp").dependsOn(core)
+
 //object build extends Build
 //  with Common {
 ////  with ExamplesBuild {
