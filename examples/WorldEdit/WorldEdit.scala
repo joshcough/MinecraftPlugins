@@ -7,16 +7,7 @@ import Material._
 import com.joshcough.minecraft._
 import com.joshcough.minecraft.UndoState
 
-/*
-Run these commands to regenerate the plugin.yml contents
-import com.joshcough.minecraft.ScalaPlugin
-import com.joshcough.minecraft.CommandsPlugin
-println(CommandsPlugin.fullPluginYml("WorldEdit", "com.joshcough.minecraft.examples.WorldEdit", "Josh Cough", "0.1",
-                              Nil, List("ScalaLibPlugin", "ScalaPluginAPI"), Nil,
-                              com.joshcough.minecraft.examples.WorldEditCommands.commands(null, null)))
-*/
-
-class WorldEdit extends ListenersPlugin with CommandsPlugin  {
+class WorldEditPlugin extends ListenersPlugin with CommandsPlugin  {
 
   val cubeState = new CubeState{}
 
@@ -56,6 +47,8 @@ object WorldEditCommands {
   import org.bukkit.configuration.file.FileConfiguration
 
   val undoManager = new UndoManager[Player, Changes, Changes]
+
+  def main(args: Array[String]): Unit = YMLGenerator.writeYML(args, commands(null, null)(null))
 
   def commands(config: FileConfiguration, cubeState: CubeState)(implicit server: Server) = {
     import cubeState._
@@ -201,15 +194,6 @@ object WorldEditCommands {
     )
     allCommonCommands ++ worldEditCommands
   }
-
-  def printYml(): Unit = {
-    import com.joshcough.minecraft.ScalaPlugin
-    import com.joshcough.minecraft.CommandsPlugin
-    println(CommandsPlugin.fullPluginYml("WorldEdit", "com.joshcough.minecraft.examples.WorldEdit", "Josh Cough", "0.1",
-      Nil, List("ScalaLibPlugin", "ScalaPluginAPI"), Nil,
-      commands(null, null)(null)))
-  }
-
 
   /**
    *

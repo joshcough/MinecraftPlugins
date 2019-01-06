@@ -21,18 +21,8 @@ import BukkitEnrichment._
  * The Warp class is an 'Entity' that gets saved in the database.
  * Any data saved in the database persists across user logouts, and server restarts.
  */
-/*
-Run these commands to regenerate the plugin.yml contents
-import com.joshcough.minecraft.ScalaPlugin
-import com.joshcough.minecraft.CommandsPlugin
-println(CommandsPlugin.fullPluginYml("WarpPlugin", "com.joshcough.minecraft.examples.WarpPlugin", "Josh Cough", "0.1",
-                              Nil, List("ScalaLibPlugin", "ScalaPluginAPI"), Nil,
-                              com.joshcough.minecraft.examples.WarpCommands.commands(null)))
-*/
-
 class WarpPlugin extends CommandsPlugin  {
   val commands = WarpCommands.commands(getDataFolder())
-  this.saveConfig()
 }
 
 object Warp {
@@ -90,6 +80,8 @@ object WarpCommands {
   import CommandsPlugin._
   import Warp._
 
+  def main(args: Array[String]): Unit = YMLGenerator.writeYML(args, commands(null))
+
   def commands(implicit dataFolder: File): List[Command] = {
     List(
       Command("warps", "List all warps.")(p => getAllWarps(p).foreach(w => p ! w)),
@@ -97,12 +89,12 @@ object WarpCommands {
         getWarp(p, wt).foreach{ _.warp }
       },
       Command("set-warp", "Create a new warp location.", warpToken){ case (p, warpName) =>
-        deleteWarp(p, warpName)
-        p ! s"deleted warp: $warpName"
-      },
-      Command("delete-warp", "Delete a warp.", warpToken){ case (p, warpName) =>
         setWarp(Warp(warpName, p, p.x, p.y, p.z))
         p ! s"created warp: $warpName"
+      },
+      Command("delete-warp", "Delete a warp.", warpToken){ case (p, warpName) =>
+        deleteWarp(p, warpName)
+        p ! s"deleted warp: $warpName"
       },
       Command("home", desc="Warp home.") { case p =>
         getWarp(p, "home").foreach{ _.warp }
@@ -117,19 +109,7 @@ object WarpCommands {
       Command("delete-all", "Delete all your warps.")(p =>
         getAllWarps(p).foreach(deleteWarp(p, _))
       ),
+      Command("bogus", "bogus")(p => p ! "bogus")
     )
   }
 }
-
-
-/*  def WarpCommand[T](name: String, desc: String, args: Parser[T])
-                    (body: ((Player, T, YamlConfiguration)) => Unit)
-                    (implicit dataFolder: File): Command = Command(name, desc, args){
-    case (p, args) => withConfig(p)(body(p, args, _))
-  }
-
-  def WarpCommand(name: String, desc: String)
-                    (body: ((Player, YamlConfiguration)) => Unit)
-                    (implicit dataFolder: File): Command = Command(name, desc){
-    case p => withConfig(p)(body(p, _))
-  }*/

@@ -3,31 +3,25 @@ package com.joshcough.minecraft.examples
 import org.bukkit.GameMode._
 import org.bukkit.Material._
 import org.bukkit.entity.EntityType._
-import scala.collection.JavaConversions._
-import com.joshcough.minecraft.CommandsPlugin
-import org.bukkit.{Material, Server}
 
-/*
-Run these commands to regenerate the plugin.yml contents
-import com.joshcough.minecraft.ScalaPlugin
-import com.joshcough.minecraft.CommandsPlugin
-println(CommandsPlugin.fullPluginYml("MultiPlayerCommands", "com.joshcough.minecraft.examples.MultiPlayerCommands", "Josh Cough", "0.1",
-                              Nil, List("ScalaLibPlugin", "ScalaPluginAPI"), Nil,
-                              com.joshcough.minecraft.examples.MultiPlayerCommands.commands(null)))
-*/
+import scala.collection.JavaConversions._
+import com.joshcough.minecraft.{CommandsPlugin, YMLGenerator}
+import org.bukkit.{Material, Server}
 
 /**
  * Classic MultiPlayerCommands plugin, done in Scala.
  * Gives a whole pile of useful commands.
  * Their descriptions serve well as documentation.
  */
-class MultiPlayerCommands extends CommandsPlugin  {
+class MultiPlayerCommandsPlugin extends CommandsPlugin  {
   val commands = MultiPlayerCommands.commands(server)
 }
 
 object MultiPlayerCommands {
 
   import CommandsPlugin._
+
+  def main(args: Array[String]): Unit = YMLGenerator.writeYML(args, commands(null))
 
   def commands(implicit server: Server) = List(
 

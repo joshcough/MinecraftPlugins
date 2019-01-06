@@ -33,13 +33,76 @@ lazy val scalaLibPlugin = (project in file("scala-lib-plugin"))
   )
 
 val WorldEdit = (project in file("examples/WorldEdit"))
-  .settings(standardSettings, name := "WorldEdit").dependsOn(core)
+  .settings(
+    standardSettings,
+    name := "WorldEdit",
+    generateYml("com.joshcough.minecraft.examples.WorldEditCommands",
+      "WorldEdit",
+      "com.joshcough.minecraft.examples.WorldEditPlugin",
+      "joshcough",
+      "0.1")
+  ).dependsOn(core)
 
 val MultiPlayerCommands = (project in file("examples/MultiPlayerCommands"))
-  .settings(standardSettings, name := "MultiPlayerCommands").dependsOn(core)
+  .settings(
+    standardSettings,
+    name := "MultiPlayerCommands",
+    generateYml("com.joshcough.minecraft.examples.MultiPlayerCommands",
+      "MultiPlayerCommands",
+      "com.joshcough.minecraft.examples.MultiPlayerCommandsPlugin",
+      "joshcough",
+      "0.1")
+  ).dependsOn(core)
 
 val Warp = (project in file("examples/Warp"))
-  .settings(standardSettings, name := "Warp").dependsOn(core)
+  .settings(
+    standardSettings,
+    name := "Warp",
+    generateYml("com.joshcough.minecraft.examples.WarpCommands",
+      "Warp",
+      "com.joshcough.minecraft.examples.WarpPlugin",
+      "joshcough",
+      "0.1")
+  ).dependsOn(core)
+
+val Danny = (project in file("examples/Danny"))
+  .settings(
+    standardSettings,
+    name := "Danny",
+    generateYml(
+      "com.joshcough.minecraft.examples.DannyCommands",
+      "Danny",
+      "com.joshcough.minecraft.examples.DannyPlugin",
+      "Danny",
+      "0.1")
+  ).dependsOn(core)
+
+def generateYml(className: String,
+                pluginName: String,
+                pluginClassName: String,
+                author: String,
+                version: String) =
+  resourceGenerators in Compile += Def.task {
+    Run.run(
+      className,
+      (productDirectories in Compile).value ++ (dependencyClasspath in Compile).value.map(_.data),
+      List(pluginName, pluginClassName, author, version, (resourceManaged in Compile).value.getAbsolutePath),
+      streams.value.log)(runner.value)
+    Seq((resourceManaged in Compile).value / "plugin.yml")
+  }.taskValue
+
+//
+//def pluginYmlSettings(pluginClassname: String, author: String): Seq[Setting[_]] = Seq[Setting[_]](
+//  resourceGenerators in Compile <+=
+//    (resourceManaged in Compile, streams, productDirectories in Compile, dependencyClasspath in Compile, version, compile in Compile, runner) map {
+//      (dir, s, cp1, cp2, v, _, r) =>
+//        Run.run(
+//          "com.joshcough.minecraft.YMLGenerator", (Attributed.blankSeq(cp1) ++ cp2).map(_.data),
+//          Seq(pluginClassname, author, v, dir.getAbsolutePath),
+//          s.log)(r)
+//        Seq(dir / "plugin.yml", dir / "config.yml")
+//    }
+//)
 
 //object build extends Build
 //  with Common {
