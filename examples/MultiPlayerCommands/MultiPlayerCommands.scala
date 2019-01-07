@@ -1,12 +1,11 @@
 package com.joshcough.minecraft.examples
 
+import scala.collection.JavaConversions._
+import com.joshcough.minecraft._
+import org.bukkit.{Material, Server}
 import org.bukkit.GameMode._
 import org.bukkit.Material._
 import org.bukkit.entity.EntityType._
-
-import scala.collection.JavaConversions._
-import com.joshcough.minecraft.{CommandsPlugin, YMLGenerator}
-import org.bukkit.{Material, Server}
 
 /**
  * Classic MultiPlayerCommands plugin, done in Scala.
@@ -17,12 +16,13 @@ class MultiPlayerCommandsPlugin extends CommandsPlugin  {
   val commands = MultiPlayerCommandsCommands.commands(server)
 }
 
+class MultiPlayerCommandsConfig extends PluginConfig[MultiPlayerCommandsPlugin] {
+  val pluginClass = classOf[MultiPlayerCommandsPlugin]
+  override val commands = MultiPlayerCommandsCommands.commands(null)
+}
+
 object MultiPlayerCommandsCommands {
-
   import CommandsPlugin._
-
-  def main(args: Array[String]): Unit =
-    YMLGenerator.writeYML(args, classOf[MultiPlayerCommandsPlugin].toString, "Josh Cough", commands(null))
 
   def commands(implicit server: Server) = List(
 

@@ -75,13 +75,15 @@ case class Warp(warpName: String, player: Player, x: Double, y: Double, z: Doubl
   def warp = player teleport location(player.world)
 }
 
+class WarpConfig extends PluginConfig[WarpPlugin] {
+  val pluginClass = classOf[WarpPlugin]
+  override val commands = WarpCommands.commands(null)
+}
+
 object WarpCommands {
 
   import CommandsPlugin._
   import Warp._
-
-  def main(args: Array[String]): Unit =
-      YMLGenerator.writeYML(args, classOf[WarpPlugin].toString, "Josh Cough", commands(null))
 
   def commands(implicit dataFolder: File): List[Command] = {
     List(

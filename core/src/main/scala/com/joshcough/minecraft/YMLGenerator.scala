@@ -2,6 +2,12 @@ package com.joshcough.minecraft
 
 import ParserCombinators._
 
+trait PluginConfig[T] {
+  val pluginClass: Class[T]
+  val author: String = "Josh Cough"
+  val commands: List[CommandsPlugin.Command] = Nil
+}
+
 // A helper object I use to auto generate all my plugin.yml files.
 object YMLGenerator {
 
@@ -21,7 +27,6 @@ object YMLGenerator {
   //      case className ~ author ~ version ~ outputDir ~ _ => generateYml(className, author, version, outputDir)
   //    }
   //  }
-
 
   def writeYML( pluginName: String,
                 pluginClassName: String,
@@ -50,14 +55,23 @@ object YMLGenerator {
 
   def writeYML(args: Array[String],
                pluginClassName: String,
-               author: String,
                commands: List[CommandsPlugin.Command]): Unit = args match {
-    case Array(pluginName, version, outputDir) =>
+    case Array(pluginName, author, version, outputDir) =>
       writeYML(pluginName, pluginClassName, author, version, outputDir, commands)
   }
 
+  def writeYMLFromConfig(pluginName: String,
+                         author: String,
+                         version: String,
+                         outputDir: String = ".",
+                         configClassName: String): Unit = {
+    println("configClassName: " + configClassName)
+    val config = Class.forName(configClassName).newInstance().asInstanceOf[PluginConfig[_]]
+    writeYML(pluginName, config.pluginClass.getName, author, version, outputDir, config.commands)
+  }
+
   def main(args: Array[String]): Unit = args match {
-    case Array(pluginName, pluginClassName, author, version, outputDir) =>
-      writeYML(pluginName, pluginClassName, author, version, outputDir, List())
+    case Array(pluginName, author, version, outputDir, configClassName) =>
+      writeYMLFromConfig(pluginName, author, version, outputDir, configClassName)
   }
 }

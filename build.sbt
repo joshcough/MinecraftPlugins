@@ -1,25 +1,27 @@
 val projectUrl = "https://github.com/joshcough/MinecraftPlugins"
 
-val compileAndCopyToBukkit = taskKey[Unit]("Compile, package, and copy jar file to bukkit plugins dir")
+val author = taskKey[String]("Author")
+val pluginConfigClass = taskKey[String]("Plugin config class")
+val compileAndCopyToBukkit = taskKey[Unit]("Runs publishLocal, and copies jar file to bukkit plugins dir")
 
 val standardSettings = join(
   libDeps("javax.servlet" % "servlet-api" % "2.5" % "provided->default"),
-  Seq(organization := "com.joshcough", version := "0.3.4", scalaVersion := "2.12.7")
+  Seq(organization := "com.joshcough", version := "0.3.5-SNAPSHOT", scalaVersion := "2.12.7")
 )
 
 // the core plugin library
 val core = (project in file("core"))
-  .settings(standardSettings, name := "scala-minecraft-plugin-api")
-  //copyPluginToBukkitSettings(Some("assembly"))
+  .settings(
+    standardSettings,
+    name := "scala-minecraft-plugin-api",
+    copyPluginToBukkitSettings(None)
+  )
 
 // this project supplies the scala language classes.
 // it is needed in the bukkit plugins dir to run any scala plugins.
 val scalaLibPlugin = (project in file("scala-lib-plugin"))
-  .settings(
-    standardSettings,
-    name := "scala-minecraft-scala-library",
-    copyPluginToBukkitSettings(None)
-  )
+  .settings(standardSettings, name := "scala-minecraft-scala-library")
+  //copyPluginToBukkitSettings(Some("assembly"))
 
 val MultiPlayerCommands = exampleProject("MultiPlayerCommands")
 val WorldEdit           = exampleProject("WorldEdit")
@@ -34,17 +36,19 @@ def exampleProject(projectName: String) = {
   Project(projectName, new File("examples/" + projectName))
     .settings(
       standardSettings,
-      generateYml("com.joshcough.minecraft.examples." + projectName + "Commands"),
+      author := "Josh Cough",
+      pluginConfigClass := "com.joshcough.minecraft.examples." + projectName + "Config",
+      generateYml,
       copyPluginToBukkitSettings(None)
     ).dependsOn(core)
 }
 
-def generateYml(className: String) =
+def generateYml =
   resourceGenerators in Compile += Def.task {
     Run.run(
-      className,
+      "com.joshcough.minecraft.YMLGenerator",
       (productDirectories in Compile).value ++ (dependencyClasspath in Compile).value.map(_.data),
-      List(name.value, version.value, (resourceManaged in Compile).value.getAbsolutePath),
+      List(name.value, author.value, version.value, (resourceManaged in Compile).value.getAbsolutePath, pluginConfigClass.value),
       streams.value.log
     )(runner.value)
     Seq((resourceManaged in Compile).value / "plugin.yml")

@@ -8,10 +8,12 @@ class PluginCommanderPlugin extends CommandsPlugin {
   val commands = PluginCommanderCommands.commands(this.pluginManager)
 }
 
-object PluginCommanderCommands {
-  def main(args: Array[String]): Unit =
-    YMLGenerator.writeYML(args, classOf[PluginCommanderPlugin].toString, "Josh Cough", commands(null))
+class PluginCommanderConfig extends PluginConfig[PluginCommanderPlugin] {
+  val pluginClass = classOf[PluginCommanderPlugin]
+  override val commands = PluginCommanderCommands.commands(null)
+}
 
+object PluginCommanderCommands {
   def commands(implicit pluginManager: PluginManager) = List(
     Command("enable",  "Enable some plugins",  plugin.+){
       case (_, plugins) => plugins foreach pluginManager.enablePlugin

@@ -8,10 +8,12 @@ class ShockPlugin extends CommandPlugin {
   val command = ShockCommands.command(this.server)
 }
 
-object ShockCommands {
-  def main(args: Array[String]): Unit =
-    YMLGenerator.writeYML(args, classOf[ShockPlugin].toString, "Josh Cough", List(command(null)))
+class ShockConfig extends PluginConfig[ShockPlugin] {
+  val pluginClass = classOf[ShockPlugin]
+  override val commands = List(ShockCommands.command(null))
+}
 
+object ShockCommands {
   def command(implicit server: Server) =
     Command("shock", "shock a player", player){ case (_, them) => them.shock }
 }

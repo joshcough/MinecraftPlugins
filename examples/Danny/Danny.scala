@@ -16,9 +16,12 @@ class DannyPlugin extends ListenersPlugin with CommandsPlugin {
   )
 }
 
+class DannyConfig extends PluginConfig[DannyPlugin] {
+  val pluginClass = classOf[DannyPlugin]
+  override val commands = DannyCommands.commands(null)
+}
+
 object DannyCommands {
-  def main(args: Array[String]): Unit =
-    YMLGenerator.writeYML(args, classOf[DannyPlugin].toString, "Danny Kamps", commands(null))
   def commands(implicit config: FileConfiguration): List[Command] = {
     List(
       Command("hello", "hello")(p => p ! GOLD(config.getString("message"))),

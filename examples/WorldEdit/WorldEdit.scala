@@ -16,6 +16,11 @@ class WorldEditPlugin extends ListenersPlugin with CommandsPlugin  {
   val commands = WorldEditCommands.commands(getConfig(), cubeState)(server)
 }
 
+class WorldEditConfig extends PluginConfig[WorldEditPlugin] {
+  val pluginClass = classOf[WorldEditPlugin]
+  override val commands = WorldEditCommands.commands(null, null)(null)
+}
+
 /**
  * Classic WorldEdit plugin, done in Scala.
  *
@@ -38,16 +43,12 @@ class WorldEditPlugin extends ListenersPlugin with CommandsPlugin  {
  * Have a look through the code, or navigate the help menu for more info on the commands.
  */
 object WorldEditCommands {
-
   import CubeModifier._
   import CommandsPlugin._
   import org.bukkit.Server
   import org.bukkit.configuration.file.FileConfiguration
 
   val undoManager = new UndoManager[Player, Changes, Changes]
-
-  def main(args: Array[String]): Unit =
-    YMLGenerator.writeYML(args, classOf[WorldEditPlugin].toString, "Josh Cough", commands(null, null)(null))
 
   def commands(config: FileConfiguration, cubeState: CubeState)(implicit server: Server) = {
     import cubeState._
