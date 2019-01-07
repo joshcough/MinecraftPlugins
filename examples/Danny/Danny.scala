@@ -1,13 +1,13 @@
 package com.joshcough.minecraft.examples
 
 import com.joshcough.minecraft._
-import org.bukkit.configuration.file.FileConfiguration
-import org.bukkit.ChatColor._
 import CommandsPlugin._
+import org.bukkit.configuration.file.FileConfiguration
+import org.bukkit.ChatColor.GOLD
 import org.bukkit.Particle
 
 class DannyPlugin extends ListenersPlugin with CommandsPlugin {
-  def msg(name: String) = GOLD.apply(getConfig().getString(name))
+  def msg(name: String) = GOLD(getConfig().getString(name))
   val commands = DannyCommands.commands(getConfig)
   val listeners = List(
     OnPlayerJoin ((p, e) => p ! msg("message")),
@@ -17,7 +17,8 @@ class DannyPlugin extends ListenersPlugin with CommandsPlugin {
 }
 
 object DannyCommands {
-  def main(args: Array[String]): Unit = YMLGenerator.writeYML(args, commands(null))
+  def main(args: Array[String]): Unit =
+    YMLGenerator.writeYML(args, classOf[DannyPlugin].toString, "Danny Kamps", commands(null))
   def commands(implicit config: FileConfiguration): List[Command] = {
     List(
       Command("hello", "hello")(p => p ! GOLD(config.getString("message"))),

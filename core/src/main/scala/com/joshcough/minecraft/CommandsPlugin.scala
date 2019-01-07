@@ -32,7 +32,7 @@ trait MinecraftParsers extends ParserCombinators with BukkitEnrichment {
 
   def player(implicit server: Server)  : Parser[Player]
     = maybe("player-name")  (server.findPlayer)
-  def plugin(pluginManager: PluginManager)  : Parser[Plugin]
+  def plugin(implicit pluginManager: PluginManager)  : Parser[Plugin]
     = maybe("plugin")       (pluginManager.findPlugin(_))
 
 }

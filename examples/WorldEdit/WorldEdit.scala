@@ -8,9 +8,7 @@ import com.joshcough.minecraft._
 import com.joshcough.minecraft.UndoState
 
 class WorldEditPlugin extends ListenersPlugin with CommandsPlugin  {
-
   val cubeState = new CubeState{}
-
   val listeners = List(
     OnLeftClickBlock ((p, e) => if(p isHoldingA WOODEN_AXE){ cubeState.setFirstPosition (p, e.loc); e.cancel }),
     OnRightClickBlock((p, e) => if(p isHoldingA WOODEN_AXE){ cubeState.setSecondPosition(p, e.loc) })
@@ -48,7 +46,8 @@ object WorldEditCommands {
 
   val undoManager = new UndoManager[Player, Changes, Changes]
 
-  def main(args: Array[String]): Unit = YMLGenerator.writeYML(args, commands(null, null)(null))
+  def main(args: Array[String]): Unit =
+    YMLGenerator.writeYML(args, classOf[WorldEditPlugin].toString, "Josh Cough", commands(null, null)(null))
 
   def commands(config: FileConfiguration, cubeState: CubeState)(implicit server: Server) = {
     import cubeState._
@@ -102,7 +101,6 @@ object WorldEditCommands {
           p.newChange(changeAllUnder(cube(p), oldM, underM, newM.andData))
         }
       ),
-
       Command(
         name = "undo",
         desc = "undo!",

@@ -80,7 +80,8 @@ object WarpCommands {
   import CommandsPlugin._
   import Warp._
 
-  def main(args: Array[String]): Unit = YMLGenerator.writeYML(args, commands(null))
+  def main(args: Array[String]): Unit =
+      YMLGenerator.writeYML(args, classOf[WarpPlugin].toString, "Josh Cough", commands(null))
 
   def commands(implicit dataFolder: File): List[Command] = {
     List(

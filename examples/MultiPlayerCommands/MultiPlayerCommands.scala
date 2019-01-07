@@ -14,14 +14,15 @@ import org.bukkit.{Material, Server}
  * Their descriptions serve well as documentation.
  */
 class MultiPlayerCommandsPlugin extends CommandsPlugin  {
-  val commands = MultiPlayerCommands.commands(server)
+  val commands = MultiPlayerCommandsCommands.commands(server)
 }
 
-object MultiPlayerCommands {
+object MultiPlayerCommandsCommands {
 
   import CommandsPlugin._
 
-  def main(args: Array[String]): Unit = YMLGenerator.writeYML(args, commands(null))
+  def main(args: Array[String]): Unit =
+    YMLGenerator.writeYML(args, classOf[MultiPlayerCommandsPlugin].toString, "Josh Cough", commands(null))
 
   def commands(implicit server: Server) = List(
 

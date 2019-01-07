@@ -48,8 +48,11 @@ object YMLGenerator {
     write(yml, "plugin.yml")
   }
 
-  def writeYML(args: Array[String], commands: List[CommandsPlugin.Command]): Unit = args match {
-    case Array(pluginName, pluginClassName, author, version, outputDir) =>
+  def writeYML(args: Array[String],
+               pluginClassName: String,
+               author: String,
+               commands: List[CommandsPlugin.Command]): Unit = args match {
+    case Array(pluginName, version, outputDir) =>
       writeYML(pluginName, pluginClassName, author, version, outputDir, commands)
   }
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ScalaCompilerConfiguration">
-    <profile name="sbt 1" modules="MultiPlayerCommands,WorldEdit,minecraftplugins,minecraftplugins_7095,scala-minecraft-plugin-api,scala-minecraft-scala-library" />
+    <profile name="sbt 1" modules="Danny,LightningArrows,MultiPlayerCommands,NoRain,PluginCommander,Shock,Warp,Warpp,WorldEdit,minecraftplugins,minecraftplugins_7095,scala-minecraft-plugin-api,scala-minecraft-scala-library" />
   </component>
 </project>
