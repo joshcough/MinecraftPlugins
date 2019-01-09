@@ -34,12 +34,12 @@ class WorldEditPlugin extends ListenersPlugin with CommandsPlugin  {
     OnLeftClickBlock ((p, e) => if(p isHoldingA WOODEN_AXE){ cubeState.setFirstPosition (p, e.loc); e.cancel }),
     OnRightClickBlock((p, e) => if(p isHoldingA WOODEN_AXE){ cubeState.setSecondPosition(p, e.loc) })
   )
-  val commands = WorldEditCommands.commands(getConfig(), cubeState)(server)
+  val commands = WorldEditCommands.commands(getConfig(), cubeState)(server, this)
 }
 
 class WorldEditConfig extends PluginConfig[WorldEditPlugin] {
   val pluginClass = classOf[WorldEditPlugin]
-  override val commands = WorldEditCommands.commands(null, null)(null)
+  override val commands = WorldEditCommands.commands(null, null)(null, null)
 }
 
 object WorldEditCommands {
@@ -50,10 +50,13 @@ object WorldEditCommands {
 
   val undoManager = new UndoManager[Player, Changes, Changes]
 
-  def commands(config: FileConfiguration, cubeState: CubeState)(implicit server: Server) = {
+  def commands(config: FileConfiguration, cubeState: CubeState)(implicit server: Server, plugin: ScalaPlugin) = {
     import cubeState._
-    //import BukkitEnrichment._
     import org.bukkit.GameMode._
+    val TaskManager = new TaskManager(server, plugin)
+    import TaskManager._
+    lazy val tasks = new PlayerTasks
+    import tasks._
 
     // some simple useful commands
     val allCommonCommands = {
@@ -191,6 +194,65 @@ object WorldEditCommands {
       Command("set-time", "Sets the time.", time){ case (p, n) => p.world setTime n },
       Command("day",      "Sets the time to day (1000).")   (_.world setTime 1000),
       Command("night",    "Sets the time to night (15000).")(_.world setTime 15000),
+      Command(
+        name = "cycle-walls",
+        desc =
+          "Create walls, and cycle the walls material between the given materials, " +
+            "in a span of N seconds.",
+        args = int ~ material ~ material.+)(
+        body = { case (p, period ~ initialMaterial ~ materials) =>
+          val c = cube(p)
+          val allMaterials = initialMaterial :: materials
+          def initialDelay(index: Int) = index * period * 20 / allMaterials.size
+          for((m, i) <- allMaterials.zipWithIndex)
+            p.scheduleSyncRepeatingTask(initialDelay = initialDelay(i), period = period * 20){
+              c.walls.foreach(_ changeTo m)
+            }
+        }
+      ),
+      Command(
+        name = "random-house",
+        desc = "make all the blocks in your house change at random!",
+        args = material ~ material.+)(
+        body = { case (p, initialMaterial ~ materials) =>
+          val c = cube(p)
+          val allMaterials = (initialMaterial :: materials).toArray
+          p.scheduleSyncRepeatingTask(initialDelay = 0, period = 20){
+            c.shell.foreach(_ changeTo (allMaterials((math.random * allMaterials.size).toInt)))
+          }
+          p.scheduleSyncRepeatingTask(initialDelay = 0, period = 10){
+            c.shrink(1, 1, 1).corners.foreach(_ changeTo TORCH)
+          }
+        }
+      ),
+      Command(
+        name = "wave",
+        desc = "Create an awesome wave made of any material.",
+        args = length ~ height ~ material)(
+        body = { case (p, length ~ height ~ m) =>
+          val startX     = p.x
+          val minHeight  = p.y
+          val maxHeight  = minHeight + height
+          val z          = p.z
+          val up         = true
+          val down       = false
+          val directions = Array.fill(length)(up)
+          def highestBlock(n: Int) = p.world.getHighestBlockAt(n + startX, z)
+
+          for (n <- 0 to length)
+            p.scheduleSyncRepeatingTask(initialDelay = n * 10, period = 10 /* every .5 second */ ){
+              def hb           = highestBlock(n)
+              def ascending    = directions(n)
+              def descending   = ! ascending
+              def startAscent  = directions(n) = up
+              def startDescent = directions(n) = down
+              def atTop        = hb.y >= maxHeight
+              def atBottom     = hb.y <= minHeight
+              if(ascending && atTop) startDescent else if(descending && atBottom) startAscent
+              if(ascending) hb changeTo m else hb.blockBelow changeTo AIR
+            }
+        }
+      ),
     )
     allCommonCommands ++ worldEditCommands
   }
@@ -226,65 +288,7 @@ object WorldEditCommands {
 
 
 
-//  lazy val tasks = new PlayerTasks
-//  import tasks._
 
-//    Command(
-//      name = "cycle-walls",
-//      desc =
-//        "Create walls, and cycle the walls material between the given materials, " +
-//          "in a span of N seconds.",
-//      args = int ~ material ~ material.+)(
-//      body = { case (p, period ~ initialMaterial ~ materials) =>
-//        val c = cube(p)
-//        val allMaterials = initialMaterial :: materials
-//        def initialDelay(index: Int) = index * period * 20 / allMaterials.size
-//        for((m, i) <- allMaterials.zipWithIndex)
-//          p.scheduleSyncRepeatingTask(initialDelay = initialDelay(i), period = period * 20){
-//            c.walls.foreach(_ changeTo m)
-//          }
-//      }
-//    ),
-//    Command(
-//      name = "random-house",
-//      desc = "make all the blocks in your house change at random!",
-//      args = material ~ material.+)(
-//      body = { case (p, initialMaterial ~ materials) =>
-//        val c = cube(p)
-//        val allMaterials = (initialMaterial :: materials).toArray
-//        p.scheduleSyncRepeatingTask(initialDelay = 0, period = 20){
-//          c.shell.foreach(_ changeTo (allMaterials((math.random * allMaterials.size).toInt)))
-//        }
-//        p.scheduleSyncRepeatingTask(initialDelay = 0, period = 10){
-//          c.shrink(1, 1, 1).corners.foreach(_ changeTo TORCH)
-//        }
-//      }
-//    ),
-//    Command(
-//      name = "wave",
-//      desc = "Create an awesome wave made of any material.",
-//      args = length ~ height ~ material)(
-//      body = { case (p, length ~ height ~ m) =>
-//        val startX     = p.x
-//        val minHeight  = p.y
-//        val maxHeight  = minHeight + height
-//        val z          = p.z
-//        val up         = true
-//        val down       = false
-//        val directions = Array.fill(length)(up)
-//        def highestBlock(n: Int) = p.world.getHighestBlockAt(n + startX, z)
-//
-//        for (n <- 0 to length)
-//          p.scheduleSyncRepeatingTask(initialDelay = n * 10, period = 10 /* every .5 second */ ){
-//            def hb           = highestBlock(n)
-//            def ascending    = directions(n)
-//            def descending   = ! ascending
-//            def startAscent  = directions(n) = up
-//            def startDescent = directions(n) = down
-//            def atTop        = hb.y >= maxHeight
-//            def atBottom     = hb.y <= minHeight
-//            if(ascending && atTop) startDescent else if(descending && atBottom) startAscent
-//            if(ascending) hb changeTo m else hb.blockBelow changeTo AIR
-//          }
-//      }
-//    ),
+
+
+

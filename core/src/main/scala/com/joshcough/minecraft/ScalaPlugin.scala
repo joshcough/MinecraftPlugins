@@ -127,7 +127,6 @@ abstract class ScalaPlugin extends JavaPlugin with BukkitEnrichment { scalaPlugi
     logInfo(s"Starting: $message"); val t = f; logInfo(s"Finished: $message"); t
   }
 
-
   // Various other little helper functions.
   def name = Try(this.getDescription.getName).getOrElse(this.getClass.getSimpleName)
   def server: Server      = getServer
@@ -135,58 +134,62 @@ abstract class ScalaPlugin extends JavaPlugin with BukkitEnrichment { scalaPlugi
   def fire(e:Event): Unit = server.getPluginManager.callEvent(e)
   def registerListener(listener:Listener): Unit = pluginManager.registerEvents(listener, this)
 
-  //  // task stuff:
-  //  private lazy val scheduler = server.getScheduler
-  //
-  //  case class Task(id:Int)
-  //
-  //  def scheduleSyncTask(task: => Unit): Task =
-  //    Task(scheduler.scheduleSyncDelayedTask(this, task))
-  //
-  //  def scheduleSyncDelayedTask(initialDelay: Long)(task: => Unit): Task =
-  //    Task(scheduler.scheduleSyncDelayedTask(this, task, initialDelay))
-  //
-  //  def scheduleSyncRepeatingTask(period: Long)(task: => Unit): Task =
-  //    Task(scheduler.scheduleSyncRepeatingTask(this, task, 0L, period))
-  //
-  //  def scheduleSyncRepeatingTask(initialDelay: Long, period: Long)(task: => Unit): Task =
-  //    Task(scheduler.scheduleSyncRepeatingTask(this, task, initialDelay, period))
-  //
-  //  def cancelTask(t: Task) = scheduler cancelTask t.id
-  //
-  //  case class PlayerTasks(cancelOnExit: Boolean = true) extends PlayerState[Seq[Task]] { self =>
-  //    override val default: Option[Seq[Task]] = Some(Nil)
-  //
-  //    registerListener(Listeners.OnPlayerQuit((p, _) => if(cancelOnExit) p.cancelAll))
-  //
-  //    implicit class PlayerWithTaskFunctions(p:Player){
-  //      private def addTask(t: Task): Task = { self += (p -> (self(p) :+ t)); t }
-  //
-  //      def scheduleSyncTask(task: => Unit): Task = addTask(scalaPlugin.scheduleSyncTask(task))
-  //
-  //      def scheduleSyncRepeatingTask(initialDelay: Long, period: Long)(task: => Unit): Task =
-  //        addTask(scalaPlugin.scheduleSyncRepeatingTask(initialDelay, period)(task))
-  //
-  //      def cancelTask(t: Task): Unit = {
-  //        scheduler cancelTask t.id
-  //        self += (p -> self(p).filter(_ != t))
-  //      }
-  //      def cancelAll: Unit = {
-  //        logInfo(s"canceling all tasks for: $p")
-  //        (self -= p) foreach { t =>
-  //          logInfo(s"canceling: $t")
-  //          scheduler cancelTask t.id
-  //        }
-  //      }
-  //    }
-  //  }
-
   /**
    * Invokes a command programmatically.
    */
   def runCommand(p: Player, commandName: String, args: Seq[String]) = {
     p ! s"$name running: $commandName ${args.mkString(" ")}"
     onCommand(p, getCommand(commandName), commandName, args.toArray)
+  }
+}
+
+class TaskManager(server: Server, plugin: ScalaPlugin) extends ScalaEnrichment { tm =>
+  private lazy val scheduler = server.getScheduler
+
+  case class Task(id:Int)
+
+  def scheduleSyncTask(task: => Unit): Task =
+    Task(scheduler.scheduleSyncDelayedTask(plugin, task))
+
+  def scheduleSyncDelayedTask(initialDelay: Long)(task: => Unit): Task =
+    Task(scheduler.scheduleSyncDelayedTask(plugin, task, initialDelay))
+
+  def scheduleSyncRepeatingTask(period: Long)(task: => Unit): Task =
+    Task(scheduler.scheduleSyncRepeatingTask(plugin, task, 0L, period))
+
+  def scheduleSyncRepeatingTask(initialDelay: Long, period: Long)(task: => Unit): Task =
+    Task(scheduler.scheduleSyncRepeatingTask(plugin, task, initialDelay, period))
+
+  def cancelTask(t: Task) = scheduler cancelTask t.id
+
+  def pluginManager       = server.getPluginManager
+  def registerListener(listener:Listener): Unit = pluginManager.registerEvents(listener, plugin)
+
+  case class PlayerTasks(cancelOnExit: Boolean = true) extends PlayerState[Seq[Task]] { self =>
+    override val default: Option[Seq[Task]] = Some(Nil)
+
+    registerListener(Listeners.OnPlayerQuit((p, _) => if(cancelOnExit) p.cancelAll))
+
+    implicit class PlayerWithTaskFunctions(p:Player){
+      private def addTask(t: Task): Task = { self += (p -> (self(p) :+ t)); t }
+
+      def scheduleSyncTask(task: => Unit): Task = addTask(tm.scheduleSyncTask(task))
+
+      def scheduleSyncRepeatingTask(initialDelay: Long, period: Long)(task: => Unit): Task =
+        addTask(tm.scheduleSyncRepeatingTask(initialDelay, period)(task))
+
+      def cancelTask(t: Task): Unit = {
+        scheduler cancelTask t.id
+        self += (p -> self(p).filter(_ != t))
+      }
+      def cancelAll: Unit = {
+        plugin.logInfo(s"canceling all tasks for: $p")
+        (self -= p) foreach { t =>
+          plugin.logInfo(s"canceling: $t")
+          scheduler cancelTask t.id
+        }
+      }
+    }
   }
 }
 
