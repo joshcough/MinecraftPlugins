@@ -4,7 +4,6 @@ import ParserCombinators._
 
 trait PluginConfig[T] {
   val pluginClass: Class[T]
-  val author: String = "Josh Cough"
   val commands: List[CommandsPlugin.Command] = Nil
 }
 

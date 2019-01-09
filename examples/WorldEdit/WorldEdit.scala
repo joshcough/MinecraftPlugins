@@ -7,6 +7,27 @@ import Material._
 import com.joshcough.minecraft._
 import com.joshcough.minecraft.UndoState
 
+/**
+  * Classic WorldEdit plugin, done in Scala.
+  *
+  * This plugin allows you to manipulate the world in various ways.
+  *
+  * To do this, first set two corners of the world by:
+  *   Using the /wand command to get a wooden axe.
+  *   Left clicking on the first corner with a wooden axe.
+  *   Right clicking on the second corner with a wooden axe.
+  *   Or alternatively, using the pos1 and pos2 commands.
+  *
+  * After you've set your two corners, you can manipulate blocks in that cube.
+  *
+  * Popular world manipulation commands are:
+  *
+  *   /set material: sets all the blocks in the cube to the given material
+  *   /change m1 m2: changes all the blocks of type m1 to m2
+  *   /walls material: sets the walls of the cube to the given material
+  *
+  * Have a look through the code, or navigate the help menu for more info on the commands.
+  */
 class WorldEditPlugin extends ListenersPlugin with CommandsPlugin  {
   val cubeState = new CubeState{}
   val listeners = List(
@@ -21,27 +42,6 @@ class WorldEditConfig extends PluginConfig[WorldEditPlugin] {
   override val commands = WorldEditCommands.commands(null, null)(null)
 }
 
-/**
- * Classic WorldEdit plugin, done in Scala.
- *
- * This plugin allows you to manipulate the world in various ways.
- *
- * To do this, first set two corners of the world by:
- *   Using the /wand command to get a wooden axe.
- *   Left clicking on the first corner with a wooden axe.
- *   Right clicking on the second corner with a wooden axe.
- *   Or alternatively, using the pos1 and pos2 commands.
- *
- * After you've set your two corners, you can manipulate blocks in that cube.
- *
- * Popular world manipulation commands are:
- *
- *   /set material: sets all the blocks in the cube to the given material
- *   /change m1 m2: changes all the blocks of type m1 to m2
- *   /walls material: sets the walls of the cube to the given material
- *
- * Have a look through the code, or navigate the help menu for more info on the commands.
- */
 object WorldEditCommands {
   import CubeModifier._
   import CommandsPlugin._
@@ -70,6 +70,7 @@ object WorldEditCommands {
     }
 
     val worldEditCommands = List(
+      // TODO: why is this in world edit? wtf
       Command("getconf", "get a config", anyString){ case (p, s) =>
         p ! config.getString(s)
       },

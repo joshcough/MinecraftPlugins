@@ -1,8 +1,6 @@
 val projectUrl = "https://github.com/joshcough/MinecraftPlugins"
 
-val author = taskKey[String]("Author")
-val pluginConfigClass = taskKey[String]("Plugin config class")
-val compileAndCopyToBukkit = taskKey[Unit]("Runs publishLocal, and copies jar file to bukkit plugins dir")
+import com.joshcough.minecraft.MinecraftPluginPlugin._
 
 val standardSettings = join(
   libDeps("javax.servlet" % "servlet-api" % "2.5" % "provided->default"),
@@ -14,14 +12,13 @@ val core = (project in file("core"))
   .settings(
     standardSettings,
     name := "scala-minecraft-plugin-api",
-    copyPluginToBukkitSettings(None)
+    copyPluginToBukkitSettings(Some(new File("bukkit")))
   )
 
 // this project supplies the scala language classes.
 // it is needed in the bukkit plugins dir to run any scala plugins.
 val scalaLibPlugin = (project in file("scala-lib-plugin"))
   .settings(standardSettings, name := "scala-minecraft-scala-library")
-  //copyPluginToBukkitSettings(Some("assembly"))
 
 val MultiPlayerCommands = exampleProject("MultiPlayerCommands")
 val WorldEdit           = exampleProject("WorldEdit")
@@ -36,37 +33,19 @@ def exampleProject(projectName: String) = {
   Project(projectName, new File("examples/" + projectName))
     .settings(
       standardSettings,
-      author := "Josh Cough",
-      pluginConfigClass := "com.joshcough.minecraft.examples." + projectName + "Config",
-      generateYml,
-      copyPluginToBukkitSettings(None)
+      minecraftProject(
+        author = "Josh Cough",
+        pluginConfigClassName = "com.joshcough.minecraft.examples." + projectName + "Config",
+        bukkitDir = Some(new File("bukkit"))
+      ),
     ).dependsOn(core)
 }
 
-def generateYml =
-  resourceGenerators in Compile += Def.task {
-    Run.run(
-      "com.joshcough.minecraft.YMLGenerator",
-      (productDirectories in Compile).value ++ (dependencyClasspath in Compile).value.map(_.data),
-      List(name.value, author.value, version.value, (resourceManaged in Compile).value.getAbsolutePath, pluginConfigClass.value),
-      streams.value.log
-    )(runner.value)
-    Seq((resourceManaged in Compile).value / "plugin.yml")
-  }.taskValue
-
-def copyPluginToBukkitSettings(bukkitDir: Option[File])= compileAndCopyToBukkit := {
-  publishLocal.value
-  packagedArtifacts.value.foreach{ case (a, f) =>
-    if(a.classifier.isEmpty && a.`type` == "jar") {
-      val out = bukkitDir match {
-        case None => new File("bukkit/plugins/" + f.name)
-        case Some(dir) => new File(dir, f.name)
-      }
-      println("copying " + f.name + " to bukkit server at " + out.getAbsolutePath)
-      IO.copyFile(f, out)
-    }
-  }
-}
+// this is just a convenience project
+// for me to easily publish my most used plugins to my bukkit server.
+val commonPlugins = (project in file(".commonPlugins"))
+  .settings(standardSettings)
+  .aggregate(scalaLibPlugin, core, MultiPlayerCommands, PluginCommander, Warp, WorldEdit)
 
 def join(settings: Seq[Def.Setting[_]]*) = settings.flatten
 def libDeps(libDeps: sbt.ModuleID*) = Seq(libraryDependencies ++= libDeps)
@@ -86,20 +65,3 @@ def libDeps(libDeps: sbt.ModuleID*) = Seq(libraryDependencies ++= libDeps)
 //  lazy val TreeDelogger        = exampleProject("TreeDelogger")
 //  lazy val YellowBrickRoad     = exampleProject("YellowBrickRoad")
 //  lazy val ZombieApocalypse    = exampleProject("ZombieApocalypse")
-
-//  // this is just a convenience project
-//  // for me to easily publish my most used plugins to my bukkit server.
-//  // > sbt 'project commonPlugins' publishLocal
-//  lazy val commonPlugins = Project(
-//    id = "commonPlugins",
-//    base = file(".commonPlugins"),
-//    settings = standardSettings,
-//    aggregate = Seq(
-//      scalaLibPlugin,
-//      core,
-//      MultiPlayerCommands,
-//      PluginCommander,
-//      WorldEdit
-//    )
-//  )
-
