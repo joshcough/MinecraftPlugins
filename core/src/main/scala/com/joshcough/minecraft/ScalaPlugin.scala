@@ -39,8 +39,6 @@ abstract class ScalaPlugin extends JavaPlugin with BukkitEnrichment { scalaPlugi
   // setup stuff
   override def onEnable:  Unit = {
     super.onEnable
-    this.saveDefaultConfig
-    //setupDatabase
     logInfo(s"$name enabled!")
   }
 
