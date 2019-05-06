@@ -5,6 +5,7 @@ import ParserCombinators._
 trait PluginConfig[T] {
   val pluginClass: Class[T]
   val commands: List[CommandsPlugin.Command] = Nil
+  val hardDependencies: List[String] = Nil
 }
 
 // A helper object I use to auto generate all my plugin.yml files.
@@ -29,7 +30,8 @@ object YMLGenerator {
                          outputDir: String = ".",
                          configClassName: String): Unit = {
     val config = Class.forName(configClassName).newInstance().asInstanceOf[PluginConfig[_]]
-    writeYML(pluginName, config.pluginClass.getName, author, version, outputDir, config.commands)
+    writeYML(pluginName, config.pluginClass.getName, author, version, outputDir,
+             config.hardDependencies, config.commands)
   }
 
   def writeYML(pluginName: String,
@@ -37,10 +39,11 @@ object YMLGenerator {
                author: String,
                version: String,
                outputDir: String = ".",
+               hardDependencies: List[String],
                commands: List[CommandsPlugin.Command]): Unit = {
     val resources = new java.io.File(outputDir)
     resources.mkdirs
-    println(resources.getAbsolutePath)
+    println("resourcesDir: " + resources.getAbsolutePath)
     def write(contents: String, filename:String): Unit = {
       val f = new java.io.FileWriter(new java.io.File(resources, filename))
       f.write(contents)
@@ -53,8 +56,9 @@ object YMLGenerator {
       version,
       Nil,
       // TODO: these should not be hardcoded...should come from the config
-      List("ScalaLibPlugin", "ScalaPluginAPI"), Nil,
+      List("ScalaLibPlugin", "ScalaPluginAPI") ++ hardDependencies, Nil,
       commands)
+    println("yml for: " + pluginName)
     println(yml)
     write(yml, "plugin.yml")
   }

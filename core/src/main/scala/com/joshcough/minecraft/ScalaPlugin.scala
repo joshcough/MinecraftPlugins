@@ -175,6 +175,9 @@ class TaskManager(server: Server, plugin: ScalaPlugin) extends ScalaEnrichment {
 
       def scheduleSyncTask(task: => Unit): Task = addTask(tm.scheduleSyncTask(task))
 
+      def scheduleSyncDelayedTask(initialDelay: Long)(task: => Unit): Task =
+        addTask(tm.scheduleSyncDelayedTask(initialDelay)(task))
+
       def scheduleSyncRepeatingTask(initialDelay: Long, period: Long)(task: => Unit): Task =
         addTask(tm.scheduleSyncRepeatingTask(initialDelay, period)(task))
 

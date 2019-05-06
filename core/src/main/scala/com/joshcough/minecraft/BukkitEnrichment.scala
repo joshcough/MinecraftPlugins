@@ -25,7 +25,7 @@ object BukkitEnrichment extends BukkitEnrichment {
   }
   case class MaterialAndData(m: Material, data: Option[Byte]){
     def update(b: Block): Boolean = {
-      val oldM    = b.getType
+      val oldM = b.getType
       b setType m
       oldM != m
     }

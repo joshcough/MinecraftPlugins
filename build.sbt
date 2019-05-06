@@ -23,19 +23,44 @@ val scalaLibPlugin = (project in file("scala-lib-plugin"))
 val MultiPlayerCommands = exampleProject("MultiPlayerCommands")
 val WorldEdit           = exampleProject("WorldEdit")
 val Warp                = exampleProject("Warp")
-val Danny               = exampleProject("Danny")
 val LightningArrows     = exampleProject("LightningArrows")
 val NoRain              = exampleProject("NoRain")
 val PluginCommander     = exampleProject("PluginCommander")
 val Shock               = exampleProject("Shock")
 
-def exampleProject(projectName: String) = {
-  Project(projectName, new File("examples/" + projectName))
+val NetLogoPlugin       = minecraftProject (
+  "NetLogoPlugin",
+  "other/NetLogoPlugin",
+  "com.joshcough.minecraft.NetLogoPluginConfig"
+).settings(
+  resolvers += sbt.Resolver.bintrayRepo("netlogo", "NetLogoHeadless"),
+  libDeps(
+    "org.nlogo" % "netlogoheadless" % "6.1.0-RC2",
+    "org.ow2.asm" % "asm-all" % "5.0.3",
+    "org.picocontainer" % "picocontainer" % "2.13.6",
+    "org.parboiled" %% "parboiled" % "2.1.4",
+    "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.6",
+  ),
+  assemblyMergeStrategy in assembly := {
+    case "plugin.yml" => MergeStrategy.first
+    case x => (assemblyMergeStrategy in assembly).value.apply(x)
+  },
+)
+
+def exampleProject(projectName: String) =
+  minecraftProject (
+    projectName,
+    "examples/" + projectName,
+    "com.joshcough.minecraft.examples." + projectName + "Config"
+  )
+
+def minecraftProject(projectName: String, location: String, pluginConfigClassName: String) = {
+  Project(projectName, new File(location))
     .settings(
       standardSettings,
-      minecraftProject(
+      minecraftProjectSettings(
         author = "Josh Cough",
-        pluginConfigClassName = "com.joshcough.minecraft.examples." + projectName + "Config",
+        pluginConfigClassName = pluginConfigClassName,
         bukkitDir = Some(new File("bukkit"))
       ),
     ).dependsOn(core)
