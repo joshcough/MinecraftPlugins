@@ -34,16 +34,24 @@ val NetLogoPlugin       = minecraftProject (
   "com.joshcough.minecraft.NetLogoPluginConfig"
 ).settings(
   resolvers += sbt.Resolver.bintrayRepo("netlogo", "NetLogoHeadless"),
+  resolvers += "Citizens" at "http://repo.citizensnpcs.co",
+  resolvers += "CodeMC" at "https://repo.codemc.org/repository/maven-public",
+  updateOptions := updateOptions.value.withLatestSnapshots(false),
   libDeps(
     "org.nlogo" % "netlogoheadless" % "6.1.0-RC2",
+    "net.citizensnpcs" % "citizens" % "2.0.24-SNAPSHOT" % "provided",
     "org.ow2.asm" % "asm-all" % "5.0.3",
     "org.picocontainer" % "picocontainer" % "2.13.6",
     "org.parboiled" %% "parboiled" % "2.1.4",
     "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.6",
+    "org.bstats" %  "bstats-bukkit" % "1.4" % "provided"
   ),
   assemblyMergeStrategy in assembly := {
+    case PathList("META-INF", "MANIFEST.MF") => MergeStrategy.discard
     case "plugin.yml" => MergeStrategy.first
-    case x => (assemblyMergeStrategy in assembly).value.apply(x)
+    case x =>
+      val oldStrategy = (assemblyMergeStrategy in assembly).value
+      oldStrategy(x)
   },
 )
 
