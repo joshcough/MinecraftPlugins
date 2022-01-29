@@ -4,7 +4,7 @@ import com.joshcough.minecraft.MinecraftPluginPlugin._
 
 val standardSettings = join(
   libDeps("javax.servlet" % "servlet-api" % "2.5" % "provided->default"),
-  Seq(organization := "com.joshcough", version := "0.3.5-SNAPSHOT", scalaVersion := "2.12.7")
+  Seq(organization := "com.joshcough", version := "0.3.5-SNAPSHOT", scalaVersion := "2.13.6")
 )
 
 // the core plugin library
