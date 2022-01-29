@@ -280,6 +280,7 @@ trait CommandsPlugin extends ScalaPlugin with MinecraftParsers {
       def isOp: Boolean = true
       def getMetadata(p1: String): java.util.List[MetadataValue] = new java.util.LinkedList()
       def launchProjectile[T <: Projectile](p1: Class[_ <: T]): T = ???
+      def launchProjectile[T <: org.bukkit.entity.Projectile](x$1: Class[_ <: T], x$2: org.bukkit.util.Vector): T = ???
       def hasMetadata(p1: String): Boolean = false
       def setFlySpeed(p1: Float): Unit = {}
       def getName: String = getServer.getName
@@ -470,6 +471,23 @@ trait CommandsPlugin extends ScalaPlugin with MinecraftParsers {
       def setHealthScale(x$1: Double): Unit = ???
       def setHealthScaled(x$1: Boolean): Unit = ???
       def setResourcePack(x$1: String): Unit = ???
+
+      def decrementStatistic(x$1: org.bukkit.Statistic,x$2: org.bukkit.entity.EntityType,x$3: Int): Unit = ???
+      def decrementStatistic(x$1: org.bukkit.Statistic,x$2: org.bukkit.entity.EntityType): Unit = ???
+      def decrementStatistic(x$1: org.bukkit.Statistic,x$2: org.bukkit.Material,x$3: Int): Unit = ???
+      def decrementStatistic(x$1: org.bukkit.Statistic,x$2: org.bukkit.Material): Unit = ???
+      def decrementStatistic(x$1: org.bukkit.Statistic,x$2: Int): Unit = ???
+      def decrementStatistic(x$1: org.bukkit.Statistic): Unit = ???
+      def getStatistic(x$1: org.bukkit.Statistic,x$2: org.bukkit.entity.EntityType): Int = ???
+      def getStatistic(x$1: org.bukkit.Statistic,x$2: org.bukkit.Material): Int = ???
+      def getStatistic(x$1: org.bukkit.Statistic): Int = ???
+      def hasAchievement(x$1: org.bukkit.Achievement): Boolean = ???
+      def incrementStatistic(x$1: org.bukkit.Statistic,x$2: org.bukkit.entity.EntityType,x$3: Int): Unit = ???
+      def incrementStatistic(x$1: org.bukkit.Statistic,x$2: org.bukkit.entity.EntityType): Unit = ???
+      def removeAchievement(x$1: org.bukkit.Achievement): Unit = ???
+      def setStatistic(x$1: org.bukkit.Statistic,x$2: org.bukkit.entity.EntityType,x$3: Int): Unit = ???
+      def setStatistic(x$1: org.bukkit.Statistic,x$2: org.bukkit.Material,x$3: Int): Unit = ???
+      def setStatistic(x$1: org.bukkit.Statistic,x$2: Int): Unit = ???
     }
   }
 }

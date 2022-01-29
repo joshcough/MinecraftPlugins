@@ -13,7 +13,7 @@ trait Common {
     libDeps(
       "javax.servlet"      % "servlet-api" % "2.5"        % "provided->default",
       "org.scalacheck"    %% "scalacheck"  % "1.11.3"     % "test",
-      "org.bukkit"         % "bukkit"      % "1.7.2-R0.2"
+      "org.bukkit"         % "bukkit"      % "1.7.2-R0.3"
     ),
     Seq(
       organization := "com.joshcough",
@@ -25,7 +25,7 @@ trait Common {
       resolvers ++= Seq(
         Resolver.jcenterRepo,
         Resolver.sonatypeRepo("snapshots"),
-        "Bukkit" at "http://repo.bukkit.org/content/groups/public/"
+        "Bukkit" at "https://maven.elmakers.com/repository"
       ),
       traceLevel := 10
       //,logLevel := Level.Warn

@@ -316,6 +316,11 @@ object TestServer { ts =>
     def getServerIcon(): org.bukkit.util.CachedServerIcon = ???
     def loadServerIcon(x$1: java.awt.image.BufferedImage): org.bukkit.util.CachedServerIcon = ???
     def loadServerIcon(x$1: java.io.File): org.bukkit.util.CachedServerIcon = ???
+
+    def getBanList(x$1: org.bukkit.BanList.Type): org.bukkit.BanList = ???
+    def getIdleTimeout(): Int = ???
+    def getUnsafe(): org.bukkit.UnsafeValues = ???
+    def setIdleTimeout(x$1: Int): Unit = ???
   }
 
   /**
@@ -377,6 +382,7 @@ object TestServer { ts =>
     def isOp: Boolean = true
     def getMetadata(p1: String): java.util.List[MetadataValue] = new java.util.LinkedList()
     def launchProjectile[T <: Projectile](p1: Class[_ <: T]): T = sys error "todo"
+    def launchProjectile[T <: org.bukkit.entity.Projectile](x$1: Class[_ <: T], x$2: org.bukkit.util.Vector): T = sys error "todo"
     def hasMetadata(p1: String): Boolean = false
     def setFlySpeed(p1: Float): Unit = {}
     def getName: String = getServer.getName
@@ -570,5 +576,22 @@ object TestServer { ts =>
     def setHealthScaled(x$1: Boolean): Unit = ???
     def setResourcePack(x$1: String): Unit = ???
 
+    def decrementStatistic(x$1: org.bukkit.Statistic,x$2: org.bukkit.entity.EntityType,x$3: Int): Unit = ???
+    def decrementStatistic(x$1: org.bukkit.Statistic,x$2: org.bukkit.entity.EntityType): Unit = ???
+    def decrementStatistic(x$1: org.bukkit.Statistic,x$2: org.bukkit.Material,x$3: Int): Unit = ???
+    def decrementStatistic(x$1: org.bukkit.Statistic,x$2: org.bukkit.Material): Unit = ???
+    def decrementStatistic(x$1: org.bukkit.Statistic,x$2: Int): Unit = ???
+    def decrementStatistic(x$1: org.bukkit.Statistic): Unit = ???
+    def getStatistic(x$1: org.bukkit.Statistic,x$2: org.bukkit.entity.EntityType): Int = ???
+    def getStatistic(x$1: org.bukkit.Statistic,x$2: org.bukkit.Material): Int = ???
+    def getStatistic(x$1: org.bukkit.Statistic): Int = ???
+    def hasAchievement(x$1: org.bukkit.Achievement): Boolean = ???
+    def incrementStatistic(x$1: org.bukkit.Statistic,x$2: org.bukkit.entity.EntityType,x$3: Int): Unit = ???
+    def incrementStatistic(x$1: org.bukkit.Statistic,x$2: org.bukkit.entity.EntityType): Unit = ???
+    def removeAchievement(x$1: org.bukkit.Achievement): Unit = ???
+    def setStatistic(x$1: org.bukkit.Statistic,x$2: org.bukkit.entity.EntityType,x$3: Int): Unit = ???
+    def setStatistic(x$1: org.bukkit.Statistic,x$2: org.bukkit.Material,x$3: Int): Unit = ???
+    def setStatistic(x$1: org.bukkit.Statistic,x$2: Int): Unit = ???
+    
   }
 }
