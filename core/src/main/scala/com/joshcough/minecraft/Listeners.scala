@@ -24,7 +24,7 @@ import org.bukkit.event.vehicle.VehicleEnterEvent
 trait ListenerPlugin extends ListenersPlugin {
   def listener: Listener
   def listeners = List(listener)
-  override def onEnable(){ super.onEnable(); registerListener(listener) }
+  override def onEnable(): Unit = { super.onEnable(); registerListener(listener) }
 }
 
 /**
@@ -42,7 +42,7 @@ trait ListenerPlugin extends ListenersPlugin {
  */
 trait ListenersPlugin extends ScalaPlugin with Listeners {
   def listeners: List[Listener]
-  override def onEnable{ super.onEnable(); listeners.foreach(registerListener) }
+  override def onEnable(): Unit = { super.onEnable(); listeners.foreach(registerListener) }
 }
 
 object Listeners extends Listeners

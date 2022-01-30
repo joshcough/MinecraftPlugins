@@ -28,7 +28,7 @@ object YMLGenerator {
                          version: String,
                          outputDir: String = ".",
                          configClassName: String): Unit = {
-    val config = Class.forName(configClassName).newInstance().asInstanceOf[PluginConfig[_]]
+    val config = Class.forName(configClassName).getDeclaredConstructor().newInstance().asInstanceOf[PluginConfig[_]]
     writeYML(pluginName, config.pluginClass.getName, author, version, outputDir, config.commands)
   }
 

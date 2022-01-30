@@ -155,7 +155,7 @@ object WorldEditCommands {
         name = "fib-tower",
         desc = "create a tower from the fib numbers",
         args = int ~ material){ case (p, i ~ m) =>
-        lazy val fibs: Stream[Int] = 0 #:: 1 #:: fibs.zip(fibs.tail).map{case (i,j) => i+j}
+        lazy val fibs: LazyList[Int] = 0 #:: 1 #:: fibs.zip(fibs.tail).map{case (i,j) => i+j}
         p.newChange(for {
           (startBlock,n) <- p.world.fromX(p.loc).zip(fibs take i)
           towerBlock     <- startBlock.andBlocksAbove take n
@@ -218,7 +218,7 @@ object WorldEditCommands {
           val c = cube(p)
           val allMaterials = (initialMaterial :: materials).toArray
           p.scheduleSyncRepeatingTask(initialDelay = 0, period = 20){
-            c.shell.foreach(_ changeTo (allMaterials((math.random * allMaterials.size).toInt)))
+            c.shell.foreach(_ changeTo (allMaterials((math.random() * allMaterials.size).toInt)))
           }
           p.scheduleSyncRepeatingTask(initialDelay = 0, period = 10){
             c.shrink(1, 1, 1).corners.foreach(_ changeTo TORCH)
@@ -265,8 +265,8 @@ object WorldEditCommands {
    */
   class UndoManager[A, U, R] {
     var on = true
-    def turnOn { on = true }
-    def turnOff{ on = false; state.clear() }
+    def turnOn: Unit = { on = true }
+    def turnOff: Unit = { on = false; state.clear() }
     import collection.mutable.Map
     val initialState = UndoState[U, R]()
     val state = Map[A, UndoState[U, R]]().withDefaultValue(initialState)
@@ -281,11 +281,10 @@ object WorldEditCommands {
     def newChange(c: Cube[Block], force: Boolean = false): Unit = newChange(translateAll(c, force))
     def undo: Unit = undoManager.undo(p)(rerun)
     def redo: Unit = undoManager.redo(p)(rerun)
-    def rerun(cs: Changes) = notifyChange(runChanges(cs.cs.map(PotentialChange(_))))
+    def rerun(cs: Changes): Changes = notifyChange(runChanges(cs.cs.toSeq.map(PotentialChange(_))))
     def notifyChange(cs: Changes): Changes = { p ! s"${cs.size} blocks updated."; cs }
   }
 }
-
 
 
 

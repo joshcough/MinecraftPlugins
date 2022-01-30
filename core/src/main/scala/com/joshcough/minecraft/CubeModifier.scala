@@ -25,7 +25,7 @@ object CubeModifier {
     def run: Boolean = newM update b
   }
 
-  type PotentialChanges = Stream[PotentialChange]
+  type PotentialChanges = LazyList[PotentialChange]
 
   /**
    * Represents a change that actually took place in the world.
@@ -60,7 +60,7 @@ object CubeModifier {
    * TODO: document me!
    */
   def getTransformationChanges(cube: Cube[Block],
-                               force: Boolean = false): Stream[PotentialChange] = {
+                               force: Boolean = false): LazyList[PotentialChange] = {
     val s = cube.toZippedStream.map{ case (c,b) =>
       PotentialChange(cube.world(c.x, c.y, c.z), b.materialAndData)
     }
@@ -78,8 +78,8 @@ object CubeModifier {
   /**
    * Set all the blocks in this stream to the given Material
    */
-  def setAll(bms: Stream[Block], newM: MaterialAndData) = runChanges(
-    bms.zip(Stream.continually(newM)).map{ case (b,n) => PotentialChange(b,n) }
+  def setAll(bms: LazyList[Block], newM: MaterialAndData): Changes = runChanges(
+    bms.zip(LazyList.continually(newM)).map{ case (b,n) => PotentialChange(b,n) }
   )
 
   /**

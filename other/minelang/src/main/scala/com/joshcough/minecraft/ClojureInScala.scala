@@ -591,7 +591,6 @@ object ClojureInScala {
     import jline.console.ConsoleReader
     import jline.console.history.FileHistory
     import jline.console.completer._
-    import scala.collection.JavaConversions._
 
     trait ReplCommand
       case object LastError extends ReplCommand

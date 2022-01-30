@@ -75,11 +75,11 @@ case class Cube[T](corner1: Point, corner2: Point)(f: Point => T) { self =>
     Cube(Point(minX, minY, minZ), Point(maxX, maxY, maxZ))(f)
 
   // this must be a def to avoid it memoizing.
-  def toCoorStream: Stream[Point] = {
+  def toCoorStream: LazyList[Point] = {
     for {
-      x <- (minX to maxX).toStream
-      y <- (minY to maxY).toStream
-      z <- (minZ to maxZ).toStream
+      x <- LazyList.range(minX, maxX)
+      y <- LazyList.range(minY, maxY)
+      z <- LazyList.range(minZ, maxX)
     } yield Point(x,y,z)
   }
 
@@ -87,13 +87,13 @@ case class Cube[T](corner1: Point, corner2: Point)(f: Point => T) { self =>
    *
    * @return
    */
-  def toStream: Stream[T] = toCoorStream map f
+  def toLazyList: LazyList[T] = toCoorStream map f
 
   /**
    *
    * @return
    */
-  def toZippedStream: Stream[(Point, T)] = toCoorStream zip toStream
+  def toZippedStream: LazyList[(Point, T)] = toCoorStream zip toLazyList
 
   def width : Long = maxX.toLong - minX.toLong + 1L
   def height: Long = maxY.toLong - minY.toLong + 1L
@@ -137,37 +137,37 @@ case class Cube[T](corner1: Point, corner2: Point)(f: Point => T) { self =>
    * TODO: i might just have to get the right blocks myself.
    * TODO: I think it just involves shrinking Y by 1 on all the walls.
    */
-  def shell: Stream[T] = (floor.toStream #::: ceiling.toStream #::: walls).distinct
+  def shell: LazyList[T] = (floor.toLazyList #::: ceiling.toLazyList #::: walls).distinct
 
   /**
    * get the floor of this cube
    * @return a new Cube
    */
-  def floor  = Cube(Point(maxX, minY, maxZ), Point(minX, minY, minZ))(f)
-  def bottom = floor _
+  def floor: Cube[T] = Cube(Point(maxX, minY, maxZ), Point(minX, minY, minZ))(f)
+  def bottom: () => Cube[T] = () => floor
 
   /**
    * Returns true if the given coordinate is on the floor of this cube
    * @param c
    * @return
    */
-  def onFloor(c: Point)   = c.y == minY
-  def onBottom = onFloor _
+  def onFloor(c: Point): Boolean = c.y == minY
+  def onBottom: Point => Boolean = onFloor
 
   /**
    * get the ceiling of this cube
    * @return a new Cube
    */
-  def ceiling = Cube(Point(maxX, maxY, maxZ), Point(minX, maxY, minZ))(f)
-  def top     = ceiling _
+  def ceiling: Cube[T] = Cube(Point(maxX, maxY, maxZ), Point(minX, maxY, minZ))(f)
+  def top: () => Cube[T] = () => ceiling
 
   /**
    * Returns true if the given block is on the ceiling of this cube
    * @param c
    * @return
    */
-  def onCeiling(c: Point) = c.y == maxY
-  def onTop = onCeiling _
+  def onCeiling(c: Point): Boolean = c.y == maxY
+  def onTop: Point => Boolean = onCeiling
 
   def northWall: Cube[T] = Cube(Point(minX, minY, minZ), Point(maxX, maxY, minZ))(f)
   def southWall: Cube[T] = Cube(Point(minX, minY, maxZ), Point(maxX, maxY, maxZ))(f)
@@ -181,7 +181,7 @@ case class Cube[T](corner1: Point, corner2: Point)(f: Point => T) { self =>
    * TODO: can i do this more efficiently?
    * TODO: can i make this return 4 cubes?
    */
-  def walls: Stream[T] = toZippedStream.filter(t => onWall(t._1)).map(_._2)
+  def walls: LazyList[T] = toZippedStream.filter(t => onWall(t._1)).map(_._2)
 
   /**
    *

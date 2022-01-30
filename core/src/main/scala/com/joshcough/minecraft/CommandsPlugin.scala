@@ -278,7 +278,7 @@ object CommandsPlugin extends MinecraftParsers {
       override def getMaximumNoDamageTicks: Int = 0
       override def getTotalExperience: Int = 0
       override def getPlayerTimeOffset: Long = 0
-      override def sendRawMessage(p1: String) { println(s"raw message: $p1") }
+      override def sendRawMessage(p1: String): Unit = { println(s"raw message: $p1") }
       override def setGameMode(p1: GameMode): Unit = {}
       override def setBedSpawnLocation(p1: Location): Unit = {}
       override def setBedSpawnLocation(x$1: org.bukkit.Location,x$2: Boolean): Unit = {}
@@ -413,7 +413,7 @@ object CommandsPlugin extends MinecraftParsers {
       override def isValid: Boolean = true
       override def getOpenInventory: InventoryView = ???
       override def addPotionEffects(p1: java.util.Collection[PotionEffect]): Boolean = false
-      override def sendPluginMessage(p1: Plugin, p2: String, p3: Array[Byte]) {
+      override def sendPluginMessage(p1: Plugin, p2: String, p3: Array[Byte]): Unit = {
         println(s"plugin message: $p1, $p2, ${p3.mkString("")}")
       }
       override def setSleepingIgnored(p1: Boolean): Unit = {}
@@ -433,8 +433,8 @@ object CommandsPlugin extends MinecraftParsers {
       override def getExp: Float = 0
       override def hidePlayer(p1: Player): Unit = {}
       override def setAllowFlight(p1: Boolean): Unit = {}
-      override def sendMessage(p1: Array[String]) { p1 foreach sendMessage }
-      override def sendMessage(p1: String) { println(p1) }
+      override def sendMessage(p1: Array[String]): Unit = { p1 foreach sendMessage }
+      override def sendMessage(p1: String): Unit = { println(p1) }
       override def isBanned: Boolean = false
       override def setSprinting(p1: Boolean): Unit = {}
       override def getVelocity: Vector = ???

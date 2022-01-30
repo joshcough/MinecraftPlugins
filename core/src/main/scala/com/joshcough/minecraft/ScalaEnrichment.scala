@@ -17,7 +17,7 @@ trait ScalaEnrichment {
   /**
    * Randomly, return true or false.
    */
-  def randomBoolen = math.random > .5
+  def randomBoolean(): Boolean = math.random() > .5
 
   /**
    * Allows for F# style pipelining

@@ -17,7 +17,7 @@ import org.bukkit.entity.{Entity, EntityType, LivingEntity, Player}
 import org.bukkit.event.player.PlayerInteractEvent
 import util.Try
 import Cube._
-
+import scala.jdk.CollectionConverters._
 
 object BukkitEnrichment extends BukkitEnrichment {
   object MaterialAndData {
@@ -87,37 +87,37 @@ trait BukkitEnrichment extends ScalaEnrichment {
     def nthBlockAbove(n:Int) = world(xd, yd + n, zd)
     // the nth block below b
     def nthBlockBelow(n:Int) = world(xd, yd - n, zd)
-    // a Stream of all the Blocks above b
-    def blocksAbove   : Stream[Block] = blockAbove #:: blockAbove.blocksAbove
+    // a LazyList of all the Blocks above b
+    def blocksAbove   : LazyList[Block] = blockAbove #:: blockAbove.blocksAbove
     // b, and all the blocks above b
-    def andBlocksAbove: Stream[Block] = b #:: blocksAbove
-    // a Stream of all the Blocks below b
-    def blocksBelow   : Stream[Block] = blockBelow #:: blockBelow.blocksBelow
+    def andBlocksAbove: LazyList[Block] = b #:: blocksAbove
+    // a LazyList of all the Blocks below b
+    def blocksBelow   : LazyList[Block] = blockBelow #:: blockBelow.blocksBelow
     // b, and all the blocks below b
-    def andBlocksBelow: Stream[Block] = b #:: blocksBelow
+    def andBlocksBelow: LazyList[Block] = b #:: blocksBelow
     // the four blocks north, south, east and west of b
-    def neighbors4: Stream[Block] =
-      blockNorth #:: blockSouth #:: blockEast #:: blockWest #:: Stream.empty
+    def neighbors4: LazyList[Block] =
+      blockNorth #:: blockSouth #:: blockEast #:: blockWest #:: LazyList.empty
     // b, and the four blocks north, south, east and west of b
-    def andNeighbors4: Stream[Block] = b #:: neighbors4
+    def andNeighbors4: LazyList[Block] = b #:: neighbors4
     // the four blocks north, south, east and west of b
     // and the four blocks northeast, southeast, northwest, and southwest of b
-    def neighbors8   : Stream[Block] = neighbors4 ++ (
-      blockNorthEast #:: blockSouthEast #:: blockNorthWest #:: blockSouthWest #:: Stream.empty
+    def neighbors8   : LazyList[Block] = neighbors4 ++ (
+      blockNorthEast #:: blockSouthEast #:: blockNorthWest #:: blockSouthWest #:: LazyList.empty
     )
     // b and all of b's neighbors8
-    def andNeighbors8: Stream[Block] = b #:: neighbors8
+    def andNeighbors8: LazyList[Block] = b #:: neighbors8
 
     /**
      * @return all of b's 26 neighbors in 3D space
      */
-    def neighbors    : Stream[Block] =
+    def neighbors    : LazyList[Block] =
       neighbors8 ++ b.blockBelow.andNeighbors8 #::: b.blockAbove.andNeighbors8
 
     /**
      * @return b, and all of b's 26 neighbors in 3D space
      */
-    def andNeighbors : Stream[Block] = b #:: neighbors
+    def andNeighbors : LazyList[Block] = b #:: neighbors
 
     def is(m:Material)    = b.getType == m
     def isA(m:Material)   = b.getType == m
@@ -165,7 +165,7 @@ trait BukkitEnrichment extends ScalaEnrichment {
    */
   implicit class RichCancellable(c:Cancellable){
     def cancel: Unit = c.setCancelled(true)
-    def cancelIf(b: => Boolean, runBeforeCancelling: => Unit = () => ()): Unit =
+    def cancelIf(b: => Boolean, runBeforeCancelling: => Unit = ()): Unit =
       if(b) { runBeforeCancelling; c.setCancelled(true) }
   }
 
@@ -206,7 +206,7 @@ trait BukkitEnrichment extends ScalaEnrichment {
    */
   implicit class RichWorld(w:World){
     def name = w.getName
-    def entities = w.getEntities
+    def entities: List[Entity] = w.getEntities.asScala.toList
     def apply(x: Int,    y: Int,    z: Int)   : Block = blockAt(x.toDouble, y.toDouble, z.toDouble)
     def apply(x: Double, y: Double, z: Double): Block = new Location(w, x, y, z).getBlock
     def apply(p: Point): Block = this(p.x, p.y, p.z)
@@ -214,11 +214,11 @@ trait BukkitEnrichment extends ScalaEnrichment {
     def blockAt(x: Double, y: Double, z: Double): Block = new Location(w, x, y, z).getBlock
 
     /**
-     * Returns an infinite Stream[Block] that increases positively in X (or EAST)
+     * Returns an infinite LazyList[Block] that increases positively in X (or EAST)
      * starting at the given Location.
      */
-    def fromX(loc:Location): Stream[Block] = {
-      lazy val nats:Stream[Int] = 0 #:: 1 #:: nats.tail.map(_+1)
+    def fromX(loc:Location): LazyList[Block] = {
+      lazy val nats:LazyList[Int] = 0 #:: 1 #:: nats.tail.map(_+1)
       for (x<-nats) yield w(loc.x + x, loc.y, loc.z)
     }
   }
@@ -246,11 +246,10 @@ trait BukkitEnrichment extends ScalaEnrichment {
   }
 
   implicit class RichCubeOfBlocks(c: Cube[Block]) {
-    import collection.JavaConversions.asScalaIterator
     def world = c(Point(0,0,0)).world
-    def blocks = c.toStream
+    def blocks = c.toLazyList
     def blocksAndMaterials = blocks.map(b => (b, b.materialAndData))
-    def players: Iterator[Player] = world.getPlayers.iterator.filter(contains)
+    def players: Iterator[Player] = world.getPlayers.iterator.asScala.filter(contains)
     def contains(p: Player)  : Boolean = c.contains(p.loc.point)
     def contains(l: Location): Boolean = c.contains(l.point)
   }
@@ -293,7 +292,7 @@ trait BukkitEnrichment extends ScalaEnrichment {
      * If this player were in a box, this function would return all the blocks in that box
      * @return
      */
-    def blocksAround: Stream[Block] =
+    def blocksAround: LazyList[Block] =
       blockOn.nthBlockAbove(1).neighbors8 ++  // 8 blocks at the bottom half of the player
       blockOn.nthBlockAbove(2).neighbors8 ++  // 8 blocks at the top half of the player
       blockOn.andNeighbors8 #:::              // 9 blocks below the player
@@ -337,21 +336,21 @@ trait BukkitEnrichment extends ScalaEnrichment {
     def kill(p:Player): Unit            = doTo(p, p.setHealth(0), "killed")
     def teleportTo(otherPlayer: Player) = player.teleport(otherPlayer)
     def teleportTo(b: Block): Unit      = player.teleport(b.loc)
-    def shockWith(message:String) {
+    def shockWith(message:String): Unit = {
       player.shock
       player ! message
     }
-    def withMaterial[T](nameOrId:String)(f: Material => T) {
+    def withMaterial[T](nameOrId:String)(f: Material => T): Unit = {
       attemptO(findMaterial(nameOrId))("No such material: $nameOrId", f)
     }
-    def attemptO[T, U](ot: Option[T])(s: => String, f: T => U){
+    def attemptO[T, U](ot: Option[T])(s: => String, f: T => U): Unit = {
       ot.fold(player ! s)(t => f(t))
     }
     def attempt[T](f: => T): Unit = try f catch {
-      case e: Exception => player ! RED(s"$e ${e.getMessage}\n${e.getStackTraceString}")
+      case e: Exception => player ! RED(s"$e ${e.getMessage}\n${e.getStackTrace.mkString("\n")}")
     }
-
-    def doTo(otherPlayer: Player, f: => Unit, actionName: String){
+ 
+    def doTo(otherPlayer: Player, f: => Unit, actionName: String): Unit = {
       f
       otherPlayer  ! GREEN(s"you have been $actionName by ${player.name}")
       player       ! GREEN(s"you have $actionName ${otherPlayer.name}")
@@ -397,14 +396,14 @@ trait BukkitEnrichment extends ScalaEnrichment {
   // arguably, these functions should be someplace else...
   def tryO[T](f: => T): Option[T] = Try(Option(f)).getOrElse(None)
 
-  def findEntity(name:String) = Option(EntityType.fromName(name.toUpperCase)).orElse(
+  def findEntity(name:String): Option[EntityType] = Option(EntityType.fromName(name.toUpperCase)).orElse(
     Option(EntityType.valueOf(name.toUpperCase))
   )
 
-  def findMaterial(nameOrId: String) = Option(getMaterial(nameOrId.toUpperCase))
+  def findMaterial(nameOrId: String): Option[Material] = Option(getMaterial(nameOrId.toUpperCase))
 
   implicit class RichColor(c: ChatColor) {
-    def apply(s: String) = c + s
+    def apply(s: String): String = c.toString + s
   }
 
 //  sealed case class Color(data:Byte){

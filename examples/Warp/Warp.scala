@@ -7,7 +7,7 @@ import java.io.File
 
 import org.bukkit.configuration.file.YamlConfiguration
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import BukkitEnrichment._
 
 /**
@@ -48,7 +48,7 @@ object Warp {
   }
 
   def setWarp(w:Warp)(implicit dataFolder: File): Unit = Warp.withConfig(w.player){ config =>
-    config.set(w.warpName, w.x + "," + w.y + "," + w.z)
+    config.set(w.warpName, s"${w.x}, ${w.y}, ${w.z}")
     println("warps: " + getAllWarps(w.player))
   }
 

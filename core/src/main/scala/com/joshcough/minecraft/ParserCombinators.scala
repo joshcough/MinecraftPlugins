@@ -18,7 +18,7 @@ trait ParserCombinators extends ScalaEnrichment {
 
   trait ParseResult[+T]{
     def get: T
-    def extract[A](pf: PartialFunction[T, A])
+    def extract[A](pf: PartialFunction[T, A]): Unit
     def fold[A](failF: String => A)(sucF: (T,List[String]) => A): A
   }
   case class Failure(message: String) extends ParseResult[Nothing]{

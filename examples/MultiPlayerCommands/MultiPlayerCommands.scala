@@ -1,6 +1,7 @@
 package com.joshcough.minecraft.examples
 
-import scala.collection.JavaConversions._
+
+import scala.collection.JavaConverters.asScala
 import com.joshcough.minecraft._
 import org.bukkit.{Material, Server}
 import org.bukkit.GameMode._
@@ -42,7 +43,7 @@ object MultiPlayerCommandsCommands {
       case (p, e ~ n) => p.loc.spawnN(e, n.fold(1)(id))
     },
 
-    Command("ban",      "Ban some players.", player+){ case (you, them) =>
+    Command("ban",      "Ban some players.", player.+){ case (you, them) =>
       them.foreach(_.ban(s"${you.name} doesn't like you.", you))
     },
 
