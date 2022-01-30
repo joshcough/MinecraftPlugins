@@ -2,6 +2,7 @@ examples/src/main/resources/
 target/
 out/
 .idea
+.idea_modules
 plugins/
 bukkit/
 .DS_Store
