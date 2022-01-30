@@ -260,10 +260,7 @@ trait BukkitEnrichment extends ScalaEnrichment {
   implicit class RichServer(s:Server){
     def findPlayer(name:String) = tryO(s.getPlayer(name))
     def findOnlinePlayer = findPlayer _
-    def findOfflinePlayer(name:String) = Option(s.getOfflinePlayer(name))
     def findOnlinePlayers(names: List[String]): List[Player] = names.map(findOnlinePlayer).flatten
-    def findOfflinePlayers(names: List[String]): List[OfflinePlayer] =
-      names.map(findOfflinePlayer).flatten
   }
 
   /**
@@ -278,8 +275,10 @@ trait BukkitEnrichment extends ScalaEnrichment {
     def inventory = player.getInventory
     def is(pname: String) = name == pname
 
-    def holding = player.getItemInHand
-    def isHolding  (m: Material) = player.getItemInHand.getType == m
+    def isHolding  (m: Material) =
+      player.getInventory.getItemInMainHand.getType == m ||
+      player.getInventory.getItemInOffHand.getType == m
+
     def isHoldingA (m: Material) = isHolding(m)
     def isHoldingAn(m: Material) = isHolding(m)
     def isHoldingAnyOf(ms: Material*) = ms.exists(isHolding)
@@ -306,7 +305,7 @@ trait BukkitEnrichment extends ScalaEnrichment {
     /**
      * Sends player all of the given messages
      */
-    def !* (ss: String*): Unit = ss.foreach(s => player ! s)
+    def !* (ss: List[String]): Unit = ss.foreach(s => player ! s)
 
     /**
      * Sends the player the given message, but turns it red.
@@ -357,7 +356,7 @@ trait BukkitEnrichment extends ScalaEnrichment {
     }
 
     def ban(reason: String, bannedBy: Player): Unit = {
-      Bukkit.getBanList(Type.NAME).addBan(player.name, reason, new Date(3000, 12,31), bannedBy.name)
+      Bukkit.getBanList(Type.NAME).addBan(player.name, reason, null, bannedBy.name)
     }
   }
 
@@ -396,9 +395,7 @@ trait BukkitEnrichment extends ScalaEnrichment {
   // arguably, these functions should be someplace else...
   def tryO[T](f: => T): Option[T] = Try(Option(f)).getOrElse(None)
 
-  def findEntity(name:String): Option[EntityType] = Option(EntityType.fromName(name.toUpperCase)).orElse(
-    Option(EntityType.valueOf(name.toUpperCase))
-  )
+  def findEntity(name:String): Option[EntityType] = Option(EntityType.valueOf(name.toUpperCase))
 
   def findMaterial(nameOrId: String): Option[Material] = Option(getMaterial(nameOrId.toUpperCase))
 
