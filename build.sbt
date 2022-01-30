@@ -3,8 +3,15 @@ val projectUrl = "https://github.com/joshcough/MinecraftPlugins"
 import com.joshcough.minecraft.MinecraftPluginPlugin._
 
 val standardSettings = join(
-  libDeps("javax.servlet" % "servlet-api" % "2.5" % "provided->default"),
-  Seq(organization := "com.joshcough", version := "0.3.5-SNAPSHOT", scalaVersion := "2.13.6", scalacOptions := Seq("-unchecked", "-deprecation"))
+  libDeps(
+    "javax.servlet" % "servlet-api" % "2.5" % "provided->default",
+    "org.bukkit" % "bukkit" % "1.16.1-R0.1-SNAPSHOT"
+  ),
+  Seq(organization  := "com.joshcough"
+    , version       := "0.3.5-SNAPSHOT"
+    , scalaVersion  := "2.13.6"
+    , scalacOptions := Seq("-unchecked", "-deprecation")),
+  resolvers += "Bukkit" at "https://maven.elmakers.com/repository"
 )
 
 // the core plugin library
@@ -23,7 +30,6 @@ val scalaLibPlugin = (project in file("scala-lib-plugin"))
 val MultiPlayerCommands = exampleProject("MultiPlayerCommands")
 val WorldEdit           = exampleProject("WorldEdit")
 val Warp                = exampleProject("Warp")
-val Danny               = exampleProject("Danny")
 val LightningArrows     = exampleProject("LightningArrows")
 val NoRain              = exampleProject("NoRain")
 val PluginCommander     = exampleProject("PluginCommander")
