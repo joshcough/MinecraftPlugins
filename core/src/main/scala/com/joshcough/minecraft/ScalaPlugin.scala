@@ -20,7 +20,7 @@ object ScalaPlugin {
     "main: "        + pluginClassName,
     "author: "      + author,
     "version: "     + version,
-    "api-version: 1.13",
+    "api-version: 1.16.1",
     "depend: ["     + (mandatoryDependencies ++ dependencies).mkString(", ") + "]",
     "softdepend: [" + softDependencies.mkString(", ") + "]"
   ).mkString("\n")
