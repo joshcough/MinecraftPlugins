@@ -63,7 +63,7 @@ case class Cube[T](corner1: Point, corner2: Point)(f: Point => T) { self =>
   def map[U](g: T => U): Cube[U] = Cube(corner1, corner1)(g compose f)
   def mapCoor[U](f: Point => U): Cube[U] = Cube(corner1, corner2)(f)
 
-  override def toString = s"Cube(l1: ${(maxX,maxY,maxZ)}, l2: ${(minX,minY,minZ)})"
+  override def toString = s"Cube(maxes: ${(maxX,maxY,maxZ)}, mins: ${(minX,minY,minZ)})"
   override def equals(a:Any) = a match {
     case c:Cube[_] =>
       (maxX,maxY,maxZ) == (c.maxX,c.maxY,c.maxZ) && (minX,minY,minZ) == (c.minX,c.minY,c.minZ)
@@ -76,9 +76,9 @@ case class Cube[T](corner1: Point, corner2: Point)(f: Point => T) { self =>
 
   // this must be a def to avoid it memoizing.
   def toCoorStream: LazyList[Point] = for {
-      x <- LazyList.range(minX, maxX)
-      y <- LazyList.range(minY, maxY)
-      z <- LazyList.range(minZ, maxZ)
+      x <- LazyList.range(minX, maxX+1)
+      y <- LazyList.range(minY, maxY+1)
+      z <- LazyList.range(minZ, maxZ+1)
     } yield Point(x,y,z)
 
   /**

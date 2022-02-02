@@ -5,7 +5,8 @@ import com.joshcough.minecraft.MinecraftPluginPlugin._
 val standardSettings = join(
   libDeps(
     "javax.servlet" % "servlet-api" % "2.5" % "provided->default",
-    "org.bukkit" % "bukkit" % "1.16.1-R0.1-SNAPSHOT"
+    "org.bukkit" % "bukkit" % "1.16.1-R0.1-SNAPSHOT",
+    "org.scalacheck" %% "scalacheck" % "1.15.4" % "test"
   ),
   Seq(organization  := "com.joshcough"
     , version       := "0.3.5-SNAPSHOT"

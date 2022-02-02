@@ -5,19 +5,20 @@ import java.util.Date
 import org.bukkit.{Bukkit, ChatColor, Effect, Location, Material, OfflinePlayer, Server, World}
 import org.bukkit.BanList.Type
 import org.bukkit.block.Block
+import org.bukkit.entity.{Entity, EntityType, LivingEntity, Player}
 import org.bukkit.event.Cancellable
 import org.bukkit.event.entity.EntityDamageByEntityEvent
+import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.weather.WeatherChangeEvent
 import org.bukkit.inventory.ItemStack
 import org.bukkit.plugin.{Plugin, PluginManager}
+import scala.jdk.CollectionConverters._
+
 import ChatColor._
+import Cube._
 import Effect._
 import Material._
-import org.bukkit.entity.{Entity, EntityType, LivingEntity, Player}
-import org.bukkit.event.player.PlayerInteractEvent
 import util.Try
-import Cube._
-import scala.jdk.CollectionConverters._
 
 object BukkitEnrichment extends BukkitEnrichment {
   object MaterialAndData {
@@ -330,7 +331,9 @@ trait BukkitEnrichment extends ScalaEnrichment {
     def findPlayer(name:String)(f: Player => Unit): Unit =
       server.findPlayer(name).fold(sendError("kill could not find player: " + name))(f)
     def findPlayers(names:List[String])(f: Player => Unit): Unit = names.foreach(n => findPlayer(n)(f))
-    //def ban(reason:String){ player.setBanned(true); player.kickPlayer("banned: $reason") }
+    def ban(reason: String, bannedBy: Player): Unit = {
+      Bukkit.getBanList(Type.NAME).addBan(player.name, reason, null, bannedBy.name)
+    }
     def kill(playerName:String): Unit   = findPlayer(playerName)(kill)
     def kill(p:Player): Unit            = doTo(p, p.setHealth(0), "killed")
     def teleportTo(otherPlayer: Player) = player.teleport(otherPlayer)
@@ -353,10 +356,6 @@ trait BukkitEnrichment extends ScalaEnrichment {
       f
       otherPlayer  ! GREEN(s"you have been $actionName by ${player.name}")
       player       ! GREEN(s"you have $actionName ${otherPlayer.name}")
-    }
-
-    def ban(reason: String, bannedBy: Player): Unit = {
-      Bukkit.getBanList(Type.NAME).addBan(player.name, reason, null, bannedBy.name)
     }
   }
 
