@@ -70,6 +70,4 @@ There are a few other sub projects and I'll mention them just very briefly here.
 
 #### Links
 
-Important links:
-
   * [Project site on Bukkit](http://dev.bukkit.org/server-mods/scala-plugin-api/)
