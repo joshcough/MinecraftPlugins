@@ -51,12 +51,12 @@ import Cube._
  */
 case class Cube[T](corner1: Point, corner2: Point)(f: Point => T) { self =>
 
-  lazy val maxX  = math.max(corner1.x, corner2.x)
-  lazy val minX  = math.min(corner1.x, corner2.x)
-  lazy val maxY  = math.max(corner1.y, corner2.y)
-  lazy val minY  = math.min(corner1.y, corner2.y)
-  lazy val maxZ  = math.max(corner1.z, corner2.z)
-  lazy val minZ  = math.min(corner1.z, corner2.z)
+  lazy val maxX: Int  = math.max(corner1.x, corner2.x)
+  lazy val minX: Int  = math.min(corner1.x, corner2.x)
+  lazy val maxY: Int  = math.max(corner1.y, corner2.y)
+  lazy val minY: Int  = math.min(corner1.y, corner2.y)
+  lazy val maxZ: Int  = math.max(corner1.z, corner2.z)
+  lazy val minZ: Int  = math.min(corner1.z, corner2.z)
 
   def apply(c: Point): T = f(c)
 
@@ -70,18 +70,16 @@ case class Cube[T](corner1: Point, corner2: Point)(f: Point => T) { self =>
     case _ => false
   }
 
-  def copy(minX:Int=minX, minY:Int=minY, minZ:Int=minZ,
-           maxX:Int=maxX, maxY:Int=maxY, maxZ:Int=maxZ): Cube[T] =
+  def copyCube(minX:Int=minX, minY:Int=minY, minZ:Int=minZ,
+               maxX:Int=maxX, maxY:Int=maxY, maxZ:Int=maxZ): Cube[T] =
     Cube(Point(minX, minY, minZ), Point(maxX, maxY, maxZ))(f)
 
   // this must be a def to avoid it memoizing.
-  def toCoorStream: LazyList[Point] = {
-    for {
+  def toCoorStream: LazyList[Point] = for {
       x <- LazyList.range(minX, maxX)
       y <- LazyList.range(minY, maxY)
-      z <- LazyList.range(minZ, maxX)
+      z <- LazyList.range(minZ, maxZ)
     } yield Point(x,y,z)
-  }
 
   /**
    *
@@ -261,14 +259,14 @@ case class Cube[T](corner1: Point, corner2: Point)(f: Point => T) { self =>
    * @return a new Cube
    **/
 
-  def growMinXBy  (extra:Int) = copy(minX=minX-extra)
-  def growMinYBy  (extra:Int) = copy(minY=minY-extra)
-  def growMinZBy  (extra:Int) = copy(minZ=minZ-extra)
-  def growMaxXBy  (extra:Int) = copy(maxX=maxX+extra)
-  def growMaxYBy  (extra:Int) = copy(maxY=maxY+extra)
-  def growUp      (extra:Int) = growMaxYBy(extra)
-  def growDown    (extra:Int) = growMinYBy(extra)
-  def growMaxZBy  (extra:Int) = copy(maxZ=maxZ+extra)
+  def growMinXBy  (extra:Int): Cube[T] = copyCube(minX=minX-extra)
+  def growMinYBy  (extra:Int): Cube[T] = copyCube(minY=minY-extra)
+  def growMinZBy  (extra:Int): Cube[T] = copyCube(minZ=minZ-extra)
+  def growMaxXBy  (extra:Int): Cube[T] = copyCube(maxX=maxX+extra)
+  def growMaxYBy  (extra:Int): Cube[T] = copyCube(maxY=maxY+extra)
+  def growUp      (extra:Int): Cube[T] = growMaxYBy(extra)
+  def growDown    (extra:Int): Cube[T] = growMinYBy(extra)
+  def growMaxZBy  (extra:Int): Cube[T] = copyCube(maxZ=maxZ+extra)
 
   /**
    * All shrink operations make the cube smaller
@@ -278,12 +276,12 @@ case class Cube[T](corner1: Point, corner2: Point)(f: Point => T) { self =>
    * @return a new Cube
    **/
 
-  def shrinkMinXBy(less:Int)  = copy(minX=minX+less)
-  def shrinkMinYBy(less:Int)  = copy(minY=minY+less)
-  def shrinkMinZBy(less:Int)  = copy(minZ=minZ+less)
-  def shrinkMaxXBy(less:Int)  = copy(maxX=maxX-less)
-  def shrinkMaxYBy(less:Int)  = copy(maxY=maxY-less)
-  def shrinkMaxZBy(less:Int)  = copy(maxZ=maxZ-less)
+  def shrinkMinXBy(less:Int): Cube[T]  = copyCube(minX=minX+less)
+  def shrinkMinYBy(less:Int): Cube[T]  = copyCube(minY=minY+less)
+  def shrinkMinZBy(less:Int): Cube[T]  = copyCube(minZ=minZ+less)
+  def shrinkMaxXBy(less:Int): Cube[T]  = copyCube(maxX=maxX-less)
+  def shrinkMaxYBy(less:Int): Cube[T]  = copyCube(maxY=maxY-less)
+  def shrinkMaxZBy(less:Int): Cube[T]  = copyCube(maxZ=maxZ-less)
   // move x and z in by n
   def shrinkXZ(n:Int) = shrink(n,0,n)
 

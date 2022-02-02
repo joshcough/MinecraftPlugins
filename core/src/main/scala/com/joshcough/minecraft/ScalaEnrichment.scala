@@ -28,12 +28,9 @@ trait ScalaEnrichment {
     def |> [U](f: T => U) = f(t)
   }
 
-  /**
-   * Implicit conversion to Runnable.
-   */
-  implicit def byNameToRunnable(f: => Unit) = new Runnable { override def run = f }
+  def byNameToRunnable(f: => Unit) = new Runnable { override def run = f }
 
-  def spawn(f: => Unit): Unit = new Thread(f).start()
+  def spawn(f: => Unit): Unit = new Thread(new Runnable { override def run(): Unit = f }).start()
 
   /**
    * Enrich a Function1.

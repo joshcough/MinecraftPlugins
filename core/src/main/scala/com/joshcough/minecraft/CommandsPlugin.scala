@@ -165,7 +165,7 @@ object CommandsPlugin extends MinecraftParsers {
     body = (p: Player, argsList: List[String]) =>
       (args <~ eof)(argsList) match {
         case Success(t,_) => body(p -> t)
-        case Failure(msg) => p !* (RED(msg), RED(desc), RED(s"/$name ${args.describe}"))
+        case Failure(msg) => p !* List(RED(msg), RED(desc), RED(s"/$name ${args.describe}"))
       }
   )
 
@@ -364,7 +364,6 @@ object CommandsPlugin extends MinecraftParsers {
       override def getUniqueId: java.util.UUID = ???
       override def hasLineOfSight(p1: Entity): Boolean = false
       override def openWorkbench(p1: Location, p2: Boolean): InventoryView = ???
-      override def awardAchievement(p1: Achievement): Unit = {}
       override def abandonConversation(p1: Conversation, p2: ConversationAbandonedEvent): Unit = {}
       override def abandonConversation(p1: Conversation): Unit = {}
       override def leaveVehicle: Boolean = false
@@ -564,13 +563,11 @@ object CommandsPlugin extends MinecraftParsers {
       def getStatistic(x$1: org.bukkit.Statistic,x$2: org.bukkit.entity.EntityType): Int = ???
       def getStatistic(x$1: org.bukkit.Statistic,x$2: org.bukkit.Material): Int = ???
       def getStatistic(x$1: org.bukkit.Statistic): Int = ???
-      def hasAchievement(x$1: org.bukkit.Achievement): Boolean = ???
       def hidePlayer(x$1: org.bukkit.plugin.Plugin,x$2: org.bukkit.entity.Player): Unit = ???
       def incrementStatistic(x$1: org.bukkit.Statistic,x$2: org.bukkit.entity.EntityType,x$3: Int): Unit = ???
       def incrementStatistic(x$1: org.bukkit.Statistic,x$2: org.bukkit.entity.EntityType): Unit = ???
       def playSound(x$1: org.bukkit.Location,x$2: String,x$3: org.bukkit.SoundCategory,x$4: Float,x$5: Float): Unit = ???
       def playSound(x$1: org.bukkit.Location,x$2: org.bukkit.Sound,x$3: org.bukkit.SoundCategory,x$4: Float,x$5: Float): Unit = ???
-      def removeAchievement(x$1: org.bukkit.Achievement): Unit = ???
       def resetTitle(): Unit = ???
       def sendBlockChange(x$1: org.bukkit.Location,x$2: org.bukkit.block.data.BlockData): Unit = ???
       def sendSignChange(x$1: org.bukkit.Location,x$2: Array[String]): Unit = ???
@@ -602,6 +599,31 @@ object CommandsPlugin extends MinecraftParsers {
       def stopSound(x$1: String): Unit = ???
       def stopSound(x$1: org.bukkit.Sound): Unit = ???
       def updateCommands(): Unit = ???
+      // Members declared in org.bukkit.entity.Damageable
+      def getAbsorptionAmount(): Double = ???
+      def setAbsorptionAmount(x$0: Double): Unit = ???
+      // Members declared in org.bukkit.entity.Entity
+      def getPose(): org.bukkit.entity.Pose = ???
+      def setRotation(x$0: Float, x$1: Float): Unit = ???
+      // Members declared in org.bukkit.entity.HumanEntity
+      def getAttackCooldown(): Float = ???
+      def getBedLocation(): org.bukkit.Location = ???
+      def sleep(x$0: org.bukkit.Location, x$1: Boolean): Boolean = ???
+      def wakeup(x$0: Boolean): Unit = ???
+      // Members declared in org.bukkit.entity.LivingEntity
+      def attack(x$0: org.bukkit.entity.Entity): Unit = ???
+      def getCollidableExemptions(): java.util.Set[java.util.UUID] = ???
+      def getMemory[T](x$0: org.bukkit.entity.memory.MemoryKey[T]): T = ???
+      def setMemory[T](x$0: org.bukkit.entity.memory.MemoryKey[T], x$1: T): Unit = ???
+      def swingMainHand(): Unit = ???
+      def swingOffHand(): Unit = ???
+      // Members declared in org.bukkit.persistence.PersistentDataHolder
+      def getPersistentDataContainer(): org.bukkit.persistence.PersistentDataContainer = ???
+      // Members declared in org.bukkit.entity.Player
+      def openBook(x$0: org.bukkit.inventory.ItemStack): Unit = ???
+      def sendExperienceChange(x$0: Float): Unit = ???
+      def sendExperienceChange(x$0: Float, x$1: Int): Unit = ???
+      def sendSignChange(x$0: org.bukkit.Location, x$1: Array[String], x$2: org.bukkit.DyeColor): Unit = ???
     }
   }
 

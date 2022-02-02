@@ -37,7 +37,7 @@ object MultiPlayerCommandsCommands {
 
     Command("gm",       "Set your game mode.", gamemode){ case (p, gm) => p setGameMode gm },
 
-    Command("entities", "Display all the entities.")(p => p !* (p.world.entities.map(_.toString): _*)),
+    Command("entities", "Display all the entities.")(p => p !* (p.world.entities.map(_.toString))),
 
     Command("spawn",    "Spawn some mobs.", entity ~ int.?.named("number to spawn")){
       case (p, e ~ n) => p.loc.spawnN(e, n.fold(1)(id))

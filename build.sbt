@@ -9,9 +9,10 @@ val standardSettings = join(
   ),
   Seq(organization  := "com.joshcough"
     , version       := "0.3.5-SNAPSHOT"
-    , scalaVersion  := "2.13.6"
-    , scalacOptions := Seq("-unchecked", "-deprecation")),
+    , scalaVersion  := "3.1.0"
+    , scalacOptions := Seq("-unchecked", "-deprecation"), // "-Ylog-classpath"),
   resolvers += "Bukkit" at "https://maven.elmakers.com/repository"
+  )
 )
 
 // the core plugin library

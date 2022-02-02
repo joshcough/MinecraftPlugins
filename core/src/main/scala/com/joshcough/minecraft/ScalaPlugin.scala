@@ -149,16 +149,16 @@ class TaskManager(server: Server, plugin: ScalaPlugin) extends ScalaEnrichment {
   case class Task(id:Int)
 
   def scheduleSyncTask(task: => Unit): Task =
-    Task(scheduler.scheduleSyncDelayedTask(plugin, task))
+    Task(scheduler.scheduleSyncDelayedTask(plugin, byNameToRunnable(task)))
 
   def scheduleSyncDelayedTask(initialDelay: Long)(task: => Unit): Task =
-    Task(scheduler.scheduleSyncDelayedTask(plugin, task, initialDelay))
+    Task(scheduler.scheduleSyncDelayedTask(plugin, byNameToRunnable(task), initialDelay))
 
   def scheduleSyncRepeatingTask(period: Long)(task: => Unit): Task =
-    Task(scheduler.scheduleSyncRepeatingTask(plugin, task, 0L, period))
+    Task(scheduler.scheduleSyncRepeatingTask(plugin, byNameToRunnable(task), 0L, period))
 
   def scheduleSyncRepeatingTask(initialDelay: Long, period: Long)(task: => Unit): Task =
-    Task(scheduler.scheduleSyncRepeatingTask(plugin, task, initialDelay, period))
+    Task(scheduler.scheduleSyncRepeatingTask(plugin, byNameToRunnable(task), initialDelay, period))
 
   def cancelTask(t: Task) = scheduler cancelTask t.id
 

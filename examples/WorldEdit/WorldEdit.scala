@@ -277,11 +277,11 @@ object WorldEditCommands {
 
   implicit class RichPlayerWithChanges(p: Player){
     def newChange(cs: Changes): Changes = notifyChange(undoManager.newChange(p, cs))
-    def newChange(ps: Seq[PotentialChange]): Unit = newChange(runChanges(ps))
+    def newChange(ps: LazyList[PotentialChange]): Unit = newChange(runChanges(ps))
     def newChange(c: Cube[Block], force: Boolean = false): Unit = newChange(translateAll(c, force))
     def undo: Unit = undoManager.undo(p)(rerun)
     def redo: Unit = undoManager.redo(p)(rerun)
-    def rerun(cs: Changes): Changes = notifyChange(runChanges(cs.cs.toSeq.map(PotentialChange(_))))
+    def rerun(cs: Changes): Changes = notifyChange(runChanges(cs.cs.toSeq.map(PotentialChange(_)).to(LazyList)))
     def notifyChange(cs: Changes): Changes = { p ! s"${cs.size} blocks updated."; cs }
   }
 }
