@@ -1,9 +1,8 @@
 examples/src/main/resources/
 target/
 out/
-.idea/workspace.xml
-.idea/copyright/
-.lib/
+.idea
+.idea_modules
 plugins/
 bukkit/
 .DS_Store

@@ -1,11 +1,7 @@
-import AssemblyKeys._
-
-artifact in (Compile, assembly) ~= { art => art.copy(`classifier` = Some("assembly")) }
-
 addArtifact(artifact in (Compile, assembly), assembly)
 
-// TODO: plugin doc says "To exclude some jar file, first consider using "provided" dependency."
-// Figure out what that means...
-excludedJars in assembly <<= (fullClasspath in assembly) map { cp =>
-  cp filter {_.data.getName.contains("craftbukkit")}
+assembly / assemblyExcludedJars := {
+  val cp = (assembly / fullClasspath).value
+  cp filter {_.data.getName.contains("bukkit")}
 }
+

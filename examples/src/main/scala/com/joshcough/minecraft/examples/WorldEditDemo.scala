@@ -4,15 +4,15 @@ import com.joshcough.minecraft.{CommandsPlugin, ListenersPlugin}
 import org.bukkit.{Location, Material}
 import org.bukkit.block.Block
 import org.bukkit.entity.Player
-import Material.WOOD_AXE
+import Material.WOODEN_AXE
 
 class WorldEditDemo extends ListenersPlugin with CommandsPlugin {
 
   val corners = collection.mutable.Map[Player, List[Location]]().withDefaultValue(Nil)
 
   val listeners = List(
-    OnLeftClickBlock ((p, e) => if (p isHoldingA WOOD_AXE) { setFirstPos (p, e.loc); e.cancel }),
-    OnRightClickBlock((p, e) => if (p isHoldingA WOOD_AXE) { setSecondPos(p, e.loc) })
+    OnLeftClickBlock ((p, e) => if (p isHoldingA WOODEN_AXE) { setFirstPos (p, e.loc); e.cancel }),
+    OnRightClickBlock((p, e) => if (p isHoldingA WOODEN_AXE) { setSecondPos(p, e.loc) })
   )
 
   val commands = List(

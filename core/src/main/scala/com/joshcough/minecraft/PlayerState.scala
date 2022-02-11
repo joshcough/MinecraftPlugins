@@ -1,7 +1,7 @@
 package com.joshcough.minecraft
 
 import org.bukkit.entity.Player
-import collection.mutable.Map
+import scala.collection.mutable
 
 /**
  * Wrapper functions around a collection.mutable.Map[Player, T]
@@ -14,7 +14,8 @@ trait PlayerState[T] {
    */
   val default: Option[T] = None
 
-  lazy val state = default.fold(Map[Player, T]())(t => Map[Player, T]().withDefaultValue(t))
+  lazy val state: mutable.Map[Player, T] =
+    default.fold(mutable.Map[Player, T]())(t => mutable.Map[Player, T]().withDefaultValue(t))
 
   /**
    * Get the state for the player

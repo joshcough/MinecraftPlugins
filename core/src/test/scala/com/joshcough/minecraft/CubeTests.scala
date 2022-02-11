@@ -11,12 +11,12 @@ import ScalaEnrichment.id
  * Generate cubes, possibly up to the maximum sized cube.
  */
 trait CubeGenerators {
-  type C = Cube[Point]
-  implicit val genCoor = for {
+  implicit val genCoor : Gen[Point] = for {
     x <- arbitrary[Int]; y <- arbitrary[Int]; z <- arbitrary[Int]
   } yield Point(x, y, z)
-  implicit val genCube: Gen[C] = for { c1 <- genCoor; c2 <- genCoor } yield Cube(c1, c2)(identity)
-  implicit val cubes = Arbitrary(genCube)
+  implicit val genCube: Gen[Cube[Point]] =
+    for { c1 <- genCoor; c2 <- genCoor } yield Cube(c1, c2)(identity)
+  implicit val cubes : Arbitrary[Cube[Point]] = Arbitrary(genCube)
 }
 
 /**
@@ -25,18 +25,17 @@ trait CubeGenerators {
  *   min x, y, and z no less than -50
  */
 trait SmallCubeGenerators { self: Properties =>
-  type C = Cube[Point]
   val smallInteger = Gen.choose(-50,50)
-  val genSmallCube: Gen[C] = for {
+  val genSmallCube: Gen[Cube[Point]] = for {
     x1 <- smallInteger; y1 <- smallInteger; z1 <- smallInteger
     x2 <- smallInteger; y2 <- smallInteger; z2 <- smallInteger
   } yield Cube(Point(x1, y1, z1), Point(x2, y2, z2))(identity)
-  implicit val smallCubes = Arbitrary(genSmallCube)
+  implicit val smallCubes: Arbitrary[Cube[Point]] = Arbitrary(genSmallCube)
 }
 
 abstract class CubeTestBase(name: String) extends Properties(name) with TestHelpers {
-  def idCube(p1: Point, p2: Point) = Cube(p1, p2)(id)
-  def toList(c: Cube[Point]) = c.toStream.toList
+  def idCube(p1: Point, p2: Point): Cube[Point] = Cube(p1, p2)(id)
+  def toList(cube: Cube[Point]) =  cube.toLazyList.toList
   def run(c: Cube[Point]) = c.toZippedStream.toList
 }
 
@@ -46,7 +45,7 @@ abstract class CubeTestBase(name: String) extends Properties(name) with TestHelp
  * require traversing the whole cube.
  */
 object BigCubeTests extends CubeTestBase("Cube Tests Awesome") with CubeGenerators {
-  test("cubes size > 0")(forAll{ (c:C) => c.size > 0 })
+  test("cubes size > 0")(forAll{ (c:Cube[Point]) => c.size > 0 })
 }
 
 /**
@@ -56,25 +55,25 @@ object BigCubeTests extends CubeTestBase("Cube Tests Awesome") with CubeGenerato
  */
 object SmallCubeTests extends CubeTestBase("Cube Tests Awesome") with SmallCubeGenerators {
 
-  test("paste then mirror y same as mirror y then paste")(forAll{ (c:C) =>
+  test("paste then mirror y same as mirror y then paste")(forAll{ (c:Cube[Point]) =>
     run(c.translateTo(Point(0, 10, 0)).mirrorY) ?= run(c.mirrorY.translateTo(Point(0, 10, 0)))
   })
 
-  test("mirror x y z, same as mirror z y x")(forAll{ (c:C) =>
+  test("mirror x y z, same as mirror z y x")(forAll{ (c:Cube[Point]) =>
     run(c.mirrorX.mirrorY.mirrorZ) ?= run(c.mirrorZ.mirrorY.mirrorX)
   })
 
-  test("mirror x x, same as identity")(forAll{ (c:C) => run(c.mirrorX.mirrorX) ?= run(c) })
+  test("mirror x x, same as identity")(forAll{ (c:Cube[Point]) => run(c.mirrorX.mirrorX) ?= run(c) })
 
-  test("grow then shrink, same as identity")(forAll{ (c:C) =>
+  test("grow then shrink, same as identity")(forAll{ (c:Cube[Point]) =>
     run(c.grow(5,6,7).shrink(5,6,7)) ?= run(c)
   })
 
-  test("shift up, shift down, same as identity")(forAll{ (c:C, i: Int) =>
+  test("shift up, shift down, same as identity")(forAll{ (c:Cube[Point], i: Int) =>
     run(c.shiftUp(i).shiftDown(i)) ?= run(c)
   })
 
-  test("shift by i, shift by -i, same as identity")(forAll{ (c:C, i: Int) =>
+  test("shift by i, shift by -i, same as identity")(forAll{ (c:Cube[Point], i: Int) =>
     run(c.shiftX(i).shiftX(-i).shiftY(i).shiftY(-i).shiftZ(i).shiftZ(-i)) ?= run(c)
   })
 }
@@ -132,7 +131,9 @@ object LiteralCubeMirroringTests extends CubeTestBase("Cube Mirroring Tests") {
   val cy = idCube(Point(0,0,0),Point(0,3,0))
   val cz = idCube(Point(0,0,0),Point(0,0,3))
 
-  test("normal x") { toList(cx)         ?= List(Point(0,0,0),Point(1,0,0),Point(2,0,0),Point(3,0,0)) }
+  test("normal x") {
+    toList(cx)         ?= List(Point(0,0,0),Point(1,0,0),Point(2,0,0),Point(3,0,0))
+  }
   test("normal y") { toList(cy)         ?= List(Point(0,0,0),Point(0,1,0),Point(0,2,0),Point(0,3,0)) }
   test("mirrorX")  { toList(cx.mirrorX) ?= List(Point(3,0,0),Point(2,0,0),Point(1,0,0),Point(0,0,0)) }
   test("mirrorY")  { toList(cy.mirrorY) ?= List(Point(0,3,0),Point(0,2,0),Point(0,1,0),Point(0,0,0)) }

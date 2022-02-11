@@ -25,8 +25,6 @@ object CubeModifier {
     def run: Boolean = newM update b
   }
 
-  type PotentialChanges = Stream[PotentialChange]
-
   /**
    * Represents a change that actually took place in the world.
    * @param b The block that was changed.
@@ -40,27 +38,27 @@ object CubeModifier {
    * Represents a number of changes that actually took place in the world.
    * @param cs
    */
-  case class Changes(cs:Array[Change]){
+  case class Changes(cs:List[Change]){
     override def toString = cs.toList.mkString(",")
     def size = cs.length
     def ++(cs: Changes) = Changes(this.cs ++ cs.cs)
   }
 
   /**
-   * Actually execute some PotentialChanges,
+   * Actually execute some potential changes,
    * handing back a Seq of all the changes that really took place.
    * (A potential change might not happen, if for example, you try to change AIR to AIR.)
    * @param newData
    * @return
    */
-  def runChanges(newData: Seq[PotentialChange]): Changes =
-    Changes(newData.filter(_.run).map(p => Change(p.b, p.oldM)).toArray)
+  def runChanges(newData: LazyList[PotentialChange]): Changes =
+    Changes(newData.filter(_.run).map(p => Change(p.b, p.oldM)).toList)
 
   /**
    * TODO: document me!
    */
   def getTransformationChanges(cube: Cube[Block],
-                               force: Boolean = false): Stream[PotentialChange] = {
+                               force: Boolean = false): LazyList[PotentialChange] = {
     val s = cube.toZippedStream.map{ case (c,b) =>
       PotentialChange(cube.world(c.x, c.y, c.z), b.materialAndData)
     }
@@ -78,8 +76,8 @@ object CubeModifier {
   /**
    * Set all the blocks in this stream to the given Material
    */
-  def setAll(bms: Stream[Block], newM: MaterialAndData) = runChanges(
-    bms.zip(Stream.continually(newM)).map{ case (b,n) => PotentialChange(b,n) }
+  def setAll(bms: LazyList[Block], newM: MaterialAndData): Changes = runChanges(
+    bms.zip(LazyList.fill(bms.length)(newM)).map{ case (b,n) => PotentialChange(b,n) }
   )
 
   /**
@@ -87,6 +85,9 @@ object CubeModifier {
    */
   def changeAll(c: Cube[Block], oldM: Material, newM: MaterialAndData): Changes =
     setAll(c.blocks.filter(_ is oldM), newM)
+
+  def changeAllUnder(c: Cube[Block], oldM: Material, underM: Material, newM: MaterialAndData): Changes =
+    setAll(c.blocks.filter(b => (b is oldM) && (b.blockAbove is underM)), newM)
 
   /**
    * Set all the blocks in this cube to air

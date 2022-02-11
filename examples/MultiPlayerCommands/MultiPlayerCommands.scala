@@ -1,20 +1,31 @@
 package com.joshcough.minecraft.examples
 
+
+import scala.collection.JavaConverters.asScala
+import com.joshcough.minecraft._
+import org.bukkit.{Material, Server}
 import org.bukkit.GameMode._
 import org.bukkit.Material._
 import org.bukkit.entity.EntityType._
-import scala.collection.JavaConversions._
-import com.joshcough.minecraft.CommandsPlugin
-import org.bukkit.Material
 
 /**
  * Classic MultiPlayerCommands plugin, done in Scala.
  * Gives a whole pile of useful commands.
  * Their descriptions serve well as documentation.
  */
-class MultiPlayerCommands extends CommandsPlugin {
+class MultiPlayerCommandsPlugin extends CommandsPlugin  {
+  val commands = MultiPlayerCommandsCommands.commands(server)
+}
 
-  val commands = List(
+class MultiPlayerCommandsConfig extends PluginConfig[MultiPlayerCommandsPlugin] {
+  val pluginClass = classOf[MultiPlayerCommandsPlugin]
+  override val commands = MultiPlayerCommandsCommands.commands(null)
+}
+
+object MultiPlayerCommandsCommands {
+  import CommandsPlugin._
+
+  def commands(implicit server: Server) = List(
 
     Command("goto",     "Teleport!", player or location){ case (you, e) =>
       e.fold(them => you teleportTo them, loc => you.teleport(loc of you.world))
@@ -24,25 +35,16 @@ class MultiPlayerCommands extends CommandsPlugin {
 
     Command("set-time", "Sets the time.", time){ case (p, n) => p.world setTime n },
 
-    Command("day",      "Sets the time to day (1000).")   (_.world setTime 1000),
-
-    Command("night",    "Sets the time to night (15000).")(_.world setTime 15000),
-
-    Command("gms",      "Set your game mode to survival.")(_ setGameMode SURVIVAL),
-
-    Command("gmc",      "Set your game mode to creative.")(_ setGameMode CREATIVE),
-
     Command("gm",       "Set your game mode.", gamemode){ case (p, gm) => p setGameMode gm },
 
-    Command("entities", "Display all the entities.")(p => p !* (p.world.entities.map(_.toString): _*)),
+    Command("entities", "Display all the entities.")(p => p !* (p.world.entities.map(_.toString))),
 
     Command("spawn",    "Spawn some mobs.", entity ~ int.?.named("number to spawn")){
       case (p, e ~ n) => p.loc.spawnN(e, n.fold(1)(id))
     },
 
-    Command("ban",      "Ban some players.", anyString.named("player").+){ case (you, them) =>
-      server.findOnlinePlayers (them) foreach { _ ban s"${you.name} doesn't like you." }
-      server.findOfflinePlayers(them) foreach { _ setBanned true }
+    Command("ban",      "Ban some players.", player.+){ case (you, them) =>
+      them.foreach(_.ban(s"${you.name} doesn't like you.", you))
     },
 
     Command("box",      "Put a box around yourself, made of any material.", material){ case (p,m) =>
@@ -60,7 +62,7 @@ class MultiPlayerCommands extends CommandsPlugin {
     Command("drill",    "Drill down to bedrock immediately.")(p =>
       for (b <- p.blockOn.blocksBelow.takeWhile(_ isNot BEDROCK); if b isNot AIR) {
         b.erase
-        if (b.blockBelow is BEDROCK) b nthBlockAbove 2 changeTo STATIONARY_WATER
+        if (b.blockBelow is BEDROCK) b nthBlockAbove 2 changeTo WATER
       }
     ),
 
@@ -84,15 +86,15 @@ class MultiPlayerCommands extends CommandsPlugin {
 
     OpOnly(P2P("shock",    "Shock a player.")((you, them) => you.doTo(them, them.shock, "shocked"))),
 
-    OpOnly(Command("lamp", "Spawns a lamp wherever you are looking."){ p =>
-      val b = p.getTargetBlock(null, 1000)
-      if((b is Material.AIR) || math.abs(p.x - b.x) > 50 || math.abs(p.z - b.z) > 50)
-        p ! s"That's more than 50 blocks away. (x: ${math.abs(p.x - b.x)}) (z: ${math.abs(p.z - b.z)})"
-      else {
-        b.blockBelow.changeTo(Material.REDSTONE_TORCH_ON)
-        b.changeTo(Material.REDSTONE_LAMP_ON)
-      }
-    }),
+//    OpOnly(Command("lamp", "Spawns a lamp wherever you are looking."){ p =>
+//      val b = p.getTargetBlock(null, 1000)
+//      if((b is Material.AIR) || math.abs(p.x - b.x) > 50 || math.abs(p.z - b.z) > 50)
+//        p ! s"That's more than 50 blocks away. (x: ${math.abs(p.x - b.x)}) (z: ${math.abs(p.z - b.z)})"
+//      else {
+//        b.blockBelow.changeTo(Material.REDSTONE_TORCH_ON)
+//        b.changeTo(Material.REDSTONE_LAMP_ON)
+//      }
+//    }),
 
     Command("jump", "Jump really high.", (int ~ int ~ int) or eof){
       case (p, Left(x ~ y ~ z)) => p.setVelocity(new org.bukkit.util.Vector(x, y, z))
@@ -102,7 +104,6 @@ class MultiPlayerCommands extends CommandsPlugin {
 }
 
 /**
-
 p = player
 t = target
 
@@ -123,5 +124,4 @@ looking more towards the x axis:
   hmm...use those weights?:  Vector(x=7.5, y=10, z=2.5)
 
 similar with z axis.
-
 */

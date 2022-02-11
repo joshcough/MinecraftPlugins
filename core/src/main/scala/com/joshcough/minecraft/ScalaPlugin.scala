@@ -2,11 +2,29 @@ package com.joshcough.minecraft
 
 import org.bukkit.Server
 import org.bukkit.entity.Player
-import org.bukkit.event.{Listener, Event}
+import org.bukkit.event.{Event, Listener}
 import org.bukkit.plugin.java.JavaPlugin
 import util.Try
 import java.util.logging.{Level, Logger}
-import javax.persistence.PersistenceException
+
+object ScalaPlugin {
+  // TODO: make defaults for these.
+  def yml(pluginName: String,
+          pluginClassName: String,
+          author:String,
+          version: String,
+          dependencies: List[String],
+          mandatoryDependencies: List[String],
+          softDependencies: List[String]): String = List(
+    "name: "        + pluginName,
+    "main: "        + pluginClassName,
+    "author: "      + author,
+    "version: "     + version,
+    "api-version: 1.16.1",
+    "depend: ["     + (mandatoryDependencies ++ dependencies).mkString(", ") + "]",
+    "softdepend: [" + softDependencies.mkString(", ") + "]"
+  ).mkString("\n")
+}
 
 /**
  * The base class that helps make writing Bukkit plugins vastly easier.
@@ -21,8 +39,6 @@ abstract class ScalaPlugin extends JavaPlugin with BukkitEnrichment { scalaPlugi
   // setup stuff
   override def onEnable:  Unit = {
     super.onEnable
-    this.saveDefaultConfig
-    setupDatabase
     logInfo(s"$name enabled!")
   }
 
@@ -50,37 +66,14 @@ abstract class ScalaPlugin extends JavaPlugin with BukkitEnrichment { scalaPlugi
   def configs: Map[String, String] = Map()
 
   /**
-   * Classes that want to use a database should override this def, providing
-   * all of the Entity classes. See WarpPlugin in examples.
-   */
-  def dbClasses: List[Class[_]]    = Nil
-  // this is here just so subclasses dont have to use java.util.ArrayList.
-  override def getDatabaseClasses  = new java.util.ArrayList[Class[_]](){ dbClasses.foreach(add) }
-  // this is horrible bukkit nonsense that every plugin must do if it wants to use the database.
-  private  def setupDatabase: Unit =
-    if(dbClasses.nonEmpty)
-      // this somehow forces attempting to initialize the database
-      try getDatabase.find(dbClasses.head).findRowCount
-      // and if it throws... that means you haven't yet initialized the db,
-      // and you need to call installDLL...
-      // really, this is just crap. happy to hide it from any users.
-      catch{ case e: PersistenceException => logTask("Installing DB"){ installDDL() } }
-
-  /**
    * Generates the plugin.yml contents for this plugin.
    * See http://wiki.bukkit.org/Plugin_YAML for more info
    * @param author  the author  of the plugin
    * @param version the version of the plugin
    **/
-  def yml(author:String, version: String) = List(
-    "name: "        + this.name,
-    "main: "        + this.getClass.getName,
-    "author: "      + author,
-    "version: "     + version,
-    "database: "    + (this.dbClasses.size > 0),
-    "depend: ["     + (mandatoryDependencies ++ this.dependencies).mkString(", ") + "]",
-    "softdepend: [" + this.softDependencies.mkString(", ") + "]"
-  ).mkString("\n")
+  def yml(author:String, version: String): String = ScalaPlugin.yml (
+    this.name, this.getClass.getName, author, version, dependencies, mandatoryDependencies, softDependencies
+  )
 
   /**
    * Writes out the plugin.yml file, and config.yml.
@@ -119,7 +112,7 @@ abstract class ScalaPlugin extends JavaPlugin with BukkitEnrichment { scalaPlugi
   /**
    * Log the given exception at SEVERE level.
    */
-  def logError(e:Throwable): Unit = logMessage(Level.SEVERE, e.getMessage + e.getStackTraceString)
+  def logError(e:Throwable): Unit = logMessage(Level.SEVERE, e.getMessage + e.getStackTrace.mkString("\n"))
 
   private def logMessage(level: Level, message: String): Unit =
     log.log(level, s"[$name] - $message")
@@ -134,7 +127,6 @@ abstract class ScalaPlugin extends JavaPlugin with BukkitEnrichment { scalaPlugi
     logInfo(s"Starting: $message"); val t = f; logInfo(s"Finished: $message"); t
   }
 
-
   // Various other little helper functions.
   def name = Try(this.getDescription.getName).getOrElse(this.getClass.getSimpleName)
   def server: Server      = getServer
@@ -142,24 +134,36 @@ abstract class ScalaPlugin extends JavaPlugin with BukkitEnrichment { scalaPlugi
   def fire(e:Event): Unit = server.getPluginManager.callEvent(e)
   def registerListener(listener:Listener): Unit = pluginManager.registerEvents(listener, this)
 
-  // task stuff:
+  /**
+   * Invokes a command programmatically.
+   */
+  def runCommand(p: Player, commandName: String, args: Seq[String]) = {
+    p ! s"$name running: $commandName ${args.mkString(" ")}"
+    onCommand(p, getCommand(commandName), commandName, args.toArray)
+  }
+}
+
+class TaskManager(server: Server, plugin: ScalaPlugin) extends ScalaEnrichment { tm =>
   private lazy val scheduler = server.getScheduler
 
   case class Task(id:Int)
 
   def scheduleSyncTask(task: => Unit): Task =
-    Task(scheduler.scheduleSyncDelayedTask(this, task))
+    Task(scheduler.scheduleSyncDelayedTask(plugin, byNameToRunnable(task)))
 
   def scheduleSyncDelayedTask(initialDelay: Long)(task: => Unit): Task =
-    Task(scheduler.scheduleSyncDelayedTask(this, task, initialDelay))
+    Task(scheduler.scheduleSyncDelayedTask(plugin, byNameToRunnable(task), initialDelay))
 
   def scheduleSyncRepeatingTask(period: Long)(task: => Unit): Task =
-    Task(scheduler.scheduleSyncRepeatingTask(this, task, 0L, period))
+    Task(scheduler.scheduleSyncRepeatingTask(plugin, byNameToRunnable(task), 0L, period))
 
   def scheduleSyncRepeatingTask(initialDelay: Long, period: Long)(task: => Unit): Task =
-    Task(scheduler.scheduleSyncRepeatingTask(this, task, initialDelay, period))
+    Task(scheduler.scheduleSyncRepeatingTask(plugin, byNameToRunnable(task), initialDelay, period))
 
   def cancelTask(t: Task) = scheduler cancelTask t.id
+
+  def pluginManager       = server.getPluginManager
+  def registerListener(listener:Listener): Unit = pluginManager.registerEvents(listener, plugin)
 
   case class PlayerTasks(cancelOnExit: Boolean = true) extends PlayerState[Seq[Task]] { self =>
     override val default: Option[Seq[Task]] = Some(Nil)
@@ -169,31 +173,23 @@ abstract class ScalaPlugin extends JavaPlugin with BukkitEnrichment { scalaPlugi
     implicit class PlayerWithTaskFunctions(p:Player){
       private def addTask(t: Task): Task = { self += (p -> (self(p) :+ t)); t }
 
-      def scheduleSyncTask(task: => Unit): Task = addTask(scalaPlugin.scheduleSyncTask(task))
+      def scheduleSyncTask(task: => Unit): Task = addTask(tm.scheduleSyncTask(task))
 
       def scheduleSyncRepeatingTask(initialDelay: Long, period: Long)(task: => Unit): Task =
-        addTask(scalaPlugin.scheduleSyncRepeatingTask(initialDelay, period)(task))
+        addTask(tm.scheduleSyncRepeatingTask(initialDelay, period)(task))
 
       def cancelTask(t: Task): Unit = {
         scheduler cancelTask t.id
         self += (p -> self(p).filter(_ != t))
       }
       def cancelAll: Unit = {
-        logInfo(s"canceling all tasks for: $p")
+        plugin.logInfo(s"canceling all tasks for: $p")
         (self -= p) foreach { t =>
-          logInfo(s"canceling: $t")
+          plugin.logInfo(s"canceling: $t")
           scheduler cancelTask t.id
         }
       }
     }
-  }
-
-  /**
-   * Invokes a command programmatically.
-   */
-  def runCommand(p: Player, commandName: String, args: Seq[String]) = {
-    p ! s"$name running: $commandName ${args.mkString(" ")}"
-    onCommand(p, getCommand(commandName), commandName, args.toArray)
   }
 }
 

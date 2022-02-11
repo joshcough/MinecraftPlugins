@@ -2,13 +2,13 @@ package com.joshcough.minecraft
 
 import org.bukkit.block.Block
 import org.bukkit.entity.{Arrow, Entity, Player}
-import org.bukkit.event.{EventHandler => EH, Listener}
+import org.bukkit.event.{Listener, EventHandler => EH}
 import org.bukkit.event.block.{BlockBreakEvent, BlockDamageEvent}
 import org.bukkit.event.block.Action._
-import org.bukkit.event.entity.{ProjectileHitEvent, EntityDamageEvent, PlayerDeathEvent, EntityDamageByEntityEvent}
+import org.bukkit.event.entity.{EntityDamageByEntityEvent, EntityDamageEvent, PlayerDeathEvent, ProjectileHitEvent}
 import org.bukkit.event.weather.WeatherChangeEvent
-import org.bukkit.event.player.{PlayerQuitEvent, PlayerInteractEvent, PlayerMoveEvent, PlayerChatEvent,
-                                PlayerJoinEvent, PlayerKickEvent, PlayerLoginEvent}
+import org.bukkit.event.player._
+import org.bukkit.event.vehicle.VehicleEnterEvent
 
 /**
  * A trait that supports exactly one listener.
@@ -24,7 +24,7 @@ import org.bukkit.event.player.{PlayerQuitEvent, PlayerInteractEvent, PlayerMove
 trait ListenerPlugin extends ListenersPlugin {
   def listener: Listener
   def listeners = List(listener)
-  override def onEnable(){ super.onEnable(); registerListener(listener) }
+  override def onEnable(): Unit = { super.onEnable(); registerListener(listener) }
 }
 
 /**
@@ -42,7 +42,7 @@ trait ListenerPlugin extends ListenersPlugin {
  */
 trait ListenersPlugin extends ScalaPlugin with Listeners {
   def listeners: List[Listener]
-  override def onEnable{ super.onEnable(); listeners.foreach(registerListener) }
+  override def onEnable(): Unit = { super.onEnable(); listeners.foreach(registerListener) }
 }
 
 object Listeners extends Listeners
@@ -137,6 +137,12 @@ trait Listeners extends BukkitEnrichment {
       case a: Arrow => f(a, e)
       case _ =>
     }
+  }
+  def OnPlayerBedEnterEvent(f : (Player, PlayerBedEnterEvent) => Unit) = new Listener {
+    @EH def on(e: PlayerBedEnterEvent): Unit = f(e.getPlayer, e)
+  }
+  def OnVehicleEnterEvent (f : (Player, VehicleEnterEvent) => Unit) = new Listener {
+    @EH def on(e: VehicleEnterEvent): Unit = e.getEntered.whenPlayer(f(_, e))
   }
 }
 

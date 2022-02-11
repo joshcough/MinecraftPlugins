@@ -20,7 +20,6 @@ import java.net.InetSocketAddress
 
 /**
  * Code used for testing purposes.
- * TODO: More information to come on this later.
  */
 object TestServer { ts =>
 
@@ -32,7 +31,6 @@ object TestServer { ts =>
     def setTypeIdAndData(p1: Int, p2: Byte, p3: Boolean): Boolean = true
     def getLightFromSky: Byte = 0:Byte
     def setTypeId(p1: Int, p2: Boolean): Boolean = true
-    override def setTypeId(p1: Int): Boolean = true
     def getY: Int = y
     def getData: Byte = 0:Byte
     def getPistonMoveReaction: PistonMoveReaction = sys error "todo"
@@ -73,6 +71,19 @@ object TestServer { ts =>
     def getTemperature: Double = 0d
     def getFace(p1: Block): BlockFace = sys error "todo"
     def isBlockPowered: Boolean = false
+
+    def getBlockData(): org.bukkit.block.data.BlockData = ???
+    def getBoundingBox(): org.bukkit.util.BoundingBox = ???
+    def getDrops(x$0: org.bukkit.inventory.ItemStack, x$1: org.bukkit.entity.Entity):
+      java.util.Collection[org.bukkit.inventory.ItemStack] = ???
+    def isPassable(): Boolean = ???
+    def rayTrace(x$0: org.bukkit.Location, x$1: org.bukkit.util.Vector, x$2: Double, x$3:
+      org.bukkit.FluidCollisionMode
+    ): org.bukkit.util.RayTraceResult = ???
+    def setBlockData(x$0: org.bukkit.block.data.BlockData): Unit = ???
+    def setBlockData(x$0: org.bukkit.block.data.BlockData, x$1: Boolean): Unit = ???
+    def setType(x$0: org.bukkit.Material, x$1: Boolean): Unit = ???
+    
   }
 
   /**
@@ -93,6 +104,15 @@ object TestServer { ts =>
     def getBlock(x: Int, y: Int, z: Int): Block = ts.getBlock(x,y,z)
     def getWorld: World = world
     def getZ: Int = sys error "todo"
+    def addPluginChunkTicket(x$0: org.bukkit.plugin.Plugin): Boolean = ???
+    def contains(x$0: org.bukkit.block.data.BlockData): Boolean = ???
+    def getInhabitedTime(): Long = ???
+    def getPluginChunkTickets(): java.util.Collection[org.bukkit.plugin.Plugin] = ???
+    def isForceLoaded(): Boolean = ???
+    def isSlimeChunk(): Boolean = ???
+    def removePluginChunkTicket(x$0: org.bukkit.plugin.Plugin): Boolean = ???
+    def setForceLoaded(x$0: Boolean): Unit = ???
+    def setInhabitedTime(x$0: Long): Unit = ???
   }
 
   /**
@@ -201,7 +221,7 @@ object TestServer { ts =>
     def setWeatherDuration(x$1: Int): Unit = sys error "todo"
     def spawn[T <: org.bukkit.entity.Entity](x$1: org.bukkit.Location,x$2: Class[T]): T = sys error "todo"
     def spawnArrow(x$1: org.bukkit.Location,x$2: org.bukkit.util.Vector,x$3: Float,x$4: Float): org.bukkit.entity.Arrow = sys error "todo"
-    def spawnCreature(x$1: org.bukkit.Location,x$2: org.bukkit.entity.CreatureType): org.bukkit.entity.LivingEntity = sys error "todo"
+//    def spawnCreature(x$1: org.bukkit.Location,x$2: org.bukkit.entity.CreatureType): org.bukkit.entity.LivingEntity = sys error "todo"
     def spawnCreature(x$1: org.bukkit.Location,x$2: org.bukkit.entity.EntityType): org.bukkit.entity.LivingEntity = sys error "todo"
     def spawnEntity(x$1: org.bukkit.Location,x$2: org.bukkit.entity.EntityType): org.bukkit.entity.Entity = sys error "todo"
     def spawnFallingBlock(x$1: org.bukkit.Location,x$2: Int,x$3: Byte): org.bukkit.entity.FallingBlock = sys error "todo"
@@ -220,102 +240,382 @@ object TestServer { ts =>
     def isGameRule(x$1: String): Boolean = false
     def setAmbientSpawnLimit(x$1: Int): Unit = {}
     def setGameRuleValue(x$1: String,x$2: String): Boolean = false
+
+    def addPluginChunkTicket
+    (x$0: Int, x$1: Int, x$2: org.bukkit.plugin.Plugin): Boolean = ???
+
+    def createExplosion
+    (x$0: Double, x$1: Double, x$2: Double, x$3: Float, x$4: Boolean, x$5: Boolean
+     ,
+     x$6: org.bukkit.entity.Entity): Boolean = ???
+
+    def createExplosion
+    (x$0: org.bukkit.Location, x$1: Float, x$2: Boolean, x$3: Boolean): Boolean = ???
+
+    def createExplosion
+    (x$0: org.bukkit.Location, x$1: Float, x$2: Boolean, x$3: Boolean, x$4:
+    org.bukkit.entity.Entity
+    ): Boolean = ???
+
+    def getBiome(x$0: Int, x$1: Int, x$2: Int): org.bukkit.block.Biome = ???
+
+    def getEnderDragonBattle(): org.bukkit.boss.DragonBattle = ???
+
+    def getForceLoadedChunks(): java.util.Collection[org.bukkit.Chunk] = ???
+
+    def getGameRuleDefault[T](x$0: org.bukkit.GameRule[T]): T = ???
+
+    def getGameRuleValue[T](x$0: org.bukkit.GameRule[T]): T = ???
+
+    def getHighestBlockAt
+    (x$0: Int, x$1: Int, x$2: org.bukkit.HeightMap): org.bukkit.block.Block = ???
+
+    def getHighestBlockAt
+    (x$0: org.bukkit.Location, x$1: org.bukkit.HeightMap): org.bukkit.block.Block = ???
+
+    def getHighestBlockYAt(x$0: Int, x$1: Int, x$2: org.bukkit.HeightMap): Int = ???
+
+    def getHighestBlockYAt(x$0: org.bukkit.Location, x$1: org.bukkit.HeightMap): Int = ???
+
+    def getHumidity(x$0: Int, x$1: Int, x$2: Int): Double = ???
+
+    def getNearbyEntities
+    (x$0: org.bukkit.Location, x$1: Double, x$2: Double, x$3: Double):
+    java.util.Collection[org.bukkit.entity.Entity] = ???
+
+    def getNearbyEntities
+    (x$0: org.bukkit.Location, x$1: Double, x$2: Double, x$3: Double, x$4:
+    java.util.function.Predicate[org.bukkit.entity.Entity]
+    ): java.util.Collection[org.bukkit.entity.Entity] = ???
+
+    def getNearbyEntities
+    (x$0: org.bukkit.util.BoundingBox):
+    java.util.Collection[org.bukkit.entity.Entity] = ???
+
+    def getNearbyEntities
+    (x$0: org.bukkit.util.BoundingBox, x$1:
+    java.util.function.Predicate[org.bukkit.entity.Entity]
+    ): java.util.Collection[org.bukkit.entity.Entity] = ???
+
+    def getPluginChunkTickets
+    (x$0: Int, x$1: Int): java.util.Collection[org.bukkit.plugin.Plugin] = ???
+
+    def getPluginChunkTickets
+    ():
+    java.util.Map[org.bukkit.plugin.Plugin,
+      java.util.Collection[org.bukkit.Chunk]
+    ] = ???
+
+    def getRaids(): java.util.List[org.bukkit.Raid] = ???
+
+    def getTemperature(x$0: Int, x$1: Int, x$2: Int): Double = ???
+
+    def getTicksPerAmbientSpawns(): Long = ???
+
+    def getTicksPerWaterSpawns(): Long = ???
+
+    def getWorldBorder(): org.bukkit.WorldBorder = ???
+
+    def isChunkForceLoaded(x$0: Int, x$1: Int): Boolean = ???
+
+    def isChunkGenerated(x$0: Int, x$1: Int): Boolean = ???
+
+    def isHardcore(): Boolean = ???
+
+    def locateNearestRaid(x$0: org.bukkit.Location, x$1: Int): org.bukkit.Raid = ???
+
+    def locateNearestStructure
+    (x$0: org.bukkit.Location, x$1: org.bukkit.StructureType, x$2: Int, x$3:
+    Boolean
+    ): org.bukkit.Location = ???
+
+    def playSound
+    (x$0: org.bukkit.Location, x$1: String, x$2: Float, x$3: Float): Unit = ???
+
+    def playSound
+    (x$0: org.bukkit.Location, x$1: org.bukkit.Sound, x$2:
+    org.bukkit.SoundCategory
+     , x$3: Float, x$4: Float): Unit = ???
+
+    def playSound
+    (x$0: org.bukkit.Location, x$1: String, x$2: org.bukkit.SoundCategory, x$3:
+    Float
+     , x$4: Float): Unit = ???
+
+    def rayTrace
+    (x$0: org.bukkit.Location, x$1: org.bukkit.util.Vector, x$2: Double, x$3:
+    org.bukkit.FluidCollisionMode
+     , x$4: Boolean, x$5: Double, x$6:
+     java.util.function.Predicate[org.bukkit.entity.Entity]
+    ): org.bukkit.util.RayTraceResult = ???
+
+    def rayTraceBlocks
+    (x$0: org.bukkit.Location, x$1: org.bukkit.util.Vector, x$2: Double):
+    org.bukkit.util.RayTraceResult = ???
+
+    def rayTraceBlocks
+    (x$0: org.bukkit.Location, x$1: org.bukkit.util.Vector, x$2: Double, x$3:
+    org.bukkit.FluidCollisionMode
+    ): org.bukkit.util.RayTraceResult = ???
+
+    def rayTraceBlocks
+    (x$0: org.bukkit.Location, x$1: org.bukkit.util.Vector, x$2: Double, x$3:
+    org.bukkit.FluidCollisionMode
+     , x$4: Boolean): org.bukkit.util.RayTraceResult = ???
+
+    def rayTraceEntities
+    (x$0: org.bukkit.Location, x$1: org.bukkit.util.Vector, x$2: Double):
+    org.bukkit.util.RayTraceResult = ???
+
+    def rayTraceEntities
+    (x$0: org.bukkit.Location, x$1: org.bukkit.util.Vector, x$2: Double, x$3:
+    Double
+    ): org.bukkit.util.RayTraceResult = ???
+
+    def rayTraceEntities
+    (x$0: org.bukkit.Location, x$1: org.bukkit.util.Vector, x$2: Double, x$3:
+    java.util.function.Predicate[org.bukkit.entity.Entity]
+    ): org.bukkit.util.RayTraceResult = ???
+
+    def rayTraceEntities(x$0: org.bukkit.Location, x$1: org.bukkit.util.Vector, x$2: Double, x$3: Double, x$4: java.util.function.Predicate[org.bukkit.entity.Entity]):
+    org.bukkit.util.RayTraceResult = ???
+
+    def removePluginChunkTicket(x$0: Int, x$1: Int, x$2: org.bukkit.plugin.Plugin): Boolean = ???
+
+    def removePluginChunkTickets(x$0: org.bukkit.plugin.Plugin): Unit = ???
+
+    def setBiome(x$0: Int, x$1: Int, x$2: Int, x$3: org.bukkit.block.Biome): Unit = ???
+
+    def setChunkForceLoaded(x$0: Int, x$1: Int, x$2: Boolean): Unit = ???
+
+    def setGameRule[T](x$0: org.bukkit.GameRule[T], x$1: T): Boolean = ???
+
+    def setHardcore(x$0: Boolean): Unit = ???
+
+    def setSpawnLocation(x$0: org.bukkit.Location): Boolean = ???
+
+    def setTicksPerAmbientSpawns(x$0: Int): Unit = ???
+
+    def setTicksPerWaterSpawns(x$0: Int): Unit = ???
+
+    def spawn[T <: org.bukkit.entity.Entity](x$0: org.bukkit.Location, x$1: Class[T], x$2: org.bukkit.util.Consumer[T]): T = ???
+
+    def spawnArrow[T <: org.bukkit.entity.AbstractArrow](x$0: org.bukkit.Location, x$1: org.bukkit.util.Vector, x$2: Float, x$3: Float, x$4: Class[T]): T = ???
+
+    def spawnFallingBlock(x$0: org.bukkit.Location, x$1: org.bukkit.material.MaterialData): org.bukkit.entity.FallingBlock = ???
+
+    def spawnFallingBlock(x$0: org.bukkit.Location, x$1: org.bukkit.block.data.BlockData): org.bukkit.entity.FallingBlock = ???
+
+    def spawnParticle(x$0: org.bukkit.Particle, x$1: org.bukkit.Location, x$2: Int): Unit = ???
+
+    def spawnParticle(x$0: org.bukkit.Particle, x$1: Double, x$2: Double, x$3: Double, x$4: Int): Unit = ???
+
+    def spawnParticle[T](x$0: org.bukkit.Particle, x$1: org.bukkit.Location, x$2: Int, x$3: T): Unit = ???
+
+    def spawnParticle[T](x$0: org.bukkit.Particle, x$1: Double, x$2: Double, x$3: Double, x$4: Int, x$5: T): Unit = ???
+
+    def spawnParticle
+    (x$0: org.bukkit.Particle, x$1: org.bukkit.Location, x$2: Int, x$3: Double,
+     x$4
+     : Double, x$5: Double): Unit = ???
+
+    def spawnParticle
+    (x$0: org.bukkit.Particle, x$1: Double, x$2: Double, x$3: Double, x$4: Int,
+     x$5
+     : Double, x$6: Double, x$7: Double): Unit = ???
+
+    def spawnParticle[T]
+    (x$0: org.bukkit.Particle, x$1: org.bukkit.Location, x$2: Int, x$3: Double,
+     x$4
+     : Double, x$5: Double, x$6: T): Unit = ???
+
+    def spawnParticle[T]
+    (x$0: org.bukkit.Particle, x$1: Double, x$2: Double, x$3: Double, x$4: Int,
+     x$5
+     : Double, x$6: Double, x$7: Double, x$8: T): Unit = ???
+
+    def spawnParticle
+    (x$0: org.bukkit.Particle, x$1: org.bukkit.Location, x$2: Int, x$3: Double,
+     x$4
+     : Double, x$5: Double, x$6: Double): Unit = ???
+
+    def spawnParticle
+    (x$0: org.bukkit.Particle, x$1: Double, x$2: Double, x$3: Double, x$4: Int,
+     x$5
+     : Double, x$6: Double, x$7: Double, x$8: Double): Unit = ???
+
+    def spawnParticle[T]
+    (x$0: org.bukkit.Particle, x$1: org.bukkit.Location, x$2: Int, x$3: Double,
+     x$4
+     : Double, x$5: Double, x$6: Double, x$7: T): Unit = ???
+
+    def spawnParticle[T]
+    (x$0: org.bukkit.Particle, x$1: Double, x$2: Double, x$3: Double, x$4: Int,
+     x$5
+     : Double, x$6: Double, x$7: Double, x$8: Double, x$9: T): Unit = ???
+
+    def spawnParticle[T]
+    (x$0: org.bukkit.Particle, x$1: org.bukkit.Location, x$2: Int, x$3: Double,
+     x$4
+     : Double, x$5: Double, x$6: Double, x$7: T, x$8: Boolean): Unit = ???
+
+    def spawnParticle[T]
+    (x$0: org.bukkit.Particle, x$1: Double, x$2: Double, x$3: Double, x$4: Int,
+     x$5
+     : Double, x$6: Double, x$7: Double, x$8: Double, x$9: T, x$10: Boolean):
+    Unit = ???
+
   }
 
   /**
    * Creates a Server object
    */
   val server: Server = new Server {
-    def getListeningPluginChannels: java.util.Set[String] = sys error "todo"
-    def sendPluginMessage(x$1: org.bukkit.plugin.Plugin,x$2: String,x$3: Array[Byte]): Unit = sys error "todo"
+    override def getListeningPluginChannels: java.util.Set[String] = sys error "todo"
+    override def sendPluginMessage(x$1: org.bukkit.plugin.Plugin,x$2: String,x$3: Array[Byte]): Unit = sys error "todo"
     // Members declared in org.bukkit.Server
-    def addRecipe(x$1: org.bukkit.inventory.Recipe): Boolean = sys error "todo"
-    def banIP(x$1: String): Unit = sys error "todo"
-    def broadcast(x$1: String,x$2: String): Int = sys error "todo"
-    def broadcastMessage(x$1: String): Int = sys error "todo"
-    def clearRecipes: Unit = sys error "todo"
-    def configureDbConfig(x$1: com.avaje.ebean.config.ServerConfig): Unit = sys error "todo"
-    def createInventory(x$1: org.bukkit.inventory.InventoryHolder,x$2: Int,x$3: String): org.bukkit.inventory.Inventory = sys error "todo"
-    def createInventory(x$1: org.bukkit.inventory.InventoryHolder,x$2: Int): org.bukkit.inventory.Inventory = sys error "todo"
-    def createInventory(x$1: org.bukkit.inventory.InventoryHolder,x$2: org.bukkit.event.inventory.InventoryType): org.bukkit.inventory.Inventory = sys error "todo"
-    def createMap(x$1: org.bukkit.World): org.bukkit.map.MapView = sys error "todo"
-    def createWorld(x$1: org.bukkit.WorldCreator): org.bukkit.World = sys error "todo"
-    def dispatchCommand(x$1: org.bukkit.command.CommandSender,x$2: String): Boolean = sys error "todo"
-    def getAllowEnd: Boolean = sys error "todo"
-    def getAllowFlight: Boolean = sys error "todo"
-    def getAllowNether: Boolean = sys error "todo"
-    def getAnimalSpawnLimit: Int = sys error "todo"
-    def getBannedPlayers: java.util.Set[org.bukkit.OfflinePlayer] = sys error "todo"
-    def getBukkitVersion: String = sys error "todo"
-    def getCommandAliases: java.util.Map[String,Array[String]] = sys error "todo"
-    def getConnectionThrottle: Long = sys error "todo"
-    def getConsoleSender: org.bukkit.command.ConsoleCommandSender = sys error "todo"
-    def getDefaultGameMode: org.bukkit.GameMode = sys error "todo"
-    def getGenerateStructures: Boolean = sys error "todo"
-    def getHelpMap: org.bukkit.help.HelpMap = sys error "todo"
-    def getIPBans: java.util.Set[String] = sys error "todo"
-    def getIp: String = sys error "todo"
-    def getLogger: java.util.logging.Logger = sys error "todo"
-    def getMap(x$1: Short): org.bukkit.map.MapView = sys error "todo"
-    def getMaxPlayers: Int = sys error "todo"
-    def getMessenger: org.bukkit.plugin.messaging.Messenger = sys error "todo"
-    def getMonsterSpawnLimit: Int = sys error "todo"
-    def getMotd: String = "yo dawgs"
-    def getName: String = "test-server"
-    def getOfflinePlayer(x$1: String): org.bukkit.OfflinePlayer = sys error "todo"
-    def getOfflinePlayers: Array[org.bukkit.OfflinePlayer] = sys error "todo"
-    def getOnlineMode: Boolean = false
-    def getOnlinePlayers: Array[org.bukkit.entity.Player] = Array(player)
-    def getOperators: java.util.Set[org.bukkit.OfflinePlayer] = new java.util.HashSet[org.bukkit.OfflinePlayer](){ add(player) }
-    def getPlayer(name: String): org.bukkit.entity.Player = if (name==player.name) player else sys.error("no player: " + name)
-    def getPlayerExact(x$1: String): org.bukkit.entity.Player = getPlayer(x$1)
-    def getPluginCommand(x$1: String): org.bukkit.command.PluginCommand = sys error "todo"
-    def getPluginManager: org.bukkit.plugin.PluginManager = sys error "todo"
-    def getPort: Int = sys error "todo"
-    def getRecipesFor(x$1: org.bukkit.inventory.ItemStack): java.util.List[org.bukkit.inventory.Recipe] = sys error "todo"
-    def getScheduler: org.bukkit.scheduler.BukkitScheduler = sys error "todo"
-    def getServerId: String = sys error "todo"
-    def getServerName: String = sys error "todo"
-    def getServicesManager: org.bukkit.plugin.ServicesManager = sys error "todo"
-    def getSpawnRadius: Int = sys error "todo"
-    def getTicksPerAnimalSpawns: Int = sys error "todo"
-    def getTicksPerMonsterSpawns: Int = sys error "todo"
-    def getUpdateFolder: String = sys error "todo"
-    def getUpdateFolderFile: java.io.File = sys error "todo"
-    def getVersion: String = sys error "todo"
-    def getViewDistance: Int = sys error "todo"
-    def getWarningState: org.bukkit.Warning.WarningState = sys error "todo"
-    def getWaterAnimalSpawnLimit: Int = sys error "todo"
-    def getWhitelistedPlayers: java.util.Set[org.bukkit.OfflinePlayer] = sys error "todo"
-    def getWorld(x$1: java.util.UUID): org.bukkit.World = world
-    def getWorld(x$1: String): org.bukkit.World = world
-    def getWorldContainer: java.io.File = sys error "todo"
-    def getWorldType: String = sys error "todo"
-    def getWorlds: java.util.List[org.bukkit.World] = new util.LinkedList[World](){ add(world) }
-    def hasWhitelist: Boolean = sys error "todo"
-    def isPrimaryThread: Boolean = sys error "todo"
-    def matchPlayer(x$1: String): java.util.List[org.bukkit.entity.Player] = sys error "todo"
-    def recipeIterator: java.util.Iterator[org.bukkit.inventory.Recipe] = sys error "todo"
-    def reload: Unit = sys error "todo"
-    def reloadWhitelist: Unit = sys error "todo"
-    def resetRecipes: Unit = sys error "todo"
-    def savePlayers: Unit = sys error "todo"
-    def setDefaultGameMode(x$1: org.bukkit.GameMode): Unit = sys error "todo"
-    def setSpawnRadius(x$1: Int): Unit = sys error "todo"
-    def setWhitelist(x$1: Boolean): Unit = sys error "todo"
-    def shutdown: Unit = sys error "todo"
-    def unbanIP(x$1: String): Unit = sys error "todo"
-    def unloadWorld(x$1: org.bukkit.World,x$2: Boolean): Boolean = sys error "todo"
-    def unloadWorld(x$1: String,x$2: Boolean): Boolean = sys error "todo"
-    def useExactLoginLocation: Boolean = sys error "todo"
-    def getAmbientSpawnLimit: Int = 0
-    def isHardcore: Boolean = false
-    def getItemFactory: org.bukkit.inventory.ItemFactory = sys error "todo"
-    def getShutdownMessage: String = "shutting down test server"
-    def getScoreboardManager: org.bukkit.scoreboard.ScoreboardManager = sys error "todo"
-    def getServerIcon(): org.bukkit.util.CachedServerIcon = ???
-    def loadServerIcon(x$1: java.awt.image.BufferedImage): org.bukkit.util.CachedServerIcon = ???
-    def loadServerIcon(x$1: java.io.File): org.bukkit.util.CachedServerIcon = ???
+    override def addRecipe(x$1: org.bukkit.inventory.Recipe): Boolean = sys error "todo"
+    override def banIP(x$1: String): Unit = sys error "todo"
+    override def broadcast(x$1: String,x$2: String): Int = sys error "todo"
+    override def broadcastMessage(x$1: String): Int = sys error "todo"
+    override def clearRecipes: Unit = sys error "todo"
+    override def createInventory(x$1: org.bukkit.inventory.InventoryHolder,x$2: Int,x$3: String): org.bukkit.inventory.Inventory = sys error "todo"
+    override def createInventory(x$1: org.bukkit.inventory.InventoryHolder,x$2: Int): org.bukkit.inventory.Inventory = sys error "todo"
+    override def createInventory(x$1: org.bukkit.inventory.InventoryHolder,x$2: org.bukkit.event.inventory.InventoryType): org.bukkit.inventory.Inventory = sys error "todo"
+    override def createMap(x$1: org.bukkit.World): org.bukkit.map.MapView = sys error "todo"
+    override def createWorld(x$1: org.bukkit.WorldCreator): org.bukkit.World = sys error "todo"
+    override def dispatchCommand(x$1: org.bukkit.command.CommandSender,x$2: String): Boolean = sys error "todo"
+    override def getAllowEnd: Boolean = sys error "todo"
+    override def getAllowFlight: Boolean = sys error "todo"
+    override def getAllowNether: Boolean = sys error "todo"
+    override def getAnimalSpawnLimit: Int = sys error "todo"
+    override def getBannedPlayers: java.util.Set[org.bukkit.OfflinePlayer] = sys error "todo"
+    override def getBukkitVersion: String = sys error "todo"
+    override def getCommandAliases: java.util.Map[String,Array[String]] = sys error "todo"
+    override def getConnectionThrottle: Long = sys error "todo"
+    override def getConsoleSender: org.bukkit.command.ConsoleCommandSender = sys error "todo"
+    override def getDefaultGameMode: org.bukkit.GameMode = sys error "todo"
+    override def getGenerateStructures: Boolean = sys error "todo"
+    override def getHelpMap: org.bukkit.help.HelpMap = sys error "todo"
+    override def getIPBans: java.util.Set[String] = sys error "todo"
+    override def getIp: String = sys error "todo"
+    override def getLogger: java.util.logging.Logger = sys error "todo"
+    override def getMaxPlayers: Int = sys error "todo"
+    override def getMessenger: org.bukkit.plugin.messaging.Messenger = sys error "todo"
+    override def getMonsterSpawnLimit: Int = sys error "todo"
+    override def getMotd: String = "yo dawgs"
+    override def getName: String = "test-server"
+    override def getOfflinePlayer(x$1: String): org.bukkit.OfflinePlayer = sys error "todo"
+    override def getOfflinePlayers: Array[org.bukkit.OfflinePlayer] = sys error "todo"
+    override def getOnlineMode: Boolean = false
+    override def getOperators: java.util.Set[org.bukkit.OfflinePlayer] = new java.util.HashSet[org.bukkit.OfflinePlayer](){ add(player) }
+    override def getPlayer(name: String): org.bukkit.entity.Player = if (name==player.name) player else sys.error("no player: " + name)
+    override def getPlayerExact(x$1: String): org.bukkit.entity.Player = getPlayer(x$1)
+    override def getPluginCommand(x$1: String): org.bukkit.command.PluginCommand = sys error "todo"
+    override def getPluginManager: org.bukkit.plugin.PluginManager = sys error "todo"
+    override def getPort: Int = sys error "todo"
+    override def getRecipesFor(x$1: org.bukkit.inventory.ItemStack): java.util.List[org.bukkit.inventory.Recipe] = sys error "todo"
+    override def getScheduler: org.bukkit.scheduler.BukkitScheduler = sys error "todo"
+    override def getServicesManager: org.bukkit.plugin.ServicesManager = sys error "todo"
+    override def getSpawnRadius: Int = sys error "todo"
+    override def getTicksPerAnimalSpawns: Int = sys error "todo"
+    override def getTicksPerMonsterSpawns: Int = sys error "todo"
+    override def getUpdateFolder: String = sys error "todo"
+    override def getUpdateFolderFile: java.io.File = sys error "todo"
+    override def getVersion: String = sys error "todo"
+    override def getViewDistance: Int = sys error "todo"
+    override def getWarningState: org.bukkit.Warning.WarningState = sys error "todo"
+    override def getWaterAnimalSpawnLimit: Int = sys error "todo"
+    override def getWhitelistedPlayers: java.util.Set[org.bukkit.OfflinePlayer] = sys error "todo"
+    override def getWorld(x$1: java.util.UUID): org.bukkit.World = world
+    override def getWorld(x$1: String): org.bukkit.World = world
+    override def getWorldContainer: java.io.File = sys error "todo"
+    override def getWorldType: String = sys error "todo"
+    override def getWorlds: java.util.List[org.bukkit.World] = new util.LinkedList[World](){ add(world) }
+    override def hasWhitelist: Boolean = sys error "todo"
+    override def isPrimaryThread: Boolean = sys error "todo"
+    override def matchPlayer(x$1: String): java.util.List[org.bukkit.entity.Player] = sys error "todo"
+    override def recipeIterator: java.util.Iterator[org.bukkit.inventory.Recipe] = sys error "todo"
+    override def reload: Unit = sys error "todo"
+    override def reloadWhitelist: Unit = sys error "todo"
+    override def resetRecipes: Unit = sys error "todo"
+    override def savePlayers: Unit = sys error "todo"
+    override def setDefaultGameMode(x$1: org.bukkit.GameMode): Unit = sys error "todo"
+    override def setSpawnRadius(x$1: Int): Unit = sys error "todo"
+    override def setWhitelist(x$1: Boolean): Unit = sys error "todo"
+    override def shutdown: Unit = sys error "todo"
+    override def unbanIP(x$1: String): Unit = sys error "todo"
+    override def unloadWorld(x$1: org.bukkit.World,x$2: Boolean): Boolean = sys error "todo"
+    override def unloadWorld(x$1: String,x$2: Boolean): Boolean = sys error "todo"
+    override def getAmbientSpawnLimit: Int = 0
+    override def isHardcore: Boolean = false
+    override def getItemFactory: org.bukkit.inventory.ItemFactory = sys error "todo"
+    override def getShutdownMessage: String = "shutting down test server"
+    override def getScoreboardManager: org.bukkit.scoreboard.ScoreboardManager = sys error "todo"
+    override def getServerIcon(): org.bukkit.util.CachedServerIcon = ???
+    override def loadServerIcon(x$1: java.awt.image.BufferedImage): org.bukkit.util.CachedServerIcon = ???
+    override def loadServerIcon(x$1: java.io.File): org.bukkit.util.CachedServerIcon = ???
+
+    def advancementIterator
+  (): java.util.Iterator[org.bukkit.advancement.Advancement] = ???
+    def createBlockData(x$0: org.bukkit.Material): org.bukkit.block.data.BlockData = ???
+    def createBlockData
+  (x$0: org.bukkit.Material, x$1:
+      java.util.function.Consumer[org.bukkit.block.data.BlockData]
+    ): org.bukkit.block.data.BlockData = ???
+    def createBlockData(x$0: String): org.bukkit.block.data.BlockData = ???
+    def createBlockData
+  (x$0: org.bukkit.Material, x$1: String): org.bukkit.block.data.BlockData = ???
+    def createBossBar
+  (x$0: String, x$1: org.bukkit.boss.BarColor, x$2: org.bukkit.boss.BarStyle,
+      x$3
+    : Array[? <: org.bukkit.boss.BarFlag]): org.bukkit.boss.BossBar = ???
+    def createBossBar
+  (x$0: org.bukkit.NamespacedKey, x$1: String, x$2: org.bukkit.boss.BarColor,
+      x$3
+    : org.bukkit.boss.BarStyle, x$4: Array[? <: org.bukkit.boss.BarFlag]):
+    org.bukkit.boss.KeyedBossBar = ???
+    def createExplorerMap
+  (x$0: org.bukkit.World, x$1: org.bukkit.Location, x$2:
+      org.bukkit.StructureType
+    ): org.bukkit.inventory.ItemStack = ???
+    def createExplorerMap
+  (x$0: org.bukkit.World, x$1: org.bukkit.Location, x$2:
+      org.bukkit.StructureType
+    , x$3: Int, x$4: Boolean): org.bukkit.inventory.ItemStack = ???
+    def createInventory
+  (x$0: org.bukkit.inventory.InventoryHolder, x$1:
+      org.bukkit.event.inventory.InventoryType
+    , x$2: String): org.bukkit.inventory.Inventory = ???
+    def createMerchant(x$0: String): org.bukkit.inventory.Merchant = ???
+    def getAdvancement
+  (x$0: org.bukkit.NamespacedKey): org.bukkit.advancement.Advancement = ???
+    def getBossBar(x$0: org.bukkit.NamespacedKey): org.bukkit.boss.KeyedBossBar = ???
+    def getBossBars(): java.util.Iterator[org.bukkit.boss.KeyedBossBar] = ???
+    def getEntity(x$0: java.util.UUID): org.bukkit.entity.Entity = ???
+    def getIdleTimeout(): Int = ???
+    def getLootTable(x$0: org.bukkit.NamespacedKey): org.bukkit.loot.LootTable = ???
+    def getMap(x$0: Int): org.bukkit.map.MapView = ???
+    def getOfflinePlayer(x$0: java.util.UUID): org.bukkit.OfflinePlayer = ???
+    def getPlayer(x$0: java.util.UUID): org.bukkit.entity.Player = ???
+    def getTag[T <: org.bukkit.Keyed]
+    (x$0: String, x$1: org.bukkit.NamespacedKey, x$2: Class[T]):
+      org.bukkit.Tag[T] = ???
+    def getTicksPerAmbientSpawns(): Int = ???
+    def getTicksPerWaterSpawns(): Int = ???
+    def getUnsafe(): org.bukkit.UnsafeValues = ???
+    def reloadData(): Unit = ???
+    def removeBossBar(x$0: org.bukkit.NamespacedKey): Boolean = ???
+    def removeRecipe(x$0: org.bukkit.NamespacedKey): Boolean = ???
+    def selectEntities
+  (x$0: org.bukkit.command.CommandSender, x$1: String):
+    java.util.List[org.bukkit.entity.Entity] = ???
+    def setIdleTimeout(x$0: Int): Unit = ???
+
+    def getOnlinePlayers(): java.util.Collection[? <: org.bukkit.entity.Player] = ???
+    def getTags[T <: org.bukkit.Keyed](x$0: String, x$1: Class[T]) = ???
+    def createChunkData(x$0: org.bukkit.World) = ???
+    def getBanList(x$0: org.bukkit.BanList.Type) = ???
   }
 
   /**
@@ -433,7 +733,6 @@ object TestServer { ts =>
     def getUniqueId: java.util.UUID = sys error "todo"
     def hasLineOfSight(p1: Entity): Boolean = false
     def openWorkbench(p1: Location, p2: Boolean): InventoryView = sys error "todo"
-    def awardAchievement(p1: Achievement): Unit = {}
     def abandonConversation(p1: Conversation, p2: ConversationAbandonedEvent): Unit = {}
     def abandonConversation(p1: Conversation): Unit = {}
     def leaveVehicle: Boolean = false
@@ -570,5 +869,209 @@ object TestServer { ts =>
     def setHealthScaled(x$1: Boolean): Unit = ???
     def setResourcePack(x$1: String): Unit = ???
 
+    // Members declared in org.bukkit.attribute.Attributable
+    def getAttribute
+  (x$0: org.bukkit.attribute.Attribute): org.bukkit.attribute.AttributeInstance = ???
+    // Members declared in org.bukkit.entity.Damageable
+    def getAbsorptionAmount(): Double = ???
+    def setAbsorptionAmount(x$0: Double): Unit = ???
+    // Members declared in org.bukkit.entity.Entity
+    def addPassenger(x$0: org.bukkit.entity.Entity): Boolean = ???
+    def addScoreboardTag(x$0: String): Boolean = ???
+    def getBoundingBox(): org.bukkit.util.BoundingBox = ???
+    def getFacing(): org.bukkit.block.BlockFace = ???
+    def getHeight(): Double = ???
+    def getPassengers(): java.util.List[org.bukkit.entity.Entity] = ???
+    def getPistonMoveReaction(): org.bukkit.block.PistonMoveReaction = ???
+    def getPortalCooldown(): Int = ???
+    def getPose(): org.bukkit.entity.Pose = ???
+    def getScoreboardTags(): java.util.Set[String] = ???
+    def getWidth(): Double = ???
+    def hasGravity(): Boolean = ???
+    def isGlowing(): Boolean = ???
+    def isInvulnerable(): Boolean = ???
+    def isPersistent(): Boolean = ???
+    def isSilent(): Boolean = ???
+    def removePassenger(x$0: org.bukkit.entity.Entity): Boolean = ???
+    def removeScoreboardTag(x$0: String): Boolean = ???
+    def setGlowing(x$0: Boolean): Unit = ???
+    def setGravity(x$0: Boolean): Unit = ???
+    def setInvulnerable(x$0: Boolean): Unit = ???
+    def setPersistent(x$0: Boolean): Unit = ???
+    def setPortalCooldown(x$0: Int): Unit = ???
+    def setRotation(x$0: Float, x$1: Float): Unit = ???
+    def setSilent(x$0: Boolean): Unit = ???
+    // Members declared in org.bukkit.entity.HumanEntity
+    def discoverRecipe(x$0: org.bukkit.NamespacedKey): Boolean = ???
+    def discoverRecipes(x$0: java.util.Collection[org.bukkit.NamespacedKey]): Int = ???
+    def getAttackCooldown(): Float = ???
+    def getBedLocation(): org.bukkit.Location = ???
+    def getCooldown(x$0: org.bukkit.Material): Int = ???
+    def getMainHand(): org.bukkit.inventory.MainHand = ???
+    def getShoulderEntityLeft(): org.bukkit.entity.Entity = ???
+    def getShoulderEntityRight(): org.bukkit.entity.Entity = ???
+    def hasCooldown(x$0: org.bukkit.Material): Boolean = ???
+    def isHandRaised(): Boolean = ???
+    def openMerchant
+  (x$0: org.bukkit.entity.Villager, x$1: Boolean):
+    org.bukkit.inventory.InventoryView = ???
+    def openMerchant
+  (x$0: org.bukkit.inventory.Merchant, x$1: Boolean):
+    org.bukkit.inventory.InventoryView = ???
+    def setCooldown(x$0: org.bukkit.Material, x$1: Int): Unit = ???
+    def setShoulderEntityLeft(x$0: org.bukkit.entity.Entity): Unit = ???
+    def setShoulderEntityRight(x$0: org.bukkit.entity.Entity): Unit = ???
+    def sleep(x$0: org.bukkit.Location, x$1: Boolean): Boolean = ???
+    def undiscoverRecipe(x$0: org.bukkit.NamespacedKey): Boolean = ???
+    def undiscoverRecipes(x$0: java.util.Collection[org.bukkit.NamespacedKey]): Int = ???
+    def wakeup(x$0: Boolean): Unit = ???
+    // Members declared in org.bukkit.entity.LivingEntity
+    def attack(x$0: org.bukkit.entity.Entity): Unit = ???
+    def getCollidableExemptions(): java.util.Set[java.util.UUID] = ???
+    def getLastTwoTargetBlocks
+  (x$0: java.util.Set[org.bukkit.Material], x$1: Int):
+    java.util.List[org.bukkit.block.Block] = ???
+    def getLineOfSight
+  (x$0: java.util.Set[org.bukkit.Material], x$1: Int):
+    java.util.List[org.bukkit.block.Block] = ???
+    def getMemory[T](x$0: org.bukkit.entity.memory.MemoryKey[T]): T = ???
+    def getPotionEffect
+  (x$0: org.bukkit.potion.PotionEffectType): org.bukkit.potion.PotionEffect = ???
+    def getTargetBlock
+  (x$0: java.util.Set[org.bukkit.Material], x$1: Int): org.bukkit.block.Block = ???
+    def getTargetBlockExact(x$0: Int): org.bukkit.block.Block = ???
+    def getTargetBlockExact
+  (x$0: Int, x$1: org.bukkit.FluidCollisionMode): org.bukkit.block.Block = ???
+    def hasAI(): Boolean = ???
+    def isCollidable(): Boolean = ???
+    def isGliding(): Boolean = ???
+    def isRiptiding(): Boolean = ???
+    def isSwimming(): Boolean = ???
+    def rayTraceBlocks(x$0: Double): org.bukkit.util.RayTraceResult = ???
+    def rayTraceBlocks
+  (x$0: Double, x$1: org.bukkit.FluidCollisionMode):
+    org.bukkit.util.RayTraceResult = ???
+    def setAI(x$0: Boolean): Unit = ???
+    def setCollidable(x$0: Boolean): Unit = ???
+    def setGliding(x$0: Boolean): Unit = ???
+    def setMemory[T](x$0: org.bukkit.entity.memory.MemoryKey[T], x$1: T): Unit = ???
+    def setSwimming(x$0: Boolean): Unit = ???
+    def swingMainHand(): Unit = ???
+    def swingOffHand(): Unit = ???
+    // Members declared in org.bukkit.OfflinePlayer
+    def decrementStatistic(x$0: org.bukkit.Statistic): Unit = ???
+    def decrementStatistic(x$0: org.bukkit.Statistic, x$1: Int): Unit = ???
+    def decrementStatistic
+  (x$0: org.bukkit.Statistic, x$1: org.bukkit.Material): Unit = ???
+    def decrementStatistic
+  (x$0: org.bukkit.Statistic, x$1: org.bukkit.Material, x$2: Int): Unit = ???
+    def decrementStatistic
+  (x$0: org.bukkit.Statistic, x$1: org.bukkit.entity.EntityType): Unit = ???
+    def decrementStatistic
+  (x$0: org.bukkit.Statistic, x$1: org.bukkit.entity.EntityType, x$2: Int): Unit = ???
+    def getStatistic(x$0: org.bukkit.Statistic): Int = ???
+    def getStatistic(x$0: org.bukkit.Statistic, x$1: org.bukkit.Material): Int = ???
+    def getStatistic
+  (x$0: org.bukkit.Statistic, x$1: org.bukkit.entity.EntityType): Int = ???
+    def incrementStatistic
+  (x$0: org.bukkit.Statistic, x$1: org.bukkit.entity.EntityType): Unit = ???
+    def incrementStatistic
+  (x$0: org.bukkit.Statistic, x$1: org.bukkit.entity.EntityType, x$2: Int): Unit = ???
+    def setStatistic(x$0: org.bukkit.Statistic, x$1: Int): Unit = ???
+    def setStatistic
+  (x$0: org.bukkit.Statistic, x$1: org.bukkit.Material, x$2: Int): Unit = ???
+    def setStatistic
+  (x$0: org.bukkit.Statistic, x$1: org.bukkit.entity.EntityType, x$2: Int): Unit = ???
+    // Members declared in org.bukkit.persistence.PersistentDataHolder
+    def getPersistentDataContainer(): org.bukkit.persistence.PersistentDataContainer = ???
+    // Members declared in org.bukkit.entity.Player
+    def getAdvancementProgress
+  (x$0: org.bukkit.advancement.Advancement):
+    org.bukkit.advancement.AdvancementProgress = ???
+    def getClientViewDistance(): Int = ???
+    def getLocale(): String = ???
+    def getPlayerListFooter(): String = ???
+    def getPlayerListHeader(): String = ???
+    def getSpectatorTarget(): org.bukkit.entity.Entity = ???
+    def hidePlayer
+  (x$0: org.bukkit.plugin.Plugin, x$1: org.bukkit.entity.Player): Unit = ???
+    def openBook(x$0: org.bukkit.inventory.ItemStack): Unit = ???
+    def playSound
+  (x$0: org.bukkit.Location, x$1: org.bukkit.Sound, x$2:
+      org.bukkit.SoundCategory
+    , x$3: Float, x$4: Float): Unit = ???
+    def playSound
+  (x$0: org.bukkit.Location, x$1: String, x$2: org.bukkit.SoundCategory, x$3:
+      Float
+    , x$4: Float): Unit = ???
+    def resetTitle(): Unit = ???
+    def sendBlockChange
+  (x$0: org.bukkit.Location, x$1: org.bukkit.block.data.BlockData): Unit = ???
+    def sendExperienceChange(x$0: Float): Unit = ???
+    def sendExperienceChange(x$0: Float, x$1: Int): Unit = ???
+    def sendSignChange(x$0: org.bukkit.Location, x$1: Array[String]): Unit = ???
+    def sendSignChange
+  (x$0: org.bukkit.Location, x$1: Array[String], x$2: org.bukkit.DyeColor): Unit = ???
+    def sendTitle(x$0: String, x$1: String): Unit = ???
+    def sendTitle(x$0: String, x$1: String, x$2: Int, x$3: Int, x$4: Int): Unit = ???
+    def setPlayerListFooter(x$0: String): Unit = ???
+    def setPlayerListHeader(x$0: String): Unit = ???
+    def setPlayerListHeaderFooter(x$0: String, x$1: String): Unit = ???
+    def setResourcePack(x$0: String, x$1: Array[Byte]): Unit = ???
+    def setSpectatorTarget(x$0: org.bukkit.entity.Entity): Unit = ???
+    def showPlayer
+  (x$0: org.bukkit.plugin.Plugin, x$1: org.bukkit.entity.Player): Unit = ???
+    def spawnParticle
+  (x$0: org.bukkit.Particle, x$1: org.bukkit.Location, x$2: Int): Unit = ???
+    def spawnParticle
+  (x$0: org.bukkit.Particle, x$1: Double, x$2: Double, x$3: Double, x$4: Int):
+    Unit = ???
+    def spawnParticle[T]
+      (x$0: org.bukkit.Particle, x$1: org.bukkit.Location, x$2: Int, x$3: T): Unit = ???
+    def spawnParticle[T]
+      (x$0: org.bukkit.Particle, x$1: Double, x$2: Double, x$3: Double, x$4: Int,
+        x$5
+      : T): Unit = ???
+    def spawnParticle
+  (x$0: org.bukkit.Particle, x$1: org.bukkit.Location, x$2: Int, x$3: Double,
+      x$4
+    : Double, x$5: Double): Unit = ???
+    def spawnParticle
+  (x$0: org.bukkit.Particle, x$1: Double, x$2: Double, x$3: Double, x$4: Int,
+      x$5
+    : Double, x$6: Double, x$7: Double): Unit = ???
+    def spawnParticle[T]
+      (x$0: org.bukkit.Particle, x$1: org.bukkit.Location, x$2: Int, x$3: Double,
+        x$4
+      : Double, x$5: Double, x$6: T): Unit = ???
+    def spawnParticle[T]
+      (x$0: org.bukkit.Particle, x$1: Double, x$2: Double, x$3: Double, x$4: Int,
+        x$5
+      : Double, x$6: Double, x$7: Double, x$8: T): Unit = ???
+    def spawnParticle
+  (x$0: org.bukkit.Particle, x$1: org.bukkit.Location, x$2: Int, x$3: Double,
+      x$4
+    : Double, x$5: Double, x$6: Double): Unit = ???
+    def spawnParticle
+  (x$0: org.bukkit.Particle, x$1: Double, x$2: Double, x$3: Double, x$4: Int,
+      x$5
+    : Double, x$6: Double, x$7: Double, x$8: Double): Unit = ???
+    def spawnParticle[T]
+      (x$0: org.bukkit.Particle, x$1: org.bukkit.Location, x$2: Int, x$3: Double,
+        x$4
+      : Double, x$5: Double, x$6: Double, x$7: T): Unit = ???
+    def spawnParticle[T]
+      (x$0: org.bukkit.Particle, x$1: Double, x$2: Double, x$3: Double, x$4: Int,
+        x$5
+      : Double, x$6: Double, x$7: Double, x$8: Double, x$9: T): Unit = ???
+    def stopSound(x$0: org.bukkit.Sound): Unit = ???
+    def stopSound(x$0: String): Unit = ???
+    def stopSound(x$0: org.bukkit.Sound, x$1: org.bukkit.SoundCategory): Unit = ???
+    def stopSound(x$0: String, x$1: org.bukkit.SoundCategory): Unit = ???
+    def updateCommands(): Unit = ???
+    // Members declared in org.bukkit.projectiles.ProjectileSource
+    def launchProjectile[T <: org.bukkit.entity.Projectile]
+    (x$0: Class[? <: T], x$1: org.bukkit.util.Vector): T = ???
+    
   }
 }

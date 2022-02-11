@@ -22,8 +22,12 @@ object MinecraftParsersTests extends Properties("MinecraftParserTests") with Tes
     (entity(e.name).get ?= e) && (entity(e.toString.toLowerCase).get ?= e)
   }
 
-  test("(material or eof)(gold_ore)") {
-    (material or eof)("gold_ore").get.left.get ?= GOLD_ORE
+  test("(material or eof)(GOLD_ORE)") {
+    (material or eof)("GOLD_ORE").get.swap.getOrElse(sys.error("GOLD_ORE not found")) ?= GOLD_ORE
+  }
+
+  test("(material or eof)(STONE)") {
+    (material or eof)("STONE").get.swap.getOrElse(sys.error("STONE not found")) ?= STONE
   }
 
   test("(material or eof)(Nil)") {
